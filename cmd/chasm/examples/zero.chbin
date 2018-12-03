@@ -1,0 +1,5 @@
+{
+  "name": "cmd/chasm/examples/zero.chasm",
+  "comment": "returns numeric 0 in all cases",
+  "data": "oAAgiA=="
+}

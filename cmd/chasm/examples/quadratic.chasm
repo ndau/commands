@@ -1,0 +1,26 @@
+; Demonstration code for chasm assembler
+; This program pushes a, b, c,
+; and x on the stack and calculates
+; a*x*x + b*x + c
+
+handler EVENT_DEFAULT {
+    A = 3
+    B = 5
+    C = 7
+    X = 21
+
+    push A
+    push B
+    push C
+    push X                          ; ABCX
+    roll 3                          ; BCXA
+    pick 1                          ; BCXAX
+    dup                             ; BCXAXX
+    mul                             ; BCXAR
+    mul                             ; BCXR
+    roll 3                          ; CXRB
+    roll 2                          ; CRBX
+    mul                             ; CRS
+    add                             ; CR
+    add                             ; R
+}

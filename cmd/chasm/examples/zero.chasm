@@ -1,0 +1,3 @@
+handler EVENT_DEFAULT {
+    zero
+}

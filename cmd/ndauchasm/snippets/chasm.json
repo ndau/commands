@@ -1,0 +1,128 @@
+{
+    "insert if structure": {
+        "prefix": "ifelse",
+        "body": [
+            "if${z}",
+            "    ${body}",
+            "else",
+            "    ${otherwise}",
+            "endif",
+            "$0"
+        ],
+        "description": "insert if structure"
+    },
+    "wchoice": {
+        "prefix": "wchoice",
+        "body": [
+            "wchoice $0"
+        ],
+        "description": "insert wchoice"
+    },
+    "tuck": {
+        "prefix": "tuck",
+        "body": [
+            "tuck ${n}",
+            "$0"
+        ],
+        "description": "insert tuck"
+    },
+    "sort": {
+        "prefix": "sort",
+        "body": [
+            "sort ${n}",
+            "$0"
+        ],
+        "description": "insert sort"
+    },
+    "roll": {
+        "prefix": "roll",
+        "body": [
+            "roll ${n}",
+            "$0"
+        ],
+        "description": "insert roll"
+    },
+    "pick": {
+        "prefix": "pick",
+        "body": [
+            "pick ${n}",
+            "$0"
+        ],
+        "description": "insert pick"
+    },
+    "isfield": {
+        "prefix": "isfield",
+        "body": [
+            "isfield ${n}",
+            "$0"
+        ],
+        "description": "insert isfield"
+    },
+    "fieldl": {
+        "prefix": "fieldl",
+        "body": [
+            "fieldl ${n}",
+            "$0"
+        ],
+        "description": "insert fieldl"
+    },
+    "field": {
+        "prefix": "field",
+        "body": [
+            "field ${n}",
+            "$0"
+        ],
+        "description": "insert field"
+    },
+    "lookup": {
+        "prefix": "lookup",
+        "body": [
+            "lookup ${functionid}",
+            "$0"
+        ],
+        "description": "insert lookup"
+    },
+    "deco": {
+        "prefix": "deco",
+        "body": [
+            "deco ${functionid} ${fieldid}",
+            "$0"
+        ],
+        "description": "insert deco"
+    },
+    "call": {
+        "prefix": "call",
+        "body": [
+            "call ${functionid}",
+            "$0"
+        ],
+        "description": "insert call"
+    },
+    "def": {
+        "prefix": "def",
+        "body": [
+            "def ${functionid} ${numargs}",
+            "    $0",
+            "enddef"
+        ],
+        "description": "insert def"
+    },
+    "func": {
+        "prefix": "func",
+        "body": [
+            "func ${functionid} ${numargs} {",
+            "    $0",
+            "}"
+        ],
+        "description": "insert func"
+    },
+    "handler": {
+        "prefix": "handler",
+        "body": [
+            "handler ${handlerid} {",
+            "    $0",
+            "}"
+        ],
+        "description": "insert handler"
+    }
+}

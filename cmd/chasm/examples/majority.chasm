@@ -1,0 +1,23 @@
+; strict majority calculation -- requires more than half of all keys to sign
+; and forbids ever changing the script again
+; Expected arguments on the stack in order from bottom to top are:
+;    account
+;    transaction
+;    bitmask of which authorized keys were found in the signature list
+
+handler EVENT_DEFAULT {
+                                    ; stack top on right -- sig bitmask on top, then tx, then account
+                                    ;acct tx bm
+    count1s                         ;acct tx nsigs
+    roll 2                          ;tx nsigs acct
+    field ACCT_VALIDATIONKEYS       ;tx nsigs [keys]
+    len                             ;tx nsigs nkeys
+    swap                            ;tx nkeys nsigs
+    dup                             ;tx nkeys nsigs nsigs
+    add                             ;tx nkeys 2*nsigs
+    lt                              ;tx (true if nkeys < 2*nsigs)
+}
+
+handler EVENT_CHANGEVALIDATION {
+    false
+}

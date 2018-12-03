@@ -1,0 +1,67 @@
+handler EVENT_DEFAULT {
+    one                             ; non-zero return code -> invalid
+}
+
+; of the first 9 keys in the sigset, at least 6 must be set
+; Expected arguments on the stack in order from bottom to top are:
+;    account
+;    transaction
+;    64-bit bitmask of which authorized keys were found in the signature list
+handler EVENT_CHANGEVALIDATION {
+                                    ; acct tx bm
+    push 0x1ff                      ; acct tx bm 0b_0001_1111_1111 --> lowest 9 bits set
+    and                             ; acct tx bm_lowest9
+    count1s                         ; acct tx qty_bpc
+    push 6                          ; acct tx qty_bpc 6
+    lt                              ; acct tx (qty_bpc < 6) --> 1 if true, 0 if false.
+                                    ; non-0 return code -> invalid
+                                    ; therefore: succeed when qty_bpc >= 6
+}
+
+handler EVENT_RELEASEFROMENDOWMENT {
+    QUANTA_PER_UNIT = 100000000     ; napu per ndau
+    LOW_9 = 0x1ff                   ; 0b_0001_1111_1111 --> lowest 9 bits set
+
+                                    ; RFE validation scripts have additional context injected
+                                    ; dest_acct rfe_acct tx bm
+    dup                             ; dest_acct rfe_acct tx bm bm
+    push LOW_9                      ; dest_acct rfe_acct tx bm bm low_9
+    bnot                            ; dest_acct rfe_acct tx bm bm not_low_9
+    and                             ; dest_acct rfe_acct tx bm ntrd_sigs
+    count1s                         ; dest_acct rfe_acct tx bm qty_ntrd_sigs
+    roll 4                          ; rfe_acct tx bm qty_ntrd_sigs dest_acct
+    field ACCT_BALANCE              ; rfe_acct tx bm qty_ntrd_sigs dest_balance
+    push QUANTA_PER_UNIT            ; rfe_acct tx bm qty_ntrd_sigs dest_balance QPU
+    div                             ; rfe_acct tx bm qty_ntrd_sigs dest_ndau
+    dup                             ; rfe_acct tx bm qty_ntrd_sigs dest_ndau dest_ndau
+    push 10000                      ; rfe_acct tx bm qty_ntrd_sigs dest_ndau dest_ndau 10000
+    lt                              ; rfe_acct tx bm qty_ntrd_sigs dest_ndau (dest_ndau < 10000)
+    ifnz                            ; rfe_acct tx bm qty_ntrd_sigs dest_ndau
+        swap                        ; rfe_acct tx bm dest_ndau qty_ntrd_sigs
+        one                         ; rfe_acct tx bm dest_ndau qty_ntrd_sigs 1
+        lt                          ; rfe_acct tx bm dest_ndau (qty_ntrd_sigs < 1)
+                                    ; false is 0 is success
+    else                            ; rfe_acct tx bm qty_ntrd_sigs dest_ndau
+        push 100000                 ; rfe_acct tx bm qty_ntrd_sigs dest_ndau 100000
+        lt                          ; rfe_acct tx bm qty_ntrd_sigs (dest_ndau < 100000)
+        ifnz                        ; rfe_acct tx bm qty_ntrd_sigs
+            push 2                  ; rfe_acct tx bm qty_ntrd_sigs 2
+            lt                      ; rfe_acct tx bm (qty_ntrd_sigs < 2)
+                                    ; false is 0 is success
+        else                        ; rfe_acct tx bm qty_ntrd_sigs
+            push 2                  ; rfe_acct tx bm qty_ntrd_sigs 2
+            gte                     ; rfe_acct tx bm (qty_ntrd_sigs >= 2)
+            ifnz                    ; rfe_acct tx bm
+                push LOW_9          ; rfe_acct tx bm low_9
+                and                 ; rfe_acct tx bpc_sigs
+                count1s             ; rfe_acct tx qty_bpc_sigs
+                push 2              ; rfe_acct tx qty_bpc_sigs 2
+                lt                  ; rfe_acct tx (qty_bpc_sigs < 2)
+                                    ; false is 0 is success
+            else                    ; rfe_acct tx bm
+                one                 ; rfe_acct tx bm 1
+                                    ; one atop the stack is failure: invalid
+            endif
+        endif
+    endif
+}

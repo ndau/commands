@@ -1,0 +1,5 @@
+{
+  "name": "examples/empty.chasm",
+  "comment": "Just return the stack as it is on entry",
+  "data": "oACI"
+}

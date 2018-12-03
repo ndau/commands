@@ -1,0 +1,70 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "chasm",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.unitary.chasm",
+					"match": "\\b(add|and|append|avg|bnot|choice|count1s|dec|div|divmod|drop|drop2|dup|dup2|else|endif|eq|extend|fail|false|gt|gte|ifnz|ifz|inc|index|len|lt|lte|max|maxnum|min|minnum|mod|mul|muldiv|neg|neg1|not|now|one|or|over|pushl|rand|ret|slice|sub|sum|swap|true|xor|zero)\\b",
+					"comment": "unitary (no argument) opcodes"
+				},
+				{
+					"name": "keyword.control.push.chasm",
+					"match": "\\b(push|push1|push2|push3|push4|push5|push6|push7|push8|pushb|pusht)\\b",
+					"comment": "push opcodes"
+				},
+				{
+					"name": "keyword.control.binary.chasm",
+					"match": "\\b(wchoice|tuck|sort|roll|pick|isfield|fieldl|field)\\b",
+					"comment": "binary (one argument) opcodes"
+				},
+				{
+					"name": "keyword.control.complex.chasm",
+					"match": "\\b(lookup|deco|call|def|func|handler)\\b",
+					"comment": "complex opcodes"
+				},
+				{
+					"match": "(?i)\\b(0x[A-Fa-f0-9]+)\\b",
+					"name": "constant.numeric.asm",
+					"comment": "Hex number constant"
+				},
+				{
+					"match": "(?i)\\b([0-9]+)\\b",
+					"name": "constant.numeric.asm",
+					"comment": "Decimal number constant"
+				},
+				{
+					"match": "\\b[a-zA-Z_][a-zA-Z_.0-9]*\\b",
+					"name": "variable.asm",
+					"comment": "user-defined values"
+				},
+				{
+					"match": "(;).*",
+					"name": "comment.line.asm",
+					"comment": "Comment line"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.chasm",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.chasm",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "source.chasm"
+}

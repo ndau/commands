@@ -1,0 +1,5 @@
+{
+  "name": "cmd/chasm/examples/one.chasm",
+  "comment": "unconditionally return numeric 1",
+  "data": "oAAaiA=="
+}

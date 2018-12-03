@@ -1,0 +1,48 @@
+; This distributes node rewards by
+; stack:
+;  (top) costakers (list of structs of account data decorated with address)
+;        totalAward
+;        node (account data decorated with address)
+
+
+handler Event_Default {
+    STAKE_FIELD = 61
+    REWARD_FIELD = 10
+
+    ;  stack at start:  ; node total costakers
+
+    ; add this node to the list of costakers so we can include it in the costake calculation
+    pick 2              ; node total costakers node
+    append              ; node total allstakers
+    swap                ; node allstakers total
+
+    ; calculate 80% of total
+    push 80             ; node allstakers total 80
+    push 100            ; node allstakers total 80 100
+    muldiv              ; node allstakers 80%_of_total
+    swap                ; node 80%_of_total allstakers
+
+    ; sum total stake
+    dup                 ; node 80%_of_total allstakers allstakers
+    fieldl STAKE_FIELD  ; node 80%_of_total allstakers [stakes]
+    sum                 ; node 80%_of_total allstakers sumstakes
+    swap                ; node 80%_of_total sumstakes allstakers
+    deco PerStaker REWARD_FIELD
+                        ; node 80%_of_total sumstakes allstakers_deco
+
+    ; the result includes the node as the last item so we want to delete it
+    dup                 ; node 80%_of_total sumstakes allstakers_deco allstakers_deco
+    len                 ; node 80%_of_total sumstakes allstakers_deco L
+    one                 ; node 80%_of_total sumstakes allstakers_deco 0 L 1
+    sub                 ; node 80%_of_total sumstakes allstakers_deco 0 L-1
+    zero                ; node 80%_of_total sumstakes allstakers_deco L-1 0
+    swap                ; node 80%_of_total sumstakes allstakers_deco 0 L-1
+    slice               ; node 80%_of_total sumstakes distribution_list
+}
+
+func PerStaker(2) {
+    ; entry stack:      ; to_distribute sumstakes staker
+    field STAKE_FIELD   ; to_distribute sumstakes this_stake
+    swap                ; to_distribute this_stake sumstakes
+    muldiv              ; (to_distribute * this_stake/sumstakes)
+}

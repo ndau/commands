@@ -1,0 +1,14 @@
+; This is an account approval script that validates that the first
+; account signature is among those signing the transaction.
+; Expected arguments on the stack in order from bottom to top are:
+;    account
+;    transaction
+;    64-bit bitmask of which authorized keys were found in the signature list
+
+handler EVENT_DEFAULT {
+                                    ; stack top on right -- sig bitmask on top, then tx, then account
+                                    ;acct tx bm
+    one                             ;acct tx bm 1
+    and                             ;acct tx (was sig 0 used)
+    not                             ;if the result was true, return 0
+}

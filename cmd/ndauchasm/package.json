@@ -1,0 +1,41 @@
+{
+    "name": "ndauchasm",
+    "displayName": "ndauchasm",
+    "description": "Support for ndau's chaincode assembly language, chasm",
+    "version": "0.0.1",
+    "publisher": "Oneiro",
+    "engines": {
+        "vscode": "^1.28.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "chasm",
+                "aliases": [
+                    "chasm",
+                    "chasm"
+                ],
+                "extensions": [
+                    ".chasm"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "chasm",
+                "scopeName": "source.chasm",
+                "path": "./syntaxes/chasm.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "chasm",
+                "path": "./snippets/chasm.json"
+            }
+        ]
+    }
+}
