@@ -37,7 +37,8 @@
   version = "v0.6.0"
 
 [[projects]]
-  digest = "1:5d9814ff62e3d9cfb968883db144f8faf12950d32583cacd2663a0df3260839e"
+  branch = "master"
+  digest = "1:b40230d769d63a8bcaa3dfe8aeae48fa4037fae7accdd4034fa7f3292f47592b"
   name = "github.com/attic-labs/noms"
   packages = [
     "go/chunks",
@@ -47,28 +48,23 @@
     "go/hash",
     "go/marshal",
     "go/merge",
+    "go/metrics",
     "go/nbs",
     "go/ngql",
+    "go/nomdl",
+    "go/sloppy",
     "go/spec",
     "go/types",
     "go/util/exit",
     "go/util/functions",
+    "go/util/random",
     "go/util/sizecache",
-    "go/util/status",
     "go/util/verbose",
     "go/util/writers",
   ]
   pruneopts = ""
-  revision = "22f70f585d00bb0c6c62e11580f8260e711d4cce"
-  version = "v7.4"
-
-[[projects]]
-  digest = "1:a13cb503c52c7f571ba5bae6361aa95f1d11abd1756fcd0945f5d69c06d9162b"
-  name = "github.com/attic-labs/testify"
-  packages = ["assert"]
-  pruneopts = ""
-  revision = "f390dcf405f7b83c997eac1b06768bb9f44dec18"
-  version = "v1.1.3"
+  revision = "186e0939a5044b182bce9e60dea910bd6bcb5cd9"
+  source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
   digest = "1:48934db4e5e41f30e83c5650b4e8d3fcc58a431987cdd36d9d019eecc45f2645"
@@ -287,14 +283,6 @@
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a674a495dd0b522b9f6d4339e0fc4f1424ac3177ceca2c0882af85e65be05499"
-  name = "github.com/gopherjs/gopherjs"
-  packages = ["js"]
-  pruneopts = ""
-  revision = "d547d1d9531ed93dbdebcbff7f83e7c876a1e0ee"
-
-[[projects]]
   digest = "1:64d212c703a2b94054be0ce470303286b177ad260b2f89a307e3d1bb6c073ef6"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -424,17 +412,6 @@
   pruneopts = ""
   revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
   version = "v1.0.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:fc2e5dc8445e109e6ff75a75d4e1b1f8904e45ca49faa1faf516e745bc3e9744"
-  name = "github.com/miratronix/jopher"
-  packages = [
-    ".",
-    "lib",
-  ]
-  pruneopts = ""
-  revision = "fdca60424111a53c8c733b16fa39ac9d77728423"
 
 [[projects]]
   digest = "1:3702f55464d72fe71797028e82defc735dc727440a852422408131bd4ae97ac1"
@@ -985,11 +962,8 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
-    "github.com/btcsuite/btcd/btcec",
-    "github.com/gopherjs/gopherjs/js",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/boneful",
-    "github.com/miratronix/jopher",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
     "github.com/oneiro-ndev/chaos/pkg/chaos",
@@ -1018,7 +992,6 @@
     "github.com/oneiro-ndev/ndau/pkg/txmobile/generator",
     "github.com/oneiro-ndev/ndau/pkg/version",
     "github.com/oneiro-ndev/ndaumath/pkg/address",
-    "github.com/oneiro-ndev/ndaumath/pkg/b32",
     "github.com/oneiro-ndev/ndaumath/pkg/constants",
     "github.com/oneiro-ndev/ndaumath/pkg/key",
     "github.com/oneiro-ndev/ndaumath/pkg/signature",
