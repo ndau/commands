@@ -1,0 +1,1 @@
+# `chfmt`: format chaincode source
