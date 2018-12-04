@@ -22,3 +22,11 @@ branch = "master"
 name = "github.com/attic-labs/noms"
 branch = "master"
 source = "github.com/oneiro-ndev/noms"
+
+[[override]]
+name = "github.com/satori/go.uuid"
+branch = "master"
+
+[[override]]
+name = "github.com/attic-labs/graphql"
+branch = "master"
