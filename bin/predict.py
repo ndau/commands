@@ -12,8 +12,8 @@ import sys
 
 # Constants
 SECONDS_PER_MINUTE = 60
-SECONDS_PER_HOUR   = 60 * SECONDS_PER_MINUTE
-SECONDS_PER_DAY    = 24 * SECONDS_PER_HOUR
+SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE
+SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR
 BYTES_PER_KILOBYTE = 1024
 BYTES_PER_MEGABYTE = 1024 * BYTES_PER_KILOBYTE
 BYTES_PER_GIGABYTE = 1024 * BYTES_PER_MEGABYTE
@@ -21,10 +21,10 @@ BYTES_PER_TERABYTE = 1024 * BYTES_PER_GIGABYTE
 
 # Bytes per block constants per chain.
 BYTES_PER_BLOCK_CHAOS_REDIS = 15
-BYTES_PER_BLOCK_CHAOS_NOMS  = 6600
+BYTES_PER_BLOCK_CHAOS_NOMS = 6600
 
 BYTES_PER_BLOCK_NDAU_REDIS = 98
-BYTES_PER_BLOCK_NDAU_NOMS  = 12000
+BYTES_PER_BLOCK_NDAU_NOMS = 12000
 
 # Tendermint bytes per block is chain-independent.
 BYTES_PER_BLOCK_TENDERMINT = 3100
@@ -54,11 +54,13 @@ def print_usage_and_die(msg):
     Print usage information for this tool and exits with a non-zero exit code.
     """
 
-    print msg
-    print 'Usage:'
-    print '  ./predict.py {chaos|ndau} [[rate {bps|bpm|bph|bpd} duration {s|m|h|d}]...]'
-    print 'Example: (ndau chain, idle for 1 day, then 2 blocks per second for 4 hours)'
-    print '  ./predict.py ndau 0 bpm 1 d 2 bps 4 h'
+    print(msg)
+    print('Usage:')
+    print(
+        '  ./predict.py {chaos|ndau} [[rate {bps|bpm|bph|bpd} duration {s|m|h|d}]...]'
+    )
+    print('Example: (ndau chain, idle for 1 day, then 2 blocks per second for 4 hours)')
+    print('  ./predict.py ndau 0 bpm 1 d 2 bps 4 h')
 
     exit(1)
 
@@ -125,7 +127,8 @@ def parse_args():
     while arg_index < arg_count:
         blocks_per_second = float(sys.argv[arg_index])
         if blocks_per_second < 0:
-            print_usage_and_die('Unsupported phase block rate: ' + blocks_per_second)
+            print_usage_and_die(
+                'Unsupported phase block rate: ' + blocks_per_second)
         arg_index += 1
 
         rate = sys.argv[arg_index]
@@ -152,7 +155,8 @@ def parse_args():
         elif duration == 'd':
             total_seconds *= SECONDS_PER_DAY
         elif duration != 's':
-            print_usage_and_die('Unsupported phase duration scale: ' + duration)
+            print_usage_and_die(
+                'Unsupported phase duration scale: ' + duration)
         arg_index += 1
 
         phases.append(Phase(phase_num, blocks_per_second, total_seconds))
@@ -164,13 +168,15 @@ def parse_args():
 def main():
     chain, redis_bpb, noms_bpb, tendermint_bpb, phases = parse_args()
 
-    print 'predicting disk usage for the {0} chain over {1} phases'.format(chain, len(phases))
-    print '  redis      bytes per block = {0}'.format(redis_bpb)
-    print '  noms       bytes per block = {0}'.format(noms_bpb)
-    print '  tendermint bytes per block = {0}'.format(tendermint_bpb)
-    print '  tendermint max seconds between blocks = {0}'.format(TENDERMINT_KEEPALIVE_SECONDS)
+    print('predicting disk usage for the {0} chain over {1} phases'.format(
+        chain, len(phases)))
+    print('  redis      bytes per block = {0}'.format(redis_bpb))
+    print('  noms       bytes per block = {0}'.format(noms_bpb))
+    print('  tendermint bytes per block = {0}'.format(tendermint_bpb))
+    print('  tendermint max seconds between blocks = {0}'.format(
+        TENDERMINT_KEEPALIVE_SECONDS))
     for i in range(len(phases)):
-        print phases[i]
+        print(phases[i])
 
     blocks = 0
     redis_bytes = 0
@@ -190,7 +196,8 @@ def main():
         # Only tendermint data files are affected by these empty blocks.
         if phase.blocks_per_second < TENDERMINT_MIN_BLOCKS_PER_SECOND:
             if phase.blocks_per_second == 0:
-                block_count += int(TENDERMINT_MIN_BLOCKS_PER_SECOND * phase.total_seconds)
+                block_count += int(TENDERMINT_MIN_BLOCKS_PER_SECOND *
+                                   phase.total_seconds)
             else:
                 # The keepalive timer starts over after any block is created.  So we count how
                 # many keepalive blocks get created in between every normal phase block.  This
@@ -213,12 +220,12 @@ def main():
         blocks += block_count
         duration += phase.total_seconds
 
-    print 'results:'
-    print '  height     = {0:,} blocks'.format(blocks)
-    print '  redis      = {0}'.format(format_byte_size(redis_bytes))
-    print '  noms       = {0}'.format(format_byte_size(noms_bytes))
-    print '  tendermint = {0}'.format(format_byte_size(tendermint_bytes))
-    print '  duration   = {0}'.format(format_seconds(duration))
+    print('results:')
+    print('  height     = {0:,} blocks'.format(blocks))
+    print('  redis      = {0}'.format(format_byte_size(redis_bytes)))
+    print('  noms       = {0}'.format(format_byte_size(noms_bytes)))
+    print('  tendermint = {0}'.format(format_byte_size(tendermint_bytes)))
+    print('  duration   = {0}'.format(format_seconds(duration)))
 
 
 if __name__ == '__main__':

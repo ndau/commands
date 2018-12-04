@@ -48,8 +48,8 @@ def die(message, filename):
     Log an error message and the given file name, then exit with a failure error code.
     """
 
-    print 'Cannot commit due to rule violation in file:', filename
-    print message
+    print('Cannot commit due to rule violation in file:', filename)
+    print(message)
 
     sys.exit(1)
 
