@@ -1,1 +1,5 @@
 vendor/
+.vscode
+*.log
+**/github_chaos_deploy
+gomu
