@@ -1,6 +1,7 @@
 vendor/
 .vscode
 *.log
+*.pid
 **/github_chaos_deploy
 gomu
 addrtool

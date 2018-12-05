@@ -5,8 +5,9 @@ set -e
 
 # Load our environment variables.
 SETUP_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
-source "$SETUP_DIR"/env.sh
+source "$CMDBIN_DIR"/env.sh
 
 # Ensure the go directory is where we expect it.
 echo SETUP: Ensuring "$GO_DIR" exists...
@@ -18,9 +19,9 @@ mkdir -p "$GO_DIR"
 
 # Make sure we have the deploy file.
 # If this exits with error, see README.md for how to get the deploy file.
-DEPLOY_FILE=$SETUP_DIR/github_chaos_deploy
+DEPLOY_FILE=$(pwd)/github_chaos_deploy
 echo SETUP: Ensuring "$DEPLOY_FILE" exists...
-# STAT=`stat "$DEPLOY_FILE"`
+stat "$DEPLOY_FILE" >/dev/null
 
 # Start with fresh ndau/chaos and tendermint config files.
 echo SETUP: Ensuring fresh configs...
@@ -38,7 +39,7 @@ cd "$ATTICLABS_DIR"
 if [ -d "noms" ]; then
     echo SETUP: Updating noms...
     cd noms
-    git pull origin "$("$SETUP_DIR"/branch.sh)"
+    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
 else
     echo SETUP: Cloning noms...
     git clone https://github.com/oneiro-ndev/noms.git
@@ -94,33 +95,24 @@ else
     git clone git@github.com:oneiro-ndev/chaos_genesis.git
 fi
 
-# chaos tools
-cd "$NDEV_DIR"/chaos
-cp "$DEPLOY_FILE" .
-echo SETUP: Running chaos glide install...
-glide install
-
-# ndau tools
-cd "$NDEV_DIR"/ndau
-cp "$DEPLOY_FILE" .
-echo SETUP: Running ndau glide install...
-glide install
-
-# chaos_genesis tools
-cd "$NDEV_DIR"/chaos_genesis
-echo SETUP: Running chaos_genesis glide install...
-glide install
+# utilities
+cd "$NDEV_DIR"/commands
+if [ "$DEPLOY_FILE" != "$(pwd)/github_chaos_deploy" ]; then
+    cp "$DEPLOY_FILE" .
+fi
+echo "SETUP: Running commands' dep ensure..."
+"$GO_DIR"/bin/dep ensure
 
 # Build everything.
 echo SETUP: Building...
-"$SETUP_DIR"/build.sh
+"$CMDBIN_DIR"/build.sh
 
 # Test everything.
 echo SETUP: Testing...
-"$SETUP_DIR"/test.sh
+"$CMDBIN_DIR"/test.sh
 
 # Configure everything.
 echo SETUP: Configuring...
-"$SETUP_DIR"/conf.sh
+"$CMDBIN_DIR"/conf.sh
 
 echo SETUP: Setup complete
