@@ -19,6 +19,11 @@ These steps only need to be performed once:
 
 1. Install [Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
 1. Install [Go](https://golang.org/doc/install)
+1. Install [Python3](https://www.python.org/downloads/)
+1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
+    ```sh
+    python3 -m pip install remarshal --user
+    ```
 1. Install [Brew](https://brew.sh/)
 1. Install `dep`: `brew install dep`
 1. Install Redis: `brew install redis`
