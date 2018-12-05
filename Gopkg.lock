@@ -432,7 +432,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "e1c270ad429051cc56804fa86b8ff05eb4226c57"
+  revision = "656a4520c9ae7f4c49939ab5b9bffde5d05968e1"
 
 [[projects]]
   digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"

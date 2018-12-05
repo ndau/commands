@@ -14,11 +14,14 @@ sed -i '' -E \
     "$TENDERMINT_CHAOS_DATA_DIR"/config/config.toml \
     "$TENDERMINT_NDAU_DATA_DIR"/config/config.toml
 
+ndau_rpc_addr="http://localhost:$TM_NDAU_RPC_PORT"
+
 # Configure chaos.
-"$CHAOS_DIR"/chaos conf
+"$COMMANDS_DIR"/chaos conf
+"$COMMANDS_DIR"/chaosnode --set-ndaunode "$ndau_rpc_addr"
 
 # Configure ndau.
-"$NDAU_DIR"/ndau conf http://localhost:"$TM_NDAU_RPC_PORT"
+"$NDAU_DIR"/ndau conf "$ndau_rpc_addr"
 
 # Generate and copy genesis files if they're not there already.
 cd "$NODE_DATA_DIR" || exit 1
