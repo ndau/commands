@@ -9,6 +9,7 @@ import (
 	"github.com/oneiro-ndev/chaos/pkg/chaos/ns"
 	"github.com/oneiro-ndev/chaos/pkg/tool"
 	twrite "github.com/oneiro-ndev/chaos/pkg/tool.write"
+	ntconf "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 )
@@ -68,6 +69,58 @@ func main() {
 				err = config.CreateIdentity(*name, addr, os.Stdout)
 				orQuit(errors.Wrap(err, "Failed to create identity"))
 				config.Save()
+			}
+		})
+
+		cmd.Command("copy-keys-from", "copy ndau keys to local config", func(subcmd *cli.Cmd) {
+			subcmd.Spec = "NAME [NDAU_NAME] [-p=<path/to/ndautool.toml>]"
+
+			var (
+				name     = subcmd.StringArg("NAME", "", "chaos identity name")
+				ndauName = subcmd.StringArg("NDAU_NAME", "", "ndau identity name. (default: same as NAME)")
+				ntPath   = subcmd.StringOpt("p ndautool", ntconf.GetConfigPath(), "path to ndautool.toml")
+			)
+
+			subcmd.Action = func() {
+				conf := getConfig()
+				id, ok := conf.Identities[*name]
+				if !ok {
+					orQuit(fmt.Errorf("%s is not a known identity", *name))
+				}
+
+				if len(*ndauName) == 0 {
+					ndauName = name
+				}
+
+				ndauConfig, err := ntconf.Load(*ntPath)
+				orQuit(err)
+
+				nid, ok := ndauConfig.Accounts[*ndauName]
+				if !ok {
+					orQuit(fmt.Errorf("%s is not a known ndau identity", *ndauName))
+				}
+
+				if len(nid.Transfer) == 0 {
+					orQuit(fmt.Errorf("%s has no transfer keys", *ndauName))
+				}
+
+				id.Ndau = &tool.NdauAccount{
+					Address: nid.Address,
+				}
+
+				for _, trKeys := range nid.Transfer {
+					id.Ndau.Keys = append(
+						id.Ndau.Keys,
+						tool.Keypair{
+							Public:  trKeys.Public,
+							Private: &trKeys.Private,
+						},
+					)
+				}
+
+				conf.Identities[*name] = id
+
+				err = conf.Save()
 			}
 		})
 	})
