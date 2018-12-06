@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:85abe7ae95bcb2524f3642c227fedd2f2a7b3079b63bf7fd2db9824d2ee18262"
+  digest = "1:04bdbb02c382e8cde58f7700703abb1ffef22be4320119d2728d7619e719679b"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -118,8 +118,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "6b08b085a17ae5a6040fdb67971812696569dced"
-  version = "v1.15.89"
+  revision = "ddc06f9fad886ea5daa5f828f3ca094084f8c2a7"
+  version = "v1.15.90"
 
 [[projects]]
   branch = "master"
@@ -459,7 +459,8 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:5d3fd93d0c5d470323279f99641d5f7b33f396c50636e8672652ecf46424e620"
+  branch = "prgn-sidechaintx"
+  digest = "1:b20981d3246582c56b5212dca89549005549a34ce78e6f915d6ebab3ddc61ae2"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -469,8 +470,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7b51ccbf4b8538dab62badb25b77e4fc48446b8d"
-  version = "v0.11.8"
+  revision = "deb5fb9e7cdacb80523f007286960e94a0b9819e"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -632,7 +632,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a56d65fd7955ac60e4550b9e4824877e4cba082fd4128f782eb89055505f5997"
+  digest = "1:2a434946be9f2f5498b2405a8607768aab439237ea13deff2edc59d9a44f8891"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -641,7 +641,7 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "aa55a523dc0a8297edf51bb75e8eec13eb3be45d"
+  revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
 
 [[projects]]
   digest = "1:15bcdc717654ef21128e8af3a63eec39a6d08a830e297f93d65163f87c8eb523"
@@ -856,7 +856,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f358024b019f87eecaadcb098113a40852c94fe58ea670ef3c3e2d2c7bd93db1"
+  digest = "1:45710007f30fca7b0aa2bbc40acb1266cb62a86b27446b37002bee770ed667c8"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -864,7 +864,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
+  revision = "a5c9d58dba9a56f97aaa86f55e638b718c5a6c42"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -891,11 +891,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4029d9340ef096d11dd4ae8d67c5a43522322d0c4d97c55c290d780060a159e7"
+  digest = "1:9071976f4fc98ca7f974603b7606718a4e00893b10670f92e28aec681dfa20bb"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "e5f3ab76ea4b26ebea349e4994ee72d38250c9b0"
+  revision = "22934f0fdb6201c132a3dc6120150dcb1646d74c"
 
 [[projects]]
   branch = "master"

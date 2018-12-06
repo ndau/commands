@@ -47,14 +47,15 @@ chaos_noms() {
 
 #---------- run chaosnode ----------
 chaos_node() {
-    cd "$CHAOS_DIR" || exit 1
+    cd "$COMMANDS_DIR" || exit 1
 
     #---------- get app hash from chaosnode ----------
     echo getting chaosnode app hash
     CHAOS_HASH=$(./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" -echo-hash 2>/dev/null)
-    sed -i '' \
-        -e 's@"app_hash": ""@"app_hash": "'"$CHAOS_HASH"'"@' \
-        "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json
+    # jq doesn't support an inplace operation
+    jq ".app_hash=\"$CHAOS_HASH\"" "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json \
+        > "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json &&
+        mv "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json
 
     echo running chaosnode
     ./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" \
@@ -108,7 +109,7 @@ ndau_noms() {
 
 ndau_node() {
     #---------- run ndaunode -------------
-    cd "$NDAU_DIR" || exit 1
+    cd "$COMMANDS_DIR" || exit 1
 
     # Import genesis data if we haven't already.
     if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
@@ -140,9 +141,10 @@ ndau_node() {
     #---------- get app hash from ndaunode ----------
     echo getting ndaunode app hash
     NDAU_HASH=$(./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" -echo-hash 2>/dev/null)
-    sed -i '' \
-        -e 's@"app_hash": ""@"app_hash": "'"$NDAU_HASH"'"@' \
-        "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json
+    # jq doesn't support an inplace operation
+    jq ".app_hash=\"$NDAU_HASH\"" "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json \
+        > "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.new.json &&
+        mv "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.new.json "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json
 
     # now we can run ndaunode
     echo running ndaunode

@@ -1,6 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v0.11"
+branch = "prgn-sidechaintx"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"

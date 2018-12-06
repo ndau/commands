@@ -31,11 +31,6 @@ build_ndau() {
     go build -ldflags "-X $VERSION_FILE.version=$VERSION" ./"$NDAU_CMD"
     go build -ldflags "-X $VERSION_FILE.version=$VERSION" ./"$NDAUNODE_CMD"
     go build ./"$NDAUAPI_CMD"
-
-    # Move the vendor directory back if we moved it away above.
-    if [ -e "$CHAOS_DIR/vendor-backup" ]; then
-        mv "$CHAOS_DIR"/vendor-backup "$CHAOS_DIR"/vendor
-    fi
 }
 
 build_chaos_genesis() {

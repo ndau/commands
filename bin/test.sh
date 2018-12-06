@@ -18,12 +18,6 @@ initialize() {
 test_chaos() {
     cd "$CHAOS_DIR"
 
-    # Move the vendor directory back if we moved it away in the ndau build and somehow didn't
-    # move it back.
-    if [ -e "$CHAOS_DIR/vendor-backup" ]; then
-        mv "$CHAOS_DIR"/vendor-backup "$CHAOS_DIR"/vendor
-    fi
-
     chaosintegration=0
     for arg in "${ARGS[@]}"; do
         if [[ "$arg" == "$ARG_INTEGRATION" ]]; then
@@ -39,12 +33,6 @@ test_chaos() {
 
 test_ndau() {
     cd "$NDAU_DIR"
-
-    # If we're trying to build with local changes, and we've used linkdep.sh, we need to move
-    # away the chaos vendor directory to prevent ndau from thinking there are mismatches.
-    if [ -L "$NDAU_DIR/vendor/github.com/oneiro-ndev/chaos" ]; then
-        mv "$CHAOS_DIR"/vendor "$CHAOS_DIR"/vendor-backup
-    fi
 
     ndauintegration=0
     for arg in "${ARGS[@]}"; do
@@ -70,11 +58,6 @@ test_ndau() {
 
         # We forced-ran for integration tests, so we might as well kill automatically too.
         "$SETUP_DIR"/kill.sh
-    fi
-
-    # Move the vendor directory back if we moved it away above.
-    if [ -e "$CHAOS_DIR/vendor-backup" ]; then
-        mv "$CHAOS_DIR"/vendor-backup "$CHAOS_DIR"/vendor
     fi
 }
 
