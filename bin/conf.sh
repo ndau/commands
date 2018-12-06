@@ -9,7 +9,7 @@ cd "$TENDERMINT_DIR" || exit 1
 ./tendermint init --home "$TENDERMINT_CHAOS_DATA_DIR"
 ./tendermint init --home "$TENDERMINT_NDAU_DATA_DIR"
 sed -i '' -E \
-    -e 's/^(create_empty_blocks = .*)/#\1/' \
+    -e 's/^(create_empty_blocks = .*)/# \1/' \
     -e 's/^(create_empty_blocks_interval =) (.*)/\1 300/' \
     "$TENDERMINT_CHAOS_DATA_DIR"/config/config.toml \
     "$TENDERMINT_NDAU_DATA_DIR"/config/config.toml
@@ -21,7 +21,7 @@ ndau_rpc_addr="http://localhost:$TM_NDAU_RPC_PORT"
 "$COMMANDS_DIR"/chaosnode --set-ndaunode "$ndau_rpc_addr"
 
 # Configure ndau.
-"$NDAU_DIR"/ndau conf "$ndau_rpc_addr"
+"$COMMANDS_DIR"/ndau conf "$ndau_rpc_addr"
 
 # Generate and copy genesis files if they're not there already.
 cd "$NODE_DATA_DIR" || exit 1
@@ -53,7 +53,7 @@ if [ "$gexists" == 0 ]; then
     # This is needed for things like RFE transactions to function.
     # shellcheck disable=SC2012
     ASSC_TOML=$(ls -t assc.*.toml | head -n 1)
-    "$NDAU_DIR"/ndau conf update-from "$NODE_DATA_DIR/$ASSC_TOML"
+    "$COMMANDS_DIR"/ndau conf update-from "$NODE_DATA_DIR/$ASSC_TOML"
 
     # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
     # generated files.
