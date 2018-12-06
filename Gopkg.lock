@@ -417,7 +417,7 @@
 
 [[projects]]
   branch = "prgn-validate-with-sidechaintx"
-  digest = "1:9aa71505a0a8be9802c2775f06651fc4636b876324bd080c50960c33c82f6c9c"
+  digest = "1:be4e48d733e80c75244275224e2457debc061489add8e950e5935b7dd1667106"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -433,7 +433,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "b8cac57cfc3d8b27a7e6a03a380f57f41d31acaa"
+  revision = "8b4afd3bbf8bbca901b81669ee1770a8fde8f4ae"
 
 [[projects]]
   digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"

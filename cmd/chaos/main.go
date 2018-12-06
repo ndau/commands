@@ -10,7 +10,6 @@ import (
 	"github.com/oneiro-ndev/chaos/pkg/tool"
 	twrite "github.com/oneiro-ndev/chaos/pkg/tool.write"
 	ntconf "github.com/oneiro-ndev/ndau/pkg/tool.config"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 )
 
@@ -55,18 +54,15 @@ func main() {
 		})
 
 		cmd.Command("new", "create a new identity", func(subcmd *cli.Cmd) {
-			subcmd.Spec = "NAME ADDR"
+			subcmd.Spec = "NAME"
 
 			var (
-				name  = subcmd.StringArg("NAME", "", "Name to associate with the new identity")
-				addrs = subcmd.StringArg("ADDR", "", "ndau address of account with which to pay for this id's transactions")
+				name = subcmd.StringArg("NAME", "", "Name to associate with the new identity")
 			)
 
 			subcmd.Action = func() {
-				addr, err := address.Validate(*addrs)
-				orQuit(err)
 				config := getConfig()
-				err = config.CreateIdentity(*name, addr, os.Stdout)
+				err := config.CreateIdentity(*name, os.Stdout)
 				orQuit(errors.Wrap(err, "Failed to create identity"))
 				config.Save()
 			}
@@ -77,7 +73,7 @@ func main() {
 
 			var (
 				name     = subcmd.StringArg("NAME", "", "chaos identity name")
-				ndauName = subcmd.StringArg("NDAU_NAME", "", "ndau identity name. (default: same as NAME)")
+				ndauName = subcmd.StringArg("NDAU_NAME", "", "ndau identity name (default: same as NAME)")
 				ntPath   = subcmd.StringOpt("p ndautool", ntconf.GetConfigPath(), "path to ndautool.toml")
 			)
 
