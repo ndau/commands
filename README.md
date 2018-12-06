@@ -20,6 +20,7 @@ These steps only need to be performed once:
 1. Install [Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
 1. Install [Go](https://golang.org/doc/install)
 1. Install [Python3](https://www.python.org/downloads/)
+1. Restart your terminal if necessary to update `$PATH`.
 1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
     ```sh
     python3 -m pip install remarshal --user
