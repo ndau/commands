@@ -1,14 +1,6 @@
 [[constraint]]
-name = "github.com/oneiro-ndev/metanode"
-branch = "prgn-sidechaintx"
-
-[[constraint]]
 name = "github.com/oneiro-ndev/chaos"
 branch = "prgn-validate-with-sidechaintx"
-
-[[constraint]]
-name = "github.com/oneiro-ndev/ndau"
-branch = "prgn-sidechaintx"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
@@ -18,6 +10,18 @@ version = "~v0.1"
 name = "github.com/oneiro-ndev/genesis"
 branch = "master"
 
+[[constraint]]
+name = "github.com/oneiro-ndev/metanode"
+version = "~v0.11"
+
+[[constraint]]
+name = "github.com/oneiro-ndev/ndau"
+branch = "prgn-sidechaintx"
+
+[[override]]
+name = "github.com/attic-labs/graphql"
+branch = "master"
+
 [[override]]
 name = "github.com/attic-labs/noms"
 branch = "master"
@@ -25,8 +29,4 @@ source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/satori/go.uuid"
-branch = "master"
-
-[[override]]
-name = "github.com/attic-labs/graphql"
 branch = "master"
