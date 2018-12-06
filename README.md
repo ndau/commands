@@ -37,6 +37,10 @@ These steps only need to be performed once:
     - Copy it into the `bin/` directory
 1. Run `./setup.sh` from the `bin/` directory
 
+### Demo mode
+
+[`demo.sh`](demo.sh) sets everything up, runs the node group, creates a `demo` ndau account, gives it some money, creates a `demo` chaos id associated with that ndau account, sends some transactions, and shows that the chaos transactions validated themselves on the ndau chain, before finally shutting everything down.
+
 ### Running
 
 Use `./run.sh` from the `bin/` directory.
