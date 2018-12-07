@@ -60,12 +60,15 @@ jobs:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - run:
-          name: Run /vendor tests
-          command: docker run --rm -e CI=true deps /bin/bash -c "go test /go/src/github.com/oneiro-ndev/commands/vendor/..."
-      - run:
-          name: Run /cmd tests
-          command: docker run --rm -e CI=true deps /bin/bash -c "go test /go/src/github.com/oneiro-ndev/commands/cmd/..."
       # TODO add step for integration style unit tests as well
+          name: Run tests
+          command: |
+            # this runs a test script within the deps image
+            docker run --rm \
+                --mount src="/commands/deploy/tests.sh",target="/root/tests.sh",type=bind \
+                -e CI=true \
+                deps \
+                /bin/sh tests.sh
       - run:
           name: run all sub project docker scripts
           command: find . -name "docker-build-push.sh" -exec {} \;

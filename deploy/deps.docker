@@ -1,6 +1,9 @@
 # This image downloads dependencies and only installs what is necessary to do so.
 FROM golang:1.11-alpine3.8
 
+# Add gcc TODO, put this in its own image on ECR
+RUN apk add --no-cache build-base
+
 # Start here
 ENV DIR=$GOPATH/src/github.com/oneiro-ndev/commands
 WORKDIR ${DIR}
