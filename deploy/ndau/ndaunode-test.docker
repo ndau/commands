@@ -1,0 +1,16 @@
+# Build stage: this all gets discarded later
+FROM golang:1.10-alpine3.8
+
+# Allow us to pass in a flag for CI builds
+ARG CI
+ENV CI=$CI
+
+# Copy the context into the container from prebuilt ndau-deps image
+ENV NDAU=$GOPATH/src/github.com/oneiro-ndev/ndau
+COPY --from=ndau-deps ${NDAU}/pkg ${NDAU}/pkg
+COPY --from=ndau-deps ${NDAU}/cmd ${NDAU}/cmd
+COPY --from=ndau-deps ${NDAU}/vendor ${NDAU}/vendor
+WORKDIR ${NDAU}
+
+# Run the tests
+RUN go test ./...
