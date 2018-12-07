@@ -32,7 +32,7 @@ status_one() {
     if [ -d "$DIR" ]; then
         cd "$DIR" || exit 1
 
-        branch=$("$SETUP_DIR"/branch.sh)
+        branch=$("$CMDBIN_DIR"/branch.sh)
         if [ "$branch" = "[ master ]" ]; then
             brcol=$GRN
         else
@@ -53,9 +53,9 @@ status_one() {
     fi
 }
 
-SETUP_DIR="$( cd "$(dirname "$0")" || exit 1; pwd -P )"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
-source "$SETUP_DIR"/env.sh
+source "$CMDBIN_DIR"/env.sh
 for f in {automation,chaincode,chaos,chaos_genesis,metanode,ndau,ndaumath,noms}; do
     status_one "$f"
 done

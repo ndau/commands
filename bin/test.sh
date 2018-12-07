@@ -10,9 +10,9 @@ ARGS=("$@")
 ARG_INTEGRATION=-i # Runs integration tests in addition to regular unit tests.
 
 initialize() {
-    SETUP_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+    CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
     # shellcheck disable=SC1090
-    source "$SETUP_DIR"/env.sh
+    source "$CMDBIN_DIR"/env.sh
 }
 
 test_chaos() {
@@ -46,7 +46,7 @@ test_ndau() {
         go test ./...
     else
         # Integration tests require that the node group is running.
-        "$SETUP_DIR"/run.sh
+        "$CMDBIN_DIR"/run.sh
 
         # Sleep one more second so that tendermint has a chance to become ready.
         sleep 1
@@ -57,7 +57,7 @@ test_ndau() {
         go test ./pkg/ndauapi/routes/... -integration -ndaurpc="$NDAU_RPC" -chaosrpc="$CHAOS_RPC"
 
         # We forced-ran for integration tests, so we might as well kill automatically too.
-        "$SETUP_DIR"/kill.sh
+        "$CMDBIN_DIR"/kill.sh
     fi
 }
 

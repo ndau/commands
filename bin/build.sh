@@ -4,9 +4,9 @@
 set -e
 
 initialize() {
-    SETUP_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+    CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
     # shellcheck disable=SC1090
-    source "$SETUP_DIR"/env.sh
+    source "$CMDBIN_DIR"/env.sh
 }
 
 build_chaos() {

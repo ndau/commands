@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SETUP_DIR="$( cd "$(dirname "$0")" || exit 1; pwd -P )"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
-source "$SETUP_DIR"/env.sh
+source "$CMDBIN_DIR"/env.sh
 
 # Configure tendermint.
 cd "$TENDERMINT_DIR" || exit 1

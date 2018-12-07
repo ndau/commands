@@ -4,7 +4,6 @@
 set -e
 
 # Load our environment variables.
-SETUP_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
@@ -55,7 +54,7 @@ if [ -d "tendermint" ]; then
     cd tendermint
     git checkout -- Gopkg.lock
     git checkout master
-    git pull origin "$("$SETUP_DIR"/branch.sh)"
+    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
 else
     echo SETUP: Cloning tendermint...
     git clone https://github.com/tendermint/tendermint.git
@@ -71,7 +70,7 @@ cd "$NDEV_DIR"
 if [ -d "chaos" ]; then
     echo SETUP: Updating chaos...
     cd chaos
-    git pull origin "$("$SETUP_DIR"/branch.sh)"
+    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
 else
     echo SETUP: Cloning chaos...
     git clone git@github.com:oneiro-ndev/chaos.git
@@ -80,7 +79,7 @@ cd "$NDEV_DIR"
 if [ -d "ndau" ]; then
     echo SETUP: Updating ndau...
     cd ndau
-    git pull origin "$("$SETUP_DIR"/branch.sh)"
+    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
 else
     echo SETUP: Cloning ndau...
     git clone git@github.com:oneiro-ndev/ndau.git
@@ -89,7 +88,7 @@ cd "$NDEV_DIR"
 if [ -d "chaos_genesis" ]; then
     echo SETUP: Updating chaos_genesis...
     cd chaos_genesis
-    git pull origin "$("$SETUP_DIR"/branch.sh)"
+    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
 else
     echo SETUP: Cloning chaos_genesis...
     git clone git@github.com:oneiro-ndev/chaos_genesis.git

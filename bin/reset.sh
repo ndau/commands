@@ -1,15 +1,15 @@
 #!/bin/bash
 
-SETUP_DIR="$( cd "$(dirname "$0")" || exit 1; pwd -P )"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
-source "$SETUP_DIR"/env.sh
+source "$CMDBIN_DIR"/env.sh
 
 # Kill everything before we wipe the pid files.
-"$SETUP_DIR"/kill.sh
+"$CMDBIN_DIR"/kill.sh
 
 # Remove temp files.
-rm -f "$SETUP_DIR"/*.log
-rm -f "$SETUP_DIR"/*.pid
+rm -f "$CMDBIN_DIR"/*.log
+rm -f "$CMDBIN_DIR"/*.pid
 
 # Reset redis.
 rm -rf "$REDIS_CHAOS_DATA_DIR"
@@ -31,4 +31,4 @@ rm -rf "$TENDERMINT_CHAOS_DATA_DIR"
 rm -rf "$TENDERMINT_NDAU_DATA_DIR"
 
 # Reconfigure tendermint since we deleted its home directories.
-"$SETUP_DIR"/conf.sh
+"$CMDBIN_DIR"/conf.sh
