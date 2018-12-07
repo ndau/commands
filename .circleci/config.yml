@@ -68,7 +68,7 @@ jobs:
                 --mount src="/commands/deploy/tests.sh",target="/root/tests.sh",type=bind \
                 -e CI=true \
                 deps \
-                /bin/sh tests.sh
+                /bin/sh /root/tests.sh
       - run:
           name: run all sub project docker scripts
           command: find . -name "docker-build-push.sh" -exec {} \;
