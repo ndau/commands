@@ -39,9 +39,6 @@ jobs:
             # install kube config certs
             echo -e "$kube_config" > /root/kubeconfig
 
-            # install github machine user key
-            echo -e "$machine_user_key" > /commands/machine_user_key
-
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
@@ -54,6 +51,11 @@ jobs:
           command: |
             # depth=1 makes the clone a lot faster
             git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+
+            # install github machine user key
+            # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
+            echo -e "$machine_user_key" > /commands/machine_user_key
+
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
