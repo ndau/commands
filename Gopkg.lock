@@ -417,7 +417,7 @@
 
 [[projects]]
   branch = "prgn-validate-with-sidechaintx"
-  digest = "1:be4e48d733e80c75244275224e2457debc061489add8e950e5935b7dd1667106"
+  digest = "1:89b1fa48e3a97a32adfc98c5ea9b4755a8a7474c084f691b4e4deb33a77ce27e"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -432,7 +432,7 @@
     "pkg/tool",
   ]
   pruneopts = ""
-  revision = "8b4afd3bbf8bbca901b81669ee1770a8fde8f4ae"
+  revision = "15f1f429e9c7566a849f5c0cdf3459e3a256fb24"
 
 [[projects]]
   digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"
@@ -490,7 +490,7 @@
 
 [[projects]]
   branch = "prgn-sidechaintx"
-  digest = "1:0dc923eae25cf2314b1cef76094912edf527402b51bdaf61e023b4b2c249c34e"
+  digest = "1:eb61823a6244b31da5bf6d16cc85952cbadc0672062a4a35325bc1f131ee245e"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -510,7 +510,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6e46ee9aee91da38c4d7a8278879c220d0b85f03"
+  revision = "f0303fdbb28b4b73538e1f3badb241270820e229"
 
 [[projects]]
   digest = "1:10a60e9bc6486d84069a26380b491fc1ee24fe12142f3fd35eff1007f80d8de3"
