@@ -61,10 +61,10 @@ jobs:
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - run:
           name: Run /vendor tests
-          command: docker run --rm -e CI=true deps /bin/bash -c "go test /go/src/github.com/oneiro-ndev/commands/vendor/..."
+          command: docker run --rm -e CI=true deps /bin/sh -c "go test /go/src/github.com/oneiro-ndev/commands/vendor/..."
       - run:
           name: Run /cmd tests
-          command: docker run --rm -e CI=true deps /bin/bash -c "go test /go/src/github.com/oneiro-ndev/commands/cmd/..."
+          command: docker run --rm -e CI=true deps /bin/sh -c "go test /go/src/github.com/oneiro-ndev/commands/cmd/..."
       # TODO add step for integration style unit tests as well
       - run:
           name: run all sub project docker scripts

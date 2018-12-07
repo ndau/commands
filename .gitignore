@@ -11,6 +11,7 @@ vendor/
 *.pid
 
 # keys
+**/github_chaos_deploy
 **/machine_user_key
 **/gomu
 
