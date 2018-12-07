@@ -1,0 +1,37 @@
+diff --git a/cmd/tendermint/commands/root.go b/cmd/tendermint/commands/root.go
+index 3c67ddc1..d74de9b1 100644
+--- a/cmd/tendermint/commands/root.go
++++ b/cmd/tendermint/commands/root.go
+@@ -3,6 +3,7 @@ package commands
+ import (
+ 	"os"
+ 
++	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
+ 	"github.com/spf13/cobra"
+ 	"github.com/spf13/viper"
+ 
+@@ -12,9 +13,23 @@ import (
+ 	"github.com/tendermint/tendermint/libs/log"
+ )
+ 
++func initlog() log.Logger {
++	var l log.Logger
++	if logwriter, err := honeycomb.NewWriter(); err != nil {
++		// if honeycomb fails, just use the standard tm logger
++		l = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
++		l.Info("unable to initialize honeycomb - using standard logger")
++	} else {
++		l = log.NewTMJSONLogger(log.NewSyncWriter(logwriter))
++		l.With("hives", 2).Info("honeycomb initialized")
++	}
++	return l
++}
++
+ var (
+ 	config = cfg.DefaultConfig()
+-	logger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
++	// this is the default logger in case we can't initialize honeycomb
++	logger = initlog()
+ )
+ 
+ func init() {

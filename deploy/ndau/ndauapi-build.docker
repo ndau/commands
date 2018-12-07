@@ -1,0 +1,17 @@
+# Build stage: this only builds a binary that gets copied to a run container.
+FROM golang:1.11-alpine3.8
+
+ENV DEP_DIR=$GOPATH/src/github.com/oneiro-ndev/commands
+ENV DIR=$GOPATH/src/github.com/oneiro-ndev/ndau
+WORKDIR ${DIR}
+
+# Copy the context into the container from prebuilt deps image
+RUN mkdir ./cmd ./vendor
+COPY --from=deps ${DEP_DIR}/cmd/ ./cmd
+COPY --from=deps ${DEP_DIR}/vendor/ ./vendor
+
+# build it
+RUN CGO_ENABLED=0 GOOS=linux go install -a -ldflags '-extldflags "-static"' ./cmd/ndauapi
+
+# Copy binary to known location. The run containers won't know GOPATH.
+RUN cp ${GOPATH}/bin/ndauapi /bin/

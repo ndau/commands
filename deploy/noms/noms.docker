@@ -1,0 +1,28 @@
+# As with tendermint, we don't really want the responsibility of building
+# and maintaining a dockerfile for noms.
+#
+# Unfortunately, noms doesn't currently publish an official Docker build;
+# that's an open issue for them:
+# https://github.com/attic-labs/noms/pull/3790
+#
+# A third party has created their own noms dockerfile from which this one
+# is derived:
+# https://hub.docker.com/r/scjalliance/noms/
+
+FROM golang:1.11-alpine3.8 AS build
+
+RUN go get -d -v github.com/attic-labs/noms/cmd/noms
+RUN CGO_ENABLED=0 GOOS=linux go install -v -a -ldflags '-extldflags "-static"' github.com/attic-labs/noms/cmd/noms
+RUN cp $GOPATH/bin/noms /bin/noms
+
+FROM alpine:latest
+
+COPY --from=build /bin/noms /bin/noms
+
+VOLUME /data
+EXPOSE 8000
+
+ENV NOMS_VERSION_NEXT=1
+ENTRYPOINT [ "noms" ]
+
+CMD ["serve", "/data"]
