@@ -33,7 +33,7 @@ These steps only need to be performed once:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git $GOPATH/src/github.com/oneiro-ndev/commands
     ```
-1. Download `github_chaos_deploy` from the Oneiro 1password account
+1. Download `machine_user_key` from the Oneiro 1password account
     - Have someone on the team securely send it to you if needed
     - Copy it into the repo root
 1. Run `bin/setup.sh` from the repo root

@@ -18,7 +18,7 @@ mkdir -p "$GO_DIR"
 
 # Make sure we have the deploy file.
 # If this exits with error, see README.md for how to get the deploy file.
-DEPLOY_FILE=$(pwd)/github_chaos_deploy
+DEPLOY_FILE=$(pwd)/machine_user_key
 echo SETUP: Ensuring "$DEPLOY_FILE" exists...
 stat "$DEPLOY_FILE" >/dev/null
 
@@ -96,7 +96,7 @@ fi
 
 # utilities
 cd "$NDEV_DIR"/commands
-if [ "$DEPLOY_FILE" != "$(pwd)/github_chaos_deploy" ]; then
+if [ "$DEPLOY_FILE" != "$(pwd)/machine_user_key" ]; then
     cp "$DEPLOY_FILE" .
 fi
 echo "SETUP: Running commands' dep ensure..."

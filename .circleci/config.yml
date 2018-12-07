@@ -49,9 +49,6 @@ jobs:
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
-            # Run all tests TODO this needs to be shared, test everytrhing
-            docker build -t ndaunode_test . -f /commands/docker/ndaunode-test.docker --build-arg CI=true
-
       - run:
           name: Checkout code
           command: |
@@ -60,6 +57,13 @@ jobs:
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
+      - run:
+          name: Run /vendor tests
+          command: docker run --rm -e CI=true deps /bin/bash -c "go test /go/src/github.com/oneiro-ndev/commands/vendor/..."
+      - run:
+          name: Run /cmd tests
+          command: docker run --rm -e CI=true deps /bin/bash -c "go test /go/src/github.com/oneiro-ndev/commands/cmd/..."
+      # TODO add step for integration style unit tests as well
       - run:
           name: run all sub project docker scripts
           command: find . -name "docker-build-push.sh" -exec {} \;

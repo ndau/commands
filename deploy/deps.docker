@@ -7,7 +7,7 @@ WORKDIR ${DIR}
 
 # Normally we wouldn't copy an ssh key, but this image will never be published.
 # Subsequent images only copy and use specific files from this image and use those.
-ARG SSH_KEY_FILE="github_chaos_deploy"
+ARG SSH_KEY_FILE="machine_user_key"
 COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
 COPY ./deploy/github_fingerprints /root/.ssh/known_hosts
 RUN chmod 0600 /root/.ssh/id_rsa

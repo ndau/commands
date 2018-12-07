@@ -12,7 +12,7 @@ escape_newlines() {
 # Not included are the following AWS keys, which should be from a specified ci/cd user.
 # AWS_ACCESS_KEY_ID
 # AWS_SECRET_ACCESS_KEY
-echo gomu="$(escape_newlines "$(cat $DIR/../gomu)")"
+echo gomu="$(escape_newlines "$(cat $DIR/../machine_user_key)")"
 echo helm_ca_pem="$(escape_newlines "$(cat ~/.helm/ca.pem)")"
 echo helm_cert_pem="$(escape_newlines "$(cat ~/.helm/cert.pem)")"
 echo helm_key_pem="$(escape_newlines "$(cat ~/.helm/key.pem)")"

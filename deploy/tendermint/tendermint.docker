@@ -26,7 +26,7 @@ RUN apk add --no-cache git openssh-client bash
 # This means that it's not only easier to get compact containers, but
 # it's no longer a huge security issue to pass in a keyfile to a non-
 # terminal container.
-ARG SSH_KEY_FILE="github_chaos_deploy"
+ARG SSH_KEY_FILE="machine_user_key"
 COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
 COPY ./bin/check-github-fingerprint.sh /root/
 RUN /root/check-github-fingerprint.sh

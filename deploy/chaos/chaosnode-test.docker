@@ -7,7 +7,7 @@ FROM golang:1.10-alpine3.7
 # bash is required for check-github-fingerprint.sh (array syntax)
 RUN apk add --no-cache git openssh-client bash
 
-ARG SSH_KEY_FILE="github_chaos_deploy"
+ARG SSH_KEY_FILE="machine_user_key"
 COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
 COPY ./bin/check-github-fingerprint.sh /root/
 RUN /root/check-github-fingerprint.sh
