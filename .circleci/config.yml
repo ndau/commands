@@ -59,8 +59,8 @@ jobs:
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
-      - run:
       # TODO add step for integration style unit tests as well
+      - run:
           name: Run tests
           command: |
             # this runs a test script within the deps image
