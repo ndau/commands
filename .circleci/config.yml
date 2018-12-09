@@ -28,6 +28,11 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
+          name: Install coreutils
+          command: |
+            # TODO put this in circle-ci image
+            apk add --no-cache coreutils
+      - run:
           name: Turn environment variable secrets into files
           command: |
             # install helm certs
