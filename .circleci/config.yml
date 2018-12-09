@@ -43,6 +43,10 @@ jobs:
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
 
+            # save ssh key for machine user
+            echo -e "$machine_user_key" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
