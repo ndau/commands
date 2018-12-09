@@ -24,7 +24,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "97:67:2b:f6:0c:ea:af:56:dd:04:1d:c1:28:54:ba:37"
+            - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
@@ -42,10 +42,6 @@ jobs:
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
-
-            # save ssh key for machine user
-            echo -e "$machine_user_key" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
 
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})

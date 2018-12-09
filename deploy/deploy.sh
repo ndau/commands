@@ -3,30 +3,18 @@
 if [ "${CIRCLE_BRANCH}" == "prgn-fix-commands" ]; then #"master" ]; then
   # Redeploy nodegroup testnet
 
-  # get current container versions
-  TM_CONTAINER_VERSION=$(grep -e 'TM_VERSION_TAG' /root/chaos/tm-docker/Dockerfile -m 1 | cut -f3 -d ' ')
-  NDAU_CONTAINER_VERSION=$(git rev-parse --short "$CIRCLE_SHA1")
-  CHAOS_CONTAINER_VERSION=$(git rev-parse --short "$CIRCLE_SHA1")
-
   # Clone the automation repo master branch
   git clone git@github.com:oneiro-ndev/automation.git /root/automation
 
   # Remove old test net
-  KUBECONFIG=/root/kubeconfig \
-    helm del --purge $NODE_NAMES --tls ||\
-      echo "Releases: $NODE_NAMES could not be deleted" >&2
+  helm del --purge $NODE_NAMES --tls ||\
+    echo "Releases: $NODE_NAMES could not be deleted" >&2
 
   cd /root/automation/testnet
 
   # create new multinode test net
-  KUBECONFIG=/root/kubeconfig \
-  CHAOS_NOMS_TAG=$NOMS_CONTAINER_VERSION \
-  CHAOS_TM_TAG=$TM_CONTAINER_VERSION \
-  CHAOSNODE_TAG=$CHAOS_CONTAINER_VERSION \
-  NDAU_NOMS_TAG=$NOMS_CONTAINER_VERSION \
-  NDAU_TM_TAG=$TM_CONTAINER_VERSION \
-  NDAUNODE_TAG=$NDAU_CONTAINER_VERSION \
-  RELEASE=$RELEASE_NAME ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
+  RELEASE=$RELEASE_NAME \
+  ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
     ./gen_node_groups.py $NODE_NUM $STARTING_PORT
 
   # Run integration tests
@@ -43,7 +31,7 @@ if [ "${CIRCLE_BRANCH}" == "prgn-fix-commands" ]; then #"master" ]; then
   CURL_CONNECT_TIMEOUT=5  # how long each try waits
   CURL_RETRY_MAX=50       # retry this many times
   CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
-  CURL_RETRY_DELAY=0      # exponential back off
+  CURL_RETRY_DELAY=10     # try every X seconds
   CURL_TOTAL_TIMEOUT=420  # total time before it fails (420s=7min)
 
   echo "Trying to connect to $URL_0"
