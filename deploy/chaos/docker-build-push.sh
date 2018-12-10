@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Build chaosnode-test image
-# build chaosnode tests
-docker build -t chaosnode-test -f /commands/deploy/chaos/chaosnode-test.docker /commands
-# cleanup
-docker rmi chaosnode-test
-
 # Check chaosnode version on ECR
 # Compare this container version with ECR. Fail build if version already exists.
 # Look for this sha on ecr
