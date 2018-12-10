@@ -405,15 +405,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:df9ef3a84c98393bf48362a5aec64d5b16b6dd6910caf62594529be4d2da26f5"
+  digest = "1:cbddd64a00c3a594750fa08b76df81cf480dfe663c1e37498dfe6ca8279a4624"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "d61d565ad7d08b745643048a799f59a88125a5ed"
-  version = "v0.11.2"
+  revision = "8abac3e34fb8fc76bd416dbbf5e98a833a62ab94"
+  version = "v0.11.3"
 
 [[projects]]
   branch = "prgn-validate-with-sidechaintx"
@@ -430,6 +430,7 @@
     "pkg/ev.ndau",
     "pkg/genesisfile",
     "pkg/tool",
+    "pkg/tool.write",
   ]
   pruneopts = ""
   revision = "15f1f429e9c7566a849f5c0cdf3459e3a256fb24"
@@ -964,6 +965,7 @@
     "github.com/oneiro-ndev/chaos/pkg/ev.ndau",
     "github.com/oneiro-ndev/chaos/pkg/genesisfile",
     "github.com/oneiro-ndev/chaos/pkg/tool",
+    "github.com/oneiro-ndev/chaos/pkg/tool.write",
     "github.com/oneiro-ndev/chaos_genesis/pkg/genesis",
     "github.com/oneiro-ndev/chaos_genesis/pkg/genesis.generator",
     "github.com/oneiro-ndev/genesis/pkg/cli.util",
