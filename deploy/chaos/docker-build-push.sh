@@ -9,7 +9,8 @@ if [ ! -z "$sha_check" ]; then
 fi
 
 # Build chaosnode
-docker build -t chaosnode -f ./chaosnode.docker ../..
+echo "Building chaosnode"
+docker build -t chaosnode -f /commands/deploy/chaosnode.docker /commands/
 
 # Push chaosnode
 if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
@@ -25,8 +26,8 @@ if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
     docker tag chaosnode $commit_tag
     docker tag chaosnode $latest_tag
 
-    #docker push $commit_tag
-    #docker push $latest_tag
+    docker push $commit_tag
+    docker push $latest_tag
 
     echo "Pushed chaosnode container hash ${SHA}, and latest." >&2
   fi
