@@ -99,11 +99,11 @@ jobs:
                 URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
 
                 # curl retry options
-                CURL_CONNECT_TIMEOUT=5  # how long each try waits
-                CURL_RETRY_MAX=50       # retry this many times
+                CURL_CONNECT_TIMEOUT=5  # each try waits X seconds
+                CURL_RETRY_MAX=50       # retry X many times
                 CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
                 CURL_RETRY_DELAY=10     # try every X seconds
-                CURL_TOTAL_TIMEOUT=420  # total time before it fails (420s=7min)
+                CURL_TOTAL_TIMEOUT=900  # total seconds before it fails (900s=15m)
 
                 echo "Trying to connect to $URL_0"
                 # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
