@@ -405,15 +405,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:3702f55464d72fe71797028e82defc735dc727440a852422408131bd4ae97ac1"
+  digest = "1:df9ef3a84c98393bf48362a5aec64d5b16b6dd6910caf62594529be4d2da26f5"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "715a56dd0aa696ad0d46b7c5408ced3f22c5f0be"
-  version = "v0.11.1"
+  revision = "d61d565ad7d08b745643048a799f59a88125a5ed"
+  version = "v0.11.2"
 
 [[projects]]
   branch = "prgn-validate-with-sidechaintx"
