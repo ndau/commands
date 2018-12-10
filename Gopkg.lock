@@ -481,12 +481,12 @@
   version = "v0.1.2"
 
 [[projects]]
-  digest = "1:93d15ba1f951dc03e342f4f7a902f4aef1d39e9d7d0d26ac0e8432d9df12271f"
+  digest = "1:42b16f34900607cfce450920036c4f6d753281252d5a37f2c9a1c674bb84bbcc"
   name = "github.com/oneiro-ndev/mt19937_64"
   packages = ["."]
   pruneopts = ""
-  revision = "1d1d0a52998333e7fa73a1f10c93da267bacacac"
-  version = "1.0.0"
+  revision = "3f74adc550ba95a0b1e26a5029d3a84b0a146076"
+  version = "1.0.1"
 
 [[projects]]
   branch = "prgn-sidechaintx"
@@ -513,7 +513,7 @@
   revision = "f0303fdbb28b4b73538e1f3badb241270820e229"
 
 [[projects]]
-  digest = "1:10a60e9bc6486d84069a26380b491fc1ee24fe12142f3fd35eff1007f80d8de3"
+  digest = "1:4ece03350fa8298a4a15c7c083f77fe2efa77e3e5eb8d1c0c89aa33851d92687"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -535,8 +535,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "80c115643d58aeb86b609c9253fbca08a90cdf77"
-  version = "v0.7.7"
+  revision = "76f321745e327075ad27d03c0c9065463c886357"
+  version = "v0.7.8"
 
 [[projects]]
   branch = "master"
