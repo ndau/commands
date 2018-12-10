@@ -44,10 +44,6 @@ jobs:
             # install kube config certs
             echo -e "$kube_config" > /root/kubeconfig
 
-            cd /commands
-            echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
-            echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
-
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
@@ -60,6 +56,13 @@ jobs:
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
             echo -e "$machine_user_key" > /commands/machine_user_key
+
+      - run:
+          name: get git information
+          command: |
+            cd /commands
+            echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
+            echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
 
       - run:
           name: build the deps image
