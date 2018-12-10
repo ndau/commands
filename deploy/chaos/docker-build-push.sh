@@ -10,7 +10,7 @@ fi
 
 # Build chaosnode
 echo "Building chaosnode"
-docker build -t chaosnode -f /commands/deploy/chaosnode.docker /commands/
+docker build -t chaosnode -f /commands/deploy/chaos/chaosnode.docker /commands/
 
 # Push chaosnode
 if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
