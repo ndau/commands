@@ -75,7 +75,7 @@ jobs:
             docker run --rm \
                 -e CI=true \
                 deps \
-                /bin/sh /root/tests.sh || true # don't fail the build right now for tests that don't pass (TODO fail the build later)
+                /bin/sh /root/tests.sh
       - run:
           name: run all sub project docker scripts
           command: find . -name "docker-build-push.sh" -exec {} \;
