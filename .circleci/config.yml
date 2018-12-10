@@ -104,7 +104,8 @@ jobs:
 
                 echo "Trying to connect to $URL_0"
                 # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
+                # TODO, it seems like this isn't waiting as long as it's supposed to. But it WAS working before
+                if curl -v --connect-timeout $CURL_CONNECT_TIMEOUT \
                     --max-time $CURL_RETRY_MAX \
                     --retry $CURL_RETRY_TOTAL \
                     --retry-delay $CURL_RETRY_DELAY \
@@ -118,7 +119,7 @@ jobs:
 
                 echo "Trying to connect to $URL_1"
                 # curl until devnet-1 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
+                if curl -v --connect-timeout $CURL_CONNECT_TIMEOUT \
                     --max-time $CURL_RETRY_MAX \
                     --retry $CURL_RETRY_TOTAL \
                     --retry-delay $CURL_RETRY_DELAY \
