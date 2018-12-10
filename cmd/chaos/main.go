@@ -8,6 +8,7 @@ import (
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/chaos/pkg/chaos/ns"
 	"github.com/oneiro-ndev/chaos/pkg/tool"
+	twrite "github.com/oneiro-ndev/chaos/pkg/tool.write"
 	"github.com/pkg/errors"
 )
 
@@ -80,7 +81,7 @@ func main() {
 
 		cmd.Action = func() {
 			config := getConfig()
-			result, err := tool.Set(tmnode(config.Node), *name, config, getKey(), getValue())
+			result, err := twrite.Set(tmnode(config.Node), *name, config, getKey(), getValue())
 			finish(*verbose, result, err, "set")
 		}
 	})
