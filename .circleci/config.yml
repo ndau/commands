@@ -84,7 +84,7 @@ jobs:
           name: Integration tests
           command: |
 
-            if [ "${CIRCLE_BRANCH}" == "prgn-fix-commands" ]; then #"master" ]; then
+            if [ "${CIRCLE_BRANCH}" == "prgn-fix-commands" ]; then # TODO change this back to "master" ]; then
 
                 # Run integration tests
                 # get address and port of devnet0 RPC
