@@ -70,7 +70,6 @@ jobs:
           command: |
             # this runs a test script within the deps image
             docker run --rm \
-                --mount src="/commands/deploy/tests.sh",target="/root/tests.sh",type=bind \
                 -e CI=true \
                 deps \
                 /bin/sh /root/tests.sh || true # don't fail the build right now for tests that don't pass (TODO fail the build later)
