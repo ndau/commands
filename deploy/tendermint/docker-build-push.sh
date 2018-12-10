@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Only run on master
-if [ "${CIRCLE_BRANCH}" == "master" ]; then
+if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
     # grab TM version from Docker file
     git clone git@github.com:oneiro-ndev/chaos.git /root/chaos
 

@@ -85,8 +85,8 @@ jobs:
           name: Integration tests
           command: |
             # TODO enable this when integration tests are fixed
-            DISABLE_INTEGRATION_TESTS=true
-            if [ "${CIRCLE_BRANCH}" == "master" ] && ! $DISABLE_INTEGRATION_TESTS; then
+            DISABLE_INTEGRATION_TESTS=false
+            if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ] && ! $DISABLE_INTEGRATION_TESTS; then
 
                 # Run integration tests
                 # get address and port of devnet0 RPC

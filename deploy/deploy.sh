@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "${CIRCLE_BRANCH}" == "prgn-fix-commands" ]; then #"master" ]; then
+if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
   # Redeploy nodegroup testnet
 
   # Clone the automation repo master branch

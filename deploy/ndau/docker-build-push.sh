@@ -12,8 +12,7 @@ docker build -t ndauapi-build -f /commands/deploy/ndau/ndauapi-build.docker /com
 # Build ndauapi-run
 docker build -t ndauapi -f /commands/deploy/ndau/ndauapi-run.docker /commands
 
-
-if [ "${CIRCLE_BRANCH}" == "master" ]; then
+if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
   # Push ndaunode image to ECR
   # Do not upload commit hash that already exists.
   # Should never really happen as long as master is not tampered with.
