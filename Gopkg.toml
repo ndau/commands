@@ -1,6 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-branch = "prgn-validate-with-sidechaintx"
+version = "~v0.11"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
@@ -16,7 +16,7 @@ version = "~v0.11"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-branch = "prgn-sidechaintx"
+version = "~v0.8"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
