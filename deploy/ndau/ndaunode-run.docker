@@ -1,0 +1,14 @@
+# Run stage. Nothing should exist here but the executables.
+FROM alpine:3.8
+
+# Add the ca certs so that we can do outbound connections to https sites (honeycomb)
+RUN apk add --no-cache  ca-certificates
+
+# only copy the binary artifacts we produced earlier
+COPY --from=ndaunode-build /bin/ndaunode /bin/
+
+# ndaunode listens here for its requests
+# tendermint connects to this port
+EXPOSE 26658/TCP
+
+ENTRYPOINT ["/bin/ndaunode"]

@@ -1,0 +1,38 @@
+# This image downloads dependencies and only installs what is necessary to do so.
+FROM golang:1.11-alpine3.8
+
+RUN apk add --no-cache build-base
+
+# Start here
+ENV DIR=$GOPATH/src/github.com/oneiro-ndev/commands
+WORKDIR ${DIR}
+
+# Normally we wouldn't copy an ssh key, but this image will never be published.
+# Subsequent images only copy and use specific files from this image and use those.
+ARG SSH_KEY_FILE="machine_user_key"
+COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
+COPY ./deploy/github_fingerprints /root/.ssh/known_hosts
+RUN chmod 0600 /root/.ssh/id_rsa
+
+# Install git and configure it to use ssh, not https.
+# install go dep
+RUN apk add --no-cache openssh-client git && \
+    go get -u github.com/golang/dep/cmd/dep && \
+    go install github.com/golang/dep/cmd/dep
+
+# Copy the source files and dep files into the container.
+COPY ./Gopkg.lock ${DIR}/Gopkg.lock
+COPY ./Gopkg.toml ${DIR}/Gopkg.toml
+COPY ./cmd ${DIR}/cmd
+
+# Copy test script, but do not run it right now.
+COPY ./deploy/tests.sh /root/tests.sh
+
+# Configure git to use ssh instead of https
+RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
+
+# Download all the dependencies.
+RUN dep ensure
+
+# Remove the secret just in case its directory gets copied later.
+RUN rm -vf /root/.ssh/id_rsa

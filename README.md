@@ -19,17 +19,28 @@ These steps only need to be performed once:
 
 1. Install [Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
 1. Install [Go](https://golang.org/doc/install)
+1. Install [Python3](https://www.python.org/downloads/)
+1. Restart your terminal if necessary to update `$PATH`.
+1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
+    ```sh
+    python3 -m pip install remarshal --user
+    ```
 1. Install [Brew](https://brew.sh/)
 1. Install `dep`: `brew install dep`
 1. Install Redis: `brew install redis`
+1. Install `jq`: `brew install jq`
 1. Clone this repo:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git $GOPATH/src/github.com/oneiro-ndev/commands
     ```
-1. Download `github_chaos_deploy` from the Oneiro 1password account
+1. Download `machine_user_key` from the Oneiro 1password account
     - Have someone on the team securely send it to you if needed
-    - Copy it into the `bin/` directory
-1. Run `./setup.sh` from the `bin/` directory
+    - Copy it into the repo root
+1. Run `bin/setup.sh` from the repo root
+
+### Demo mode
+
+[`demo.sh`](demo.sh) sets everything up, runs the node group, creates a `demo` ndau account, gives it some money, creates a `demo` chaos id associated with that ndau account, sends some transactions, and shows that the chaos transactions validated themselves on the ndau chain, before finally shutting everything down.
 
 ### Running
 

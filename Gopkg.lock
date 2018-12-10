@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:85abe7ae95bcb2524f3642c227fedd2f2a7b3079b63bf7fd2db9824d2ee18262"
+  digest = "1:8ef263ab0d9984bf195b5b723c548b6a2277f7f9e92ebee0153b0cca40be1b27"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -88,6 +88,7 @@
     "aws/credentials",
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
     "aws/credentials/stscreds",
     "aws/crr",
     "aws/csm",
@@ -118,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "6b08b085a17ae5a6040fdb67971812696569dced"
-  version = "v1.15.89"
+  revision = "c4e0e593d5f18b478f17ff0e86b56d41a70ced2d"
+  version = "v1.16.2"
 
 [[projects]]
   branch = "master"
@@ -161,7 +162,7 @@
   revision = "95f809107225be108efcf10a3509e4ea6ceef3c4"
 
 [[projects]]
-  digest = "1:43a36c00452a42a0e5f48dca58373ea3af253b3000dc025a1d712ea3844727bb"
+  digest = "1:74cb28f90f440aa5125ec650a7841d538bc7c1b64d952cbb0df4bdade3db8dc0"
   name = "github.com/ericlagergren/decimal"
   packages = [
     ".",
@@ -170,8 +171,8 @@
     "internal/c",
   ]
   pruneopts = ""
-  revision = "2a5821154e156e9036761a55c2e820d8653a5a60"
-  version = "v3.2"
+  revision = "7f7cf8a362e5c45851ebbf009274d2ed8a2c88a7"
+  version = "v3.3.0"
 
 [[projects]]
   branch = "master"
@@ -325,11 +326,11 @@
   version = "v1.0.4"
 
 [[projects]]
-  digest = "1:6f49eae0c1e5dab1dafafee34b207aeb7a42303105960944828c2079b92fc88e"
+  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   pruneopts = ""
-  revision = "0b12d6b5"
+  revision = "c2b33e84"
 
 [[projects]]
   branch = "master"
@@ -404,19 +405,18 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:3702f55464d72fe71797028e82defc735dc727440a852422408131bd4ae97ac1"
+  digest = "1:cbddd64a00c3a594750fa08b76df81cf480dfe663c1e37498dfe6ca8279a4624"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "715a56dd0aa696ad0d46b7c5408ced3f22c5f0be"
-  version = "v0.11.1"
+  revision = "8abac3e34fb8fc76bd416dbbf5e98a833a62ab94"
+  version = "v0.11.3"
 
 [[projects]]
-  branch = "prgn-validate-with-sidechaintx"
-  digest = "1:dc788878b25b7cfe53de25d4e027c06f6dc4f5664629252b0005bbe55a46bb03"
+  digest = "1:54be300c4613063d9a396513b9b837b43219b36a488f9c3e700af42d370fd6cd"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -432,7 +432,8 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "e1c270ad429051cc56804fa86b8ff05eb4226c57"
+  revision = "a25990e013808e34ae1607555cd5ab9ab4d76ada"
+  version = "v0.11.0"
 
 [[projects]]
   digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"
@@ -459,7 +460,7 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:5d3fd93d0c5d470323279f99641d5f7b33f396c50636e8672652ecf46424e620"
+  digest = "1:934311c1ba09fa4f0c4a319736bcc29512b0a0ad3c100d5443101a8987f0c4d8"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -469,8 +470,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7b51ccbf4b8538dab62badb25b77e4fc48446b8d"
-  version = "v0.11.8"
+  revision = "b58604d44679cdccaad3f0609c170a1fdf7007b9"
+  version = "v0.11.10"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -481,16 +482,15 @@
   version = "v0.1.2"
 
 [[projects]]
-  digest = "1:93d15ba1f951dc03e342f4f7a902f4aef1d39e9d7d0d26ac0e8432d9df12271f"
+  digest = "1:42b16f34900607cfce450920036c4f6d753281252d5a37f2c9a1c674bb84bbcc"
   name = "github.com/oneiro-ndev/mt19937_64"
   packages = ["."]
   pruneopts = ""
-  revision = "1d1d0a52998333e7fa73a1f10c93da267bacacac"
-  version = "1.0.0"
+  revision = "3f74adc550ba95a0b1e26a5029d3a84b0a146076"
+  version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-sidechaintx"
-  digest = "1:9e97255620cb1e5dbd5fa6ceea3b0cec07464cb857ea9f74187b3b9e02100759"
+  digest = "1:e388492aa7443d9b6caad3859dc2ad3b9d7a4b3e8eb70c4407109f8b2522c9de"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -510,10 +510,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6ba281be4e46341456e6e549cc745f7ac764c48e"
+  revision = "291f7a2bf261e8060597c16ec1022844d3b72bf1"
+  version = "v0.8.0"
 
 [[projects]]
-  digest = "1:10a60e9bc6486d84069a26380b491fc1ee24fe12142f3fd35eff1007f80d8de3"
+  digest = "1:4ece03350fa8298a4a15c7c083f77fe2efa77e3e5eb8d1c0c89aa33851d92687"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -535,8 +536,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "80c115643d58aeb86b609c9253fbca08a90cdf77"
-  version = "v0.7.7"
+  revision = "76f321745e327075ad27d03c0c9065463c886357"
+  version = "v0.7.8"
 
 [[projects]]
   branch = "master"
@@ -632,7 +633,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a56d65fd7955ac60e4550b9e4824877e4cba082fd4128f782eb89055505f5997"
+  digest = "1:2a434946be9f2f5498b2405a8607768aab439237ea13deff2edc59d9a44f8891"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -641,7 +642,7 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "aa55a523dc0a8297edf51bb75e8eec13eb3be45d"
+  revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
 
 [[projects]]
   digest = "1:15bcdc717654ef21128e8af3a63eec39a6d08a830e297f93d65163f87c8eb523"
@@ -856,7 +857,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f358024b019f87eecaadcb098113a40852c94fe58ea670ef3c3e2d2c7bd93db1"
+  digest = "1:f934a0869d3969b7ec9833a1bb9b29e09fb77196bc1ac59081a66d100320f238"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -864,7 +865,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
+  revision = "2a47403f2ae58167c4d75973960ccc62b28cb0d8"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -891,11 +892,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4029d9340ef096d11dd4ae8d67c5a43522322d0c4d97c55c290d780060a159e7"
+  digest = "1:ff87b16c471b8a9e22fefa3bb546a60d61dd4d65daf9b8dbc5c6ae86340415bd"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "e5f3ab76ea4b26ebea349e4994ee72d38250c9b0"
+  revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
 
 [[projects]]
   branch = "master"

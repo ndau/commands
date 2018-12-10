@@ -9,7 +9,6 @@ import (
 	"github.com/oneiro-ndev/chaos/pkg/chaos/ns"
 	"github.com/oneiro-ndev/chaos/pkg/tool"
 	twrite "github.com/oneiro-ndev/chaos/pkg/tool.write"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 )
 
@@ -54,18 +53,13 @@ func main() {
 		})
 
 		cmd.Command("new", "create a new identity", func(subcmd *cli.Cmd) {
-			subcmd.Spec = "NAME ADDR"
+			subcmd.Spec = "NAME"
 
-			var (
-				name  = subcmd.StringArg("NAME", "", "Name to associate with the new identity")
-				addrs = subcmd.StringArg("ADDR", "", "ndau address of account with which to pay for this id's transactions")
-			)
+			var name = subcmd.StringArg("NAME", "", "Name to associate with the new identity")
 
 			subcmd.Action = func() {
-				addr, err := address.Validate(*addrs)
-				orQuit(err)
 				config := getConfig()
-				err = config.CreateIdentity(*name, addr, os.Stdout)
+				err := config.CreateIdentity(*name, os.Stdout)
 				orQuit(errors.Wrap(err, "Failed to create identity"))
 				config.Save()
 			}
@@ -169,6 +163,8 @@ func main() {
 				tmnode(config.Node),
 				namespace,
 				getKey(),
+				0,
+				0,
 			)
 			if err == nil {
 				emit(os.Stdout, values)
