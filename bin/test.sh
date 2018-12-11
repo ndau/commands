@@ -15,8 +15,27 @@ initialize() {
     source "$CMDBIN_DIR"/env.sh
 }
 
+link_vendor_in_cwd() {
+    if [ -d vendor ]; then
+        # In case someone has the old glide vendor directory lying around.
+        rm -rf vendor
+    else
+        # Ensure there is no vendor file or symbolic link here.
+        rm -f vendor
+    fi
+
+    # Allow go test to find all the dependencies in the commands vendor directory.
+    ln -s "$COMMANDS_DIR"/vendor vendor
+}
+
+unlink_vendor_in_cwd() {
+    # Clean up symbolic link to commands vendor directory
+    rm -f vendor
+}
+
 test_chaos() {
     cd "$CHAOS_DIR"
+    link_vendor_in_cwd
 
     chaosintegration=0
     for arg in "${ARGS[@]}"; do
@@ -29,10 +48,13 @@ test_chaos() {
         echo testing chaos
         go test ./...
     fi
+
+    unlink_vendor_in_cwd
 }
 
 test_ndau() {
     cd "$NDAU_DIR"
+    link_vendor_in_cwd
 
     ndauintegration=0
     for arg in "${ARGS[@]}"; do
@@ -59,6 +81,8 @@ test_ndau() {
         # We forced-ran for integration tests, so we might as well kill automatically too.
         "$CMDBIN_DIR"/kill.sh
     fi
+
+    unlink_vendor_in_cwd
 }
 
 test_all() {
