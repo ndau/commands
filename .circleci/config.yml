@@ -50,11 +50,17 @@ jobs:
 
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+
       - run:
           name: Checkout code
           command: |
             # depth=1 makes the clone a lot faster
             git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+
+            # add github fingerprint to known hosts
+            touch /root/.ssh/known_hosts && \
+            chmod 0644 /root/.ssh/known_hosts && \
+            cat /commands/deploy/github_fingerprints >> /root/.ssh/known_hosts
 
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
