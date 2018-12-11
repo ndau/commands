@@ -568,14 +568,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4f130e9aa2fbe90453f49d12d84591c1a65cd6fc2e3c7ad81eaead7ec67b6fb8"
+  digest = "1:3f3c40976bcb02e7e8272b6ede491b5c46b0f6bacd867cfefedc879aed750c33"
   name = "github.com/oneiro-ndev/writers"
   packages = [
     "pkg/linewriter",
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "ff5d0f8112d9ad95049ea5adc6bd6e145153ff8b"
+  revision = "90774ecfea96bf0decb29ea7081d28a2831d71e1"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"

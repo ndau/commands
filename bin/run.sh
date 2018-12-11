@@ -53,7 +53,7 @@ chaos_node() {
     echo getting chaosnode app hash
     CHAOS_HASH=$(./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" -echo-hash 2>/dev/null)
     # jq doesn't support an inplace operation
-    jq ".app_hash= if .app_hash == \"\" then \"$CHAOS_HASH\" else .app_hash end"
+    jq ".app_hash= if .app_hash == \"\" then \"$CHAOS_HASH\" else .app_hash end" \
         "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json \
         > "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json &&
         mv "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json
@@ -143,7 +143,7 @@ ndau_node() {
     echo getting ndaunode app hash
     NDAU_HASH=$(./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" -echo-hash 2>/dev/null)
     # jq doesn't support an inplace operation
-    jq ".app_hash= if .app_hash == \"\" then \"$NDAU_HASH\" else .app_hash end"
+    jq ".app_hash= if .app_hash == \"\" then \"$NDAU_HASH\" else .app_hash end" \
         "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json \
         > "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.new.json &&
         mv "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.new.json "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json

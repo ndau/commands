@@ -30,3 +30,7 @@ source = "github.com/oneiro-ndev/noms"
 [[override]]
 name = "github.com/satori/go.uuid"
 branch = "master"
+
+[[override]]
+name = "github.com/oneiro-ndev/writers"
+branch = "master"
