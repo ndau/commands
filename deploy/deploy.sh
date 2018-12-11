@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
+if [ "${CIRCLE_BRANCH}" == "$ECR_PUSH_BRANCH" ]; then
   # Redeploy nodegroup testnet
 
   # Clone the automation repo master branch
@@ -13,6 +13,8 @@ if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
   cd /root/automation/testnet
 
   # create new multinode test net
+  CHAOSNODE_TAG=$SHA \
+  NDAUNODE_TAG=$SHA \
   RELEASE=$RELEASE_NAME \
   ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
     ./gen_node_groups.py $NODE_NUM $STARTING_PORT
