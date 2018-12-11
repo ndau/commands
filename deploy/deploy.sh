@@ -10,17 +10,14 @@ if [ "${CIRCLE_BRANCH}" == "$ECR_PUSH_BRANCH" ]; then
   helm del --purge $NODE_NAMES --tls ||\
     echo "Releases: $NODE_NAMES could not be deleted" >&2
 
-  cd /root/automation/testnet
-
   # create new multinode test net
   # Use $SHA here instead of the automation's git ls-remote method.
-
   CHAOSNODE_TAG=$SHA \
   NDAUNODE_TAG=$SHA \
   RELEASE=$RELEASE_NAME \
   ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
-    ./gen_node_groups.py $NODE_NUM $STARTING_PORT
+    /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
 else
-  echo "Not deploying for non-master branch."
+  echo "Not deploying. This branch is not the ECR_PUSH_BRANCH: $ECR_PUSH_BRANCH."
 fi

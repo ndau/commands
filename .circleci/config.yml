@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /commands
     docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.8
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
     environment:
       shell: /bin/bash
       # Used for ECR
@@ -31,6 +31,7 @@ jobs:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
+
       - run:
           name: Turn environment variable secrets into files
           command: |
@@ -52,10 +53,8 @@ jobs:
             # depth=1 makes the clone a lot faster
             git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
 
-            # add github fingerprint to known hosts
-            touch /root/.ssh/known_hosts && \
-            chmod 0644 /root/.ssh/known_hosts && \
-            cat /commands/deploy/github_fingerprints >> /root/.ssh/known_hosts
+            # add the circle image's known_hosts file to the known_hosts used inside the images
+            cp /root/.ssh/known_hosts /commands/deploy/known_hosts
 
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
@@ -138,8 +137,8 @@ jobs:
                 fi
 
                 # ensure go path location
-                mkdir -p $GOPATH/src/github.com/oneiro-ndev
-                cd $GOPATH/src/github.com/oneiro-ndev
+                mkdir -p /go/src/github.com/oneiro-ndev
+                cd /go/src/github.com/oneiro-ndev
 
                 # clone integration tests
                 git clone git@github.com:oneiro-ndev/chaos-integration-tests.git -b jsg-unified-nodes-update
