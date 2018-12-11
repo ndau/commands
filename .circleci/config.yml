@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /commands
     docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.7
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.8
     environment:
       shell: /bin/bash
       # Used for ECR
@@ -12,11 +12,11 @@ jobs:
       ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
       # Bump these versions, and commit to master to upload a new version to ECR
       NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050" # TODO change for chaos and ndau
+      STARTING_PORT: "30050"
       ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
       # These node names are removed first before new ones are installed.
       # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4" # TODO change for chaos and ndau
+      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
       RELEASE_NAME: "devnet"
       # Number of nodes to deploy
       NODE_NUM: "5"
@@ -31,11 +31,6 @@ jobs:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
-      - run:
-          name: Install coreutils
-          command: |
-            # TODO put this in circle-ci image
-            apk add --no-cache coreutils
       - run:
           name: Turn environment variable secrets into files
           command: |
@@ -93,7 +88,7 @@ jobs:
           command: |
             # TODO enable this when integration tests are fixed
             DISABLE_INTEGRATION_TESTS=false
-            if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ] && ! $DISABLE_INTEGRATION_TESTS; then
+            if [ "$CIRCLE_BRANCH" == "$ECR_PUSH_BRANCH" ] && ! $DISABLE_INTEGRATION_TESTS; then
 
                 # Run integration tests
                 # get address and port of devnet0 RPC
@@ -114,7 +109,6 @@ jobs:
 
                 echo "Trying to connect to $URL_0"
                 # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                # TODO, it seems like this isn't waiting as long as it's supposed to. But it WAS working before
                 if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
                     --retry-connrefused \
                     --max-time $CURL_RETRY_MAX \
