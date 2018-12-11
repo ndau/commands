@@ -35,7 +35,6 @@ Value|Opcode|Meaning|Stack before|Instr.|Stack after
 0x2a|PushB|Pushes the specified number of following bytes onto the stack as a Bytes object.||pushb 3 0x41 0x42 0x43|"ABC"
 0x2b|PushT|Concatenates the next 8 bytes and pushes them onto the stack as a timestamp.||pusht|timestamp A
 0x2c|Now|Pushes the current timestamp onto the stack.||now|(current time as timestamp)
-0x2d|PushA|Evaluates a to make sure it is formatted as a valid ndau-style address; if so, pushes it onto the stack as a Bytes object. If not, error.||pusha nda234...4b3|nda234...4b3
 0x2e|Rand|Pushes a 64-bit random number onto the stack. Note that 'random' may have special meaning depending on context; in particular, repeated uses of this opcode may (and most likely will) return the same value within a given runtime scenario.||rand|
 0x2f|PushL|Pushes an empty list onto the stack.||pushl|[]
 0x40|Add|Adds the top two numeric values on the stack and puts their sum on top of the stack. attempting to add non-numeric values is an error.|A B|add|A+B

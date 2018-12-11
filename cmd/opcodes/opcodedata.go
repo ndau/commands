@@ -349,18 +349,6 @@ var opcodeData = opcodeInfos{
 		Enabled: true,
 	},
 	opcodeInfo{
-		Value:   0x2D,
-		Name:    "PushA",
-		Summary: "Evaluates a to make sure it is formatted as a valid ndau-style address; if so, pushes it onto the stack as a Bytes object. If not, error.",
-		Doc:     "",
-		Example: example{
-			Pre:  "",
-			Inst: "pusha nda234...4b3",
-			Post: "nda234...4b3"},
-		Parms:   []parm{addrParm{}},
-		Enabled: true,
-	},
-	opcodeInfo{
 		Value:   0x2E,
 		Name:    "Rand",
 		Summary: "Pushes a 64-bit random number onto the stack. Note that 'random' may have special meaning depending on context; in particular, repeated uses of this opcode may (and most likely will) return the same value within a given runtime scenario.",
