@@ -21,7 +21,7 @@ ROOT = findroot()
 
 def gitignore_lines():
     with (ROOT / ".gitignore").open() as gitignore:
-        return set(line for line in gitignore)
+        return set(line.rstrip() for line in gitignore)
 
 
 def commands():
