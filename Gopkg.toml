@@ -34,3 +34,7 @@ branch = "master"
 [[override]]
 name = "github.com/oneiro-ndev/writers"
 branch = "master"
+
+[[override]]
+name = "github.com/oneiro-ndev/o11y"
+branch = "prgn-dont-discard-logging"
