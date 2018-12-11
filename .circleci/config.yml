@@ -21,6 +21,10 @@ jobs:
       # Number of nodes to deploy
       NODE_NUM: "5"
       KUBECONFIG: /root/kubeconfig
+
+      # push to ECR if this commit is on this branch (normally master)
+      ECR_PUSH_BRANCH: josh/4-fix-ecr-push
+
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -46,7 +50,6 @@ jobs:
 
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
-
       - run:
           name: Checkout code
           command: |
@@ -56,14 +59,12 @@ jobs:
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
             echo -e "$machine_user_key" > /commands/machine_user_key
-
       - run:
           name: get git information
           command: |
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
-
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/

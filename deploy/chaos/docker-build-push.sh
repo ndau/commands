@@ -1,34 +1,30 @@
 #!/bin/bash
 
+echo "Starting $0"
+
 # Check chaosnode version on ECR
-# Compare this container version with ECR. Fail build if version already exists.
-# Look for this sha on ecr
-sha_check=$(aws ecr describe-images --repository-name chaosnode | jq ".imageDetails[].imageTags[]? | select (. == \"${SHA}\")")
+
+# Look for container tagged with this SHA on ECR.
+sha_check=$(aws ecr describe-images --repository-name chaosnode | jq ".imageDetails[].imageTags[]? | select (. == \"$SHA\")")
+
 if [ ! -z "$sha_check" ]; then
-  echo "Chaosnode container version ${SHA} already exists." >&2
-fi
+  echo "Chaosnode container version $SHA already exists. Will not build. Will not push." >&2
+elif [ "$CIRCLE_BRANCH" == "$ECR_PUSH_BRANCH" ]; then
 
-# Build chaosnode
-echo "Building chaosnode"
-docker build -t chaosnode -f /commands/deploy/chaos/chaosnode.docker /commands/
+  # Build chaosnode
+  echo "Building chaosnode"
+  docker build -t chaosnode -f /commands/deploy/chaos/chaosnode.docker /commands/
 
-# Push chaosnode
-if [ "${CIRCLE_BRANCH}" == "josh/4-fix-ecr-push" ]; then
-  # Do not upload commit hash that already exists.
-  # Should never really happen as long as master is not tampered with.
-  sha_check=$(aws ecr describe-images --repository-name chaosnode | jq ".imageDetails[].imageTags[]? | select (. == \"${SHA}\")")
-  if [ ! -z "$sha_check" ]; then
-    echo "Chaosnode container hash ${SHA} already exists. Will not push." >&2
-  else
-    commit_tag="${ECR_ENDPOINT}/chaosnode:${SHA}"
-    latest_tag="${ECR_ENDPOINT}/chaosnode:latest"
+  # compose tags for ecr
+  commit_tag="${ECR_ENDPOINT}/chaosnode:$SHA"
+  latest_tag="${ECR_ENDPOINT}/chaosnode:latest"
 
-    docker tag chaosnode $commit_tag
-    docker tag chaosnode $latest_tag
+  docker tag chaosnode $commit_tag
+  docker tag chaosnode $latest_tag
 
-    docker push $commit_tag
-    docker push $latest_tag
+  docker push $commit_tag
+  docker push $latest_tag
 
-    echo "Pushed chaosnode container hash ${SHA}, and latest." >&2
-  fi
+  echo "Pushed chaosnode container hash $SHA, and latest." >&2
+
 fi
