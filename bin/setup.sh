@@ -8,14 +8,6 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
-# Ensure the go directory is where we expect it.
-echo SETUP: Ensuring "$GO_DIR" exists...
-if [[ $GO_DIR == *":"* ]]; then
-    echo Multiple Go paths not supported
-    exit 1
-fi
-mkdir -p "$GO_DIR"
-
 # Make sure we have the deploy file.
 # If this exits with error, see README.md for how to get the deploy file.
 DEPLOY_FILE=$(pwd)/machine_user_key
