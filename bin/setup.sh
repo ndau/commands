@@ -56,35 +56,25 @@ git checkout "$TENDERMINT_VER"
 echo SETUP: Ensuring tendermint dependencies...
 "$GO_DIR"/bin/dep ensure
 
+update_repo() {
+    repo="$1"
+    cd "$NDEV_DIR"
+    if [ -d "$repo" ]; then
+        echo SETUP: Updating "$repo"...
+        cd "$repo"
+        git pull origin "$("$CMDBIN_DIR"/branch.sh)"
+    else
+        echo SETUP: Cloning "$repo"...
+        git clone git@github.com:oneiro-ndev/"$repo".git
+    fi
+}
+
 # ndev repos
 mkdir -p "$NDEV_DIR"
-cd "$NDEV_DIR"
-if [ -d "chaos" ]; then
-    echo SETUP: Updating chaos...
-    cd chaos
-    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
-else
-    echo SETUP: Cloning chaos...
-    git clone git@github.com:oneiro-ndev/chaos.git
-fi
-cd "$NDEV_DIR"
-if [ -d "ndau" ]; then
-    echo SETUP: Updating ndau...
-    cd ndau
-    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
-else
-    echo SETUP: Cloning ndau...
-    git clone git@github.com:oneiro-ndev/ndau.git
-fi
-cd "$NDEV_DIR"
-if [ -d "chaos_genesis" ]; then
-    echo SETUP: Updating chaos_genesis...
-    cd chaos_genesis
-    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
-else
-    echo SETUP: Cloning chaos_genesis...
-    git clone git@github.com:oneiro-ndev/chaos_genesis.git
-fi
+update_repo commands
+update_repo chaos
+update_repo ndau
+update_repo chaos_genesis
 
 # utilities
 cd "$NDEV_DIR"/commands
