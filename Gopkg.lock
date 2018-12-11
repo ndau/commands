@@ -405,15 +405,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:cbddd64a00c3a594750fa08b76df81cf480dfe663c1e37498dfe6ca8279a4624"
+  digest = "1:4f22df819b848aadb83888cef6c4b5844119067298c1db42a56b3b8dd07a3450"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "8abac3e34fb8fc76bd416dbbf5e98a833a62ab94"
-  version = "v0.11.3"
+  revision = "fb7ed1f92e688e2c15875c220ec0cbb5036cb87a"
+  version = "v0.11.4"
 
 [[projects]]
   digest = "1:54be300c4613063d9a396513b9b837b43219b36a488f9c3e700af42d370fd6cd"
@@ -460,7 +460,7 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:934311c1ba09fa4f0c4a319736bcc29512b0a0ad3c100d5443101a8987f0c4d8"
+  digest = "1:56ff7c70b4765c9796f14a4f8e47eaf5ab6f1c8456f5a7964f83526109900271"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -470,8 +470,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "b58604d44679cdccaad3f0609c170a1fdf7007b9"
-  version = "v0.11.10"
+  revision = "b74f74d3433b44208c0141a45dd37d5f43d4af83"
+  version = "v0.11.11"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -568,14 +568,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4f130e9aa2fbe90453f49d12d84591c1a65cd6fc2e3c7ad81eaead7ec67b6fb8"
+  digest = "1:3f3c40976bcb02e7e8272b6ede491b5c46b0f6bacd867cfefedc879aed750c33"
   name = "github.com/oneiro-ndev/writers"
   packages = [
     "pkg/linewriter",
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "ff5d0f8112d9ad95049ea5adc6bd6e145153ff8b"
+  revision = "90774ecfea96bf0decb29ea7081d28a2831d71e1"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
@@ -857,7 +857,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f934a0869d3969b7ec9833a1bb9b29e09fb77196bc1ac59081a66d100320f238"
+  digest = "1:a89bd9b57bfccfbf42a9449a1fc2c94bd9d0e611762d074fdea2f4b9236c9ec0"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -865,7 +865,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "2a47403f2ae58167c4d75973960ccc62b28cb0d8"
+  revision = "7da8ea5c81829e397bdf930c5d8ba4b703616f33"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -892,11 +892,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ff87b16c471b8a9e22fefa3bb546a60d61dd4d65daf9b8dbc5c6ae86340415bd"
+  digest = "1:dfec4570f2e31d17fdec1afb6d1eeb3ed233067e82bd10d1955daa2bb9b5d92e"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
+  revision = "6a3e9aa2ab7749d72d1006ee484271b4a11f96c2"
 
 [[projects]]
   branch = "master"
