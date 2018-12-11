@@ -10,7 +10,7 @@ if [ ! -z "$sha_check" ]; then
 fi
 
 # Build chaosnode
-docker build -t -f ./chaosnode.docker /commands
+docker build -t chaosnode -f ./chaosnode.docker /commands
 
 # Push chaosnode
 if [ "${CIRCLE_BRANCH}" == "master" ]; then
