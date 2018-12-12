@@ -59,6 +59,7 @@ chaos_node() {
         mv "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json
 
     echo running chaosnode
+    HONEYCOMB_DATASET=chaos-dev \
     ./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" \
                 -index localhost:"$REDIS_CHAOS_PORT" \
                 >"$CMDBIN_DIR"/chaos_node.log 2>&1 &
@@ -70,6 +71,7 @@ chaos_node() {
 chaos_tm() {
     echo running chaos tendermint
     cd "$TENDERMINT_DIR" || exit 1
+    HONEYCOMB_DATASET=chaos-tm-dev \
     ./tendermint node --home "$TENDERMINT_CHAOS_DATA_DIR" \
                       --proxy_app tcp://localhost:"$NODE_CHAOS_PORT" \
                       --p2p.laddr tcp://0.0.0.0:"$TM_CHAOS_P2P_PORT" \
@@ -150,6 +152,7 @@ ndau_node() {
 
     # now we can run ndaunode
     echo running ndaunode
+    HONEYCOMB_DATASET=ndau-dev \
     ./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" \
                -index localhost:"$REDIS_NDAU_PORT" \
                -addr 0.0.0.0:"$NODE_NDAU_PORT" \
@@ -163,6 +166,7 @@ ndau_tm() {
     echo running ndau tendermint
 
     cd "$TENDERMINT_DIR" || exit 1
+    HONEYCOMB_DATASET=ndau-tm-dev \
     ./tendermint node --home "$TENDERMINT_NDAU_DATA_DIR" \
                       --proxy_app tcp://localhost:"$NODE_NDAU_PORT" \
                       --p2p.laddr tcp://0.0.0.0:"$TM_NDAU_P2P_PORT" \
