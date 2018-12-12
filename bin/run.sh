@@ -59,6 +59,7 @@ chaos_node() {
         mv "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json
 
     echo running chaosnode
+    HONEYCOMB_DATASET=chaos-dev \
     ./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" \
                 -index localhost:"$REDIS_CHAOS_PORT" \
                 >"$CMDBIN_DIR"/chaos_node.log 2>&1 &
@@ -150,6 +151,7 @@ ndau_node() {
 
     # now we can run ndaunode
     echo running ndaunode
+    HONEYCOMB_DATASET=ndau-dev \
     ./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" \
                -index localhost:"$REDIS_NDAU_PORT" \
                -addr 0.0.0.0:"$NODE_NDAU_PORT" \
