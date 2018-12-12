@@ -36,7 +36,7 @@ for gfile in genesis.*.toml; do
 done
 
 if [ "$gexists" == 0 ]; then
-    "$CHAOS_GENESIS_DIR"/generate --out .
+    "$COMMANDS_DIR"/generate --out .
 
     # reset.sh makes sure we start fresh (zero genesis files).
     # conf.sh makes sure we only create one if one's not there (wind up with one genesis file).
@@ -48,7 +48,7 @@ if [ "$gexists" == 0 ]; then
     #
     # shellcheck disable=SC2012
     GENESIS_TOML=$(ls -t genesis.*.toml | head -n 1)
-    "$CHAOS_GENESIS_DIR"/genesis -g "$NODE_DATA_DIR/$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR"
+    "$COMMANDS_DIR"/genesis -g "$NODE_DATA_DIR/$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR"
 
     # This is needed for things like RFE transactions to function.
     # shellcheck disable=SC2012
