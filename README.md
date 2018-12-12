@@ -29,7 +29,6 @@ These steps only need to be performed once:
 1. Install `dep`: `brew install dep`
 1. Install Redis: `brew install redis`
 1. Install `jq`: `brew install jq`
-1. Install `realpath`: `brew tap iveney/homebrew-mocha && brew install realpath`
 1. Clone this repo:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git $GOPATH/src/github.com/oneiro-ndev/commands

@@ -26,7 +26,7 @@ export TM_DIR=$GO_DIR/src/github.com/tendermint
 
 # Build locations.
 export CHAOS_DIR=$NDEV_DIR/chaos
-export CHAOS_GENESIS_DIR=$NDEV_DIR/commands
+export CHAOS_GENESIS_DIR=$NDEV_DIR/chaos_genesis
 export COMMANDS_DIR=$NDEV_DIR/commands
 export NDAU_DIR=$NDEV_DIR/ndau
 export NOMS_DIR=$ATTICLABS_DIR/noms
