@@ -78,6 +78,9 @@ func (rs *runtimeState) reinit(stk *vm.Stack) error {
 // setevent sets up the VM to run the given event, which means that it calls
 // reinit to set up the stack as well.
 func (rs *runtimeState) setevent(eventid string) error {
+	if v, ok := predefined[eventid]; ok {
+		eventid = v
+	}
 	ev, err := strconv.ParseInt(strings.TrimSpace(eventid), 0, 8)
 	if err != nil {
 		return err
@@ -94,7 +97,6 @@ func (rs *runtimeState) run(debug bool) error {
 
 func (rs *runtimeState) step(debug bool) error {
 	err := rs.vm.Step(debug)
-	fmt.Println(rs.vm)
 	return err
 }
 
@@ -103,7 +105,11 @@ func (rs *runtimeState) dispatch(s string) error {
 	args := p.Split(s, 2)
 	for key, cmd := range commands {
 		if key == args[0] || cmd.matchesAlias(args[0]) {
-			return cmd.handler(rs, args[1])
+			extra := ""
+			if len(args) > 1 {
+				extra = args[1]
+			}
+			return cmd.handler(rs, extra)
 		}
 	}
 	return fmt.Errorf("unknown command %s - type ? for help", s)
@@ -117,8 +123,12 @@ func (rs *runtimeState) repl(cmdsrc io.Reader) {
 		usingStdin = false
 	}
 	for {
+		fmt.Println(rs.vm)
 		fmt.Print("> ")
 		s, err := reader.ReadString('\n')
+		if !usingStdin {
+			fmt.Print(s)
+		}
 		if err != nil && err != io.EOF {
 			panic(err)
 		}
@@ -131,6 +141,10 @@ func (rs *runtimeState) repl(cmdsrc io.Reader) {
 			reader = bufio.NewReader(os.Stdin)
 			fmt.Println("*** Input now from stdin ***")
 			usingStdin = true
+		}
+		s = strings.TrimSpace(s)
+		if s == "" || strings.HasPrefix(s, ";") {
+			continue
 		}
 		err = rs.dispatch(s)
 		if err != nil {
@@ -152,8 +166,8 @@ func main() {
 	commands["help"] = h
 
 	var args struct {
-		Input string `arg:"-i" help:"Input command file"`
-		File  string `arg:"-f" help:"File to load as a chasm binary (*.chbin)."`
+		Input  string `arg:"-i" help:"Input command file"`
+		Binary string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
 	}
 	arg.MustParse(&args)
 	var inf io.Reader
@@ -166,8 +180,8 @@ func main() {
 	}
 
 	rs := runtimeState{}
-	if args.File != "" {
-		err := rs.load(args.File)
+	if args.Binary != "" {
+		err := rs.load(args.Binary)
 		if err != nil {
 			panic(err)
 		}

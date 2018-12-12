@@ -30,6 +30,8 @@ func getRandomAccount() backing.AccountData {
 	return ad
 }
 
+var predefined = predefinedConstants()
+
 func parseValues(s string) ([]vm.Value, error) {
 	// timestamp
 	tsp := regexp.MustCompile("^[0-9-]+T[0-9:]+Z")
@@ -44,7 +46,7 @@ func parseValues(s string) ([]vm.Value, error) {
 	bytep := regexp.MustCompile(`^B\((([0-9A-Fa-f][0-9A-Fa-f] *)+)\)`)
 	// fields for structs are fieldid:Value; they are returned as a struct with one field that
 	// is consolidated when they are enclosed in {} wrappers
-	strfieldp := regexp.MustCompile("^([0-9]+) *:")
+	strfieldp := regexp.MustCompile("^([0-9]+|[A-Z_]+) *:")
 
 	s = strings.TrimSpace(s)
 	retval := make([]vm.Value, 0)
@@ -102,6 +104,11 @@ func parseValues(s string) ([]vm.Value, error) {
 		case strfieldp.FindString(s) != "":
 			subm := strfieldp.FindStringSubmatch(s)
 			f := subm[1]
+			// see if it's a predefined constant
+			// if so, use its value instead
+			if v, ok := predefined[f]; ok {
+				f = v
+			}
 			fieldid, _ := strconv.ParseInt(f, 10, 8)
 			s = s[len(subm[0]):]
 			contents, err := parseValues(s)

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 // command is a type that is used to create a table of commands for the repl
@@ -31,7 +32,8 @@ var commands = map[string]command{
 		aliases: []string{"?"},
 		summary: "prints this help message (help verbose for extended explanation)",
 		detail:  ``,
-		handler: nil, //  we need to fill this in dynamically because it traverses this list
+		handler: nil, //  we need to fill this in dynamically because the handler
+		// traverses this list; a static assignment causes a reference loop
 	},
 	"quit": command{
 		aliases: []string{"q"},
@@ -44,7 +46,7 @@ var commands = map[string]command{
 		},
 	},
 	"exit": command{
-		aliases: []string{"q"},
+		aliases: []string{},
 		summary: "pops the stack; if the top of stack was numeric, uses the lowest byte of its value as the OS exit level",
 		detail:  `If the top of stack did not exist or was not numeric, exits with 255.`,
 		handler: func(rs *runtimeState, args string) error {
@@ -53,6 +55,30 @@ var commands = map[string]command{
 				os.Exit(255)
 			}
 			os.Exit(int(n & 0xFF))
+			return nil
+		},
+	},
+	"expect": command{
+		aliases: []string{},
+		summary: "Compares it to the given value(s).",
+		detail:  `If the expected values are not found or an error occurs, exits with a nonzero return code`,
+		handler: func(rs *runtimeState, args string) error {
+			values, err := parseValues(args)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(255)
+			}
+			for _, v := range values {
+				stk, err := rs.vm.Stack().Pop()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(255)
+				}
+				if !v.Equal(stk) {
+					fmt.Printf("%s (on stack) does not equal %s (given) - exiting\n", stk, v)
+					os.Exit(1)
+				}
+			}
 			return nil
 		},
 	},
@@ -65,9 +91,22 @@ var commands = map[string]command{
 	"run": command{
 		aliases: []string{"r"},
 		summary: "runs the currently loaded VM from the current IP",
-		detail:  ``,
+		detail:  `if arg is "fail" or "succeed" will exit if the result disagrees`,
 		handler: func(rs *runtimeState, args string) error {
-			return rs.run(false)
+			err := rs.run(false)
+			switch strings.ToLower(args) {
+			case "fail":
+				if err == nil {
+					fmt.Println("Expected to fail, but didn't.")
+					os.Exit(1)
+				}
+			case "succeed", "success":
+				if err != nil {
+					fmt.Println("Expected to succed, but failed.")
+					os.Exit(2)
+				}
+			}
+			return err
 		},
 	},
 	"next": command{
@@ -130,10 +169,10 @@ var commands = map[string]command{
 Value syntax:
     Number (decimal, hex)
     Timestamp
-    Quoted string
+    Quoted string (converted to bytes)
     B(hex pairs)
     [ list of values ] (commas or whitespace, must all be one line)
-    { list of values }(commas or whitespace, must all be one line)
+    { struct         } (commas or whitespace, must all be one line)
 		`,
 		handler: func(rs *runtimeState, args string) error {
 			topush, err := parseValues(args)
@@ -158,6 +197,19 @@ Value syntax:
 			}
 			fmt.Println(v)
 			return rs.reinit(rs.vm.Stack())
+		},
+	},
+	"constants": command{
+		aliases: []string{"const"},
+		summary: "prints the list of predefined constants (restricting to those containing a substring if specified)",
+		detail:  ``,
+		handler: func(rs *runtimeState, args string) error {
+			for k := range predefined {
+				if args == "" || strings.Contains(k, strings.ToUpper(args)) {
+					fmt.Println(k)
+				}
+			}
+			return nil
 		},
 	},
 }
