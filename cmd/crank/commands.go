@@ -27,6 +27,32 @@ func (c command) matchesAlias(s string) bool {
 	return false
 }
 
+// exiter
+type exiter interface {
+	Exit()
+	Error() string
+}
+
+type exitError struct {
+	code int
+	err  error
+}
+
+func (e exitError) Exit() {
+	os.Exit(e.code)
+}
+
+func (e exitError) Error() string {
+	if e.err == nil {
+		return ""
+	}
+	return e.err.Error()
+}
+
+func newExitError(code int, err error) exitError {
+	return exitError{code: code, err: err}
+}
+
 var commands = map[string]command{
 	"help": command{
 		aliases: []string{"?"},
@@ -41,8 +67,7 @@ var commands = map[string]command{
 		detail:  `Ctrl-D also works`,
 		handler: func(rs *runtimeState, args string) error {
 			fmt.Println("Goodbye.")
-			os.Exit(0)
-			return nil
+			return newExitError(0, nil)
 		},
 	},
 	"exit": command{
@@ -52,10 +77,9 @@ var commands = map[string]command{
 		handler: func(rs *runtimeState, args string) error {
 			n, err := rs.vm.Stack().PopAsInt64()
 			if err != nil {
-				os.Exit(255)
+				return newExitError(255, err)
 			}
-			os.Exit(int(n & 0xFF))
-			return nil
+			return newExitError(int(n&0xFF), nil)
 		},
 	},
 	"expect": command{
@@ -65,18 +89,15 @@ var commands = map[string]command{
 		handler: func(rs *runtimeState, args string) error {
 			values, err := parseValues(args)
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(255)
+				return newExitError(255, err)
 			}
 			for _, v := range values {
 				stk, err := rs.vm.Stack().Pop()
 				if err != nil {
-					fmt.Println(err)
-					os.Exit(255)
+					return newExitError(255, err)
 				}
 				if !v.Equal(stk) {
-					fmt.Printf("%s (on stack) does not equal %s (given) - exiting\n", stk, v)
-					os.Exit(1)
+					return newExitError(1, errors.New(fmt.Sprintf("%s (on stack) does not equal %s (given) - exiting\n", stk, v)))
 				}
 			}
 			return nil
@@ -97,13 +118,11 @@ var commands = map[string]command{
 			switch strings.ToLower(args) {
 			case "fail":
 				if err == nil {
-					fmt.Println("Expected to fail, but didn't.")
-					os.Exit(1)
+					return newExitError(1, errors.New("Expected to fail, but didn't."))
 				}
 			case "succeed", "success":
 				if err != nil {
-					fmt.Println("Expected to succed, but failed.")
-					os.Exit(2)
+					return newExitError(2, errors.New("Expected to succed, but failed."))
 				}
 			}
 			return err

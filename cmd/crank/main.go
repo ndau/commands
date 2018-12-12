@@ -115,44 +115,77 @@ func (rs *runtimeState) dispatch(s string) error {
 	return fmt.Errorf("unknown command %s - type ? for help", s)
 }
 
-func (rs *runtimeState) repl(cmdsrc io.Reader) {
+func stripComments(s string) string {
+	s = strings.TrimSpace(s)
+	ix := strings.Index(s, ";")
+	if ix != -1 {
+		return s[:ix]
+	}
+	return s
+}
+
+func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 	reader := bufio.NewReader(os.Stdin)
 	usingStdin := true
 	if cmdsrc != nil {
 		reader = bufio.NewReader(cmdsrc)
 		usingStdin = false
 	}
+	linenumber := 1
 	for {
-		fmt.Println(rs.vm)
-		fmt.Print("> ")
+		// prompt always preceded by current vm data
+		if verbose || usingStdin {
+			if rs.vm == nil {
+				fmt.Println("  [no VM is loaded]")
+			} else {
+				fmt.Println(rs.vm)
+			}
+			fmt.Printf("%3d crank> ", linenumber)
+		}
+		linenumber++
+		// get one line
 		s, err := reader.ReadString('\n')
-		if !usingStdin {
+		// if that line came from outside, echo it
+		if !usingStdin && verbose {
 			fmt.Print(s)
 		}
+		// look for errors
 		if err != nil && err != io.EOF {
 			panic(err)
 		}
+		// eof from terminal means quit
 		if err == io.EOF && usingStdin == true {
 			// we're really done now, shut down normally
 			s = "quit\n"
 			err = nil
 		}
+		// eof from input means drop into stdin
 		if err == io.EOF {
 			reader = bufio.NewReader(os.Stdin)
 			fmt.Println("*** Input now from stdin ***")
 			usingStdin = true
 		}
-		s = strings.TrimSpace(s)
-		if s == "" || strings.HasPrefix(s, ";") {
+		// ignore blank lines and comments
+		s = stripComments(s)
+		if s == "" {
 			continue
 		}
+		// it's a command, try it
 		err = rs.dispatch(s)
-		if err != nil {
+		switch e := err.(type) {
+		case exiter:
+			if !verbose || usingStdin {
+				e.Exit()
+			}
+			reader = bufio.NewReader(os.Stdin)
+			fmt.Println("*** Exit requested while verbose: input now from stdin ***")
+			usingStdin = true
+		case error:
 			fmt.Println("  -> Error: ", err)
+		case nil:
+		default:
 		}
-		if rs.vm == nil {
-			fmt.Println("  [no VM is loaded]")
-		} else {
+		if rs.vm != nil && (verbose || usingStdin) {
 			rs.vm.Disassemble(rs.vm.IP())
 		}
 	}
@@ -166,8 +199,9 @@ func main() {
 	commands["help"] = h
 
 	var args struct {
-		Input  string `arg:"-i" help:"Input command file"`
-		Binary string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
+		Binary  string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
+		Input   string `arg:"-i" help:"Input command file"`
+		Verbose bool   `arg:"-v" help:"When executing input file, echo each line to the output; also causes errors to drop to repl."`
 	}
 	arg.MustParse(&args)
 	var inf io.Reader
@@ -187,5 +221,5 @@ func main() {
 		}
 	}
 
-	rs.repl(inf)
+	rs.repl(inf, args.Verbose)
 }
