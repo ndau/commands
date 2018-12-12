@@ -71,6 +71,7 @@ chaos_node() {
 chaos_tm() {
     echo running chaos tendermint
     cd "$TENDERMINT_DIR" || exit 1
+    HONEYCOMB_DATASET=chaos-tm-dev \
     ./tendermint node --home "$TENDERMINT_CHAOS_DATA_DIR" \
                       --proxy_app tcp://localhost:"$NODE_CHAOS_PORT" \
                       --p2p.laddr tcp://0.0.0.0:"$TM_CHAOS_P2P_PORT" \
@@ -165,6 +166,7 @@ ndau_tm() {
     echo running ndau tendermint
 
     cd "$TENDERMINT_DIR" || exit 1
+    HONEYCOMB_DATASET=ndau-tm-dev \
     ./tendermint node --home "$TENDERMINT_NDAU_DATA_DIR" \
                       --proxy_app tcp://localhost:"$NODE_NDAU_PORT" \
                       --p2p.laddr tcp://0.0.0.0:"$TM_NDAU_P2P_PORT" \
