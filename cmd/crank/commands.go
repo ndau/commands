@@ -128,11 +128,14 @@ var commands = map[string]command{
 				return nil // we expected to fail, so we're happy about that
 			case "succeed", "success":
 				if err != nil {
-					return newExitError(2, errors.New("expected to succed, but failed"))
+					return newExitError(2, fmt.Errorf("expected to succeed, but failed (%s)", err))
 				}
 				val, err := rs.vm.Stack().PopAsInt64()
-				if err != nil || val != 0 {
-					return newExitError(1, errors.New("expected to fail, but didn't"))
+				if err != nil {
+					return newExitError(2, fmt.Errorf("expected to succeed, but failed (%s)", err))
+				}
+				if val != 0 {
+					return newExitError(3, fmt.Errorf("expected to succeed, but returned %d", val))
 				}
 			}
 			return err

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -26,9 +27,11 @@ import (
 // terminate automatically, make sure your input file ends in a quit command.
 
 type runtimeState struct {
-	vm    *vm.ChaincodeVM
-	event byte
-	stack *vm.Stack
+	vm     *vm.ChaincodeVM
+	event  byte
+	stack  *vm.Stack
+	binary string
+	script string
 }
 
 func help(rs *runtimeState, args string) error {
@@ -50,15 +53,25 @@ func help(rs *runtimeState, args string) error {
 func (rs *runtimeState) load(filename string) error {
 	f, err := os.Open(filename)
 	if err != nil {
-		return err
+		// if we failed to open, it might be because the binary is relative to the script
+		if filepath.IsAbs(filename) || rs.script == "" {
+			return newExitError(1, err)
+		}
+		// try to see if we can assemble a path relative to the script dir
+		scriptdir := filepath.Dir(rs.script)
+		fp := filepath.Join(scriptdir, filename)
+		f, err = os.Open(fp)
+		if err != nil {
+			return newExitError(1, err)
+		}
 	}
 	bin, err := vm.Deserialize(f)
 	if err != nil {
-		return err
+		return newExitError(1, err)
 	}
 	vm, err := vm.New(bin)
 	if err != nil {
-		return err
+		return newExitError(1, err)
 	}
 	vm.Init(0)
 	rs.vm = vm
@@ -174,14 +187,16 @@ func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 		switch e := err.(type) {
 		case exiter:
 			if !verbose || usingStdin {
-				fmt.Println(e.Error())
+				if e.Error() != "" {
+					fmt.Printf("line %d: error: %s\n", linenumber, e.Error())
+				}
 				e.Exit()
 			}
 			reader = bufio.NewReader(os.Stdin)
 			fmt.Println("*** Exit requested while verbose: input now from stdin ***")
 			usingStdin = true
 		case error:
-			fmt.Printf("%d)  -> Error: %s\n", linenumber, err)
+			fmt.Printf("line %d: error: %s\n", linenumber, err)
 		case nil:
 		default:
 		}
@@ -200,20 +215,21 @@ func main() {
 
 	var args struct {
 		Binary  string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
-		Input   string `arg:"-i" help:"Input command file"`
-		Verbose bool   `arg:"-v" help:"When executing input file, echo each line to the output; also causes errors to drop to repl."`
+		Script  string `arg:"-i" help:"Command script file"`
+		Verbose bool   `arg:"-v" help:"When executing script file, echo each line to the output; also causes errors to drop to repl."`
 	}
 	arg.MustParse(&args)
 	var inf io.Reader
-	if args.Input != "" {
+	rs := runtimeState{}
+	if args.Script != "" {
 		var err error
-		inf, err = os.Open(args.Input)
+		inf, err = os.Open(args.Script)
 		if err != nil {
 			panic(err)
 		}
+		rs.script = args.Script
 	}
 
-	rs := runtimeState{}
 	if args.Binary != "" {
 		err := rs.load(args.Binary)
 		if err != nil {
