@@ -175,6 +175,7 @@ func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 		switch e := err.(type) {
 		case exiter:
 			if !verbose || usingStdin {
+				fmt.Println(e.Error())
 				e.Exit()
 			}
 			reader = bufio.NewReader(os.Stdin)

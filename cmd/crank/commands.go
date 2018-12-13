@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/oneiro-ndev/chaincode/pkg/vm"
 )
 
 // command is a type that is used to create a table of commands for the repl
@@ -118,11 +120,18 @@ var commands = map[string]command{
 			switch strings.ToLower(args) {
 			case "fail":
 				if err == nil {
-					return newExitError(1, errors.New("Expected to fail, but didn't."))
+					val, err := rs.vm.Stack().PopAsInt64()
+					if err == nil && val == 0 {
+						return newExitError(1, errors.New("Expected to fail, but didn't."))
+					}
 				}
 			case "succeed", "success":
 				if err != nil {
 					return newExitError(2, errors.New("Expected to succed, but failed."))
+				}
+				val, err := rs.vm.Stack().PopAsInt64()
+				if err != nil || val != 0 {
+					return newExitError(1, errors.New("Expected to fail, but didn't."))
 				}
 			}
 			return err
@@ -163,12 +172,21 @@ var commands = map[string]command{
 		},
 	},
 	"reset": command{
-		aliases: []string{"k"},
+		aliases: []string{},
 		summary: "resets the VM to the event and stack that were current at the last Run, Trace, Push, Pop, or Event command",
 		detail:  ``,
 		handler: func(rs *runtimeState, args string) error {
 			rs.reinit(rs.stack)
 			fmt.Println(rs.vm.Stack())
+			return nil
+		},
+	},
+	"clear": command{
+		aliases: []string{},
+		summary: "clears the stack",
+		detail:  ``,
+		handler: func(rs *runtimeState, args string) error {
+			rs.reinit(vm.NewStack())
 			return nil
 		},
 	},
