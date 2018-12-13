@@ -141,6 +141,7 @@ Time <-  [0-9] [0-9] ':' [0-9] [0-9] ':' [0-9] [0-9]
 
 Value =
     ( Integer
+	/ NdauQuantity
     / ConstantRef
     )
 
@@ -154,6 +155,19 @@ Bytes <-
     ( b:Integer+                                  { return b, nil }
     / _? '"' s:[^"]+ '"'                          { return s, nil }
     )
+NdauQuantity <-
+	( _? "np" v:[0-9]+                            { return v.(string), nil }
+	/ _? "nd" d:DecimalValue
+		{
+			v, _ := strconv.ParseFloat(d.(string), 64)
+			return strconv.FormatInt(int64(v*100000000), 10), nil
+		}
+    )
+DecimalValue <-
+	( [0-9]+ '.' [0-9]*                           { return string(c.text), nil }
+	/ '.' [0-9]+                                  { return string(c.text), nil }
+	/ [0-9]+                                      { return string(c.text), nil }
+	)
 
 Address <- "nd" [2-9a-km-np-zA-KM-NP-Z]+          { return string(c.text), nil }
 
