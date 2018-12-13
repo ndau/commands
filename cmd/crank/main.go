@@ -131,8 +131,8 @@ func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 		reader = bufio.NewReader(cmdsrc)
 		usingStdin = false
 	}
-	linenumber := 1
-	for {
+
+	for linenumber := 1; ; linenumber++ {
 		// prompt always preceded by current vm data
 		if verbose || usingStdin {
 			if rs.vm == nil {
@@ -142,7 +142,6 @@ func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 			}
 			fmt.Printf("%3d crank> ", linenumber)
 		}
-		linenumber++
 		// get one line
 		s, err := reader.ReadString('\n')
 		// if that line came from outside, echo it
@@ -182,7 +181,7 @@ func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 			fmt.Println("*** Exit requested while verbose: input now from stdin ***")
 			usingStdin = true
 		case error:
-			fmt.Println("  -> Error: ", err)
+			fmt.Printf("%d)  -> Error: %s\n", linenumber, err)
 		case nil:
 		default:
 		}

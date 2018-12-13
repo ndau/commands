@@ -99,7 +99,7 @@ var commands = map[string]command{
 					return newExitError(255, err)
 				}
 				if !v.Equal(stk) {
-					return newExitError(1, errors.New(fmt.Sprintf("%s (on stack) does not equal %s (given) - exiting\n", stk, v)))
+					return newExitError(1, fmt.Errorf("%s (on stack) does not equal %s (given) - exiting", stk, v))
 				}
 			}
 			return nil
@@ -122,16 +122,17 @@ var commands = map[string]command{
 				if err == nil {
 					val, err := rs.vm.Stack().PopAsInt64()
 					if err == nil && val == 0 {
-						return newExitError(1, errors.New("Expected to fail, but didn't."))
+						return newExitError(1, errors.New("expected to fail, but didn't"))
 					}
 				}
+				return nil // we expected to fail, so we're happy about that
 			case "succeed", "success":
 				if err != nil {
-					return newExitError(2, errors.New("Expected to succed, but failed."))
+					return newExitError(2, errors.New("expected to succed, but failed"))
 				}
 				val, err := rs.vm.Stack().PopAsInt64()
 				if err != nil || val != 0 {
-					return newExitError(1, errors.New("Expected to fail, but didn't."))
+					return newExitError(1, errors.New("expected to fail, but didn't"))
 				}
 			}
 			return err
