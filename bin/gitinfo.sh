@@ -56,6 +56,6 @@ status_one() {
 CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
-for f in {automation,chaincode,chaos,chaos_genesis,metanode,ndau,ndaumath,noms}; do
+for f in {automation,chaincode,chaos,chaos_genesis,commands,metanode,ndau,ndaumath,noms}; do
     status_one "$f"
 done
