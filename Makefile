@@ -24,7 +24,8 @@ VALIDATIONS = ../validation_scripts
 ### Some conveniences
 
 .PHONY: generate clean fuzz fuzzmillion benchmarks \
-	test examples chaincodeall build chasm crank chfmt opcodes format
+	test examples chaincodeall build chasm crank chfmt \
+	opcodes format validations vtests
 
 opcodes: $(OPCODES)
 
@@ -135,6 +136,9 @@ examples: chasm
 
 validations: chasm
 	find $(VALIDATIONS) -name "*.chasm" |sed s/\.chasm/.ch/g | xargs -n1 -I{} $(CHASM) --output {}bin {}asm
+
+vtests: crank validations
+	find $(VALIDATIONS) -name "*.crank" | xargs -n1 -I{} $(CRANK) -script {}
 
 ###################################
 ### The chfmt formatter
