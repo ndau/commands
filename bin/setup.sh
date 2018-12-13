@@ -8,12 +8,6 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
-# Make sure we have the deploy file.
-# If this exits with error, see README.md for how to get the deploy file.
-DEPLOY_FILE="$(realpath "$CMDBIN_DIR"/../machine_user_key)"
-echo SETUP: Ensuring "$DEPLOY_FILE" exists...
-stat "$DEPLOY_FILE" >/dev/null
-
 # Start with fresh ndau/chaos and tendermint config files.
 echo SETUP: Ensuring fresh configs...
 rm -rf "$REDIS_CHAOS_DATA_DIR"
