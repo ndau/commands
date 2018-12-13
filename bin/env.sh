@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# Tendermint version to use.
+# 3rd party repos and version to use.
+export NOMS_REPO=https://github.com/attic-labs/noms.git
+export NOMS_SHA=a1f990c94dcc03f9f1845d25a55e84108f1be673
+export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
 export TENDERMINT_VER=v0.25.0
 
 # Port numbers.

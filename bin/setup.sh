@@ -22,13 +22,26 @@ rm -rf "$TENDERMINT_NDAU_DATA_DIR"
 mkdir -p "$ATTICLABS_DIR"
 cd "$ATTICLABS_DIR"
 if [ -d "noms" ]; then
-    echo SETUP: Updating noms...
     cd noms
-    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
+    ORIGIN_URL=$(git config --get remote.origin.url)
+    if [ "$ORIGIN_URL" == "$NOMS_REPO" ]; then
+        echo SETUP: Updating noms...
+        git checkout master
+        git pull origin master
+    else
+        echo SETUP: Replacing unsupported noms repo...
+        cd ..
+        rm -rf noms
+        git clone "$NOMS_REPO"
+        cd noms
+    fi
 else
     echo SETUP: Cloning noms...
-    git clone https://github.com/oneiro-ndev/noms.git
+    git clone "$NOMS_REPO"
+    cd noms
 fi
+echo SETUP: Checking out noms "$NOMS_SHA"...
+git checkout "$NOMS_SHA"
 
 # tendermint
 echo SETUP: Getting dep...
@@ -40,10 +53,11 @@ if [ -d "tendermint" ]; then
     cd tendermint
     git checkout -- Gopkg.lock
     git checkout master
-    git pull origin "$("$CMDBIN_DIR"/branch.sh)"
+    git pull origin master
 else
     echo SETUP: Cloning tendermint...
-    git clone https://github.com/tendermint/tendermint.git
+    git clone "$TENDERMINT_REPO"
+    cd tendermint
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git checkout "$TENDERMINT_VER"
