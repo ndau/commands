@@ -40,7 +40,9 @@ chaos_noms() {
     echo running noms for chaos
     cd "$NOMS_DIR" || exit 1
     mkdir -p "$NOMS_CHAOS_DATA_DIR"
-    ./noms serve --port="$NOMS_CHAOS_PORT" "$NOMS_CHAOS_DATA_DIR" >"$CMDBIN_DIR"/chaos_noms.log 2>&1 &
+    NOMS_VERSION_NEXT=1 \
+        ./noms serve --port="$NOMS_CHAOS_PORT" "$NOMS_CHAOS_DATA_DIR" \
+        >"$CMDBIN_DIR"/chaos_noms.log 2>&1 &
     echo $! >"$CMDBIN_DIR"/chaos_noms.pid
     wait_port "$NOMS_CHAOS_PORT"
 }
@@ -105,7 +107,9 @@ ndau_noms() {
     echo running noms for ndau
     cd "$NOMS_DIR" || exit 1
     mkdir -p "$NOMS_NDAU_DATA_DIR"
-    ./noms serve --port="$NOMS_NDAU_PORT" "$NOMS_NDAU_DATA_DIR" >"$CMDBIN_DIR"/ndau_noms.log 2>&1 &
+    NOMS_VERSION_NEXT=1 \
+        ./noms serve --port="$NOMS_NDAU_PORT" "$NOMS_NDAU_DATA_DIR" \
+        >"$CMDBIN_DIR"/ndau_noms.log 2>&1 &
     echo $! >"$CMDBIN_DIR"/ndau_noms.pid
     wait_port "$NOMS_NDAU_PORT"
 }
