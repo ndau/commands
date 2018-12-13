@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:8ef263ab0d9984bf195b5b723c548b6a2277f7f9e92ebee0153b0cca40be1b27"
+  digest = "1:33a9c778f05c7409bc95045a213c0f15eff0bded031c34e682c61cfeb758d181"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "c4e0e593d5f18b478f17ff0e86b56d41a70ced2d"
-  version = "v1.16.2"
+  revision = "a00e7512a2533cd96e525fe50607f9fe98badec3"
+  version = "v1.16.4"
 
 [[projects]]
   branch = "master"
@@ -405,15 +405,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:4f22df819b848aadb83888cef6c4b5844119067298c1db42a56b3b8dd07a3450"
+  digest = "1:3daf65a04fdfee425724a3b7975ffcaf953e1e4e31eacef903e93bd6e00f3330"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "fb7ed1f92e688e2c15875c220ec0cbb5036cb87a"
-  version = "v0.11.4"
+  revision = "0f97289a0298c415176c4b98c870f7154ca14ef1"
+  version = "v0.11.5"
 
 [[projects]]
   digest = "1:54be300c4613063d9a396513b9b837b43219b36a488f9c3e700af42d370fd6cd"
@@ -460,7 +460,7 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:56ff7c70b4765c9796f14a4f8e47eaf5ab6f1c8456f5a7964f83526109900271"
+  digest = "1:934311c1ba09fa4f0c4a319736bcc29512b0a0ad3c100d5443101a8987f0c4d8"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -470,8 +470,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "b74f74d3433b44208c0141a45dd37d5f43d4af83"
-  version = "v0.11.11"
+  revision = "b58604d44679cdccaad3f0609c170a1fdf7007b9"
+  version = "v0.11.10"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -548,12 +548,12 @@
   revision = "7711be769e350176643c97a46d4de3a113841fd8"
 
 [[projects]]
-  digest = "1:90c75a6fa5a5ef1034a7e3b9c354e5df8eb81ff02bd848632b13f97eb2883750"
+  digest = "1:231cfce4748d46931ebdb37bf244c640cf52b03c43e11bf325f1b5bc52b307b3"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "56253f7bc9986c67ffe49c0004ee90520a026917"
-  version = "v1.0.0"
+  revision = "2640540d1f41f4c09dd67b755226ae53ea7d9d97"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:3dcfee721380a040d14dc083e9f3c857134f1eca48c2a5e29ffe2c840980bdf4"
@@ -857,7 +857,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a89bd9b57bfccfbf42a9449a1fc2c94bd9d0e611762d074fdea2f4b9236c9ec0"
+  digest = "1:1762d94528e8f2d138a1ee746b1fc23a6ea81ff5d3db85a077ab1a05060a852e"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -865,7 +865,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "7da8ea5c81829e397bdf930c5d8ba4b703616f33"
+  revision = "73d4af5aa059c8c2dfcf25aad4efd6ce7bc9adc1"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -892,11 +892,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:dfec4570f2e31d17fdec1afb6d1eeb3ed233067e82bd10d1955daa2bb9b5d92e"
+  digest = "1:631a4795d7248e97baec1e89d29619965ec58ec5ecbe6ae23b6878efcd6aad5c"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "6a3e9aa2ab7749d72d1006ee484271b4a11f96c2"
+  revision = "7529026f5b7cbe519021cf9fbfa023677c091ea8"
 
 [[projects]]
   branch = "master"
