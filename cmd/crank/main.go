@@ -188,7 +188,9 @@ func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 		case exiter:
 			if !verbose || usingStdin {
 				if e.Error() != "" {
-					fmt.Printf("line %d: error: %s\n", linenumber, e.Error())
+					fmt.Printf("%s: line %d: error: %s\n", rs.script, linenumber, e.Error())
+				} else {
+					fmt.Printf("%s: %d lines.\n", rs.script, linenumber)
 				}
 				e.Exit()
 			}

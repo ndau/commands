@@ -68,7 +68,6 @@ var commands = map[string]command{
 		summary: "ends the chain program",
 		detail:  `Ctrl-D also works`,
 		handler: func(rs *runtimeState, args string) error {
-			fmt.Println("Goodbye.")
 			return newExitError(0, nil)
 		},
 	},
@@ -223,7 +222,6 @@ Value syntax:
 			for _, v := range topush {
 				rs.vm.Stack().Push(v)
 			}
-			fmt.Println(rs.vm.Stack())
 			return rs.reinit(rs.vm.Stack())
 		},
 	},
