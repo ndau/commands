@@ -146,7 +146,7 @@ jobs:
 
                 # run tests
                 pipenv sync
-                pipenv run pytest -v --run_kub src/meta_test_ndau.py src/single_validator_test_ndau.py
+                pipenv run pytest -v --run_kub
 
             else
                 echo "Not deploying for non-master branch."
