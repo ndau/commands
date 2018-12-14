@@ -141,8 +141,8 @@ jobs:
                 cd $GOPATH/src/github.com/oneiro-ndev
 
                 # clone integration tests
-                git clone git@github.com:oneiro-ndev/chaos-integration-tests.git -b jsg-unified-nodes-update
-                cd chaos-integration-tests
+                git clone git@github.com:oneiro-ndev/integration-tests.git
+                cd integration-tests
 
                 # run tests
                 pipenv sync
