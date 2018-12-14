@@ -11,6 +11,7 @@ import (
 
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg"
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/svc"
+	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -98,9 +99,25 @@ func main() {
 
 	fmt.Fprintf(os.Stderr, "      █                  █\n █   ██  █  █ █  █   █\n█ █ █ █ █ █ █ █ █ █ █ █  █\n█ █  ██  ██  ██  ██ ██   █\n                    █\n")
 	log.Printf("server listening on port %v\n", cf.Port)
+
+	logmux := svc.NewLogMux(cf)
+	c := cors.New(cors.Options{
+		// for now we allow *, but once we get this in production we may want to be more picky,
+		// depending on whether we want to allow third parties to access this api from apps
+		// that we don't control.
+		// AllowedOrigins:   []string{"http://foo.com", "http://foo.com:8080"},
+		// We don't currently need/use credentials so this is false. But that may change.
+		AllowCredentials: false,
+		// Only the basic methods are implemented to date.
+		AllowedMethods: []string{"GET", "POST"},
+		// Enable Debugging for testing, consider disabling in production
+		Debug: true,
+	})
+
+	handler := c.Handler(logmux)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cf.Port),
-		Handler: svc.NewLogMux(cf),
+		Handler: handler,
 	}
 	sl := &siglistener{}
 	sl.watchSignals()
