@@ -120,7 +120,7 @@ func main() {
 			continue
 		}
 		switch strings.ToLower(l.keyword) {
-		case "handler", "def", "ifz", "ifnz":
+		case "handler", "def", "func", "ifz", "ifnz":
 			newindent += a.Step
 		case "else":
 			indent -= a.Step

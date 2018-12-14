@@ -140,6 +140,9 @@ validations: chasm
 vtests: crank validations
 	find $(VALIDATIONS) -name "*.crank" | xargs -n1 -I{} $(CRANK) -script {}
 
+vformat: chfmt validations
+	find $(VALIDATIONS) -name "*.chasm" | xargs -n1 -I{} $(CHFMT) -O {}
+
 ###################################
 ### The chfmt formatter
 

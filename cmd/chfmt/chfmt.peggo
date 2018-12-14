@@ -7,9 +7,9 @@ Script <- Line* EOF
 
 Line <-
 	( CommentOnlyLine
+	/ StartBlockLine
 	/ ConstDefLine
 	/ OpcodeLine
-	/ StartBlockLine
 	/ EndBlockLine
 	)
 
@@ -21,19 +21,20 @@ OpcodeLine <- _ o:Opcode EOL	{ return o, nil }
 Opcode <- k:Keyword _ a:Args? _ cm:Comment   { return newLine(k, a, cm), nil }
 
 StartBlockLine <-
-	( _ k:( "handler" / "def" ) _ a:Args _ cm:Comment EOL		{ return newLine(k, a, cm), nil }
-	/ _ k:( "handler" / "def" ) _ a:Args _ b:'{' _ cm:Comment EOL     { return newLine(k, []interface{}{a, " ", b}, cm), nil }
+	( _ k:( "handler" / "def" / "func" ) _ a:Args _ b:'{' _ cm:Comment EOL   { return newLine(k, []interface{}{a, " ", b}, cm), nil }
+	/ _ k:( "handler" / "def" / "func" ) _ a:Args _ cm:Comment EOL			{ return newLine(k, a, cm), nil }
 	)
 
 EndBlockLine <- _ k:( "enddef" / '}' ) _ cm:Comment EOL             { return newLine(k, "", cm), nil }
 
 Args <-
-	( a:Arg            							{ return a, nil }
+	( a:Arg _',' _ as:Args            			{ return string(c.text), nil }
 	/ a:Arg __ as:Args            				{ return string(c.text), nil }
+	/ a:Arg            							{ return a, nil }
 	)
 
 Arg <-
-	( [^;=\t\r\n ][^;\t\r\n ]*            						{ return string(c.text), nil }
+	( [^;,=\t\r\n ]+            				{ return string(c.text), nil }
 	/ '"' [^"]* '"'            					{ return string(c.text), nil }
 	)
 
