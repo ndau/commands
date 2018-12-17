@@ -34,7 +34,7 @@ func main() {
 	var buf bytes.Buffer
 	tee := io.TeeReader(in, &buf)
 
-	sn, err := ParseReader("",
+	sn, err := ParseReader(name,
 		tee,
 		GlobalStore("functions", make(map[string]int)),
 		GlobalStore("functionCounter", int(0)),

@@ -160,7 +160,7 @@ NdauQuantity <-
 	/ _? "nd" d:DecimalValue
 		{
 			v, _ := strconv.ParseFloat(d.(string), 64)
-			return strconv.FormatInt(int64(v*100000000), 10), nil
+			return strconv.FormatInt(int64(v*constants.QuantaPerUnit), 10), nil
 		}
     )
 DecimalValue <-
