@@ -1,4 +1,4 @@
-#1/bin/sh
+#!/bin/sh
 # Only run on master
 if [ "${CIRCLE_BRANCH}" == "master" ]; then
     version_check=$(aws ecr describe-images --repository-name noms | jq ".imageDetails[].imageTags[]? | select (. == \"${NOMS_CONTAINER_VERSION}\")")
