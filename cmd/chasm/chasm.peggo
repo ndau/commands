@@ -14,6 +14,7 @@ Code <-  EOL* rs:RoutineDef+ { return rs, nil }
 RoutineDef <-
 	( HandlerDef
 	/ FunctionDef
+	/ GlobalConstDef
 	)
 
 HandlerDef <- _? "handler" _ ids:HandlerIDList _? '{' s:Line+ _? '}' EOL*  {
@@ -30,9 +31,11 @@ FunctionDef <- _? "func" _ n:FunctionName _? '(' argcount:Value _? ')' _?  '{' s
         return newFunctionDef(name, argcount.(string), s)
     }
 
+GlobalConstDef <- _? ConstDef EOL*
+
 HandlerIDList <-
 	( v:Value ',' _? h:HandlerIDList { return append(h.([]string), v.(string)), nil }
-	/ v:Value							{ return []string{string(c.text)}, nil }
+	/ v:Value                        { return []string{string(c.text)}, nil }
 	)
 
 Line <-
