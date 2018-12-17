@@ -11,6 +11,7 @@ import (
 	"github.com/oneiro-ndev/chaincode/pkg/chain"
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
+	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/types"
 )
 
@@ -139,7 +140,7 @@ func parseValues(s string) ([]vm.Value, error) {
 			found := ndaup.FindString(s)
 			s = s[len(found):]
 			n, _ := strconv.ParseFloat(found[2:], 64)
-			retval = append(retval, vm.NewNumber(int64(n*100000000)))
+			retval = append(retval, vm.NewNumber(int64(n*constants.QuantaPerUnit)))
 
 		case bytep.FindString(s) != "":
 			ba := []byte{}
