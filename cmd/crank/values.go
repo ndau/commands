@@ -11,6 +11,7 @@ import (
 	"github.com/oneiro-ndev/chaincode/pkg/chain"
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
+	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/types"
 )
 
@@ -30,21 +31,24 @@ func getRandomAccount() backing.AccountData {
 	return ad
 }
 
+var predefined = predefinedConstants()
+
 func parseValues(s string) ([]vm.Value, error) {
 	// timestamp
 	tsp := regexp.MustCompile("^[0-9-]+T[0-9:]+Z")
-	// address is 48 chars starting with nd and not containing io10
-	// addrp := regexp.MustCompile("^nd[2-9a-km-np-zA-KM-NP-Z]{46}")
 	// number is a base-10 signed integer OR a hex value starting with 0x
 	nump := regexp.MustCompile("^0x([0-9A-Fa-f]+)|^-?[0-9]+")
-	// hexp := regexp.MustCompile("^0x([0-9A-Fa-f]+)")
+	// napu is a base-10 positive integer preceded with np; it is delivered as an integer number of napu
+	napup := regexp.MustCompile("^np([0-9]+)")
+	// ndau values are a base-10 positive decimal, which is multiplied by 10^8 and converted to integer
+	ndaup := regexp.MustCompile(`^nd([0-9]+)(\.[0-9]*)?`)
 	// quoted strings can be either single, double, or triple quotes of either kind; no escapes.
 	quotep := regexp.MustCompile(`^'([^']*)'|^"([^"]*)"|^'''(.*)'''|^"""(.*)"""`)
 	// arrays of bytes are B(hex) with individual bytes as hex strings with no 0x; embedded spaces are ignored
 	bytep := regexp.MustCompile(`^B\((([0-9A-Fa-f][0-9A-Fa-f] *)+)\)`)
 	// fields for structs are fieldid:Value; they are returned as a struct with one field that
 	// is consolidated when they are enclosed in {} wrappers
-	strfieldp := regexp.MustCompile("^([0-9]+) *:")
+	strfieldp := regexp.MustCompile("^([0-9]+|[A-Z_]+) *:")
 
 	s = strings.TrimSpace(s)
 	retval := make([]vm.Value, 0)
@@ -102,6 +106,11 @@ func parseValues(s string) ([]vm.Value, error) {
 		case strfieldp.FindString(s) != "":
 			subm := strfieldp.FindStringSubmatch(s)
 			f := subm[1]
+			// see if it's a predefined constant
+			// if so, use its value instead
+			if v, ok := predefined[f]; ok {
+				f = v
+			}
 			fieldid, _ := strconv.ParseInt(f, 10, 8)
 			s = s[len(subm[0]):]
 			contents, err := parseValues(s)
@@ -120,6 +129,18 @@ func parseValues(s string) ([]vm.Value, error) {
 			s = s[len(found):]
 			n, _ := strconv.ParseInt(found, 0, 64)
 			retval = append(retval, vm.NewNumber(n))
+
+		case napup.FindString(s) != "":
+			found := napup.FindString(s)
+			s = s[len(found):]
+			n, _ := strconv.ParseInt(found[2:], 0, 64)
+			retval = append(retval, vm.NewNumber(n))
+
+		case ndaup.FindString(s) != "":
+			found := ndaup.FindString(s)
+			s = s[len(found):]
+			n, _ := strconv.ParseFloat(found[2:], 64)
+			retval = append(retval, vm.NewNumber(int64(n*constants.QuantaPerUnit)))
 
 		case bytep.FindString(s) != "":
 			ba := []byte{}

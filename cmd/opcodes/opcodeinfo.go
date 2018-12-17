@@ -69,25 +69,6 @@ func (p timeParm) Placeholder() string {
 	return "t"
 }
 
-type addrParm struct {
-}
-
-func (p addrParm) Nbytes() string {
-	return "int(getat(offset+1)) + 1"
-}
-
-func (p addrParm) PeggoParm() string {
-	return fmt.Sprintf("Address")
-}
-
-func (p addrParm) PeggoTmpl() string {
-	return fmt.Sprintf("PushA")
-}
-
-func (p addrParm) Placeholder() string {
-	return "a"
-}
-
 type pushbParm struct {
 }
 

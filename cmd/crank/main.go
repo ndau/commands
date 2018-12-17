@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -26,9 +27,11 @@ import (
 // terminate automatically, make sure your input file ends in a quit command.
 
 type runtimeState struct {
-	vm    *vm.ChaincodeVM
-	event byte
-	stack *vm.Stack
+	vm     *vm.ChaincodeVM
+	event  byte
+	stack  *vm.Stack
+	binary string
+	script string
 }
 
 func help(rs *runtimeState, args string) error {
@@ -50,15 +53,25 @@ func help(rs *runtimeState, args string) error {
 func (rs *runtimeState) load(filename string) error {
 	f, err := os.Open(filename)
 	if err != nil {
-		return err
+		// if we failed to open, it might be because the binary is relative to the script
+		if filepath.IsAbs(filename) || rs.script == "" {
+			return newExitError(1, err)
+		}
+		// try to see if we can assemble a path relative to the script dir
+		scriptdir := filepath.Dir(rs.script)
+		fp := filepath.Join(scriptdir, filename)
+		f, err = os.Open(fp)
+		if err != nil {
+			return newExitError(1, err)
+		}
 	}
 	bin, err := vm.Deserialize(f)
 	if err != nil {
-		return err
+		return newExitError(1, err)
 	}
 	vm, err := vm.New(bin)
 	if err != nil {
-		return err
+		return newExitError(1, err)
 	}
 	vm.Init(0)
 	rs.vm = vm
@@ -78,6 +91,9 @@ func (rs *runtimeState) reinit(stk *vm.Stack) error {
 // setevent sets up the VM to run the given event, which means that it calls
 // reinit to set up the stack as well.
 func (rs *runtimeState) setevent(eventid string) error {
+	if v, ok := predefined[eventid]; ok {
+		eventid = v
+	}
 	ev, err := strconv.ParseInt(strings.TrimSpace(eventid), 0, 8)
 	if err != nil {
 		return err
@@ -94,7 +110,6 @@ func (rs *runtimeState) run(debug bool) error {
 
 func (rs *runtimeState) step(debug bool) error {
 	err := rs.vm.Step(debug)
-	fmt.Println(rs.vm)
 	return err
 }
 
@@ -103,42 +118,91 @@ func (rs *runtimeState) dispatch(s string) error {
 	args := p.Split(s, 2)
 	for key, cmd := range commands {
 		if key == args[0] || cmd.matchesAlias(args[0]) {
-			return cmd.handler(rs, args[1])
+			extra := ""
+			if len(args) > 1 {
+				extra = args[1]
+			}
+			return cmd.handler(rs, extra)
 		}
 	}
 	return fmt.Errorf("unknown command %s - type ? for help", s)
 }
 
-func (rs *runtimeState) repl(cmdsrc io.Reader) {
+func stripComments(s string) string {
+	s = strings.TrimSpace(s)
+	ix := strings.Index(s, ";")
+	if ix != -1 {
+		return s[:ix]
+	}
+	return s
+}
+
+func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
 	reader := bufio.NewReader(os.Stdin)
 	usingStdin := true
 	if cmdsrc != nil {
 		reader = bufio.NewReader(cmdsrc)
 		usingStdin = false
 	}
-	for {
-		fmt.Print("> ")
+
+	for linenumber := 1; ; linenumber++ {
+		// prompt always preceded by current vm data
+		if verbose || usingStdin {
+			if rs.vm == nil {
+				fmt.Println("  [no VM is loaded]")
+			} else {
+				fmt.Println(rs.vm)
+			}
+			fmt.Printf("%3d crank> ", linenumber)
+		}
+		// get one line
 		s, err := reader.ReadString('\n')
+		// if that line came from outside, echo it
+		if !usingStdin && verbose {
+			fmt.Print(s)
+		}
+		// look for errors
 		if err != nil && err != io.EOF {
 			panic(err)
 		}
+		// eof from terminal means quit
 		if err == io.EOF && usingStdin == true {
 			// we're really done now, shut down normally
 			s = "quit\n"
 			err = nil
 		}
+		// eof from input means drop into stdin
 		if err == io.EOF {
 			reader = bufio.NewReader(os.Stdin)
 			fmt.Println("*** Input now from stdin ***")
 			usingStdin = true
 		}
-		err = rs.dispatch(s)
-		if err != nil {
-			fmt.Println("  -> Error: ", err)
+		// ignore blank lines and comments
+		s = stripComments(s)
+		if s == "" {
+			continue
 		}
-		if rs.vm == nil {
-			fmt.Println("  [no VM is loaded]")
-		} else {
+		// it's a command, try it
+		err = rs.dispatch(s)
+		switch e := err.(type) {
+		case exiter:
+			if !verbose || usingStdin {
+				if e.Error() != "" {
+					fmt.Printf("%s: line %d: error: %s\n", rs.script, linenumber, e.Error())
+				} else {
+					fmt.Printf("%s: %d lines.\n", rs.script, linenumber)
+				}
+				e.Exit()
+			}
+			reader = bufio.NewReader(os.Stdin)
+			fmt.Println("*** Exit requested while verbose: input now from stdin ***")
+			usingStdin = true
+		case error:
+			fmt.Printf("line %d: error: %s\n", linenumber, err)
+		case nil:
+		default:
+		}
+		if rs.vm != nil && (verbose || usingStdin) {
 			rs.vm.Disassemble(rs.vm.IP())
 		}
 	}
@@ -152,26 +216,28 @@ func main() {
 	commands["help"] = h
 
 	var args struct {
-		Input string `arg:"-i" help:"Input command file"`
-		File  string `arg:"-f" help:"File to load as a chasm binary (*.chbin)."`
+		Binary  string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
+		Script  string `arg:"-i" help:"Command script file"`
+		Verbose bool   `arg:"-v" help:"When executing script file, echo each line to the output; also causes errors to drop to repl."`
 	}
 	arg.MustParse(&args)
 	var inf io.Reader
-	if args.Input != "" {
-		var err error
-		inf, err = os.Open(args.Input)
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	rs := runtimeState{}
-	if args.File != "" {
-		err := rs.load(args.File)
+	if args.Script != "" {
+		var err error
+		inf, err = os.Open(args.Script)
+		if err != nil {
+			panic(err)
+		}
+		rs.script = args.Script
+	}
+
+	if args.Binary != "" {
+		err := rs.load(args.Binary)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	rs.repl(inf)
+	rs.repl(inf, args.Verbose)
 }

@@ -84,6 +84,12 @@ Each of these, in turn, has several endpoints within it.
 
 * [BlockRange](#blockrange)
 
+* [BlockDateRange](#blockdaterange)
+
+* [ChaosBlockRange](#chaosblockrange)
+
+* [ChaosBlockDateRange](#chaosblockdaterange)
+
 * [ChaosHistory](#chaoshistory)
 
 * [ChaosNamespaceAll](#chaosnamespaceall)
@@ -115,8 +121,6 @@ Each of these, in turn, has several endpoints within it.
 * [OrderCurrent](#ordercurrent)
 
 * [SystemAll](#systemall)
-
-* [SystemKey](#systemkey)
 
 * [SystemHistoryKey](#systemhistorykey)
 
@@ -163,7 +167,7 @@ _**Writes:**_
           "lastEAIUpdate": 0,
           "lastWAAUpdate": 0,
           "weightedAverageAge": 2592000000000,
-          "Sequence": 0,
+          "sequence": 0,
           "settlements": null,
           "settlementSettings": {
             "Period": 0,
@@ -225,7 +229,7 @@ _**Writes:**_
             "lastEAIUpdate": 0,
             "lastWAAUpdate": 0,
             "weightedAverageAge": 2592000000000,
-            "Sequence": 0,
+            "sequence": 0,
             "settlements": null,
             "settlementSettings": {
               "Period": 0,
@@ -300,20 +304,21 @@ _**Writes:**_
 ---
 ## AccountHistory
 
-### `GET /account/history/:accountid`
+### `GET /account/history/:address`
 
 _Returns the balance history of an account given its address._
 
 The history includes the timestamp, new balance, and transaction ID of each change to the account's balance.
-The result is reverse sorted chronologically from the current time, and supports paging by time.
+The result is sorted chronologically.
 
 
 _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- limit | Query | Maximum number of transactions to return; default=10. | string
- before | Query | Timestamp (ISO 8601) to start looking backwards; default=now. | string
+ address | Path | The address of the account for which to return history | string
+ pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
+ pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
 
 
 
@@ -325,13 +330,15 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```json
-        [
-          {
-            "Timestamp": "2018-07-18T20:01:02Z",
-            "Balance": 123000000,
-            "TxHash": "abc123def456"
-          }
-        ]
+        {
+          "Items": [
+            {
+              "Balance": 123000000,
+              "Timestamp": "2018-07-10T20:01:02Z",
+              "TxHash": "abc123def456"
+            }
+          ]
+        }
 ```
 
 
@@ -687,6 +694,217 @@ _**Writes:**_
 
 
 ---
+## BlockDateRange
+
+### `GET /block/daterange/:first/:last`
+
+_Returns a sequence of block metadata starting at first date and ending at last date_
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ first | Path | Timestamp (ISO 3339) at which to begin (inclusive) retrieval of blocks. | string
+ last | Path | Timestamp (ISO 3339) at which to end (exclusive) retrieval of blocks. | string
+ noempty | Query | Set to nonblank value to exclude empty blocks | string
+ pageindex | Query | The 0-based page index to get; default=0 | int
+ pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        {
+          "last_height": 12345,
+          "block_metas": [
+            {
+              "block_id": {
+                "hash": "",
+                "parts": {
+                  "total": 0,
+                  "hash": ""
+                }
+              },
+              "header": {
+                "chain_id": "",
+                "height": 0,
+                "time": "0001-01-01T00:00:00Z",
+                "num_txs": 0,
+                "total_txs": 0,
+                "last_block_id": {
+                  "hash": "",
+                  "parts": {
+                    "total": 0,
+                    "hash": ""
+                  }
+                },
+                "last_commit_hash": "",
+                "data_hash": "",
+                "validators_hash": "",
+                "next_validators_hash": "",
+                "consensus_hash": "",
+                "app_hash": "",
+                "last_results_hash": "",
+                "evidence_hash": "",
+                "proposer_address": ""
+              }
+            }
+          ]
+        }
+```
+
+
+
+---
+## ChaosBlockRange
+
+### `GET /chaos/range/:first/:last`
+
+_Returns a sequence of block metadata starting at first and ending at last_
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ first | Path | Height at which to begin retrieval of blocks. | int
+ last | Path | Height at which to end retrieval of blocks. | int
+ noempty | Query | Set to nonblank value to exclude empty blocks | string
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        {
+          "last_height": 12345,
+          "block_metas": [
+            {
+              "block_id": {
+                "hash": "",
+                "parts": {
+                  "total": 0,
+                  "hash": ""
+                }
+              },
+              "header": {
+                "chain_id": "",
+                "height": 0,
+                "time": "0001-01-01T00:00:00Z",
+                "num_txs": 0,
+                "total_txs": 0,
+                "last_block_id": {
+                  "hash": "",
+                  "parts": {
+                    "total": 0,
+                    "hash": ""
+                  }
+                },
+                "last_commit_hash": "",
+                "data_hash": "",
+                "validators_hash": "",
+                "next_validators_hash": "",
+                "consensus_hash": "",
+                "app_hash": "",
+                "last_results_hash": "",
+                "evidence_hash": "",
+                "proposer_address": ""
+              }
+            }
+          ]
+        }
+```
+
+
+
+---
+## ChaosBlockDateRange
+
+### `GET /chaos/daterange/:first/:last`
+
+_Returns a sequence of block metadata starting at first date and ending at last date_
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ first | Path | Timestamp (ISO 3339) at which to begin (inclusive) retrieval of blocks. | string
+ last | Path | Timestamp (ISO 3339) at which to end (exclusive) retrieval of blocks. | string
+ noempty | Query | Set to nonblank value to exclude empty blocks | string
+ pageindex | Query | The 0-based page index to get; default=0 | int
+ pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        {
+          "last_height": 12345,
+          "block_metas": [
+            {
+              "block_id": {
+                "hash": "",
+                "parts": {
+                  "total": 0,
+                  "hash": ""
+                }
+              },
+              "header": {
+                "chain_id": "",
+                "height": 0,
+                "time": "0001-01-01T00:00:00Z",
+                "num_txs": 0,
+                "total_txs": 0,
+                "last_block_id": {
+                  "hash": "",
+                  "parts": {
+                    "total": 0,
+                    "hash": ""
+                  }
+                },
+                "last_commit_hash": "",
+                "data_hash": "",
+                "validators_hash": "",
+                "next_validators_hash": "",
+                "consensus_hash": "",
+                "app_hash": "",
+                "last_results_hash": "",
+                "evidence_hash": "",
+                "proposer_address": ""
+              }
+            }
+          ]
+        }
+```
+
+
+
+---
 ## ChaosHistory
 
 ### `GET /chaos/history/:namespace/:key`
@@ -703,6 +921,8 @@ Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
  key | Path | Base-64 (std) name of the variable. | string
+ pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
+ pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
 
 
 
@@ -714,7 +934,14 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```json
-        {}
+        {
+          "History": [
+            {
+              "Height": 12345,
+              "Value": "dmFsdWU="
+            }
+          ]
+        }
 ```
 
 
@@ -1201,37 +1428,6 @@ _**Writes:**_
 _Returns the names and current values of all currently-defined system variables._
 
 
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```json
-        ""
-```
-
-
-
----
-## SystemKey
-
-### `GET /system/:key`
-
-_Returns the current value of a single system variable._
-
-
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- key | Path | Name of the system variable. | string
 
 
 

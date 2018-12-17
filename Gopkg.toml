@@ -1,6 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-version = "~v0.11"
+version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
@@ -12,11 +12,11 @@ branch = "master"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v0.11"
+version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.8"
+version = "~v0.9"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
@@ -29,4 +29,8 @@ source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/satori/go.uuid"
+branch = "master"
+
+[[override]]
+name = "github.com/oneiro-ndev/writers"
 branch = "master"

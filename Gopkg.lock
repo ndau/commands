@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:8ef263ab0d9984bf195b5b723c548b6a2277f7f9e92ebee0153b0cca40be1b27"
+  digest = "1:33a9c778f05c7409bc95045a213c0f15eff0bded031c34e682c61cfeb758d181"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "c4e0e593d5f18b478f17ff0e86b56d41a70ced2d"
-  version = "v1.16.2"
+  revision = "a00e7512a2533cd96e525fe50607f9fe98badec3"
+  version = "v1.16.4"
 
 [[projects]]
   branch = "master"
@@ -405,18 +405,18 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:cbddd64a00c3a594750fa08b76df81cf480dfe663c1e37498dfe6ca8279a4624"
+  digest = "1:3daf65a04fdfee425724a3b7975ffcaf953e1e4e31eacef903e93bd6e00f3330"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "8abac3e34fb8fc76bd416dbbf5e98a833a62ab94"
-  version = "v0.11.3"
+  revision = "0f97289a0298c415176c4b98c870f7154ca14ef1"
+  version = "v0.11.5"
 
 [[projects]]
-  digest = "1:54be300c4613063d9a396513b9b837b43219b36a488f9c3e700af42d370fd6cd"
+  digest = "1:de34929ef55b801c7c88bde6d00bdd728410a593f9f3a1a3f1e1bc4c9c629d5e"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -432,8 +432,8 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "a25990e013808e34ae1607555cd5ab9ab4d76ada"
-  version = "v0.11.0"
+  revision = "ec02f47da0b7501978069db546fcc63953de1f35"
+  version = "v0.12.0"
 
 [[projects]]
   digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"
@@ -460,7 +460,7 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:934311c1ba09fa4f0c4a319736bcc29512b0a0ad3c100d5443101a8987f0c4d8"
+  digest = "1:a30ee7aa47ebe2a397615d8dcb262d73eae856db4659f356e574e6ba38e3d943"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -470,8 +470,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "b58604d44679cdccaad3f0609c170a1fdf7007b9"
-  version = "v0.11.10"
+  revision = "cfb2c2d83e0da95082f40c20f70f1cda84389259"
+  version = "v0.12.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -490,7 +490,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:e388492aa7443d9b6caad3859dc2ad3b9d7a4b3e8eb70c4407109f8b2522c9de"
+  digest = "1:9dc8cb801afeb86a03694806bdebd693d7dd0f4549637c699744f891798c7506"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -510,8 +510,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "291f7a2bf261e8060597c16ec1022844d3b72bf1"
-  version = "v0.8.0"
+  revision = "80651f7f45c6a3fd0833f1ca629d050942a04b0e"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:4ece03350fa8298a4a15c7c083f77fe2efa77e3e5eb8d1c0c89aa33851d92687"
@@ -548,12 +548,12 @@
   revision = "7711be769e350176643c97a46d4de3a113841fd8"
 
 [[projects]]
-  digest = "1:90c75a6fa5a5ef1034a7e3b9c354e5df8eb81ff02bd848632b13f97eb2883750"
+  digest = "1:231cfce4748d46931ebdb37bf244c640cf52b03c43e11bf325f1b5bc52b307b3"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "56253f7bc9986c67ffe49c0004ee90520a026917"
-  version = "v1.0.0"
+  revision = "2640540d1f41f4c09dd67b755226ae53ea7d9d97"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:3dcfee721380a040d14dc083e9f3c857134f1eca48c2a5e29ffe2c840980bdf4"
@@ -568,14 +568,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4f130e9aa2fbe90453f49d12d84591c1a65cd6fc2e3c7ad81eaead7ec67b6fb8"
+  digest = "1:3f3c40976bcb02e7e8272b6ede491b5c46b0f6bacd867cfefedc879aed750c33"
   name = "github.com/oneiro-ndev/writers"
   packages = [
     "pkg/linewriter",
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "ff5d0f8112d9ad95049ea5adc6bd6e145153ff8b"
+  revision = "90774ecfea96bf0decb29ea7081d28a2831d71e1"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
@@ -650,6 +650,14 @@
   packages = ["."]
   pruneopts = ""
   revision = "e2704e165165ec55d062f5919b4b29494e9fa790"
+
+[[projects]]
+  digest = "1:5f47c69f85311c4dc292be6cc995a0a3fe8337a6ce38ef4f71e5b7efd5ad42e0"
+  name = "github.com/rs/cors"
+  packages = ["."]
+  pruneopts = ""
+  revision = "9a47f48565a795472d43519dd49aac781f3034fb"
+  version = "v1.6.0"
 
 [[projects]]
   branch = "master"
@@ -857,7 +865,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f934a0869d3969b7ec9833a1bb9b29e09fb77196bc1ac59081a66d100320f238"
+  digest = "1:c2c4c39f961dde3f317a48713db65329863b61316edabf19b96784b2da8406ac"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -865,7 +873,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "2a47403f2ae58167c4d75973960ccc62b28cb0d8"
+  revision = "4d1cda033e0619309c606fc686de3adcf599539e"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -892,11 +900,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ff87b16c471b8a9e22fefa3bb546a60d61dd4d65daf9b8dbc5c6ae86340415bd"
+  digest = "1:3ce59adbda8f0826accf50484010bb409e95b606b41e05034c00f3e27467abee"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
+  revision = "bbccd8cae4a9a47e0f978e03ff4b5df88a9fde1e"
 
 [[projects]]
   branch = "master"
@@ -993,6 +1001,7 @@
     "github.com/oneiro-ndev/o11y/pkg/honeycomb",
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",
     "github.com/pkg/errors",
+    "github.com/rs/cors",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/tendermint/abci/server",
