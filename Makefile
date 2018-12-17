@@ -16,14 +16,16 @@ EXAMPLES = cmd/chasm/examples
 OPCODES = cmd/opcodes/opcodes
 OPCODESMD = cmd/opcodes/opcodes.md
 
-# And identify the location of the chaincode packages
+# And identify the locations of related packages
 CHAINCODEPKG = ../chaincode/pkg
+VALIDATIONS = ../validation_scripts
 
 ###################################
 ### Some conveniences
 
 .PHONY: generate clean fuzz fuzzmillion benchmarks \
-	test examples chaincodeall build chasm crank chfmt opcodes format
+	test examples chaincodeall build chasm crank chfmt \
+	opcodes format validations vtests
 
 opcodes: $(OPCODES)
 
@@ -84,8 +86,12 @@ $(CHAINCODEPKG)/vm/enabledopcodes.go: opcodes
 cmd/chasm/chasm.peggo: opcodes
 	$(OPCODES) --pigeon cmd/chasm/chasm.peggo
 
+# We make two copies of this file, for chasm and for crank
 cmd/chasm/predefined.go: opcodes
 	$(OPCODES) --consts cmd/chasm/predefined.go
+
+cmd/crank/predefined.go: opcodes
+	$(OPCODES) --consts cmd/crank/predefined.go
 
 $(OPCODES): cmd/opcodes/*.go
 	cd cmd/opcodes && go build
@@ -93,9 +99,10 @@ $(OPCODES): cmd/opcodes/*.go
 ###################################
 ### The vm itself and its tests
 
-generate: $(OPCODESMD) $(CHAINCODEPKG)/vm/opcodes.go $(CHAINCODEPKG)/vm/miniasmOpcodes.go $(CHAINCODEPKG)/vm/opcode_string.go \
+generate: $(OPCODESMD) $(CHAINCODEPKG)/vm/opcodes.go \
+		$(CHAINCODEPKG)/vm/miniasmOpcodes.go $(CHAINCODEPKG)/vm/opcode_string.go \
 		$(CHAINCODEPKG)/vm/extrabytes.go $(CHAINCODEPKG)/vm/enabledopcodes.go \
-		cmd/chasm/chasm.peggo cmd/chasm/predefined.go
+		cmd/chasm/chasm.peggo cmd/chasm/predefined.go cmd/crank/predefined.go
 
 $(CHAINCODEPKG)/vm/opcode_string.go: $(CHAINCODEPKG)/vm/opcodes.go
 	go generate $(CHAINCODEPKG)/vm
@@ -126,6 +133,12 @@ examples: chasm
 	$(CHASM) --output $(EXAMPLES)/one.chbin --comment "unconditionally return numeric 1" $(EXAMPLES)/one.chasm
 	$(CHASM) --output $(EXAMPLES)/zero.chbin --comment "returns numeric 0 in all cases" $(EXAMPLES)/zero.chasm
 	$(CHASM) --output $(EXAMPLES)/rfe.chbin --comment "standard RFE rules" $(EXAMPLES)/rfe.chasm
+
+validations: chasm
+	find $(VALIDATIONS) -name "*.chasm" |sed s/\.chasm/.ch/g | xargs -n1 -I{} $(CHASM) --output {}bin {}asm
+
+vtests: crank validations
+	find $(VALIDATIONS) -name "*.crank" | xargs -n1 -I{} $(CRANK) -script {}
 
 ###################################
 ### The chfmt formatter

@@ -236,3 +236,15 @@ func TestRealistic(t *testing.T) {
 		a0 00 21 03 21 05 21 07 21  15 0E 04 0d 01 05 42 42
 		0e 04 0e 02 42 40 40 10 88`)
 }
+
+func TestIfZNZ(t *testing.T) {
+	code := `
+		; comment
+		func foo(1) {
+		nop
+		ifz
+		ifnz
+		}
+`
+	checkParse(t, "Simple1", code, "800001 00898a 88")
+}

@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:8ef263ab0d9984bf195b5b723c548b6a2277f7f9e92ebee0153b0cca40be1b27"
+  digest = "1:33a9c778f05c7409bc95045a213c0f15eff0bded031c34e682c61cfeb758d181"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "c4e0e593d5f18b478f17ff0e86b56d41a70ced2d"
-  version = "v1.16.2"
+  revision = "a00e7512a2533cd96e525fe50607f9fe98badec3"
+  version = "v1.16.4"
 
 [[projects]]
   branch = "master"
@@ -405,15 +405,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:4f22df819b848aadb83888cef6c4b5844119067298c1db42a56b3b8dd07a3450"
+  digest = "1:3daf65a04fdfee425724a3b7975ffcaf953e1e4e31eacef903e93bd6e00f3330"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "fb7ed1f92e688e2c15875c220ec0cbb5036cb87a"
-  version = "v0.11.4"
+  revision = "0f97289a0298c415176c4b98c870f7154ca14ef1"
+  version = "v0.11.5"
 
 [[projects]]
   digest = "1:de34929ef55b801c7c88bde6d00bdd728410a593f9f3a1a3f1e1bc4c9c629d5e"
@@ -865,7 +865,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a89bd9b57bfccfbf42a9449a1fc2c94bd9d0e611762d074fdea2f4b9236c9ec0"
+  digest = "1:c2c4c39f961dde3f317a48713db65329863b61316edabf19b96784b2da8406ac"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -873,7 +873,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "7da8ea5c81829e397bdf930c5d8ba4b703616f33"
+  revision = "4d1cda033e0619309c606fc686de3adcf599539e"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -900,11 +900,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:dfec4570f2e31d17fdec1afb6d1eeb3ed233067e82bd10d1955daa2bb9b5d92e"
+  digest = "1:3ce59adbda8f0826accf50484010bb409e95b606b41e05034c00f3e27467abee"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "6a3e9aa2ab7749d72d1006ee484271b4a11f96c2"
+  revision = "bbccd8cae4a9a47e0f978e03ff4b5df88a9fde1e"
 
 [[projects]]
   branch = "master"
