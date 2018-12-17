@@ -33,15 +33,11 @@ if [ -d "noms" ]; then
         cd ..
         rm -rf noms
         git clone "$NOMS_REPO"
-        cd noms
     fi
 else
     echo SETUP: Cloning noms...
     git clone "$NOMS_REPO"
-    cd noms
 fi
-echo SETUP: Checking out noms "$NOMS_SHA"...
-git checkout "$NOMS_SHA"
 
 # tendermint
 echo SETUP: Getting dep...
