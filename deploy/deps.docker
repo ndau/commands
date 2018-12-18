@@ -1,18 +1,15 @@
 # This image downloads dependencies and only installs what is necessary to do so.
 FROM golang:1.11-alpine3.8
 
+# Without build tools a cgo error occurs for numerous cmds.
 RUN apk add --no-cache build-base
 
 # Start here
-ENV DIR=$GOPATH/src/github.com/oneiro-ndev/commands
+ENV DIR=/go/src/github.com/oneiro-ndev/commands
 WORKDIR ${DIR}
 
-# Normally we wouldn't copy an ssh key, but this image will never be published.
-# Subsequent images only copy and use specific files from this image and use those.
-ARG SSH_KEY_FILE="machine_user_key"
-COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
-COPY ./deploy/github_fingerprints /root/.ssh/known_hosts
-RUN chmod 0600 /root/.ssh/id_rsa
+# Copy known hosts to prevent needing terminal input from the user.
+COPY ./deploy/known_hosts /root/.ssh/known_hosts
 
 # Install git and configure it to use ssh, not https.
 # install go dep
@@ -31,8 +28,13 @@ COPY ./deploy/tests.sh /root/tests.sh
 # Configure git to use ssh instead of https
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 
-# Download all the dependencies.
-RUN dep ensure
+# Normally we wouldn't copy an ssh key, but this image will never be published.
+# Subsequent images only copy and use specific files from this image and use those.
+ARG SSH_KEY_FILE="machine_user_key"
+COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
 
-# Remove the secret just in case its directory gets copied later.
-RUN rm -vf /root/.ssh/id_rsa
+# Download all the dependencies.
+# Remove the secret as soon as possible
+RUN chmod 0600 /root/.ssh/id_rsa && \
+    dep ensure && \
+    rm -vf /root/.ssh/id_rsa

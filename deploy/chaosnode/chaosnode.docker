@@ -8,8 +8,8 @@ FROM golang:1.11-alpine3.8 AS build
 RUN apk add --no-cache git openssh-client bash
 
 # set up working directory
-ENV DEP_DIR=$GOPATH/src/github.com/oneiro-ndev/commands
-ENV DIR=$GOPATH/src/github.com/oneiro-ndev/chaos
+ENV DEP_DIR=/go/src/github.com/oneiro-ndev/commands
+ENV DIR=/go/src/github.com/oneiro-ndev/chaos
 WORKDIR ${DIR}
 
 # Copy the source into the container and build
@@ -20,7 +20,7 @@ COPY --from=deps ${DEP_DIR}/vendor ${DIR}/vendor
 RUN CGO_ENABLED=0 GOOS=linux go install -a -ldflags '-extldflags "-static"' ./cmd/chaosnode
 
 # Copy binary to known location. The run containers won't know GOPATH.
-RUN cp ${GOPATH}/bin/chaosnode /bin/
+RUN cp /go/bin/chaosnode /bin/
 
 # Terminal build stage: should only contain the static executable
 FROM alpine:3.8

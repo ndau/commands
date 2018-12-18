@@ -34,22 +34,22 @@ RUN chmod 0600 /root/.ssh/*
 
 # Use dep instead of glide, glide no longer supported in TM v0.18.0
 RUN go get -u github.com/golang/dep/... && \
-    mkdir -p $GOPATH/src/github.com/tendermint && \
+    mkdir -p /go/src/github.com/tendermint && \
     git clone https://github.com/tendermint/tendermint.git \
-    $GOPATH/src/github.com/tendermint/tendermint && \
-    cd $GOPATH/src/github.com/tendermint/tendermint && \
+    /go/src/github.com/tendermint/tendermint && \
+    cd /go/src/github.com/tendermint/tendermint && \
     git checkout ${TM_VERSION_TAG}
 
 # We're going to apply a patch before building, so first get the patch file
 COPY ./docker/*.go.patch /patch/
-RUN patch  -i /patch/root.go.patch $GOPATH/src/github.com/tendermint/tendermint/cmd/tendermint/commands/root.go
+RUN patch  -i /patch/root.go.patch /go/src/github.com/tendermint/tendermint/cmd/tendermint/commands/root.go
 
 # now we can build
-WORKDIR $GOPATH/src/github.com/tendermint/tendermint
+WORKDIR /go/src/github.com/tendermint/tendermint
 
 RUN dep ensure && \
     CGO_ENABLED=0 GOOS=linux go install -v -a -ldflags '-extldflags "-static"' ./cmd/tendermint && \
-    cp $GOPATH/bin/tendermint /bin/tendermint
+    cp /go/bin/tendermint /bin/tendermint
 
 # Remove the secret just in case its directory gets copied below.
 RUN rm -vf /root/.ssh/id_rsa

@@ -1,37 +1,37 @@
-version: 2
-jobs:
-  build:
-    working_directory: /commands
-    docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.7
-    environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050" # TODO change for chaos and ndau
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4" # TODO change for chaos and ndau
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
+version: 2.1
+docker_cache_key: &docker_cache_key "{{ .Revision }}"
+commands:
+  save_image:
+    description: "Saves a docker image to the cache"
+    parameters:
+      img_name:
+        type: string
     steps:
+      # bring back a cache if one already exists
+      - restore_cache:
+          key: *docker_cache_key
+      - run:
+          name: save docker image to cache
+          command: |
+            # ensure cache directory
+            [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
+            #
+            docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
+      # saves this path with this cache key
+      - save_cache:
+          key: *docker_cache_key
+          paths:
+            - /opt/docker-cache
+
+  setup:
+    description: "These steps should be run before any real ci/cd actions"
+    steps:
+      # add an ssh key granted with this circleci's settings for this repo
       - add_ssh_keys:
           fingerprints:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
-      - run:
-          name: Install coreutils
-          command: |
-            # TODO put this in circle-ci image
-            apk add --no-cache coreutils
       - run:
           name: Turn environment variable secrets into files
           command: |
@@ -53,103 +53,235 @@ jobs:
             # depth=1 makes the clone a lot faster
             git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
 
+            # add the circle image's known_hosts file to the known_hosts used inside the images
+            cp /root/.ssh/known_hosts /commands/deploy/known_hosts
+
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
             echo -e "$machine_user_key" > /commands/machine_user_key
-
       - run:
           name: get git information
           command: |
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+      # docker_cache_key references a cache directory that has docker images in tar balls.
+      # the tarballs were saved with a command called save_image, defined in `commands` above.
+      - restore_cache:
+          key: *docker_cache_key
 
+workflows:
+  version: 2
+  master-build:
+    jobs:
+      - deps:
+          filters:
+            branches:
+              only: /master/
+      - test:
+          requires:
+            - deps
+          filters:
+            branches:
+              only: /master/
+      - push:
+          requires:
+            - test
+          filters:
+            branches:
+              only: /master/
+      - deploy:
+          requires:
+            - push
+          filters:
+            branches:
+              only: /master/
+      - integration:
+          requires:
+            - deploy
+          filters:
+            branches:
+              only: /master/
+  tagged-build:
+    jobs:
+      - deps:
+          filters:  # required since `test` has tag filters AND requires `deps`
+            tags:
+              only: /.*/
+      - test:
+          requires:
+            - deps
+          filters:  # required since `push` has tag filters AND requires `test`
+            tags:
+              only: /.*/
+      - push:
+          requires:
+            - test
+          filters:  # required since `deploy` has tag filters AND requires `push`
+            tags:
+              only: /.*-push$|.*-deploy$/
+            branches:
+              ignore: /.*/
+      - deploy:
+          requires:
+            - push
+          filters:
+            tags:
+              only: /.*-deploy$/
+            branches:
+              ignore: /.*/
+      - integration:
+          requires:
+            - deploy
+          filters:
+            tags:
+              only: /.*-deploy$/
+            branches:
+              ignore: /.*/
+
+general_config: &general_config
+    working_directory: /commands
+    docker:
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+        shell: /bin/bash
+        # Used for ECR
+        AWS_DEFAULT_REGION: us-east-1
+        # ECR's
+        ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+        # Bump these versions, and commit to master to upload a new version to ECR
+        NOMS_CONTAINER_VERSION: 0.0.1
+        STARTING_PORT: "30050"
+        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+        # These node names are removed first before new ones are installed.
+        # If these names change, the old names will have to be removed manually.
+        NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+        RELEASE_NAME: "devnet"
+        # Number of nodes to deploy
+        NODE_NUM: "5"
+        KUBECONFIG: /root/kubeconfig
+
+jobs:
+  deps:
+    <<: *general_config
+    steps:
+      - setup
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
+      - save_image:
+          img_name: deps:latest
+  test:
+    <<: *general_config
+    steps:
+      - setup
       - run:
           name: Run tests
           command: |
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
                 deps \
                 /bin/sh /root/tests.sh
+
+  push:
+    <<: *general_config
+    steps:
+      - setup
       - run:
           name: run all sub project docker scripts
-          command: find . -name "docker-build-push.sh" -exec {} \;
+          command: |
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            find . -name "docker-build-push.sh" -exec {} \;
+
+  deploy:
+    <<: *general_config
+    steps:
+      - setup
       - run:
           name: run the deploy script
-          command: /commands/deploy/deploy.sh
+          command: |
+            # Redeploy nodegroup testnet
+
+            # Clone the automation repo master branch
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+
+            # Remove old test net
+            helm del --purge $NODE_NAMES --tls ||\
+                echo "Releases: $NODE_NAMES could not be deleted" >&2
+
+            # create new multinode test net
+            # Use $SHA here instead of the automation's git ls-remote method.
+            CHAOSNODE_TAG=$SHA \
+            NDAUNODE_TAG=$SHA \
+            RELEASE=$RELEASE_NAME \
+            ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
+                /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+
+  integration:
+    <<: *general_config
+    steps:
+      - setup
       - run:
           name: Integration tests
           command: |
-            # TODO enable this when integration tests are fixed
-            DISABLE_INTEGRATION_TESTS=true
-            if [ "${CIRCLE_BRANCH}" == "master" ] && ! $DISABLE_INTEGRATION_TESTS; then
 
-                # Run integration tests
-                # get address and port of devnet0 RPC
-                NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
-                NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
-                # get address and port of devnet1 RPC
-                NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
+            # Run integration tests
+            # get address and port of devnet0 RPC
+            NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
+            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
+            # get address and port of devnet1 RPC
+            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
 
-                URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
-                URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
+            URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
+            URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
 
-                # curl retry options
-                CURL_CONNECT_TIMEOUT=5  # each try waits X seconds
-                CURL_RETRY_MAX=50       # retry X many times
-                CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
-                CURL_RETRY_DELAY=10     # try every X seconds
-                CURL_TOTAL_TIMEOUT=900  # total seconds before it fails (900s=15m)
+            # curl retry options
+            CURL_CONNECT_TIMEOUT=5  # each try waits X seconds
+            CURL_RETRY_MAX=50       # retry X many times
+            CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
+            CURL_RETRY_DELAY=10     # try every X seconds
+            CURL_TOTAL_TIMEOUT=900  # total seconds before it fails (900s=15m)
 
-                echo "Trying to connect to $URL_0"
-                # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                # TODO, it seems like this isn't waiting as long as it's supposed to. But it WAS working before
-                if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
-                    --retry-connrefused \
-                    --max-time $CURL_RETRY_MAX \
-                    --retry $CURL_RETRY_TOTAL \
-                    --retry-delay $CURL_RETRY_DELAY \
-                    --retry-max-time $CURL_TOTAL_TIMEOUT \
-                    $URL_0; then
-                    echo "Pinged $URL_0"
-                else
-                    echo "Can't ping $URL_0"
-                    exit 1
-                fi
-
-                echo "Trying to connect to $URL_1"
-                # curl until devnet-1 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
-                    --retry-connrefused \
-                    --max-time $CURL_RETRY_MAX \
-                    --retry $CURL_RETRY_TOTAL \
-                    --retry-delay $CURL_RETRY_DELAY \
-                    --retry-max-time $CURL_TOTAL_TIMEOUT \
-                    $URL_1; then
-                    echo "Pinged $URL_1"
-                else
-                    echo "Can't ping $URL_1"
-                    exit 1
-                fi
-
-                # ensure go path location
-                mkdir -p $GOPATH/src/github.com/oneiro-ndev
-                cd $GOPATH/src/github.com/oneiro-ndev
-
-                # clone integration tests
-                git clone git@github.com:oneiro-ndev/integration-tests.git
-                cd integration-tests
-
-                # run tests
-                pipenv sync
-                pipenv run pytest -v --run_kub
-
+            echo "Trying to connect to $URL_0"
+            # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
+            if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
+                --retry-connrefused \
+                --max-time $CURL_RETRY_MAX \
+                --retry $CURL_RETRY_TOTAL \
+                --retry-delay $CURL_RETRY_DELAY \
+                --retry-max-time $CURL_TOTAL_TIMEOUT \
+                $URL_0; then
+                echo "Pinged $URL_0"
             else
-                echo "Not deploying for non-master branch."
+                echo "Can't ping $URL_0"
+                exit 1
             fi
 
+            echo "Trying to connect to $URL_1"
+            # curl until devnet-1 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
+            if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
+                --retry-connrefused \
+                --max-time $CURL_RETRY_MAX \
+                --retry $CURL_RETRY_TOTAL \
+                --retry-delay $CURL_RETRY_DELAY \
+                --retry-max-time $CURL_TOTAL_TIMEOUT \
+                $URL_1; then
+                echo "Pinged $URL_1"
+            else
+                echo "Can't ping $URL_1"
+                exit 1
+            fi
 
+            # ensure go path location
+            mkdir -p /go/src/github.com/oneiro-ndev
+            cd /go/src/github.com/oneiro-ndev
+
+            # clone integration tests
+            git clone git@github.com:oneiro-ndev/integration-tests.git
+            cd integration-tests
+
+            # run tests
+            pipenv sync
+            pipenv run pytest -v --run_kub

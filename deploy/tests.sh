@@ -1,9 +1,11 @@
 #!/bin/sh
 
 # copy commands' vendor directory to the gopath
-cp -r $GOPATH/src/github.com/oneiro-ndev/commands/vendor/* $GOPATH/src/
+# Go won't test from a vendor directory. But it will test if you copy the contents
+# to the regular go path.
+cp -r /go/src/github.com/oneiro-ndev/commands/vendor/* /go/src/
 
-for oneiro_project in "$GOPATH"/src/github.com/oneiro-ndev/*; do
+for oneiro_project in /go/src/github.com/oneiro-ndev/*; do
     (
         cd "$oneiro_project"
         pwd
