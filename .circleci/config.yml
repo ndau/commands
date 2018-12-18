@@ -1,6 +1,40 @@
 version: 2
+workflows:
+  deps-test-push-deploy:
+    jobs:
+      - deps:
+          filters:  # required since `test` has tag filters AND requires `deps`
+            tags:
+              only: /.*/
+      - test:
+          requires:
+            - deps
+          filters:  # required since `push` has tag filters AND requires `test`
+            tags:
+              only: /.*/
+      - push:
+          filters:  # required since `deploy` has tag filters AND requires `push`
+            tags:
+              only: /.*push|deploy.*/
+      - deploy:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*deploy.*/
+            branches:
+              ignore: /.*/
+      - int:
+          requires:
+            - deploy
+          filters:
+            tags:
+              only: /.*deploy.*/
+            branches:
+              ignore: /.*/
+
 jobs:
-  build:
+  deps:
     working_directory: /commands
     docker:
       - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
@@ -21,9 +55,6 @@ jobs:
       # Number of nodes to deploy
       NODE_NUM: "5"
       KUBECONFIG: /root/kubeconfig
-
-      # push to ECR if this commit is on this branch (normally master)
-      ECR_PUSH_BRANCH: josh/4-fix-ecr-push
 
     steps:
       - add_ssh_keys:
@@ -68,6 +99,31 @@ jobs:
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
+
+  test:
+    working_directory: /commands
+    docker:
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+      shell: /bin/bash
+      # Used for ECR
+      AWS_DEFAULT_REGION: us-east-1
+      # ECR's
+      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+      # Bump these versions, and commit to master to upload a new version to ECR
+      NOMS_CONTAINER_VERSION: 0.0.1
+      STARTING_PORT: "30050"
+      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+      # These node names are removed first before new ones are installed.
+      # If these names change, the old names will have to be removed manually.
+      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+      RELEASE_NAME: "devnet"
+      # Number of nodes to deploy
+      NODE_NUM: "5"
+      KUBECONFIG: /root/kubeconfig
+
+    steps:
+
       - run:
           name: Run tests
           command: |
@@ -76,80 +132,163 @@ jobs:
                 -e CI=true \
                 deps \
                 /bin/sh /root/tests.sh
+
+  push:
+    working_directory: /commands
+    docker:
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+      shell: /bin/bash
+      # Used for ECR
+      AWS_DEFAULT_REGION: us-east-1
+      # ECR's
+      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+      # Bump these versions, and commit to master to upload a new version to ECR
+      NOMS_CONTAINER_VERSION: 0.0.1
+      STARTING_PORT: "30050"
+      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+      # These node names are removed first before new ones are installed.
+      # If these names change, the old names will have to be removed manually.
+      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+      RELEASE_NAME: "devnet"
+      # Number of nodes to deploy
+      NODE_NUM: "5"
+      KUBECONFIG: /root/kubeconfig
+
+    steps:
       - run:
           name: run all sub project docker scripts
           command: find . -name "docker-build-push.sh" -exec {} \;
+
+  deploy:
+    working_directory: /commands
+    docker:
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+      shell: /bin/bash
+      # Used for ECR
+      AWS_DEFAULT_REGION: us-east-1
+      # ECR's
+      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+      # Bump these versions, and commit to master to upload a new version to ECR
+      NOMS_CONTAINER_VERSION: 0.0.1
+      STARTING_PORT: "30050"
+      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+      # These node names are removed first before new ones are installed.
+      # If these names change, the old names will have to be removed manually.
+      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+      RELEASE_NAME: "devnet"
+      # Number of nodes to deploy
+      NODE_NUM: "5"
+      KUBECONFIG: /root/kubeconfig
+
+    steps:
       - run:
           name: run the deploy script
-          command: /commands/deploy/deploy.sh
+          command: |
+
+            # Redeploy nodegroup testnet
+
+            # Clone the automation repo master branch
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+
+            # Remove old test net
+            helm del --purge $NODE_NAMES --tls ||\
+                echo "Releases: $NODE_NAMES could not be deleted" >&2
+
+            # create new multinode test net
+            # Use $SHA here instead of the automation's git ls-remote method.
+            CHAOSNODE_TAG=$SHA \
+            NDAUNODE_TAG=$SHA \
+            RELEASE=$RELEASE_NAME \
+            ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
+                /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+
+  integration:
+    working_directory: /commands
+    docker:
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+      shell: /bin/bash
+      # Used for ECR
+      AWS_DEFAULT_REGION: us-east-1
+      # ECR's
+      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+      # Bump these versions, and commit to master to upload a new version to ECR
+      NOMS_CONTAINER_VERSION: 0.0.1
+      STARTING_PORT: "30050"
+      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+      # These node names are removed first before new ones are installed.
+      # If these names change, the old names will have to be removed manually.
+      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+      RELEASE_NAME: "devnet"
+      # Number of nodes to deploy
+      NODE_NUM: "5"
+      KUBECONFIG: /root/kubeconfig
+
+    steps:
       - run:
           name: Integration tests
           command: |
-            # TODO enable this when integration tests are fixed
-            DISABLE_INTEGRATION_TESTS=false
-            if [ "$CIRCLE_BRANCH" == "$ECR_PUSH_BRANCH" ] && ! $DISABLE_INTEGRATION_TESTS; then
 
-                # Run integration tests
-                # get address and port of devnet0 RPC
-                NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
-                NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
-                # get address and port of devnet1 RPC
-                NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
+            # Run integration tests
+            # get address and port of devnet0 RPC
+            NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
+            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
+            # get address and port of devnet1 RPC
+            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
 
-                URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
-                URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
+            URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
+            URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
 
-                # curl retry options
-                CURL_CONNECT_TIMEOUT=5  # each try waits X seconds
-                CURL_RETRY_MAX=50       # retry X many times
-                CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
-                CURL_RETRY_DELAY=10     # try every X seconds
-                CURL_TOTAL_TIMEOUT=900  # total seconds before it fails (900s=15m)
+            # curl retry options
+            CURL_CONNECT_TIMEOUT=5  # each try waits X seconds
+            CURL_RETRY_MAX=50       # retry X many times
+            CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
+            CURL_RETRY_DELAY=10     # try every X seconds
+            CURL_TOTAL_TIMEOUT=900  # total seconds before it fails (900s=15m)
 
-                echo "Trying to connect to $URL_0"
-                # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
-                    --retry-connrefused \
-                    --max-time $CURL_RETRY_MAX \
-                    --retry $CURL_RETRY_TOTAL \
-                    --retry-delay $CURL_RETRY_DELAY \
-                    --retry-max-time $CURL_TOTAL_TIMEOUT \
-                    $URL_0; then
-                    echo "Pinged $URL_0"
-                else
-                    echo "Can't ping $URL_0"
-                    exit 1
-                fi
-
-                echo "Trying to connect to $URL_1"
-                # curl until devnet-1 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-                if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
-                    --retry-connrefused \
-                    --max-time $CURL_RETRY_MAX \
-                    --retry $CURL_RETRY_TOTAL \
-                    --retry-delay $CURL_RETRY_DELAY \
-                    --retry-max-time $CURL_TOTAL_TIMEOUT \
-                    $URL_1; then
-                    echo "Pinged $URL_1"
-                else
-                    echo "Can't ping $URL_1"
-                    exit 1
-                fi
-
-                # ensure go path location
-                mkdir -p /go/src/github.com/oneiro-ndev
-                cd /go/src/github.com/oneiro-ndev
-
-                # clone integration tests
-                git clone git@github.com:oneiro-ndev/integration-tests.git
-                cd integration-tests
-
-                # run tests
-                pipenv sync
-                pipenv run pytest -v --run_kub
-
+            echo "Trying to connect to $URL_0"
+            # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
+            if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
+                --retry-connrefused \
+                --max-time $CURL_RETRY_MAX \
+                --retry $CURL_RETRY_TOTAL \
+                --retry-delay $CURL_RETRY_DELAY \
+                --retry-max-time $CURL_TOTAL_TIMEOUT \
+                $URL_0; then
+                echo "Pinged $URL_0"
             else
-                echo "Not deploying for non-master branch."
+                echo "Can't ping $URL_0"
+                exit 1
             fi
+
+            echo "Trying to connect to $URL_1"
+            # curl until devnet-1 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
+            if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
+                --retry-connrefused \
+                --max-time $CURL_RETRY_MAX \
+                --retry $CURL_RETRY_TOTAL \
+                --retry-delay $CURL_RETRY_DELAY \
+                --retry-max-time $CURL_TOTAL_TIMEOUT \
+                $URL_1; then
+                echo "Pinged $URL_1"
+            else
+                echo "Can't ping $URL_1"
+                exit 1
+            fi
+
+            # ensure go path location
+            mkdir -p /go/src/github.com/oneiro-ndev
+            cd /go/src/github.com/oneiro-ndev
+
+            # clone integration tests
+            git clone git@github.com:oneiro-ndev/integration-tests.git
+            cd integration-tests
+
+            # run tests
+            pipenv sync
+            pipenv run pytest -v --run_kub
+
 
 
