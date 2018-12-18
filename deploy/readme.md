@@ -16,6 +16,15 @@ This folder contains everything that needs to be built and put into ECR for depl
 `noms/noms.docker` - Dockerfile for our NomsDB image.
 `tendermint/tendermint.docker` - Dockerfile for our Tendermint image.
 
+## circle ci builds
+
+There are three modes regarding git tags and git branches that are captured in `./circleci/config.yml`, and each triggers different actions.
+
+Firstly, all commits run the deps and test jobs.
+
+Secondly, tagged builds respond to commits that are tagged. They can be tagged with either `.*-push`, in which case it will push an built docker image to ECR. They can be tagged with `.*-deploy` in which case it will deploy to devnet.
+
+The third case is a commit to master, this will run all steps and deploy to devnet as if it were tagged `something-deploy`.
 
 ## docker files
 
