@@ -1,15 +1,14 @@
 # deploy
 
-This folder contains everything that needs to be built and put into ECR for deployment.
+This folder contains everything that needs to be built and put into ECR for deployment, minus `/.circleci/config.yml`.
 
-* `deps.docker` - downloads dependencies
-* `.../docker-build-push.sh` - these files build and upload images to ECR.
-* `deploy.sh` - redeploys the testnet.
+* `deps.docker` - this docker image downloads dependencies, so other subsequent images don't have to repeat the process.
+* `.../docker-build-push.sh` - these scripts build and upload images to ECR.
 
 ## Folders
 
-* `chaos` contains everything relating to the chaosnode's image.
-* `ndau` contains everything relating to the ndaunode and ndauapi image.
+* `chaosnode`, `ndaunode` and `ndauapi` contain everything related to making those images.
+
 
 ## Other files
 
