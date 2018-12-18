@@ -1,5 +1,5 @@
 version: 2.1
-key: &docker_cache_key "{{ .Revision }}"
+docker_cache_key: &docker_cache_key "{{ .Revision }}"
 commands:
   save_image:
     description: "Saves a docker image to the cache"
@@ -7,27 +7,31 @@ commands:
       img_name:
         type: string
     steps:
+      # bring back a cache if one already exists
       - restore_cache:
           key: *docker_cache_key
       - run:
           name: save docker image to cache
           command: |
-            mkdir -p /opt/docker-cache
+            # ensure cache directory
+            [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
+            #
             docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
+      # saves this path with this cache key
       - save_cache:
           key: *docker_cache_key
           paths:
             - /opt/docker-cache
 
   setup:
-    description: "Set up things"
+    description: "These steps should be run before any real ci/cd actions"
     steps:
+      # add an ssh key granted with this circleci's settings for this repo
       - add_ssh_keys:
           fingerprints:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
-
       - run:
           name: Turn environment variable secrets into files
           command: |
@@ -61,6 +65,8 @@ commands:
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+      # docker_cache_key references a cache directory that has docker images in tar balls.
+      # the tarballs were saved with a command called save_image, defined in `commands` above.
       - restore_cache:
           key: *docker_cache_key
 
@@ -101,7 +107,7 @@ workflows:
             branches:
               ignore: /.*/
 
-general_config: &config
+general_config: &general_config
     working_directory: /commands
     docker:
         - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
@@ -126,7 +132,7 @@ general_config: &config
 
 jobs:
   deps:
-    <<: *config
+    <<: *general_config
     steps:
       - setup
       - run:
@@ -135,7 +141,7 @@ jobs:
       - save_image:
           img_name: deps:latest
   test:
-    <<: *config
+    <<: *general_config
     steps:
       - setup
       - run:
@@ -149,7 +155,7 @@ jobs:
                 /bin/sh /root/tests.sh
 
   push:
-    <<: *config
+    <<: *general_config
     steps:
       - setup
       - run:
@@ -159,7 +165,7 @@ jobs:
             find . -name "docker-build-push.sh" -exec {} \;
 
   deploy:
-    <<: *config
+    <<: *general_config
     steps:
       - setup
       - run:
@@ -183,7 +189,7 @@ jobs:
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
   integration:
-    <<: *config
+    <<: *general_config
     steps:
       - setup
       - run:
