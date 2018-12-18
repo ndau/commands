@@ -141,7 +141,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            find /opt/docker-cache -name "*.tar" -exec docker load < {} \;
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
@@ -155,7 +155,7 @@ jobs:
       - run:
           name: run all sub project docker scripts
           command: |
-            find /opt/docker-cache -name "*.tar" -exec docker load < {} \;
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             find . -name "docker-build-push.sh" -exec {} \;
 
   deploy:
