@@ -72,7 +72,37 @@ commands:
 
 workflows:
   version: 2
-  deps-test-push-deploy:
+  master-build:
+    jobs:
+      - deps:
+          filters:
+            branches:
+              only: /master/
+      - test:
+          requires:
+            - deps
+          filters:
+            branches:
+              only: /master/
+      - push:
+          requires:
+            - test
+          filters:
+            branches:
+              only: /master/
+      - deploy:
+          requires:
+            - push
+          filters:
+            branches:
+              only: /master/
+      - integration:
+          requires:
+            - deploy
+          filters:
+            branches:
+              only: /master/
+  tagged-build:
     jobs:
       - deps:
           filters:  # required since `test` has tag filters AND requires `deps`
@@ -130,7 +160,6 @@ general_config: &general_config
         # Number of nodes to deploy
         NODE_NUM: "5"
         KUBECONFIG: /root/kubeconfig
-
 
 jobs:
   deps:
