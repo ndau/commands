@@ -14,7 +14,7 @@ commands:
           name: save docker image to cache
           command: |
             mkdir -p /opt/docker-cache
-            docker save -o "/opt/docker-cache/<< parameters.name >>.tar" "<< parameters.name >>"
+            docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
       - save_cache:
           key: *docker_cache_key
           paths:
