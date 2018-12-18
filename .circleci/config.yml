@@ -133,7 +133,7 @@ jobs:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
-          img_name: deps
+          img_name: deps:latest
   test:
     <<: *config
     steps:
@@ -153,7 +153,9 @@ jobs:
       - setup
       - run:
           name: run all sub project docker scripts
-          command: find . -name "docker-build-push.sh" -exec {} \;
+          command: |
+            find /opt/docker-cache -name "*.tar" -exec docker load < {} \;
+            find . -name "docker-build-push.sh" -exec {} \;
 
   deploy:
     <<: *config
