@@ -105,7 +105,7 @@ func main() {
 		// for now we allow *, but once we get this in production we may want to be more picky,
 		// depending on whether we want to allow third parties to access this api from apps
 		// that we don't control.
-		// AllowedOrigins:   []string{"http://foo.com", "http://foo.com:8080"},
+		AllowedOrigins: []string{"*"},
 		// We don't currently need/use credentials so this is false. But that may change.
 		AllowCredentials: false,
 		// Only the basic methods are implemented to date.
