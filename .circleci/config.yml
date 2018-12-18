@@ -89,19 +89,25 @@ workflows:
             - test
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
-              only: /push|deploy/
+              only: /.*-push$|.*-deploy$/
+            branches:
+              ignore: /.*/
       - deploy:
           requires:
             - push
           filters:
             tags:
-              only: /deploy/
+              only: /.*-deploy$/
+            branches:
+              ignore: /.*/
       - integration:
           requires:
             - deploy
           filters:
             tags:
-              only: /deploy/
+              only: /.*-deploy$/
+            branches:
+              ignore: /.*/
 
 general_config: &general_config
     working_directory: /commands
