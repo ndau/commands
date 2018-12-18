@@ -11,10 +11,10 @@ if [ ! -z "$sha_check" ]; then
 fi
 
 # Build ndauapi-build
-docker build -t ndauapi-build -f /commands/deploy/ndau/ndauapi-build.docker /commands
+docker build -t ndauapi-build -f /commands/deploy/ndauapi/ndauapi-build.docker /commands
 
 # Build ndauapi-run
-docker build -t ndauapi -f /commands/deploy/ndau/ndauapi-run.docker /commands
+docker build -t ndauapi -f /commands/deploy/ndauapi/ndauapi-run.docker /commands
 
 commit_tag="${ECR_ENDPOINT}/ndauapi:$SHA"
 latest_tag="${ECR_ENDPOINT}/ndauapi:latest"

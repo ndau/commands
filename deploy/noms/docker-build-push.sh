@@ -11,7 +11,7 @@ if [ ! -z "$version_check" ]; then
   exit 0
 fi
 
-docker build -t "$ECR_ENDPOINT/noms:$NOMS_CONTAINER_VERSION" -f /commands/deploy/noms.docker /commands
+docker build -t "$ECR_ENDPOINT/noms:$NOMS_CONTAINER_VERSION" -f /commands/deploy/noms/noms.docker /commands
 docker push "$ECR_ENDPOINT/noms:$NOMS_CONTAINER_VERSION"
 echo "Pushed Noms container version $NOMS_CONTAINER_VERSION." >&2
 

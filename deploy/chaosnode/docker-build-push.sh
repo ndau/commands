@@ -13,7 +13,7 @@ if [ ! -z "$sha_check" ]; then
 fi
 
 # Build chaosnode
-docker build -t chaosnode -f /commands/deploy/chaos/chaosnode.docker /commands/
+docker build -t chaosnode -f /commands/deploy/chaosnode/chaosnode.docker /commands/
 
 # compose tags for ecr
 commit_tag="${ECR_ENDPOINT}/chaosnode:$SHA"

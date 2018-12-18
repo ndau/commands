@@ -15,10 +15,10 @@ if [ ! -z "$sha_check" ]; then
 fi
 
 # Build ndaunode-build
-docker build -t ndaunode-build -f /commands/deploy/ndau/ndaunode-build.docker /commands --build-arg VERSION=$VERSION
+docker build -t ndaunode-build -f /commands/deploy/ndaunode/ndaunode-build.docker /commands --build-arg VERSION=$VERSION
 
 # Build ndaunode-run
-docker build -t ndaunode -f /commands/deploy/ndau/ndaunode-run.docker /commands
+docker build -t ndaunode -f /commands/deploy/ndaunode/ndaunode-run.docker /commands
 
 commit_tag="${ECR_ENDPOINT}/ndaunode:$SHA"
 latest_tag="${ECR_ENDPOINT}/ndaunode:latest"
