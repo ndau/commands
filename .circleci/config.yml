@@ -1,62 +1,8 @@
-version: 2
-workflows:
-  version: 2
-  deps-test-push-deploy:
-    jobs:
-      - deps:
-          filters:  # required since `test` has tag filters AND requires `deps`
-            tags:
-              only: /.*/
-      - test:
-          requires:
-            - deps
-          filters:  # required since `push` has tag filters AND requires `test`
-            tags:
-              only: /.*/
-      - push:
-          filters:  # required since `deploy` has tag filters AND requires `push`
-            tags:
-              only: /.*push|deploy.*/
-      - deploy:
-          requires:
-            - test
-          filters:
-            tags:
-              only: /.*deploy.*/
-            branches:
-              ignore: /.*/
-      - int:
-          requires:
-            - deploy
-          filters:
-            tags:
-              only: /.*deploy.*/
-            branches:
-              ignore: /.*/
+version: 2.1
 
-jobs:
-  deps:
-    working_directory: /commands
-    docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050"
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
-
+commands:
+  setup:
+    description: "Set up things"
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -97,6 +43,69 @@ jobs:
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+
+workflows:
+  version: 2
+  deps-test-push-deploy:
+    jobs:
+      - deps:
+          filters:  # required since `test` has tag filters AND requires `deps`
+            tags:
+              only: /.*/
+      - test:
+          requires:
+            - deps
+          filters:  # required since `push` has tag filters AND requires `test`
+            tags:
+              only: /.*/
+      - push:
+          requires:
+            - test
+          filters:  # required since `deploy` has tag filters AND requires `push`
+            tags:
+              only: /.*push|deploy.*/
+      - deploy:
+          requires:
+            - push
+          filters:
+            tags:
+              only: /.*deploy.*/
+            branches:
+              ignore: /.*/
+      - int:
+          requires:
+            - deploy
+          filters:
+            tags:
+              only: /.*deploy.*/
+            branches:
+              ignore: /.*/
+
+jobs:
+  deps:
+    working_directory: /commands
+    docker:
+      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+      shell: /bin/bash
+      # Used for ECR
+      AWS_DEFAULT_REGION: us-east-1
+      # ECR's
+      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+      # Bump these versions, and commit to master to upload a new version to ECR
+      NOMS_CONTAINER_VERSION: 0.0.1
+      STARTING_PORT: "30050"
+      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+      # These node names are removed first before new ones are installed.
+      # If these names change, the old names will have to be removed manually.
+      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+      RELEASE_NAME: "devnet"
+      # Number of nodes to deploy
+      NODE_NUM: "5"
+      KUBECONFIG: /root/kubeconfig
+
+    steps:
+      - setup
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
@@ -124,7 +133,7 @@ jobs:
       KUBECONFIG: /root/kubeconfig
 
     steps:
-
+      - setup
       - run:
           name: Run tests
           command: |
@@ -157,6 +166,7 @@ jobs:
       KUBECONFIG: /root/kubeconfig
 
     steps:
+      - setup
       - run:
           name: run all sub project docker scripts
           command: find . -name "docker-build-push.sh" -exec {} \;
@@ -184,6 +194,7 @@ jobs:
       KUBECONFIG: /root/kubeconfig
 
     steps:
+      - setup
       - run:
           name: run the deploy script
           command: |
@@ -228,6 +239,7 @@ jobs:
       KUBECONFIG: /root/kubeconfig
 
     steps:
+      - setup
       - run:
           name: Integration tests
           command: |
@@ -290,6 +302,4 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --run_kub
-
-
 
