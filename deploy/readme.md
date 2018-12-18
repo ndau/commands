@@ -26,7 +26,7 @@ In the CircleCI environment, for example, this means you `go ensure deps` one ti
 
 ## caveat
 
-Since the `deps` image sticks around, there are commits in that image that contain a copy of our `machine_user_key`. Care must be taken to not expose this key. This is prevented by two measures 1) never uploading the `deps` image anywhere and 2) never copying the key out of the container to another container. The image itself is always built where it is used. It is no more exposed than the key file sitting on your machine and `docker rmi ndau-deps` removes it entirely.
+Since the `deps` image sticks around, there are commits in that image that contain a copy of our `machine_user_key`. Care must be taken to not expose this key. This is prevented by two measures 1) never uploading the `deps` image anywhere and 2) never copying the key out of the container to another container. The image itself is always built where it is used. It is no more exposed than the key file sitting on your machine and `docker rmi deps` removes it entirely.
 
 ## VSCode file associations
 
