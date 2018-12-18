@@ -96,16 +96,12 @@ workflows:
           filters:
             tags:
               only: /deploy/
-            branches:
-              ignore: /.*/
       - integration:
           requires:
             - deploy
           filters:
             tags:
               only: /deploy/
-            branches:
-              ignore: /.*/
 
 general_config: &general_config
     working_directory: /commands
