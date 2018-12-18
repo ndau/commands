@@ -50,6 +50,9 @@ commands:
       - run:
           name: Checkout code
           command: |
+
+            env
+
             # depth=1 makes the clone a lot faster
             git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
 
