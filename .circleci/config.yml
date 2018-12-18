@@ -141,6 +141,7 @@ jobs:
       - run:
           name: Run tests
           command: |
+            find /opt/docker-cache -name "*.tar" -exec docker load < {} \;
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
