@@ -9,7 +9,6 @@ commands:
     steps:
       - restore_cache:
           key: *docker_cache_key
-      - setup_remote_docker
       - run:
           name: save docker image to cache
           command: |
