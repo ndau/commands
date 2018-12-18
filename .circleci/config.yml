@@ -1,6 +1,25 @@
 version: 2.1
-
+key: &docker_cache_key "{{ .Revision }}"
 commands:
+  save_image:
+    description: "Saves a docker image to the cache"
+    parameters:
+      name:
+        type: string
+    steps:
+      - restore_cache:
+          key: *docker_cache_key
+      - setup_remote_docker
+      - run:
+          name: save docker image to cache
+          command: |
+            mkdir -p /opt/docker-cache
+            docker save -o "/opt/docker-cache/<< parameters.name >>.tar" "<< parameters.name >>"
+      - save_cache:
+          key: *docker_cache_key
+          paths:
+            - /opt/docker-cache
+
   setup:
     description: "Set up things"
     steps:
@@ -43,6 +62,8 @@ commands:
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+      - restore_cache:
+          key: *docker_cache_key
 
 workflows:
   version: 2
@@ -63,13 +84,13 @@ workflows:
             - test
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
-              only: /.*push|deploy.*/
+              only: /push|deploy/
       - deploy:
           requires:
             - push
           filters:
             tags:
-              only: /.*deploy.*/
+              only: /deploy/
             branches:
               ignore: /.*/
       - integration:
@@ -77,61 +98,45 @@ workflows:
             - deploy
           filters:
             tags:
-              only: /.*deploy.*/
+              only: /deploy/
             branches:
               ignore: /.*/
 
-jobs:
-  deps:
+general_config: &config
     working_directory: /commands
     docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
     environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050"
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
+        shell: /bin/bash
+        # Used for ECR
+        AWS_DEFAULT_REGION: us-east-1
+        # ECR's
+        ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+        # Bump these versions, and commit to master to upload a new version to ECR
+        NOMS_CONTAINER_VERSION: 0.0.1
+        STARTING_PORT: "30050"
+        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+        # These node names are removed first before new ones are installed.
+        # If these names change, the old names will have to be removed manually.
+        NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
+        RELEASE_NAME: "devnet"
+        # Number of nodes to deploy
+        NODE_NUM: "5"
+        KUBECONFIG: /root/kubeconfig
 
+
+jobs:
+  deps:
+    <<: *config
     steps:
       - setup
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
-
+      - save_image:
+          name: deps
   test:
-    working_directory: /commands
-    docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050"
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
-
+    <<: *config
     steps:
       - setup
       - run:
@@ -144,27 +149,7 @@ jobs:
                 /bin/sh /root/tests.sh
 
   push:
-    working_directory: /commands
-    docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050"
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
-
+    <<: *config
     steps:
       - setup
       - run:
@@ -172,33 +157,12 @@ jobs:
           command: find . -name "docker-build-push.sh" -exec {} \;
 
   deploy:
-    working_directory: /commands
-    docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050"
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
-
+    <<: *config
     steps:
       - setup
       - run:
           name: run the deploy script
           command: |
-
             # Redeploy nodegroup testnet
 
             # Clone the automation repo master branch
@@ -217,27 +181,7 @@ jobs:
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
   integration:
-    working_directory: /commands
-    docker:
-      - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-      shell: /bin/bash
-      # Used for ECR
-      AWS_DEFAULT_REGION: us-east-1
-      # ECR's
-      ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-      # Bump these versions, and commit to master to upload a new version to ECR
-      NOMS_CONTAINER_VERSION: 0.0.1
-      STARTING_PORT: "30050"
-      ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
-      # These node names are removed first before new ones are installed.
-      # If these names change, the old names will have to be removed manually.
-      NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-      RELEASE_NAME: "devnet"
-      # Number of nodes to deploy
-      NODE_NUM: "5"
-      KUBECONFIG: /root/kubeconfig
-
+    <<: *config
     steps:
       - setup
       - run:
@@ -302,4 +246,3 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --run_kub
-
