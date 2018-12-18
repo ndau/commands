@@ -4,7 +4,7 @@ commands:
   save_image:
     description: "Saves a docker image to the cache"
     parameters:
-      name:
+      img_name:
         type: string
     steps:
       - restore_cache:
@@ -134,7 +134,7 @@ jobs:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
-          name: deps
+          img_name: deps
   test:
     <<: *config
     steps:
