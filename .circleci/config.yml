@@ -284,4 +284,4 @@ jobs:
 
             # run tests
             pipenv sync
-            pipenv run pytest -v --run_kub
+            pipenv run pytest -v
