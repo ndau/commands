@@ -101,3 +101,34 @@ We tried various other approaches that didn't work out as well as this:
 * `glide init` with `glide install` within `metanode`
     - Hacky way of using glide
     - Still have to edit `chaos` and `ndau` glide.yaml to pull from your branch to test locally
+
+
+## Chaincode tools
+
+### Building the tools
+
+From the root of the commands repository, you can use `make`. It basically expects that you are working from within goroot and that the chaincode repo is at `../chaincode` and also expects `../validation_scripts` relative to this `commands` repo.
+
+Given that, you should be able to do `make build` to create all the tools.
+
+The tools it creates are:
+
+* opcodes (the code generator that ensures that all the chaincode sources use the same set of opcodes)
+* chasm (the chaincode assembler)
+* chfmt (the chasm formatter)
+* crank (the chaincode debugger, repl, and test tool)
+
+Once you have built the tools, you can do:
+
+* `make validations` to build all the validation scripts.
+* `make vtests` will test all the validation scripts based on finding files with the .crank extension in the `../validation_scripts` directory.
+* `make vformat` will run the formatter over all the scripts in that directory. Note that the formatter currently has the potential to damage a file if it cannot be parsed, so you would be wise to commit an unformatted version before you run it; the safest bet is to make sure it compiles first.
+
+### Notes on crank
+
+Crank was originally intended to be a chaincode repl. It can definitely be used that way, but usually you'll be better off running it from a script.
+
+If you encounter a puzzling bug, you can use the -verbose switch; if this is set, when crank encounters a script error it will drop into the repl so you can try to look around and maybe reset and walk through it.
+
+The `help` and `help verbose` commands will dump some helpful text about how to use crank. Also see the readme in cmd/crank.
+
