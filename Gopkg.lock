@@ -490,7 +490,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:73a85926db585e808976461678a0b16d1b7df8aab08d2d6a1e6bbb24dd1313f1"
+  digest = "1:ea88c6a6bc047411d6ca1cf0b664b88bfeb5da3220aa3c9ba6ac2754245b72df"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -510,11 +510,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "995ca86d57eef87037dae6ecad42f3d6515146d1"
-  version = "v0.10.1"
+  revision = "91ad282fd1768b58aa4b76447bf3ba5d189148ea"
+  version = "v0.10.2"
 
 [[projects]]
-  digest = "1:e8e7b521a692ca9ad7fb5ac604bc976f897a2e2c890da2960d0a186b95a113ab"
+  digest = "1:569cceb9b3d2d7a3b275523db0f560cb90f02cceca615a0f90c9630be16bc046"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -536,8 +536,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "cdc8dd2bfe1e97e403ee2833efe2d565148dfb15"
-  version = "v0.7.9"
+  revision = "4ba7382461fb7618aeb4bd7ac47c929d7f8ef6fe"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
@@ -900,11 +900,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c949a7be54900858e8a564ffd8b379d98184bc5dd91a4679c84f070d9b4185b0"
+  digest = "1:cacc009d18847138854f998322faeb9139876c8f98398ed785a0440b2f336e29"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "3ad2d988d5e25022ad68b1cc9ff2dd3ef6a12043"
+  revision = "54d1bacb4e83cdcbb081a7ea09a69092f72bd2e6"
 
 [[projects]]
   branch = "master"

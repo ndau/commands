@@ -23,6 +23,10 @@ name = "github.com/attic-labs/graphql"
 branch = "master"
 
 [[override]]
+name = "github.com/tinylabs/msgp"
+version = "v1.1.0"
+
+[[override]]
 name = "github.com/attic-labs/noms"
 branch = "master"
 source = "github.com/oneiro-ndev/noms"
