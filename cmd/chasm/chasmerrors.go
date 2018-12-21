@@ -40,6 +40,9 @@ func describeError(err error, source string) string {
 		// now create a second line with the same whitespace prefix, plus replace all
 		// the non-whitespace chars with a space, then add a caret (^) to point to the error
 		// c := ep.col
+		if len(line) == 0 {
+			return fmt.Sprintf("%s\n%4d: %s\n", err.Error(), ep.line, line)
+		}
 		if ep.col >= len(line) {
 			ep.col = len(line) - 1
 		}
