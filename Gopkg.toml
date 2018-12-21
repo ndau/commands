@@ -28,6 +28,10 @@ branch = "master"
 source = "github.com/oneiro-ndev/noms"
 
 [[override]]
+name = "github.com/tendermint/tendermint"
+version = "v0.25.0"
+
+[[override]]
 name = "github.com/satori/go.uuid"
 branch = "master"
 
