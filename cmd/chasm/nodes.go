@@ -144,6 +144,8 @@ func (n *FunctionDef) fixup(funcs map[string]int) error {
 	me, ok := funcs[n.name]
 	if ok {
 		n.index = byte(me)
+	} else { 
+	    return fmt.Errorf("function %s not found in funcs map", n.name) 
 	}
 	for _, op := range n.nodes {
 		if f, ok := op.(Fixupper); ok {
