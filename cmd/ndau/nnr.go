@@ -49,10 +49,10 @@ func getNNR(verbose *bool, keys *int) func(*cli.Cmd) {
 			nnr := ndau.NewNominateNodeReward(
 				random,
 				sequence(conf, conf.NNR.Address),
-				keys,
+				keys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node), &nnr)
+			result, err := tool.SendCommit(tmnode(conf.Node), nnr)
 			finish(*verbose, result, err, "nnr")
 		}
 	}

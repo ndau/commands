@@ -69,10 +69,10 @@ func getCVC(verbose *bool, keys *int) func(*cli.Cmd) {
 			cvc := ndau.NewCommandValidatorChange(
 				pkb, int64(*power),
 				sequence(conf, conf.CVC.Address),
-				fkeys,
+				fkeys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node), &cvc)
+			result, err := tool.SendCommit(tmnode(conf.Node), cvc)
 			finish(*verbose, result, err, "cvc")
 		}
 	}

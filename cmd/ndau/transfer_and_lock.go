@@ -6,7 +6,6 @@ import (
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
-	"github.com/pkg/errors"
 )
 
 func getTransferAndLock(verbose *bool, keys *int) func(*cli.Cmd) {
@@ -49,14 +48,13 @@ func getTransferAndLock(verbose *bool, keys *int) func(*cli.Cmd) {
 			}
 
 			// construct the transfer
-			transfer, err := ndau.NewTransferAndLock(
+			transfer := ndau.NewTransferAndLock(
 				from, to,
 				ndauQty,
 				duration,
 				sequence(conf, from),
-				fromAcct.TransferPrivateK(keys),
+				fromAcct.TransferPrivateK(keys)...,
 			)
-			orQuit(errors.Wrap(err, "Failed to construct transferand lock"))
 
 			tresp, err := tool.SendCommit(tmnode(conf.Node), transfer)
 			finish(*verbose, tresp, err, "transferandlock")

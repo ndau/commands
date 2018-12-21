@@ -72,10 +72,10 @@ func getReset(verbose *bool, name *string, keys *int) func(*cli.Cmd) {
 				[]signature.PublicKey{newkeys.Public},
 				acct.ValidationScript,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), &cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -115,10 +115,10 @@ func getAdd(verbose *bool, name *string, keys *int) func(*cli.Cmd) {
 				append(acct.TransferPublic(), newkeys.Public),
 				acct.ValidationScript,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), &cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -188,14 +188,14 @@ func getSetScript(verbose *bool, name *string, keys *int) func(*cli.Cmd) {
 				acct.TransferPublic(),
 				script,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
 			if *verbose {
 				fmt.Printf("%#v\n", cv)
 			}
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), &cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
