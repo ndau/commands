@@ -28,7 +28,7 @@ type Node interface {
 // that contain other nodes as children. It is called before the bytes() function to allow
 // nodes to do any fixing up necessary.
 type Fixupper interface {
-	fixup(map[string]int)
+	fixup(map[string]int) error
 }
 
 // Script is the highest level node in the system
@@ -39,12 +39,16 @@ type Script struct {
 
 var _ Node = (*Script)(nil)
 
-func (n *Script) fixup() {
+func (n *Script) fixup() error {
 	for _, op := range n.nodes {
 		if f, ok := op.(Fixupper); ok {
-			f.fixup(n.funcs)
+			err := f.fixup(n.funcs)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 func (n *Script) bytes() []byte {
@@ -66,7 +70,7 @@ func newScript(nodes interface{}, funcs map[string]int) (*Script, error) {
 	return &Script{nodes: nodeArray, funcs: funcs}, nil
 }
 
-// HandlerDef is a node that expresses the information in a function definition
+// HandlerDef is a node that expresses the information in a handler definition
 type HandlerDef struct {
 	ids   []byte
 	nodes []Node
@@ -86,6 +90,18 @@ func (n *HandlerDef) bytes() []byte {
 	}
 	b = append(b, byte(vm.OpEndDef))
 	return b
+}
+
+func (n *HandlerDef) fixup(funcs map[string]int) error {
+	for _, op := range n.nodes {
+		if f, ok := op.(Fixupper); ok {
+			err := f.fixup(funcs)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func newHandlerDef(sids []string, nodes interface{}, constants map[string]string) (*HandlerDef, error) {
@@ -124,16 +140,22 @@ type FunctionDef struct {
 
 var _ Node = (*FunctionDef)(nil)
 
-func (n *FunctionDef) fixup(funcs map[string]int) {
+func (n *FunctionDef) fixup(funcs map[string]int) error {
 	me, ok := funcs[n.name]
 	if ok {
 		n.index = byte(me)
+	} else { 
+	    return fmt.Errorf("function %s not found in funcs map", n.name) 
 	}
 	for _, op := range n.nodes {
 		if f, ok := op.(Fixupper); ok {
-			f.fixup(funcs)
+			err := f.fixup(funcs)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 func (n *FunctionDef) bytes() []byte {
@@ -205,11 +227,13 @@ type CallOpcode struct {
 
 var _ Node = (*CallOpcode)(nil)
 
-func (n *CallOpcode) fixup(funcs map[string]int) {
+func (n *CallOpcode) fixup(funcs map[string]int) error {
 	me, ok := funcs[n.name]
-	if ok {
-		n.fix = byte(me)
+	if !ok || byte(me) == 0xff {
+		return errors.New("unable to fix up call to " + n.name)
 	}
+	n.fix = byte(me)
+	return nil
 }
 
 func (n *CallOpcode) bytes() []byte {
@@ -217,7 +241,7 @@ func (n *CallOpcode) bytes() []byte {
 }
 
 func newCallOpcode(op vm.Opcode, name string) (*CallOpcode, error) {
-	return &CallOpcode{opcode: op, name: name}, nil
+	return &CallOpcode{opcode: op, name: name, fix: 0xff}, nil
 }
 
 // DecoOpcode is for Deco, which calls a function and takes a function name
@@ -231,11 +255,13 @@ type DecoOpcode struct {
 
 var _ Node = (*DecoOpcode)(nil)
 
-func (n *DecoOpcode) fixup(funcs map[string]int) {
+func (n *DecoOpcode) fixup(funcs map[string]int) error {
 	me, ok := funcs[n.name]
-	if ok {
-		n.fix = byte(me)
+	if !ok || byte(me) == 0xff {
+		return errors.New("unable to fix up deco to " + n.name)
 	}
+	n.fix = byte(me)
+	return nil
 }
 
 func (n *DecoOpcode) bytes() []byte {

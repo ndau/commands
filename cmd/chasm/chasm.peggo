@@ -1,25 +1,25 @@
 {
     package main
 
-	import (
-		"github.com/oneiro-ndev/chaincode/pkg/vm"
-	)
+    import (
+        "github.com/oneiro-ndev/chaincode/pkg/vm"
+    )
 
 }
 
-Script <- EOL* code:Code EOF { return newScript(code, c.globalStore["functions"].(map[string]int)) }
+Script <- EOL* code:Code EOF                   { return newScript(code, c.globalStore["functions"].(map[string]int)) }
 
-Code <-  EOL* rs:RoutineDef+ { return rs, nil }
+Code <-  EOL* rs:RoutineDef+                   { return rs, nil }
 
 RoutineDef <-
-	( HandlerDef
-	/ FunctionDef
-	/ GlobalConstDef
-	)
+    ( HandlerDef
+    / FunctionDef
+    / GlobalConstDef
+    )
 
 HandlerDef <- _? "handler" _ ids:HandlerIDList _? '{' s:Line+ _? '}' EOL*  {
-		return newHandlerDef(ids.([]string), s, c.globalStore["constants"].(map[string]string))
-    }
+    return newHandlerDef(ids.([]string), s, c.globalStore["constants"].(map[string]string))
+}
 
 FunctionDef <- _? "func" _ n:FunctionName _? '(' argcount:Value _? ')' _?  '{' s:Line+ _? '}' EOL*  {
         fm := c.globalStore["functions"].(map[string]int)
@@ -34,13 +34,13 @@ FunctionDef <- _? "func" _ n:FunctionName _? '(' argcount:Value _? ')' _?  '{' s
 GlobalConstDef <- _? ConstDef EOL*
 
 HandlerIDList <-
-	( v:Value ',' _? h:HandlerIDList { return append(h.([]string), v.(string)), nil }
-	/ v:Value                        { return []string{string(c.text)}, nil }
-	)
+    ( v:Value ',' _? h:HandlerIDList           { return append(h.([]string), v.(string)), nil }
+    / v:Value                                  { return []string{string(c.text)}, nil }
+    )
 
 Line <-
-    ( _? op:Operation EOL { return op, nil }
-    / EOL { return nil, nil }
+    ( _? op:Operation EOL                      { return op, nil }
+    / EOL                                      { return nil, nil }
     )
 
 Operation <-
@@ -64,118 +64,120 @@ ConstDef <-
 // construct tests matches in order. Easiest way to do this is to
 // sort by name in reverse order.
 Opcode =
-    ( "nop" { return newUnitaryOpcode(vm.OpNop) }
+    ( "nop"                                    { return newUnitaryOpcode(vm.OpNop) }
 // VVVVV---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---VVVVV
 
-	/ "zero" { return newUnitaryOpcode(vm.OpZero) }
-	/ "xor" { return newUnitaryOpcode(vm.OpXor) }
-	/ "wchoice" _ ix:Value { return newBinaryOpcode(vm.OpWChoice, ix.(string)) }
-	/ "tuck" _ offset:Value { return newBinaryOpcode(vm.OpTuck, offset.(string)) }
-	/ "true" { return newUnitaryOpcode(vm.OpTrue) }
-	/ "swap" { return newUnitaryOpcode(vm.OpSwap) }
-	/ "sum" { return newUnitaryOpcode(vm.OpSum) }
-	/ "sub" { return newUnitaryOpcode(vm.OpSub) }
-	/ "sort" _ ix:Value { return newBinaryOpcode(vm.OpSort, ix.(string)) }
-	/ "slice" { return newUnitaryOpcode(vm.OpSlice) }
-	/ "roll" _ offset:Value { return newBinaryOpcode(vm.OpRoll, offset.(string)) }
-	/ "ret" { return newUnitaryOpcode(vm.OpRet) }
-	/ "rand" { return newUnitaryOpcode(vm.OpRand) }
-	/ "pusht" _ t:Timestamp { return newPushTimestamp(t.(string)) }
-	/ "pushl" { return newUnitaryOpcode(vm.OpPushL) }
-	/ "pushb" _ ba:Bytes { return newPushB(ba) }
-	/ "pick" _ offset:Value { return newBinaryOpcode(vm.OpPick, offset.(string)) }
-	/ "over" { return newUnitaryOpcode(vm.OpOver) }
-	/ "or" { return newUnitaryOpcode(vm.OpOr) }
-	/ "one" { return newUnitaryOpcode(vm.OpOne) }
-	/ "now" { return newUnitaryOpcode(vm.OpNow) }
-	/ "not" { return newUnitaryOpcode(vm.OpNot) }
-	/ "neg1" { return newUnitaryOpcode(vm.OpNeg1) }
-	/ "neg" { return newUnitaryOpcode(vm.OpNeg) }
-	/ "muldiv" { return newUnitaryOpcode(vm.OpMulDiv) }
-	/ "mul" { return newUnitaryOpcode(vm.OpMul) }
-	/ "mod" { return newUnitaryOpcode(vm.OpMod) }
-	/ "minnum" { return newUnitaryOpcode(vm.OpMinNum) }
-	/ "min" { return newUnitaryOpcode(vm.OpMin) }
-	/ "maxnum" { return newUnitaryOpcode(vm.OpMaxNum) }
-	/ "max" { return newUnitaryOpcode(vm.OpMax) }
-	/ "lte" { return newUnitaryOpcode(vm.OpLte) }
-	/ "lt" { return newUnitaryOpcode(vm.OpLt) }
-	/ "lookup" _ id:FunctionName { return newCallOpcode(vm.OpLookup, id.(string)) }
-	/ "len" { return newUnitaryOpcode(vm.OpLen) }
-	/ "isfield" _ ix:Value { return newBinaryOpcode(vm.OpIsField, ix.(string)) }
-	/ "index" { return newUnitaryOpcode(vm.OpIndex) }
-	/ "inc" { return newUnitaryOpcode(vm.OpInc) }
-	/ "ifz" { return newUnitaryOpcode(vm.OpIfZ) }
-	/ "ifnz" { return newUnitaryOpcode(vm.OpIfNZ) }
-	/ "gte" { return newUnitaryOpcode(vm.OpGte) }
-	/ "gt" { return newUnitaryOpcode(vm.OpGt) }
-	/ "fieldl" _ ix:Value { return newBinaryOpcode(vm.OpFieldL, ix.(string)) }
-	/ "field" _ ix:Value { return newBinaryOpcode(vm.OpField, ix.(string)) }
-	/ "false" { return newUnitaryOpcode(vm.OpFalse) }
-	/ "fail" { return newUnitaryOpcode(vm.OpFail) }
-	/ "extend" { return newUnitaryOpcode(vm.OpExtend) }
-	/ "eq" { return newUnitaryOpcode(vm.OpEq) }
-	/ "endif" { return newUnitaryOpcode(vm.OpEndIf) }
-	/ "else" { return newUnitaryOpcode(vm.OpElse) }
-	/ "dup2" { return newUnitaryOpcode(vm.OpDup2) }
-	/ "dup" { return newUnitaryOpcode(vm.OpDup) }
-	/ "drop2" { return newUnitaryOpcode(vm.OpDrop2) }
-	/ "drop" { return newUnitaryOpcode(vm.OpDrop) }
-	/ "divmod" { return newUnitaryOpcode(vm.OpDivMod) }
-	/ "div" { return newUnitaryOpcode(vm.OpDiv) }
+    / "zero"                                   { return newUnitaryOpcode(vm.OpZero) }
+    / "xor"                                    { return newUnitaryOpcode(vm.OpXor) }
+    / "wchoice" _ ix:Value                     { return newBinaryOpcode(vm.OpWChoice, ix.(string)) }
+    / "tuck" _ offset:Value                    { return newBinaryOpcode(vm.OpTuck, offset.(string)) }
+    / "true"                                   { return newUnitaryOpcode(vm.OpTrue) }
+    / "swap"                                   { return newUnitaryOpcode(vm.OpSwap) }
+    / "sum"                                    { return newUnitaryOpcode(vm.OpSum) }
+    / "sub"                                    { return newUnitaryOpcode(vm.OpSub) }
+    / "sort" _ ix:Value                        { return newBinaryOpcode(vm.OpSort, ix.(string)) }
+    / "slice"                                  { return newUnitaryOpcode(vm.OpSlice) }
+    / "roll" _ offset:Value                    { return newBinaryOpcode(vm.OpRoll, offset.(string)) }
+    / "ret"                                    { return newUnitaryOpcode(vm.OpRet) }
+    / "rand"                                   { return newUnitaryOpcode(vm.OpRand) }
+    / "pusht" _ t:Timestamp                    { return newPushTimestamp(t.(string)) }
+    / "pushl"                                  { return newUnitaryOpcode(vm.OpPushL) }
+    / "pushb" _ ba:Bytes                       { return newPushB(ba) }
+    / "pick" _ offset:Value                    { return newBinaryOpcode(vm.OpPick, offset.(string)) }
+    / "over"                                   { return newUnitaryOpcode(vm.OpOver) }
+    / "or"                                     { return newUnitaryOpcode(vm.OpOr) }
+    / "one"                                    { return newUnitaryOpcode(vm.OpOne) }
+    / "now"                                    { return newUnitaryOpcode(vm.OpNow) }
+    / "not"                                    { return newUnitaryOpcode(vm.OpNot) }
+    / "neg1"                                   { return newUnitaryOpcode(vm.OpNeg1) }
+    / "neg"                                    { return newUnitaryOpcode(vm.OpNeg) }
+    / "muldiv"                                 { return newUnitaryOpcode(vm.OpMulDiv) }
+    / "mul"                                    { return newUnitaryOpcode(vm.OpMul) }
+    / "mod"                                    { return newUnitaryOpcode(vm.OpMod) }
+    / "minnum"                                 { return newUnitaryOpcode(vm.OpMinNum) }
+    / "min"                                    { return newUnitaryOpcode(vm.OpMin) }
+    / "maxnum"                                 { return newUnitaryOpcode(vm.OpMaxNum) }
+    / "max"                                    { return newUnitaryOpcode(vm.OpMax) }
+    / "lte"                                    { return newUnitaryOpcode(vm.OpLte) }
+    / "lt"                                     { return newUnitaryOpcode(vm.OpLt) }
+    / "lookup" _ id:FunctionName               { return newCallOpcode(vm.OpLookup, id.(string)) }
+    / "len"                                    { return newUnitaryOpcode(vm.OpLen) }
+    / "isfield" _ ix:Value                     { return newBinaryOpcode(vm.OpIsField, ix.(string)) }
+    / "index"                                  { return newUnitaryOpcode(vm.OpIndex) }
+    / "inc"                                    { return newUnitaryOpcode(vm.OpInc) }
+    / "ifz"                                    { return newUnitaryOpcode(vm.OpIfZ) }
+    / "ifnz"                                   { return newUnitaryOpcode(vm.OpIfNZ) }
+    / "gte"                                    { return newUnitaryOpcode(vm.OpGte) }
+    / "gt"                                     { return newUnitaryOpcode(vm.OpGt) }
+    / "fieldl" _ ix:Value                      { return newBinaryOpcode(vm.OpFieldL, ix.(string)) }
+    / "field" _ ix:Value                       { return newBinaryOpcode(vm.OpField, ix.(string)) }
+    / "false"                                  { return newUnitaryOpcode(vm.OpFalse) }
+    / "fail"                                   { return newUnitaryOpcode(vm.OpFail) }
+    / "extend"                                 { return newUnitaryOpcode(vm.OpExtend) }
+    / "eq"                                     { return newUnitaryOpcode(vm.OpEq) }
+    / "endif"                                  { return newUnitaryOpcode(vm.OpEndIf) }
+    / "else"                                   { return newUnitaryOpcode(vm.OpElse) }
+    / "dup2"                                   { return newUnitaryOpcode(vm.OpDup2) }
+    / "dup"                                    { return newUnitaryOpcode(vm.OpDup) }
+    / "drop2"                                  { return newUnitaryOpcode(vm.OpDrop2) }
+    / "drop"                                   { return newUnitaryOpcode(vm.OpDrop) }
+    / "divmod"                                 { return newUnitaryOpcode(vm.OpDivMod) }
+    / "div"                                    { return newUnitaryOpcode(vm.OpDiv) }
     / "deco" _ id:FunctionName _ fieldid:Value { return newDecoOpcode(vm.OpDeco, id.(string), fieldid.(string)) }
-	/ "dec" { return newUnitaryOpcode(vm.OpDec) }
-	/ "count1s" { return newUnitaryOpcode(vm.OpCount1s) }
-	/ "choice" { return newUnitaryOpcode(vm.OpChoice) }
-	/ "call" _ id:FunctionName { return newCallOpcode(vm.OpCall, id.(string)) }
-	/ "bnot" { return newUnitaryOpcode(vm.OpBNot) }
-	/ "avg" { return newUnitaryOpcode(vm.OpAvg) }
-	/ "append" { return newUnitaryOpcode(vm.OpAppend) }
-	/ "and" { return newUnitaryOpcode(vm.OpAnd) }
-	/ "add" { return newUnitaryOpcode(vm.OpAdd) }
+    / "dec"                                    { return newUnitaryOpcode(vm.OpDec) }
+    / "count1s"                                { return newUnitaryOpcode(vm.OpCount1s) }
+    / "choice"                                 { return newUnitaryOpcode(vm.OpChoice) }
+    / "call" _ id:FunctionName                 { return newCallOpcode(vm.OpCall, id.(string)) }
+    / "bnot"                                   { return newUnitaryOpcode(vm.OpBNot) }
+    / "avg"                                    { return newUnitaryOpcode(vm.OpAvg) }
+    / "append"                                 { return newUnitaryOpcode(vm.OpAppend) }
+    / "and"                                    { return newUnitaryOpcode(vm.OpAnd) }
+    / "add"                                    { return newUnitaryOpcode(vm.OpAdd) }
 // ^^^^^---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---^^^^^
 // The opcode below is particularly special -- it does not exist as its own opcode but does some smart manipulation
-    / "push" _ v:Value  { return newPushOpcode(v.(string)) }
+    / "push" _ v:Value                         { return newPushOpcode(v.(string)) }
     )
 
-Timestamp <- Date 'T' Time 'Z' { return string(c.text), nil }
+Timestamp <- Date 'T' Time 'Z'                 { return string(c.text), nil }
 Date <- [0-9] [0-9] [0-9] [0-9] '-' [0-9] [0-9] '-' [0-9] [0-9]
 Time <-  [0-9] [0-9] ':' [0-9] [0-9] ':' [0-9] [0-9]
 
 Value =
     ( Integer
-	/ NdauQuantity
+    / NdauQuantity
     / ConstantRef
     )
 
-ConstantRef <- _? k:Constant                         { cm := c.globalStore["constants"].(map[string]string); return cm[k.(string)], nil }
+ConstantRef <- _? k:Constant                   { cm := c.globalStore["constants"].(map[string]string); return cm[k.(string)], nil }
 Integer <-
-    ( _? "0x" [0-9A-Fa-f]+                        { return strings.TrimSpace(string(c.text)), nil }
-    / _? "addr(" ([0-9A-Fa-f][0-9A-Fa-f])+ ')'    { return strings.TrimSpace(string(c.text)), nil }
-    / _? '-'? [0-9]+                              { return strings.TrimSpace(string(c.text)), nil }
+    ( _? "0x" [0-9A-Fa-f]+                     { return strings.TrimSpace(string(c.text)), nil }
+    / _? "addr(" ([0-9A-Fa-f][0-9A-Fa-f])+ ')' { return strings.TrimSpace(string(c.text)), nil }
+    / _? '-'? [0-9]+                           { return strings.TrimSpace(string(c.text)), nil }
     )
+
 Bytes <-
-    ( b:Integer+                                  { return b, nil }
-    / _? '"' s:[^"]+ '"'                          { return s, nil }
+    ( b:Integer+                               { return b, nil }
+    / _? '"' s:[^"]+ '"'                       { return s, nil }
     )
+
 NdauQuantity <-
-	( _? "np" v:[0-9]+                            { return v.(string), nil }
-	/ _? "nd" d:DecimalValue
-		{
-			v, _ := strconv.ParseFloat(d.(string), 64)
-			return strconv.FormatInt(int64(v*constants.QuantaPerUnit), 10), nil
-		}
+    ( _? "np" v:[0-9]+                         { return v.(string), nil }
+    / _? "nd" d:DecimalValue {
+            v, _ := strconv.ParseFloat(d.(string), 64)
+            return strconv.FormatInt(int64(v*constants.QuantaPerUnit), 10), nil
+        }
     )
+
 DecimalValue <-
-	( [0-9]+ '.' [0-9]*                           { return string(c.text), nil }
-	/ '.' [0-9]+                                  { return string(c.text), nil }
-	/ [0-9]+                                      { return string(c.text), nil }
-	)
+    ( [0-9]+ '.' [0-9]*                        { return string(c.text), nil }
+    / '.' [0-9]+                               { return string(c.text), nil }
+    / [0-9]+                                   { return string(c.text), nil }
+    )
 
-Address <- "nd" [2-9a-km-np-zA-KM-NP-Z]+          { return string(c.text), nil }
+Address <- "nd" [2-9a-km-np-zA-KM-NP-Z]+       { return string(c.text), nil }
 
-Constant <- [A-Za-z] [A-Za-z0-9_]*                { return string(c.text), nil }
-FunctionName <- [A-Za-z] [A-Za-z0-9_]+            { return string(c.text), nil }
+Constant <- [A-Za-z] [A-Za-z0-9_]*             { return string(c.text), nil }
+FunctionName <- [A-Za-z] [A-Za-z0-9_]+         { return string(c.text), nil }
 
 
 _ <- [ \t]+
@@ -184,5 +186,8 @@ EOL <- _? Comment? ("\r\n" / "\n\r" / "\r" / "\n" )
 
 Comment <- ';' [^\r\n]*
 
-EOF <- !.
+EOF <- _? !.
+
+
+
 

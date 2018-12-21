@@ -241,10 +241,36 @@ func TestIfZNZ(t *testing.T) {
 	code := `
 		; comment
 		func foo(1) {
-		nop
-		ifz
-		ifnz
+			nop
+			ifz
+			ifnz
 		}
 `
 	checkParse(t, "Simple1", code, "800001 00898a 88")
+}
+
+func TestCallFromEvent(t *testing.T) {
+	code := `
+		handler 0 {
+			one
+			call double
+			push 2
+			eq
+			not                             ; invert meaning for return code
+		}
+
+		func justzero(1) {
+			zero
+		}
+
+		func double(1) {
+			dup
+			add
+		}
+	`
+	checkParse(t, "CallFromEvent", code, "a000 1a 8101 2102 c2 48 88  800001 20 88  800101 05 40 88")
+	// expected miscompilation:          "a000 1a 8100 2102 c2 48 88  800001 20 88  800101 05 40 88"
+	//                                               ^
+	// at present, it is impossible to call any function except the first from
+	// within an event handler. This test will let us know when we have fixed that.
 }
