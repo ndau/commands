@@ -41,7 +41,7 @@ func getStake(verbose *bool, keys *int) func(*cli.Cmd) {
 			tx := ndau.NewStake(
 				acct.Address, node,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)

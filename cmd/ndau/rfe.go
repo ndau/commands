@@ -37,13 +37,13 @@ func getRfe(verbose *bool, keys *int) func(*cli.Cmd) {
 			keys := config.FilterK(conf.RFE.Keys, keys)
 
 			rfe := ndau.NewReleaseFromEndowment(
-				ndauQty,
 				address,
+				ndauQty,
 				sequence(conf, conf.RFE.Address),
-				keys,
+				keys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node), &rfe)
+			result, err := tool.SendCommit(tmnode(conf.Node), rfe)
 			finish(*verbose, result, err, "rfe")
 		}
 	}

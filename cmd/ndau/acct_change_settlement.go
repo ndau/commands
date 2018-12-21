@@ -31,13 +31,12 @@ func getAccountChangeSettlement(verbose *bool, keys *int) func(*cli.Cmd) {
 				orQuit(errors.New("Address transfer key not set"))
 			}
 
-			cep, err := ndau.NewChangeSettlementPeriod(
+			cep := ndau.NewChangeSettlementPeriod(
 				ad.Address,
 				duration,
 				sequence(config, ad.Address),
-				ad.TransferPrivateK(keys),
+				ad.TransferPrivateK(keys)...,
 			)
-			orQuit(errors.Wrap(err, "Creating ChangeEscrowPeriod transaction"))
 
 			if *verbose {
 				fmt.Printf(
@@ -48,7 +47,7 @@ func getAccountChangeSettlement(verbose *bool, keys *int) func(*cli.Cmd) {
 				)
 			}
 
-			resp, err := tool.SendCommit(tmnode(config.Node), &cep)
+			resp, err := tool.SendCommit(tmnode(config.Node), cep)
 			finish(*verbose, resp, err, "change-settlement-period")
 		}
 	}

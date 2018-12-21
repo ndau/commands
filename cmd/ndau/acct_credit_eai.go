@@ -34,7 +34,7 @@ func getAccountCreditEAI(verbose *bool, keys *int) func(*cli.Cmd) {
 			tx := ndau.NewCreditEAI(
 				acct.Address,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)

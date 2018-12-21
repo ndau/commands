@@ -41,7 +41,7 @@ func getLock(verbose *bool, keys *int) func(*cli.Cmd) {
 				acct.Address,
 				duration,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)

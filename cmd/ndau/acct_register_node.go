@@ -46,7 +46,7 @@ func getRegisterNode(verbose *bool, keys *int) func(*cli.Cmd) {
 			tx := ndau.NewRegisterNode(
 				acct.Address, script, *rpcAddr,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys),
+				acct.TransferPrivateK(keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)

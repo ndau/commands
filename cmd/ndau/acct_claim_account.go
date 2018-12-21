@@ -36,7 +36,7 @@ func getAccountClaim(verbose *bool) func(*cli.Cmd) {
 				acct.Ownership.Private,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), &ca)
+			resp, err := tool.SendCommit(tmnode(conf.Node), ca)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
