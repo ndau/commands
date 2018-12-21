@@ -183,7 +183,7 @@ jobs:
             docker run --rm \
                 -e CI=true \
                 deps \
-                /bin/sh /root/tests.sh
+                /bin/sh /root/test-and-build.sh
 
   push:
     <<: *general_config
