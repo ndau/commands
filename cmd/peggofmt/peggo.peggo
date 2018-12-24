@@ -1,0 +1,144 @@
+{
+package main
+}
+
+Grammar ← __ initializer:( Initializer __ )? rules:( Rule __ )+ EOF { return unwrap(initializer) + unwrap(rules), nil }
+
+Initializer ← code:CodeBlock EOS
+
+Rule ← name:IdentifierName __ display:( StringLiteral __ )? RuleDefOp __ expr:Expression EOS
+
+Expression ← RecoveryExpr
+
+RecoveryExpr ← expr:ChoiceExpr recoverExprs:( __ "//{" __ Labels __ "}" __ ChoiceExpr )*
+
+Labels ← label:IdentifierName labels:( __ "," __ IdentifierName)*
+
+ChoiceExpr ← first:ActionExpr rest:( __ "/" __ ActionExpr )*
+
+ActionExpr ← expr:SeqExpr code:( __ CodeBlock )?
+
+SeqExpr ← first:LabeledExpr rest:( __ LabeledExpr )*
+
+LabeledExpr ← label:Identifier __ ':' __ expr:PrefixedExpr  / PrefixedExpr / ThrowExpr
+
+PrefixedExpr ← op:PrefixedOp __ expr:SuffixedExpr  / SuffixedExpr
+
+PrefixedOp ← ( '&' / '!' )
+
+SuffixedExpr ← expr:PrimaryExpr __ op:SuffixedOp / PrimaryExpr
+
+SuffixedOp ← ( '?' / '*' / '+' )
+
+PrimaryExpr ← LitMatcher / CharClassMatcher / AnyMatcher / RuleRefExpr / SemanticPredExpr / "(" __ expr:Expression __ ")"
+
+RuleRefExpr ← name:IdentifierName !( __ ( StringLiteral __ )? RuleDefOp )
+
+SemanticPredExpr ← op:SemanticPredOp __ code:CodeBlock
+
+SemanticPredOp ← ( '#' / '&' / '!' )
+
+RuleDefOp ← '=' / "<-" / '\u2190' / '\u27f5'
+
+SourceChar ← .
+Comment ← MultiLineComment / SingleLineComment
+MultiLineComment ← "/*" ( !"*/" SourceChar )* "*/"
+MultiLineCommentNoLineTerminator ← "/*" ( !( "*/" / EOL ) SourceChar )* "*/"
+SingleLineComment ← !("//{") "//" ( !EOL SourceChar )*
+
+Identifier ← ident:IdentifierName
+
+IdentifierName ← IdentifierStart IdentifierPart*
+IdentifierStart ← [\pL_]
+IdentifierPart ← IdentifierStart / [\p{Nd}]
+
+LitMatcher ← lit:StringLiteral ignore:"i"?
+
+StringLiteral ← ( '"' DoubleStringChar* '"' / "'" SingleStringChar "'" / '`' RawStringChar* '`' )
+ / ( ( '"' DoubleStringChar* ( EOL / EOF ) ) / ( "'" SingleStringChar? ( EOL / EOF ) ) / '`' RawStringChar* EOF )
+
+
+DoubleStringChar ← !( '"' / "\\" / EOL ) SourceChar / "\\" DoubleStringEscape
+SingleStringChar ← !( "'" / "\\" / EOL ) SourceChar / "\\" SingleStringEscape
+RawStringChar ← !'`' SourceChar
+
+DoubleStringEscape ← ( '"' / CommonEscapeSequence )
+    / ( SourceChar / EOL / EOF )
+
+SingleStringEscape ← ( "'" / CommonEscapeSequence )
+    / ( SourceChar / EOL / EOF )
+
+
+CommonEscapeSequence ← SingleCharEscape / OctalEscape / HexEscape / LongUnicodeEscape / ShortUnicodeEscape
+SingleCharEscape ← 'a' / 'b' / 'n' / 'f' / 'r' / 't' / 'v' / '\\'
+OctalEscape ← OctalDigit OctalDigit OctalDigit
+    / OctalDigit ( SourceChar / EOL / EOF ) {
+    return nil, errors.New("invalid octal escape")
+}
+HexEscape ← 'x' HexDigit HexDigit
+    / 'x' ( SourceChar / EOL / EOF ) {
+    return nil, errors.New("invalid hexadecimal escape")
+}
+LongUnicodeEscape ←
+    'U' HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit
+    / 'U' ( SourceChar / EOL / EOF ) {
+    return nil, errors.New("invalid Unicode escape")
+}
+ShortUnicodeEscape ←
+    'u' HexDigit HexDigit HexDigit HexDigit
+    / 'u' ( SourceChar / EOL / EOF ) {
+    return nil, errors.New("invalid Unicode escape")
+}
+
+OctalDigit ← [0-7]
+DecimalDigit ← [0-9]
+HexDigit ← [0-9a-f]i
+
+CharClassMatcher ← '[' ( ClassCharRange / ClassChar / "\\" UnicodeClassEscape )* ']' 'i'?
+ / '[' ( !( EOL ) SourceChar )* ( EOL / EOF )
+
+
+ClassCharRange ← ClassChar '-' ClassChar
+ClassChar ← !( "]" / "\\" / EOL ) SourceChar / "\\" CharClassEscape
+CharClassEscape ← ( ']' / CommonEscapeSequence )
+    / !'p' ( SourceChar / EOL / EOF ) {
+    return nil, errors.New("invalid escape character")
+}
+
+UnicodeClassEscape ← 'p' (
+      SingleCharUnicodeClass
+    / !'{' ( SourceChar / EOL / EOF ) { return nil, errors.New("invalid Unicode class escape") }
+    / '{' ident:IdentifierName '}'
+    / '{' IdentifierName ( ']' / EOL / EOF ) {
+        return nil, errors.New("Unicode class not terminated")
+    }
+    )
+SingleCharUnicodeClass ← [LMNCPZS]
+
+AnyMatcher ← "."
+
+ThrowExpr ← '%' '{' label:IdentifierName '}'
+ / '%' '{' IdentifierName EOF {
+    return nil, errors.New("throw expression not terminated")
+}
+
+CodeBlock ← '{' code:Code '}' {
+	if bytes.Count(c.text, []byte("\n")) <= 1 {
+		return c.text, nil
+	}
+	return formatSection(c.text)
+}
+ / '{' Code EOF {
+    return nil, errors.New("code block not terminated")
+}
+
+Code ← ( ( ![{}] SourceChar )+ / '{' Code '}' )*
+
+__ ← ( Whitespace / EOL / Comment )*
+_ ← ( Whitespace / MultiLineCommentNoLineTerminator )*
+
+Whitespace ← [ \t\r]
+EOL ← '\n'
+EOS ← __ ';' / _ SingleLineComment? EOL / __ EOF
+
+EOF ← !.

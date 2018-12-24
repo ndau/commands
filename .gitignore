@@ -53,6 +53,8 @@ ndaunode
 !*/ndaunode
 opcodes
 !*/opcodes
+peggofmt
+!*/peggofmt
 txmobile
 !*/txmobile
 update_genesis_json

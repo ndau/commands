@@ -59,6 +59,7 @@ func NewInjectionWriter(fn, start, end string) (*InjectionWriter, error) {
 		if !skipping {
 			iw.output.WriteString(line)
 		}
+		line = strings.TrimLeft(line, " \t")
 		if strings.HasPrefix(line, iw.startmarker) {
 			skipping = true
 		}
