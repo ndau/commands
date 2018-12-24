@@ -1,10 +1,7 @@
 {
     package main
-
-    import (
-        "github.com/oneiro-ndev/chaincode/pkg/vm"
-    )
-
+    
+    import "github.com/oneiro-ndev/chaincode/pkg/vm"
 }
 
 Script <- EOL* code:Code EOF                   { return newScript(code, c.globalStore["functions"].(map[string]int)) }
@@ -18,8 +15,8 @@ RoutineDef <-
     )
 
 HandlerDef <- _? "handler" _ ids:HandlerIDList _? '{' s:Line+ _? '}' EOL*  {
-    return newHandlerDef(ids.([]string), s, c.globalStore["constants"].(map[string]string))
-}
+        return newHandlerDef(ids.([]string), s, c.globalStore["constants"].(map[string]string))
+    }
 
 FunctionDef <- _? "func" _ n:FunctionName _? '(' argcount:Value _? ')' _?  '{' s:Line+ _? '}' EOL*  {
         fm := c.globalStore["functions"].(map[string]int)
@@ -65,8 +62,8 @@ ConstDef <-
 // sort by name in reverse order.
 Opcode =
     ( "nop"                                    { return newUnitaryOpcode(vm.OpNop) }
-// VVVVV---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---VVVVV
-
+    // VVVVV---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---VVVVV
+    
     / "zero"                                   { return newUnitaryOpcode(vm.OpZero) }
     / "xor"                                    { return newUnitaryOpcode(vm.OpXor) }
     / "wchoice" _ ix:Value                     { return newBinaryOpcode(vm.OpWChoice, ix.(string)) }
@@ -133,8 +130,8 @@ Opcode =
     / "append"                                 { return newUnitaryOpcode(vm.OpAppend) }
     / "and"                                    { return newUnitaryOpcode(vm.OpAnd) }
     / "add"                                    { return newUnitaryOpcode(vm.OpAdd) }
-// ^^^^^---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---^^^^^
-// The opcode below is particularly special -- it does not exist as its own opcode but does some smart manipulation
+    // ^^^^^---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---^^^^^
+    // The opcode below is particularly special -- it does not exist as its own opcode but does some smart manipulation
     / "push" _ v:Value                         { return newPushOpcode(v.(string)) }
     )
 
@@ -179,7 +176,6 @@ Address <- "nd" [2-9a-km-np-zA-KM-NP-Z]+       { return string(c.text), nil }
 Constant <- [A-Za-z] [A-Za-z0-9_]*             { return string(c.text), nil }
 FunctionName <- [A-Za-z] [A-Za-z0-9_]+         { return string(c.text), nil }
 
-
 _ <- [ \t]+
 
 EOL <- _? Comment? ("\r\n" / "\n\r" / "\r" / "\n" )
@@ -187,7 +183,3 @@ EOL <- _? Comment? ("\r\n" / "\n\r" / "\r" / "\n" )
 Comment <- ';' [^\r\n]*
 
 EOF <- _? !.
-
-
-
-
