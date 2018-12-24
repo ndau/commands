@@ -1,57 +1,57 @@
 {
     package main
-
+    
 }
 
 Script <- Line* EOF
 
 Line <-
-	( CommentOnlyLine
-	/ StartBlockLine
-	/ ConstDefLine
-	/ OpcodeLine
-	/ EndBlockLine
-	)
+    ( CommentOnlyLine
+    / StartBlockLine
+    / ConstDefLine
+    / OpcodeLine
+    / EndBlockLine
+    )
 
-CommentOnlyLine <- _ cm:Comment EOL { return newLine("", "", cm), nil }
+CommentOnlyLine <- _ cm:Comment EOL                         { return newLine("", "", cm), nil }
 
-ConstDefLine <- _ k:Constant _ '=' _ v:Arg _ cm:Comment EOL   { return newLine("",  []interface{}{k, " = ", v}, cm), nil }
+ConstDefLine <- _ k:Constant _ '=' _ v:Arg _ cm:Comment EOL { return newLine("",  []interface{}{k, " = ", v}, cm), nil }
 
-OpcodeLine <- _ o:Opcode EOL	{ return o, nil }
-Opcode <- k:Keyword _ a:Args? _ cm:Comment   { return newLine(k, a, cm), nil }
+OpcodeLine <- _ o:Opcode EOL                                { return o, nil }
+Opcode <- k:Keyword _ a:Args? _ cm:Comment                  { return newLine(k, a, cm), nil }
 
 StartBlockLine <-
-	( _ k:( "handler" / "def" / "func" ) _ a:Args _ b:'{' _ cm:Comment EOL   { return newLine(k, []interface{}{a, " ", b}, cm), nil }
-	/ _ k:( "handler" / "def" / "func" ) _ a:Args _ cm:Comment EOL			{ return newLine(k, a, cm), nil }
-	)
+    ( _ k:StartDef _ a:Args _ b:'{' _ cm:Comment EOL        { return newLine(k, []interface{}{a, " ", b}, cm), nil }
+    / _ k:StartDef _ a:Args _ cm:Comment EOL                { return newLine(k, a, cm), nil }
+    )
 
-EndBlockLine <- _ k:( "enddef" / '}' ) _ cm:Comment EOL             { return newLine(k, "", cm), nil }
+StartDef <- ( "handler" / "def" / "func" )
+
+EndBlockLine <- _ k:( "enddef" / '}' ) _ cm:Comment EOL     { return newLine(k, "", cm), nil }
 
 Args <-
-	( a:Arg _',' _ as:Args            			{ return string(c.text), nil }
-	/ a:Arg __ as:Args            				{ return string(c.text), nil }
-	/ a:Arg            							{ return a, nil }
-	)
+    ( a:Arg _',' _ as:Args                                  { return string(c.text), nil }
+    / a:Arg __ as:Args                                      { return string(c.text), nil }
+    / a:Arg                                                 { return a, nil }
+    )
 
 Arg <-
-	( [^;,=\t\r\n ]+            				{ return string(c.text), nil }
-	/ '"' [^"]* '"'            					{ return string(c.text), nil }
-	)
+    ( [^;,=\t\r\n ]+                                        { return string(c.text), nil }
+    / '"' [^"]* '"'                                         { return string(c.text), nil }
+    )
 
-Constant 	 <- [A-Za-z] [A-Za-z0-9_]*            { return string(c.text), nil }
-FunctionName <- [A-Za-z] [A-Za-z0-9_]+            { return string(c.text), nil }
-Keyword 	 <- [A-Za-z] [A-Za-z0-9_]*            { return string(c.text), nil }
-
+Constant  <- [A-Za-z] [A-Za-z0-9_]*                         { return string(c.text), nil }
+FunctionName <- [A-Za-z] [A-Za-z0-9_]+                      { return string(c.text), nil }
+Keyword  <- [A-Za-z] [A-Za-z0-9_]*                          { return string(c.text), nil }
 
 Comment <-
-	( ';' [^\r\n]* 								{ return string(c.text), nil }
-	/ _											{ return "", nil }
-	)
+    ( ';' [^\r\n]*                                          { return string(c.text), nil }
+    / _                                                     { return "", nil }
+    )
 
 EOL <- _ ("\r\n" / "\n\r" / "\r" / "\n" )
 
-_ <- [ \t]*			// optional space
-__ <- [ \t]+		// required space
+_ <- [ \t]* // optional space
+__ <- [ \t]+ // required space
 
 EOF <- !.
-
