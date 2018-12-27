@@ -12,6 +12,7 @@ CHASM = cmd/chasm/chasm
 CHAIN = cmd/chain/chain
 CRANK = cmd/crank/crank
 CHFMT = cmd/chfmt/chfmt
+PEGGOFMT = cmd/peggofmt/peggofmt
 EXAMPLES = cmd/chasm/examples
 OPCODES = cmd/opcodes/opcodes
 OPCODESMD = cmd/opcodes/opcodes.md
@@ -35,6 +36,8 @@ chasm: $(CHASM)
 
 chfmt: $(CHFMT)
 
+peggofmt: $(PEGGOFMT)
+
 ###################################
 ### Utilities
 
@@ -51,6 +54,7 @@ clean:
 	rm -f $(CHASM)
 	rm -f $(CRANK)
 	rm -f $(CHFMT)
+	rm -f $(PEGGOFMT)
 	# generated files
 	rm -f cmd/chasm/chasm.go
 	rm -f cmd/chfmt/chfmt.go
@@ -83,8 +87,9 @@ $(CHAINCODEPKG)/vm/extrabytes.go: opcodes
 $(CHAINCODEPKG)/vm/enabledopcodes.go: opcodes
 	$(OPCODES) --enabled $(CHAINCODEPKG)/vm/enabledopcodes.go
 
-cmd/chasm/chasm.peggo: opcodes
+cmd/chasm/chasm.peggo: opcodes peggofmt
 	$(OPCODES) --pigeon cmd/chasm/chasm.peggo
+	$(PEGGOFMT) cmd/chasm/chasm.peggo
 
 # We make two copies of this file, for chasm and for crank
 cmd/chasm/predefined.go: opcodes
@@ -160,6 +165,16 @@ cmd/chfmt/chfmt.go: cmd/chfmt/chfmt.peggo
 
 $(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go generate
 	go build -o $(CHFMT) ./cmd/chfmt
+
+
+###################################
+### The peggofmt formatter
+
+cmd/peggofmt/peggo.go: cmd/peggofmt/peggo.peggo
+	pigeon -o ./cmd/peggofmt/peggo.go ./cmd/peggofmt/peggo.peggo
+
+$(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go
+	go build -o $(PEGGOFMT) ./cmd/peggofmt
 
 
 ###################################

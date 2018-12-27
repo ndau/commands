@@ -5,7 +5,7 @@ initialize() {
     # shellcheck disable=SC1090
     source "$CMDBIN_DIR"/env.sh
 
-    ND=$NDAU_DIR/ndau
+    ND=$COMMANDS_DIR/ndau
 }
 
 createaccount() {
