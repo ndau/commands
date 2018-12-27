@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
@@ -29,32 +28,6 @@ func (c command) matchesAlias(s string) bool {
 	return false
 }
 
-// exiter
-type exiter interface {
-	Exit()
-	Error() string
-}
-
-type exitError struct {
-	code int
-	err  error
-}
-
-func (e exitError) Exit() {
-	os.Exit(e.code)
-}
-
-func (e exitError) Error() string {
-	if e.err == nil {
-		return ""
-	}
-	return e.err.Error()
-}
-
-func newExitError(code int, err error) exitError {
-	return exitError{code: code, err: err}
-}
-
 var commands = map[string]command{
 	"help": command{
 		aliases: []string{"?"},
@@ -68,7 +41,7 @@ var commands = map[string]command{
 		summary: "ends the chain program",
 		detail:  `Ctrl-D also works`,
 		handler: func(rs *runtimeState, args string) error {
-			return newExitError(0, nil)
+			return newExitError(0, nil, nil)
 		},
 	},
 	"exit": command{
@@ -78,9 +51,9 @@ var commands = map[string]command{
 		handler: func(rs *runtimeState, args string) error {
 			n, err := rs.vm.Stack().PopAsInt64()
 			if err != nil {
-				return newExitError(255, err)
+				return newExitError(255, err, nil)
 			}
-			return newExitError(int(n&0xFF), nil)
+			return newExitError(int(n&0xFF), nil, rs)
 		},
 	},
 	"expect": command{
@@ -90,15 +63,15 @@ var commands = map[string]command{
 		handler: func(rs *runtimeState, args string) error {
 			values, err := parseValues(args)
 			if err != nil {
-				return newExitError(255, err)
+				return newExitError(255, err, rs)
 			}
 			for _, v := range values {
 				stk, err := rs.vm.Stack().Pop()
 				if err != nil {
-					return newExitError(255, err)
+					return newExitError(255, err, rs)
 				}
 				if !v.Equal(stk) {
-					return newExitError(1, fmt.Errorf("%s (on stack) does not equal %s (given) - exiting", stk, v))
+					return newExitError(1, fmt.Errorf("%s (on stack) does not equal %s (given) - exiting", stk, v), rs)
 				}
 			}
 			return nil
@@ -121,20 +94,20 @@ var commands = map[string]command{
 				if err == nil {
 					val, err := rs.vm.Stack().PopAsInt64()
 					if err == nil && val == 0 {
-						return newExitError(1, errors.New("expected to fail, but didn't"))
+						return newExitError(1, errors.New("expected to fail, but didn't"), rs)
 					}
 				}
 				return nil // we expected to fail, so we're happy about that
 			case "succeed", "success":
 				if err != nil {
-					return newExitError(2, fmt.Errorf("expected to succeed, but failed (%s)", err))
+					return newExitError(2, fmt.Errorf("expected to succeed, but failed (%s)", err), rs)
 				}
 				val, err := rs.vm.Stack().PopAsInt64()
 				if err != nil {
-					return newExitError(2, fmt.Errorf("expected to succeed, but failed (%s)", err))
+					return newExitError(2, fmt.Errorf("expected to succeed, but failed (%s)", err), rs)
 				}
 				if val != 0 {
-					return newExitError(3, fmt.Errorf("expected to succeed, but returned %d", val))
+					return newExitError(3, fmt.Errorf("expected to succeed, but returned %d", val), rs)
 				}
 			}
 			return err

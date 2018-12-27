@@ -1,211 +1,48 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-	"regexp"
-	"sort"
-	"strconv"
-	"strings"
+// desired behaviors:
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
+// test mode - everything to stderr, no prompt, output only on failure, simplified output, quit on err
+// debug mode - prompts, input from stdin, all to stdout
+// You're in one or the other.
+// If you use the --verbose switch in test mode, it will drop to debug on err, output to stdout
+
+// test mode is default if -i specified
+// otherwise interactive mode
+
+import (
+	"log"
+	"os"
 
 	arg "github.com/alexflint/go-arg"
 )
 
-// crank is a repl for chaincode
-
-// crank -i inputstream -f FILE.chbin
-
-// crank starts up and creates a new VM with no contents
-// If -f was specified, crank attempts to load the given file instead of starting with an empty vm
-// if -i was specified, crank then attempts to read the input file as if it were a series of
-// commands. When -i terminates, it returns control to the normal input. If you want crank to
-// terminate automatically, make sure your input file ends in a quit command.
-
-type runtimeState struct {
-	vm     *vm.ChaincodeVM
-	event  byte
-	stack  *vm.Stack
-	binary string
-	script string
+type args struct {
+	Binary  string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
+	Script  string `arg:"-s" help:"Command script file (sets test mode)."`
+	Verbose bool   `arg:"-v" help:"Verbose output; errors in test mode will drop into debug mode."`
+	Test    bool   `arg:"-t" help:"Forces test mode."`
+	Debug   bool   `arg:"-d" help:"Forces debug mode."`
 }
 
-func help(rs *runtimeState, args string) error {
-	keys := make([]string, 0, len(commands))
-	for key := range commands {
-		keys = append(keys, key)
-	}
-	sort.Sort(sort.StringSlice(keys))
-	for _, key := range keys {
-		fmt.Printf("%11s: %s %s\n", key, commands[key].summary, commands[key].aliases)
-		if strings.HasPrefix(args, "v") {
-			fmt.Println(commands[key].detail)
-		}
-	}
-	return nil
-}
+func (args) Description() string {
+	return `crank is a repl for chaincode.
 
-// load is a command that loads a file into a VM (or errors trying)
-func (rs *runtimeState) load(filename string) error {
-	f, err := os.Open(filename)
-	if err != nil {
-		// if we failed to open, it might be because the binary is relative to the script
-		if filepath.IsAbs(filename) || rs.script == "" {
-			return newExitError(1, err)
-		}
-		// try to see if we can assemble a path relative to the script dir
-		scriptdir := filepath.Dir(rs.script)
-		fp := filepath.Join(scriptdir, filename)
-		f, err = os.Open(fp)
-		if err != nil {
-			return newExitError(1, err)
-		}
-	}
-	bin, err := vm.Deserialize(f)
-	if err != nil {
-		return newExitError(1, err)
-	}
-	vm, err := vm.New(bin)
-	if err != nil {
-		return newExitError(1, err)
-	}
-	vm.Init(0)
-	rs.vm = vm
-	return nil
-}
+	crank starts up and creates a new VM with no contents.
 
-// reinit calls init again, duplicating the entries that are currently
-// on the stack.
-func (rs *runtimeState) reinit(stk *vm.Stack) error {
-	// copy the current stack and save it in case we need to reset
-	rs.stack = stk.Clone()
+	If --binary was specified, crank attempts to load the given file instead of starting with an empty vm.
+	if --script was specified, crank then attempts to read the specified file as if it were a series of
+	commands. If you want crank to terminate automatically, make sure your input file ends in a quit command.
 
-	// now initialize
-	return rs.vm.InitFromStack(rs.event, rs.stack)
-}
+	crank has two modes: debug and test. In test mode, it expects to load a script file (and loading
+	one on the command line automatically sets test mode). Errors go to stdout and only errors are emitted.
+	A clean test exits with no output and errorlevel 0. A failed test has output and errorlevel >0.
 
-// setevent sets up the VM to run the given event, which means that it calls
-// reinit to set up the stack as well.
-func (rs *runtimeState) setevent(eventid string) error {
-	if v, ok := predefined[eventid]; ok {
-		eventid = v
-	}
-	ev, err := strconv.ParseInt(strings.TrimSpace(eventid), 0, 8)
-	if err != nil {
-		return err
-	}
-	rs.event = byte(ev)
+	In debug mode, it's an interactive repl.
 
-	return rs.reinit(rs.vm.Stack())
-}
-
-func (rs *runtimeState) run(debug bool) error {
-	err := rs.vm.Run(debug)
-	return err
-}
-
-func (rs *runtimeState) step(debug bool) error {
-	err := rs.vm.Step(debug)
-	return err
-}
-
-func (rs *runtimeState) dispatch(s string) error {
-	p := regexp.MustCompile("[[:space:]]+")
-	args := p.Split(s, 2)
-	for key, cmd := range commands {
-		if key == args[0] || cmd.matchesAlias(args[0]) {
-			extra := ""
-			if len(args) > 1 {
-				extra = args[1]
-			}
-			return cmd.handler(rs, extra)
-		}
-	}
-	return fmt.Errorf("unknown command %s - type ? for help", s)
-}
-
-func stripComments(s string) string {
-	s = strings.TrimSpace(s)
-	ix := strings.Index(s, ";")
-	if ix != -1 {
-		return s[:ix]
-	}
-	return s
-}
-
-func (rs *runtimeState) repl(cmdsrc io.Reader, verbose bool) {
-	reader := bufio.NewReader(os.Stdin)
-	usingStdin := true
-	if cmdsrc != nil {
-		reader = bufio.NewReader(cmdsrc)
-		usingStdin = false
-	}
-
-	for linenumber := 1; ; linenumber++ {
-		// prompt always preceded by current vm data
-		if verbose || usingStdin {
-			if rs.vm == nil {
-				fmt.Println("  [no VM is loaded]")
-			} else {
-				fmt.Println(rs.vm)
-			}
-			fmt.Printf("%3d crank> ", linenumber)
-		}
-		// get one line
-		s, err := reader.ReadString('\n')
-		// if that line came from outside, echo it
-		if !usingStdin && verbose {
-			fmt.Print(s)
-		}
-		// look for errors
-		if err != nil && err != io.EOF {
-			panic(err)
-		}
-		// eof from terminal means quit
-		if err == io.EOF && usingStdin == true {
-			// we're really done now, shut down normally
-			s = "quit\n"
-			err = nil
-		}
-		// eof from input means drop into stdin
-		if err == io.EOF {
-			reader = bufio.NewReader(os.Stdin)
-			fmt.Println("*** Input now from stdin ***")
-			usingStdin = true
-		}
-		// ignore blank lines and comments
-		s = stripComments(s)
-		if s == "" {
-			continue
-		}
-		// it's a command, try it
-		err = rs.dispatch(s)
-		switch e := err.(type) {
-		case exiter:
-			if !verbose || usingStdin {
-				if e.Error() != "" {
-					fmt.Printf("%s: line %d: error: %s\n", rs.script, linenumber, e.Error())
-				} else {
-					fmt.Printf("%s: %d lines.\n", rs.script, linenumber)
-				}
-				e.Exit()
-			}
-			reader = bufio.NewReader(os.Stdin)
-			fmt.Println("*** Exit requested while verbose: input now from stdin ***")
-			usingStdin = true
-		case error:
-			fmt.Printf("line %d: error: %s\n", linenumber, err)
-		case nil:
-		default:
-		}
-		if rs.vm != nil && (verbose || usingStdin) {
-			rs.vm.Disassemble(rs.vm.IP())
-		}
-	}
+	You can also set a verbose flag, which prints lots of stuff. In test mode, an error in verbose mode
+	causes crank to drop into the console.
+	`
 }
 
 func main() {
@@ -215,29 +52,33 @@ func main() {
 	h.handler = help
 	commands["help"] = h
 
-	var args struct {
-		Binary  string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
-		Script  string `arg:"-i" help:"Command script file"`
-		Verbose bool   `arg:"-v" help:"When executing script file, echo each line to the output; also causes errors to drop to repl."`
-	}
-	arg.MustParse(&args)
-	var inf io.Reader
-	rs := runtimeState{}
-	if args.Script != "" {
-		var err error
-		inf, err = os.Open(args.Script)
+	var a args
+
+	arg.MustParse(&a)
+	rs := runtimeState{mode: DEBUG, in: os.Stdin, out: newOutputter()}
+	if a.Script != "" {
+		inf, err := os.Open(a.Script)
 		if err != nil {
-			panic(err)
+			log.Fatalf("Unable to load script file %s: %s", a.Script, err)
 		}
-		rs.script = args.Script
+		rs.script = a.Script
+		rs.in = inf
+		rs.mode = TEST
+	}
+	if a.Debug {
+		rs.mode = DEBUG
+	}
+	if a.Test {
+		rs.mode = TEST
+	}
+	rs.verbose = a.Verbose
+
+	if a.Binary != "" {
+		err := rs.load(a.Binary)
+		if err != nil {
+			log.Fatalf("Unable to load binary file %s: %s", a.Binary, err)
+		}
 	}
 
-	if args.Binary != "" {
-		err := rs.load(args.Binary)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	rs.repl(inf, args.Verbose)
+	rs.repl()
 }
