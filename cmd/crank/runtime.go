@@ -32,6 +32,7 @@ type runtimeState struct {
 	script  string
 	mode    Mode
 	verbose bool
+	lastcmd string
 	in      io.Reader
 	out     *outputter
 }
@@ -157,7 +158,12 @@ func (rs *runtimeState) repl() {
 			rs.out.Flush(os.Stdout, true)
 		}
 		inputline, err := reader.ReadString('\n')
-		// if that line came from outside, echo it
+		// if an empty line was received and we're in debug mode, it means repeat previous line
+		if rs.mode == DEBUG && inputline == "\n" {
+			inputline = rs.lastcmd + "\n"
+		}
+
+		// echo if that line came from an input file as it was not echoed on input
 		if rs.verbose && rs.mode == TEST {
 			rs.out.Printf("%s", inputline)
 		}
@@ -190,7 +196,11 @@ func (rs *runtimeState) repl() {
 		if inputline == "" {
 			continue
 		}
-		// it's a command, try it
+
+		// we got an attempt at a command, record it
+		rs.lastcmd = inputline
+
+		// now try it
 		err = rs.dispatch(inputline)
 		switch e := err.(type) {
 		case exiter:
