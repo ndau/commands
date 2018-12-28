@@ -1,0 +1,61 @@
+{
+    package main
+
+	// import (
+	// 	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	// )
+
+}
+
+Script <- Commands EOL
+
+Commands <-
+    ( Command
+    / Commands Command
+    )
+
+Command <-
+    ( DisassembleCommand
+    / ExitCommand
+    / PushCommand
+    / PopCommand
+    / StructStart
+    / StructEnd
+    / ListStart
+    / ListEnd
+    / Value
+    )
+
+DisassembleCommand <-
+    _ ( "disassemble" / "disasm" / "dis" / "d" )
+
+ExitCommand <- _ ( "exit" / "quit" / "q" )
+
+PushCommand <- _ ( "push" / "pu" ) Value
+
+PopCommand <- _ "pop"
+
+StructStart <- _ '{'
+StructEnd <- _ '}'
+ListStart <- _ '['
+ListEnd <- _ ']'
+
+Value <-
+    ( Number
+    / String
+    / HexBytes
+    / Account
+    / Timestamp
+    )
+
+Number <- _ [0-9]+
+String <- _ '"' [^"]* '"'
+
+_ <-
+    ( [ \t\r\n]*
+    / Comment
+    )
+
+Comment <- '#' [^\r\n]*
+
+EOF <- !.

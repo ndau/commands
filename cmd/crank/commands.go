@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
@@ -88,7 +89,7 @@ var commands = map[string]command{
 		summary: "runs the currently loaded VM from the current IP",
 		detail:  `if arg is "fail" or "succeed" will exit if the result disagrees`,
 		handler: func(rs *runtimeState, args string) error {
-			err := rs.run(false)
+			err := rs.run(nil)
 			switch strings.ToLower(args) {
 			case "fail":
 				if err == nil {
@@ -118,7 +119,10 @@ var commands = map[string]command{
 		summary: "executes one opcode at the current IP and prints the status",
 		detail:  `If the opcode is a function call, this executes the entire function call before stopping.`,
 		handler: func(rs *runtimeState, args string) error {
-			return rs.step(true)
+			dumper := func(vm *vm.ChaincodeVM) {
+				rs.out.Println(vm)
+			}
+			return rs.step(dumper)
 		},
 	},
 	"trace": command{
@@ -126,7 +130,10 @@ var commands = map[string]command{
 		summary: "runs the currently loaded VM from the current IP",
 		detail:  ``,
 		handler: func(rs *runtimeState, args string) error {
-			return rs.run(true)
+			dumper := func(vm *vm.ChaincodeVM) {
+				rs.out.Println(vm)
+			}
+			return rs.run(dumper)
 		},
 	},
 	"event": command{
@@ -143,7 +150,7 @@ var commands = map[string]command{
 			if rs.vm == nil {
 				return errors.New("no VM is loaded")
 			}
-			rs.vm.DisassembleAll()
+			rs.vm.DisassembleAll(os.Stdout)
 			return nil
 		},
 	},

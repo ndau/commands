@@ -107,12 +107,12 @@ func (rs *runtimeState) setevent(eventid string) error {
 	return rs.reinit(rs.vm.Stack())
 }
 
-func (rs *runtimeState) run(debug bool) error {
+func (rs *runtimeState) run(debug vm.Dumper) error {
 	err := rs.vm.Run(debug)
 	return err
 }
 
-func (rs *runtimeState) step(debug bool) error {
+func (rs *runtimeState) step(debug vm.Dumper) error {
 	err := rs.vm.Step(debug)
 	return err
 }

@@ -10,12 +10,12 @@
   version = "v0.3.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:c111758a9dd7c63d61e9d3dbe1b9c4f569fdd2fdb902f633d1c4e6da386baf61"
+  digest = "1:d1b7be319f318156e7e49696c5cd86636c63680c9317c6167123b4c09f96583a"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
   pruneopts = ""
-  revision = "fb7d95b61ba8d5860c76afb69243586dff37ae85"
+  revision = "f40417ef119019b1c94b79f3f18b7f66b9fb6bce"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:cc3e3ab828a51af490c9cf9c01487a201809e5cff04467c0fab8a2be0cb42109"
@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:7c3812e12dbfcf19e9aa00e47463961399015369ae413776e8de4e8025ea76c3"
+  digest = "1:2ab85e1c0578804ec09602b075bb7637f7cfb6892d827d39707b58f49eec613a"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "103cb51d5be1d3e4735da3ed250f27df6c73fadf"
-  version = "v1.16.10"
+  revision = "3991042237b45cf58c9d5f34295942d5533c28c6"
+  version = "v1.16.11"
 
 [[projects]]
   branch = "master"
@@ -223,7 +223,7 @@
   version = "v0.4.0"
 
 [[projects]]
-  digest = "1:0366b920e401e5fe9c9bc1e1d5b0d58b79af8c9c88b292c1db11d13a29ed9f28"
+  digest = "1:c990f0c5b1e15b278c36595de0f307ec460502fd47e376ae0c6a0b172e540b14"
   name = "github.com/go-redis/redis"
   packages = [
     ".",
@@ -236,8 +236,8 @@
     "internal/util",
   ]
   pruneopts = ""
-  revision = "b3d9bf10f6666b2ee5100a6f3f84f4caf3b4e37d"
-  version = "v6.14.2"
+  revision = "7f89fbac80bcc62ce920b6dbc6ca60238d7725d1"
+  version = "v6.15.0"
 
 [[projects]]
   digest = "1:a01080d20c45c031c13f3828c56e58f4f51d926a482ad10cc0316225097eb7ea"
@@ -381,6 +381,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:2cead5f63553a631cb6bad9933b773e40ff5086ec1dc40e35fd59377797ef894"
+  name = "github.com/kentquirk/rewriter"
+  packages = ["pkg/rewriter"]
+  pruneopts = ""
+  revision = "7ce4cd5781007a4057db3a7517f35e859706e186"
+
+[[projects]]
   digest = "1:6a874e3ddfb9db2b42bd8c85b6875407c702fa868eed20634ff489bc896ccfd3"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -405,15 +413,14 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:3daf65a04fdfee425724a3b7975ffcaf953e1e4e31eacef903e93bd6e00f3330"
+  digest = "1:79f5befe88e681f8b4cbb28259fd8a02e0352e8b91e3e7f648da2451a2fabee2"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "0f97289a0298c415176c4b98c870f7154ca14ef1"
-  version = "v0.11.5"
+  revision = "981f07ad378e877f79f52238b4d31560a1c1da48"
 
 [[projects]]
   digest = "1:3fe31571aa9fe0e5b9ce05dd056d5915287449a427a87d648ce794205360bff1"
@@ -900,11 +907,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cacc009d18847138854f998322faeb9139876c8f98398ed785a0440b2f336e29"
+  digest = "1:b11632fd65e4bcc4223d500ab2726d5d4ea94745440795820c61b7f5a1c30a0d"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "54d1bacb4e83cdcbb081a7ea09a69092f72bd2e6"
+  revision = "d00ac6d27372a4273825635281f2dc360d4be563"
 
 [[projects]]
   branch = "master"
@@ -964,6 +971,7 @@
     "github.com/alexflint/go-arg",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/boneful",
+    "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
     "github.com/oneiro-ndev/chaos/pkg/chaos",
