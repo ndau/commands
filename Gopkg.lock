@@ -162,7 +162,7 @@
   revision = "95f809107225be108efcf10a3509e4ea6ceef3c4"
 
 [[projects]]
-  digest = "1:74cb28f90f440aa5125ec650a7841d538bc7c1b64d952cbb0df4bdade3db8dc0"
+  digest = "1:57b4616ca3d02b2abfb773e5bed848c6611cd028c49eb0e4c40df5d57bac10e0"
   name = "github.com/ericlagergren/decimal"
   packages = [
     ".",
@@ -171,8 +171,8 @@
     "internal/c",
   ]
   pruneopts = ""
-  revision = "7f7cf8a362e5c45851ebbf009274d2ed8a2c88a7"
-  version = "v3.3.0"
+  revision = "73749d4874d5d3efba704f6046eae0517f998f4e"
+  version = "v3.3.1"
 
 [[projects]]
   branch = "master"
@@ -497,7 +497,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:ea88c6a6bc047411d6ca1cf0b664b88bfeb5da3220aa3c9ba6ac2754245b72df"
+  digest = "1:5315071b3a50ce33541b84cede10f3a109ad5861ddd2415299e2aff43891491f"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -517,8 +517,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "91ad282fd1768b58aa4b76447bf3ba5d189148ea"
-  version = "v0.10.2"
+  revision = "b3f6a57af9445ffed7f695ec2d9394a7dc22abd9"
+  version = "v0.10.3"
 
 [[projects]]
   digest = "1:569cceb9b3d2d7a3b275523db0f560cb90f02cceca615a0f90c9630be16bc046"
@@ -640,7 +640,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2a434946be9f2f5498b2405a8607768aab439237ea13deff2edc59d9a44f8891"
+  digest = "1:f018264df94f8206c400c90c114ce3e33ecfd8ab643939273c03d67c19a28db4"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -649,7 +649,7 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
+  revision = "14fa7590c24d4615893b68e22fce3b3489689f65"
 
 [[projects]]
   digest = "1:15bcdc717654ef21128e8af3a63eec39a6d08a830e297f93d65163f87c8eb523"
@@ -834,7 +834,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:887074c37fcefc2f49b5ae9c6f9f36107341aec23185613d0e9f1ee81db7f94a"
+  digest = "1:6980cd6b0dac532550cafc9c8f1cd943576fb53f6aec1ba17f853170fdb9ab82"
   name = "golang.org/x/crypto"
   packages = [
     "chacha20poly1305",
@@ -852,7 +852,7 @@
     "ssh/terminal",
   ]
   pruneopts = ""
-  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+  revision = "8d7daa0c54b357f3071e11eaef7efc4e19a417e2"
 
 [[projects]]
   digest = "1:dfab7264a3c6473112bc0cc6fdf46f991b5fa2e3bf0107cad156271076a1451d"
@@ -872,7 +872,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e6d1805ead5b8f2439808f76187f54042ed35ee26eb9ca63127259a0e612b119"
+  digest = "1:528fd80cf9b601eec370e035bfa4b32dc98bb4dbf64de45686387249dd82a7cd"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -880,7 +880,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "b4a75ba826a64a70990f11a225237acd6ef35c9f"
+  revision = "82a175fd1598e8a172e58ebdf5ed262bb29129e5"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -906,12 +906,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:b11632fd65e4bcc4223d500ab2726d5d4ea94745440795820c61b7f5a1c30a0d"
+  branch = "release-branch.go1.10"
+  digest = "1:d881f86d5b0044e007ff680eddf849c6325ad4b5df464984abeebaf69c7b790a"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "d00ac6d27372a4273825635281f2dc360d4be563"
+  revision = "156d532d4f67148ceab07c3b59ed7fa13bdbf00c"
 
 [[projects]]
   branch = "master"
