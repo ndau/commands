@@ -72,30 +72,30 @@ chaincodeall: clean generate build test fuzz benchmarks format examples
 ###################################
 ### Opcodes
 
-$(OPCODESMD): opcodes
+$(OPCODESMD): $(OPCODES)
 	$(OPCODES) --opcodes $(OPCODESMD)
 
-$(CHAINCODEPKG)/vm/opcodes.go: opcodes
+$(CHAINCODEPKG)/vm/opcodes.go: $(OPCODES)
 	$(OPCODES) --defs $(CHAINCODEPKG)/vm/opcodes.go
 
-$(CHAINCODEPKG)/vm/miniasmOpcodes.go: opcodes
+$(CHAINCODEPKG)/vm/miniasmOpcodes.go: $(OPCODES)
 	$(OPCODES) --miniasm $(CHAINCODEPKG)/vm/miniasmOpcodes.go
 
-$(CHAINCODEPKG)/vm/extrabytes.go: opcodes
+$(CHAINCODEPKG)/vm/extrabytes.go: $(OPCODES)
 	$(OPCODES) --extra $(CHAINCODEPKG)/vm/extrabytes.go
 
-$(CHAINCODEPKG)/vm/enabledopcodes.go: opcodes
+$(CHAINCODEPKG)/vm/enabledopcodes.go: $(OPCODES)
 	$(OPCODES) --enabled $(CHAINCODEPKG)/vm/enabledopcodes.go
 
-cmd/chasm/chasm.peggo: opcodes peggofmt
+cmd/chasm/chasm.peggo: $(OPCODES) $(PEGGOFMT)
 	$(OPCODES) --pigeon cmd/chasm/chasm.peggo
 	$(PEGGOFMT) cmd/chasm/chasm.peggo
 
 # We make two copies of this file, for chasm and for crank
-cmd/chasm/predefined.go: opcodes
+cmd/chasm/predefined.go: $(OPCODES)
 	$(OPCODES) --consts cmd/chasm/predefined.go
 
-cmd/crank/predefined.go: opcodes
+cmd/crank/predefined.go: $(OPCODES)
 	$(OPCODES) --consts cmd/crank/predefined.go
 
 $(OPCODES): cmd/opcodes/*.go
@@ -124,13 +124,13 @@ benchmarks:
 ###################################
 ### The chasm assembler
 
-$(CHASM): cmd/chasm/chasm.go $(CHAINCODEPKG)/vm/opcodes.go cmd/chasm/*.go generate
+$(CHASM): cmd/chasm/chasm.go $(CHAINCODEPKG)/vm/opcodes.go cmd/chasm/*.go
 	go build -o $(CHASM) ./cmd/chasm
 
 cmd/chasm/chasm.go: cmd/chasm/chasm.peggo
 	pigeon -o ./cmd/chasm/chasm.go ./cmd/chasm/chasm.peggo
 
-examples: chasm
+examples: $(CHASM)
 	$(CHASM) --output $(EXAMPLES)/quadratic.chbin --comment "Test of quadratic" $(EXAMPLES)/quadratic.chasm
 	$(CHASM) --output $(EXAMPLES)/majority.chbin --comment "Test of majority" $(EXAMPLES)/majority.chasm
 	$(CHASM) --output $(EXAMPLES)/onePlus1of3.chbin --comment "1+1of3" $(EXAMPLES)/onePlus1of3.chasm
@@ -139,19 +139,19 @@ examples: chasm
 	$(CHASM) --output $(EXAMPLES)/zero.chbin --comment "returns numeric 0 in all cases" $(EXAMPLES)/zero.chasm
 	$(CHASM) --output $(EXAMPLES)/rfe.chbin --comment "standard RFE rules" $(EXAMPLES)/rfe.chasm
 
-validations: chasm
+validations: $(CHASM)
 	find $(VALIDATIONS) -name "*.chasm" |sed s/\.chasm/.ch/g | xargs -n1 -I{} $(CHASM) --output {}bin {}asm
 
-vtests: crank validations
+vtests: $(CRANK) validations
 	find $(VALIDATIONS) -name "*.crank" | xargs -n1 -I{} $(CRANK) -script {}
 
-vformat: chfmt validations
+vformat: $(CHFMT) validations
 	find $(VALIDATIONS) -name "*.chasm" | xargs -n1 -I{} $(CHFMT) -O {}
 
 ###################################
 ### The chfmt formatter
 
-format: chfmt
+format: $(CHFMT)
 	$(CHFMT) -O $(EXAMPLES)/quadratic.chasm
 	$(CHFMT) -O $(EXAMPLES)/majority.chasm
 	$(CHFMT) -O $(EXAMPLES)/onePlus1of3.chasm
@@ -163,7 +163,7 @@ format: chfmt
 cmd/chfmt/chfmt.go: cmd/chfmt/chfmt.peggo
 	pigeon -o ./cmd/chfmt/chfmt.go ./cmd/chfmt/chfmt.peggo
 
-$(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go generate
+$(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go
 	go build -o $(CHFMT) ./cmd/chfmt
 
 
@@ -180,6 +180,6 @@ $(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go
 ###################################
 ### The crank debugger/runtime
 
-$(CRANK): cmd/crank/*.go generate
+$(CRANK): cmd/crank/*.go
 	go build -o $(CRANK) ./cmd/crank
 

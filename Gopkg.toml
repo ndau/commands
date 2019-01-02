@@ -16,7 +16,7 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.10"
+version = "~v0.10.3"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
@@ -42,3 +42,7 @@ branch = "master"
 [[override]]
 name = "github.com/oneiro-ndev/writers"
 branch = "master"
+
+[[override]]
+name = "github.com/oneiro-ndev/chaincode"
+version = "~v0.20"

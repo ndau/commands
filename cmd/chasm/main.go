@@ -74,6 +74,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		thevm.DisassembleAll()
+		thevm.DisassembleAll(os.Stdout)
 	}
 }
