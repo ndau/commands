@@ -420,7 +420,8 @@
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "981f07ad378e877f79f52238b4d31560a1c1da48"
+  revision = "95de93509857973f6b2cc4b9b37d82155b62e747"
+  version = "v0.20.0"
 
 [[projects]]
   digest = "1:3fe31571aa9fe0e5b9ce05dd056d5915287449a427a87d648ce794205360bff1"
@@ -906,12 +907,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "release-branch.go1.10"
-  digest = "1:d881f86d5b0044e007ff680eddf849c6325ad4b5df464984abeebaf69c7b790a"
+  branch = "master"
+  digest = "1:7acc3c3e2c2ee4a1c7ceb05e1cd2ab51577a5c900f1a91fc074cd80b05028241"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "156d532d4f67148ceab07c3b59ed7fa13bdbf00c"
+  revision = "79186431cf2917562ba2e632326924b5594ce114"
 
 [[projects]]
   branch = "master"
