@@ -1,6 +1,15 @@
 #!/bin/bash
 
+# This will get set to true if we found any pid and attempted to kill it gracefully.
 pid_found=false
+
+initialize() {
+    CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
+    # shellcheck disable=SC1090
+    source "$CMDBIN_DIR"/env.sh
+
+    cd "$CMDBIN_DIR" || exit 1
+}
 
 # This tries to kill a task nicely and does not wait.
 try_kill() {
@@ -41,16 +50,29 @@ check_killed() {
     fi
 }
 
-cd "$(dirname "$0")" || exit 1
+initialize
 
 if [ -z "$1" ]; then
     cmds=(ndau_tm ndau_node ndau_noms ndau_redis chaos_tm chaos_node chaos_noms chaos_redis)
+    node_nums=$(seq "$HIGH_NODE_NUM" 0)
 else
-    cmds=("$@")
+    # We support killing a single process for a given node.
+    cmds=("$1")
+    node_num="$2"
+
+    # Default to the first node in a single-node localnet.
+    if [ -z "$node_num" ]; then
+        node_num=0
+    fi
+
+    node_nums=("$node_num")
 fi
 
-for cmd in "${cmds[@]}"; do
-    try_kill "$cmd"
+for node_num in "${node_nums[@]}";
+do
+    for cmd in "${cmds[@]}"; do
+        try_kill "$cmd-$node_num"
+    done
 done
 
 # Give them all a chance to shutdown before we force-kill anything.
@@ -58,10 +80,16 @@ if [ "$pid_found" = true ]; then
     sleep 1
 fi
 
-for cmd in "${cmds[@]}"; do
-    force_kill "$cmd"
+for node_num in "${node_nums[@]}";
+do
+    for cmd in "${cmds[@]}"; do
+        force_kill "$cmd-$node_num"
+    done
 done
 
-for cmd in "${cmds[@]}"; do
-    check_killed "$cmd"
+for node_num in "${node_nums[@]}";
+do
+    for cmd in "${cmds[@]}"; do
+        check_killed "$cmd-$node_num"
+    done
 done

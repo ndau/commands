@@ -4,27 +4,40 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
-# Configure tendermint.
+echo Configuring tendermint...
 cd "$TENDERMINT_DIR" || exit 1
-./tendermint init --home "$TENDERMINT_CHAOS_DATA_DIR"
-./tendermint init --home "$TENDERMINT_NDAU_DATA_DIR"
-sed -i '' -E \
-    -e 's/^(create_empty_blocks = .*)/# \1/' \
-    -e 's/^(create_empty_blocks_interval =) (.*)/\1 300/' \
-    "$TENDERMINT_CHAOS_DATA_DIR"/config/config.toml \
-    "$TENDERMINT_NDAU_DATA_DIR"/config/config.toml
+for node_num in $(seq 0 "$HIGH_NODE_NUM");
+do
+    tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
+    tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
 
-ndau_rpc_addr="http://localhost:$TM_NDAU_RPC_PORT"
+    ./tendermint init --home "$tm_chaos_home"
+    ./tendermint init --home "$tm_ndau_home"
 
-# Configure chaos.
-"$COMMANDS_DIR"/chaos conf
-"$COMMANDS_DIR"/chaosnode --set-ndaunode "$ndau_rpc_addr"
+    sed -i '' -E \
+        -e 's/^(create_empty_blocks = .*)/# \1/' \
+        -e 's/^(create_empty_blocks_interval =) (.*)/\1 300/' \
+        -e 's/^(addr_book_strict =) (.*)/\1 false/' \
+        -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"\"'/' \
+        "$tm_chaos_home"/config/config.toml \
+        "$tm_ndau_home"/config/config.toml
+done
 
-# Configure ndau.
-"$COMMANDS_DIR"/ndau conf "$ndau_rpc_addr"
+echo Configuring chaos and ndau...
+cd "$COMMANDS_DIR" || exit 1
+for node_num in $(seq 0 "$HIGH_NODE_NUM");
+do
+    ndau_home="$NODE_DATA_DIR-$node_num"
+    ndau_rpc_port=$(expr "$TM_RPC_PORT" + 2 \* "$node_num" + 1)
+    ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
-# Generate and copy genesis files if they're not there already.
-cd "$NODE_DATA_DIR" || exit 1
+    NDAUHOME="$ndau_home" ./chaos conf
+    NDAUHOME="$ndau_home" ./chaosnode --set-ndaunode "$ndau_rpc_addr"
+    NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
+done
+
+echo Generating genesis files...
+cd "$LOCALNET_DIR" || exit 1
 
 # can't test if a glob matches anything directly: https://github.com/koalaman/shellcheck/wiki/SC2144
 gexists=0
@@ -48,12 +61,20 @@ if [ "$gexists" == 0 ]; then
     #
     # shellcheck disable=SC2012
     GENESIS_TOML=$(ls -t genesis.*.toml | head -n 1)
-    "$COMMANDS_DIR"/genesis -g "$NODE_DATA_DIR/$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR"
 
     # This is needed for things like RFE transactions to function.
     # shellcheck disable=SC2012
     ASSC_TOML=$(ls -t assc.*.toml | head -n 1)
-    "$COMMANDS_DIR"/ndau conf update-from "$NODE_DATA_DIR/$ASSC_TOML"
+
+    for node_num in $(seq 0 "$HIGH_NODE_NUM");
+    do
+        "$COMMANDS_DIR"/genesis \
+            -g "$LOCALNET_DIR/$GENESIS_TOML" \
+            -n "$NOMS_CHAOS_DATA_DIR-$node_num"
+
+        NDAUHOME="$NODE_DATA_DIR-$node_num" \
+        "$COMMANDS_DIR"/ndau conf update-from "$LOCALNET_DIR/$ASSC_TOML"
+    done
 
     # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
     # generated files.
