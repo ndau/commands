@@ -43,17 +43,13 @@ done
 
 # Point tendermint nodes to each other if there are more than one node in the localnet.
 if [ "$NODE_COUNT" -gt 1 ]; then
-    for node_num in $(seq 0 "$HIGH_NODE_NUM");
+    # Because of Tendermint's PeX feature, each node will gissip known peers to the others.
+    # So for every node's config, we only need to tell it about one other node, not all of
+    # them.  The last node therefore doesn't need to know about any peers, because the
+    # previous one will dial it up as a peer.
+    for node_num in $(seq 0 $(expr "$HIGH_NODE_NUM" - 1));
     do
-        # Because of Tendermint's PeX feature, each node will gissip known peers to the others.
-        # So for every node's config, we only need to tell it about one other node, not all of
-        # them.  The last node therefore doesn't need to know about any up front, because the
-        # previous one will have it as a peer.  But it should only help to point it to node 0.
-        if [ "$node_num" = "$HIGH_NODE_NUM" ]; then
-            peer_num=0
-        else
-            peer_num=$(expr "$node_num" + 1)
-        fi
+        peer_num=$(expr "$node_num" + 1)
 
         src_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$peer_num"
         src_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$peer_num"
