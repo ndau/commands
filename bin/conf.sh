@@ -18,10 +18,63 @@ do
         -e 's/^(create_empty_blocks = .*)/# \1/' \
         -e 's/^(create_empty_blocks_interval =) (.*)/\1 300/' \
         -e 's/^(addr_book_strict =) (.*)/\1 false/' \
-        -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"\"'/' \
-        "$tm_chaos_home"/config/config.toml \
-        "$tm_ndau_home"/config/config.toml
+        -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"'\"/' \
+        "$tm_chaos_home/config/config.toml" \
+        "$tm_ndau_home/config/config.toml"
+
+    # Replace the test-chain-XXXX with a constant, so that peers can connect to each other.
+    # Tendermint uses this chain_id as a network identifier.
+    genesis_config="$TENDERMINT_CHAOS_DATA_DIR-$node_num/config/genesis"
+    jq ".chain_id=\"local-chain-chaos\"" \
+        "$genesis_config.json" > "$genesis_config.new.json" && \
+        mv "$genesis_config.new.json" "$genesis_config.json"
+    jq ".validators[0].name=\"chaos-$node_num\"" \
+        "$genesis_config.json" > "$genesis_config.new.json" && \
+        mv "$genesis_config.new.json" "$genesis_config.json"
+
+    genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
+    jq ".chain_id=\"local-chain-ndau\"" \
+        "$genesis_config.json" > "$genesis_config.new.json" && \
+        mv "$genesis_config.new.json" "$genesis_config.json"
+    jq ".validators[0].name=\"ndau-$node_num\"" \
+        "$genesis_config.json" > "$genesis_config.new.json" && \
+        mv "$genesis_config.new.json" "$genesis_config.json"
 done
+
+# Point tendermint nodes to each other if there are more than one node in the localnet.
+if [ "$NODE_COUNT" -gt 1 ]; then
+    for node_num in $(seq 0 "$HIGH_NODE_NUM");
+    do
+        # Because of Tendermint's PeX feature, each node will gissip known peers to the others.
+        # So for every node's config, we only need to tell it about one other node, not all of
+        # them.  The last node therefore doesn't need to know about any up front, because the
+        # previous one will have it as a peer.  But it should only help to point it to node 0.
+        if [ "$node_num" = "$HIGH_NODE_NUM" ]; then
+            peer_num=0
+        else
+            peer_num=$(expr "$node_num" + 1)
+        fi
+
+        src_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$peer_num"
+        src_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$peer_num"
+        dst_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
+        dst_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
+
+        peer_id=$(./tendermint show_node_id --home "$src_tm_chaos_home")
+        peer_port=$(expr "$TM_P2P_PORT" + 2 \* "$peer_num")
+        peer="$peer_id@127.0.0.1:$peer_port"
+        sed -i '' -E \
+            -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
+            "$dst_tm_chaos_home/config/config.toml"
+
+        peer_id=$(./tendermint show_node_id --home "$src_tm_ndau_home")
+        peer_port=$(expr "$TM_P2P_PORT" + 2 \* "$peer_num" + 1)
+        peer="$peer_id@127.0.0.1:$peer_port"
+        sed -i '' -E \
+            -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
+            "$dst_tm_ndau_home/config/config.toml"
+    done
+fi
 
 echo Configuring chaos and ndau...
 cd "$COMMANDS_DIR" || exit 1

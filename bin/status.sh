@@ -22,6 +22,8 @@ checkstatus() {
     fi
 }
 
+initialize
+
 if [ -n "$1" ]; then
     # We support checking a single process for a given node.
     cmd="$1"
