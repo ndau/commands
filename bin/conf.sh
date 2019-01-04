@@ -130,9 +130,9 @@ if [ "$gexists" == 0 ]; then
 
         NDAUHOME="$NODE_DATA_DIR-$node_num" \
         "$COMMANDS_DIR"/ndau conf update-from "$ROOT_DATA_DIR/$ASSC_TOML"
-    done
 
-    # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
-    # generated files.
-    touch "$NEEDS_UPDATE_FLAG_FILE"
+        # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
+        # generated files.
+        touch "$NEEDS_UPDATE_FLAG_FILE-$node_num"
+    done
 fi

@@ -176,7 +176,7 @@ ndau_node() {
     cd "$COMMANDS_DIR" || exit 1
 
     # Import genesis data if we haven't already.
-    if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
+    if [ -e "$NEEDS_UPDATE_FLAG_FILE-$node_num" ]; then
         # We should only have one of each of these files, but these commands get the latest ones.
         # shellcheck disable=SC2012
         GENESIS_TOML=$(ls -t "$ROOT_DATA_DIR"/genesis.*.toml | head -n 1)
@@ -201,7 +201,7 @@ ndau_node() {
                    -update-chain-from "$ASSC_TOML"
 
         # We've updated, remove the flag file so we don't update again on the next run.
-        rm "$NEEDS_UPDATE_FLAG_FILE"
+        rm "$NEEDS_UPDATE_FLAG_FILE-$node_num"
     fi
 
     #---------- get app hash from ndaunode ----------
