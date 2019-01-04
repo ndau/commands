@@ -47,7 +47,7 @@ cd "$TM_DIR"
 if [ -d "tendermint" ]; then
     echo SETUP: Updating tendermint...
     cd tendermint
-    git checkout -- Gopkg.lock
+    git checkout -- .
     git checkout master
     git pull origin master
 else
@@ -57,7 +57,10 @@ else
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git checkout "$TENDERMINT_VER"
-echo SETUP: Ensuring tendermint dependencies...
+echo SETUP: Patching tendermint...
+patch -i "$COMMANDS_DIR"/deploy/tendermint/Gopkg.toml.patch Gopkg.toml
+patch -i "$COMMANDS_DIR"/deploy/tendermint/root.go.patch cmd/tendermint/commands/root.go
+echo SETUP: Ensuring dependencies for tendermint...
 "$GO_DIR"/bin/dep ensure
 
 update_repo() {
@@ -82,7 +85,7 @@ update_repo chaos_genesis
 
 # utilities
 cd "$NDEV_DIR"/commands
-echo "SETUP: Running commands' dep ensure..."
+echo SETUP: Ensuring dependencies for commands...
 "$GO_DIR"/bin/dep ensure
 
 # Build everything.

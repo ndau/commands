@@ -41,8 +41,8 @@ RUN go get -u github.com/golang/dep/... && \
     git checkout ${TM_VERSION_TAG}
 
 # We're going to apply a patch before building, so first get the patch file
-COPY ./docker/*.go.patch /patch/
-RUN patch  -i /patch/root.go.patch /go/src/github.com/tendermint/tendermint/cmd/tendermint/commands/root.go
+RUN patch -i /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/Gopkg.toml.patch /go/src/github.com/tendermint/tendermint/Gopkg.toml
+RUN patch -i /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/root.go.patch /go/src/github.com/tendermint/tendermint/cmd/tendermint/commands/root.go
 
 # now we can build
 WORKDIR /go/src/github.com/tendermint/tendermint
