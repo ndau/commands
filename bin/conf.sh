@@ -28,10 +28,13 @@ cd "$COMMANDS_DIR" || exit 1
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
     ndau_home="$NODE_DATA_DIR-$node_num"
-    ndau_rpc_port=$(expr "$TM_RPC_PORT" + 2 \* "$node_num" + 1)
+    port_offset=$(expr 2 \* "$node_num")
+    chaos_rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset")
+    ndau_rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset" + 1)
+    chaos_rpc_addr="http://localhost:$chaos_rpc_port"
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
-    NDAUHOME="$ndau_home" ./chaos conf
+    NDAUHOME="$ndau_home" ./chaos conf "$chaos_rpc_addr"
     NDAUHOME="$ndau_home" ./chaosnode --set-ndaunode "$ndau_rpc_addr"
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
 done

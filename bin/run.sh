@@ -206,14 +206,13 @@ ndau_node() {
 
     #---------- get app hash from ndaunode ----------
     echo "  getting ndaunode app hash"
-    NDAU_HASH=$(NDAUHOME="$ndau_home" \
+    ndau_hash=$(NDAUHOME="$ndau_home" \
         ./ndaunode -spec http://localhost:"$noms_port" -echo-hash 2>/dev/null)
     # jq doesn't support an inplace operation
-    jq ".app_hash= if .app_hash == \"\" then \"$NDAU_HASH\" else .app_hash end" \
+    jq ".app_hash= if .app_hash == \"\" then \"$ndau_hash\" else .app_hash end" \
         "$genesis_config.json" > "$genesis_config.new.json" && \
         mv "$genesis_config.new.json" "$genesis_config.json"
 
-    # now we can run ndaunode
     echo "  launching ndaunode"
     HONEYCOMB_DATASET=ndau-dev \
     NDAUHOME="$ndau_home" \
@@ -245,7 +244,7 @@ ndau_tm() {
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
                       >"$output_name.log" 2>&1 &
-    echo $! >"$output_name".pid
+    echo $! >"$output_name.pid"
     wait_port "$rpc_port"
     wait_port "$p2p_port"
 }

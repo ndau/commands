@@ -22,7 +22,7 @@ export MAX_NODE_COUNT=5
 # Therefore, we must leave room for 2 x MAX_NODE_COUNT values in each port number space.
 export NODE_PORT=26650
 export NOMS_PORT=8000
-export REDIS_PORT=6380
+export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 
