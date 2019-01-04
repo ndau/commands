@@ -37,7 +37,7 @@ do
 done
 
 echo Generating genesis files...
-cd "$LOCALNET_DIR" || exit 1
+cd "$ROOT_DATA_DIR" || exit 1
 
 # can't test if a glob matches anything directly: https://github.com/koalaman/shellcheck/wiki/SC2144
 gexists=0
@@ -69,11 +69,11 @@ if [ "$gexists" == 0 ]; then
     for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
         "$COMMANDS_DIR"/genesis \
-            -g "$LOCALNET_DIR/$GENESIS_TOML" \
+            -g "$ROOT_DATA_DIR/$GENESIS_TOML" \
             -n "$NOMS_CHAOS_DATA_DIR-$node_num"
 
         NDAUHOME="$NODE_DATA_DIR-$node_num" \
-        "$COMMANDS_DIR"/ndau conf update-from "$LOCALNET_DIR/$ASSC_TOML"
+        "$COMMANDS_DIR"/ndau conf update-from "$ROOT_DATA_DIR/$ASSC_TOML"
     done
 
     # Use this as a flag for run.sh to know whether to update ndau conf and chain with the

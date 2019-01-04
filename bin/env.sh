@@ -75,4 +75,4 @@ if [ -e "$NODE_COUNT_FILE" ]; then
 fi
 
 # File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
-export NEEDS_UPDATE_FLAG_FILE="$LOCALNET_DIR"/needs_update
+export NEEDS_UPDATE_FLAG_FILE="$ROOT_DATA_DIR"/needs_update

@@ -179,9 +179,9 @@ ndau_node() {
     if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
         # We should only have one of each of these files, but these commands get the latest ones.
         # shellcheck disable=SC2012
-        GENESIS_TOML=$(ls -t "$LOCALNET_DIR"/genesis.*.toml | head -n 1)
+        GENESIS_TOML=$(ls -t "$ROOT_DATA_DIR"/genesis.*.toml | head -n 1)
         # shellcheck disable=SC2012
-        ASSC_TOML=$(ls -t "$LOCALNET_DIR"/assc.*.toml | head -n 1)
+        ASSC_TOML=$(ls -t "$ROOT_DATA_DIR"/assc.*.toml | head -n 1)
 
         echo "  updating ndau config using $GENESIS_TOML"
         NDAUHOME="$ndau_home" \
