@@ -4,7 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 
 	"github.com/oneiro-ndev/chaos/pkg/chaos"
 	"github.com/oneiro-ndev/chaos/pkg/chaos/config"
@@ -81,6 +83,27 @@ func getConf() *config.Config {
 	return conf
 }
 
+type siglistener struct {
+	sigchan chan os.Signal
+}
+
+// Support closing the app with Ctrl+C when running in a shell.
+func (s *siglistener) watchSignals() {
+	go func() {
+		if s.sigchan == nil {
+			s.sigchan = make(chan os.Signal, 1)
+		}
+		signal.Notify(s.sigchan, syscall.SIGTERM, syscall.SIGINT)
+		for {
+			sig := <-s.sigchan
+			switch sig {
+			case syscall.SIGTERM, syscall.SIGINT:
+				os.Exit(0)
+			}
+		}
+	}()
+}
+
 func main() {
 	flag.Parse()
 
@@ -136,6 +159,9 @@ func main() {
 
 	err = server.Start()
 	check(err)
+
+	sl := &siglistener{}
+	sl.watchSignals()
 
 	logger.WithFields(logrus.Fields{
 		"address": sa,
