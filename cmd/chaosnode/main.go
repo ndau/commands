@@ -88,7 +88,7 @@ type siglistener struct {
 }
 
 // Support closing the app with Ctrl+C when running in a shell.
-func (s *siglistener) watchSignals(app *chaos.App) {
+func (s *siglistener) watchSignals() {
 	go func() {
 		if s.sigchan == nil {
 			s.sigchan = make(chan os.Signal, 1)
@@ -98,7 +98,6 @@ func (s *siglistener) watchSignals(app *chaos.App) {
 			sig := <-s.sigchan
 			switch sig {
 			case syscall.SIGTERM, syscall.SIGINT:
-				app.GetLogger().Info("Terminated with an OS signal")
 				os.Exit(0)
 			}
 		}
@@ -162,7 +161,7 @@ func main() {
 	check(err)
 
 	sl := &siglistener{}
-	sl.watchSignals(app)
+	sl.watchSignals()
 
 	logger.WithFields(logrus.Fields{
 		"address": sa,
