@@ -69,7 +69,14 @@ update_repo() {
     if [ -d "$repo" ]; then
         echo SETUP: Updating "$repo"...
         cd "$repo"
-        git pull origin "$("$CMDBIN_DIR"/branch.sh)"
+        branch=$("$CMDBIN_DIR"/branch.sh)
+        exists=$(git ls-remote --heads git@github.com:oneiro-ndev/"$repo".git "$branch")
+        if [ -z "$exists" ]; then
+            # This just means you have a local branch you haven't pushed yet, and that's fine.
+            echo Branch $branch does not exist on remote
+        else
+            git pull origin "$branch"
+        fi
     else
         echo SETUP: Cloning "$repo"...
         git clone git@github.com:oneiro-ndev/"$repo".git
