@@ -141,6 +141,9 @@ func main() {
 		"address": sa,
 		"name":    server.String(),
 	}).Info("started ABCI socket server")
+
+	app.App.WatchSignals()
+
 	// we want to keep this service running indefinitely
 	// if there were more commands to run, we'd probably want to split this into a separate
 	// goroutine and deal with closing options, but for now, it's probably fine to actually
