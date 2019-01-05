@@ -164,13 +164,13 @@ _**Writes:**_
           "delegationNode": null,
           "lock": null,
           "stake": null,
-          "lastEAIUpdate": 0,
-          "lastWAAUpdate": 0,
-          "weightedAverageAge": 2592000000000,
+          "lastEAIUpdate": "2000-01-01T00:00:00Z",
+          "lastWAAUpdate": "2000-01-01T00:00:00Z",
+          "weightedAverageAge": "1m",
           "sequence": 0,
           "settlements": null,
           "settlementSettings": {
-            "Period": 0,
+            "Period": "t0s",
             "ChangesAt": null,
             "Next": null
           },
@@ -226,13 +226,13 @@ _**Writes:**_
             "delegationNode": null,
             "lock": null,
             "stake": null,
-            "lastEAIUpdate": 0,
-            "lastWAAUpdate": 0,
-            "weightedAverageAge": 2592000000000,
+            "lastEAIUpdate": "2000-01-01T00:00:00Z",
+            "lastWAAUpdate": "2000-01-01T00:00:00Z",
+            "weightedAverageAge": "1m",
             "sequence": 0,
             "settlements": null,
             "settlementSettings": {
-              "Period": 0,
+              "Period": "t0s",
               "ChangesAt": null,
               "Next": null
             },
@@ -275,9 +275,9 @@ _**Reads:**_
         [
           {
             "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
-            "weightedAverageAge": 7776000000000,
+            "weightedAverageAge": "3m",
             "lock": {
-              "noticePeriod": 15552000000000,
+              "noticePeriod": "6m",
               "unlocksOn": null,
               "bonus": 20000000000
             }
@@ -1507,18 +1507,18 @@ _**Writes:**_
 ---
 ## TxPrevalidate
 
-### `POST /tx/prevalidate`
+### `POST /tx/prevalidate/:txtype`
 
-_Prevalidates a transaction._
+_Prevalidates a transaction (tells if it would be accepted and what the transaction fee will be._
 
-
+Transactions consist of JSON for any defined transaction type (see submit).
 
 
 _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- body | Body |  | routes.TxJSON
+ body | Body |  | *ndau.Lock
 
 
 
@@ -1529,7 +1529,10 @@ _**Consumes:**_ `[application/json]`
 _**Reads:**_
 ```json
         {
-          "data": "base64 tx data"
+          "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+          "period": "1m",
+          "sequence": 1234,
+          "signatures": null
         }
 ```
 
@@ -1550,18 +1553,18 @@ _**Writes:**_
 ---
 ## TxSubmit
 
-### `POST /tx/submit`
+### `POST /tx/submit/:txtype`
 
 _Submits a transaction._
 
-
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ClaimAccount, Stake, NominateNodeReward, TransferAndLock, Delegate, CreditEAI, SetRewardsDestination, ClaimNodeReward, CommandValidatorChange, Transfer, ChangeSettlementPeriod, Notify, ChangeValidation, ReleaseFromEndowment, SidechainTx, Lock, RegisterNode
 
 
 _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- body | Body |  | routes.TxJSON
+ body | Body |  | *ndau.Lock
 
 
 
@@ -1572,7 +1575,10 @@ _**Consumes:**_ `[application/json]`
 _**Reads:**_
 ```json
         {
-          "data": "base64 tx data"
+          "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+          "period": "1m",
+          "sequence": 1234,
+          "signatures": null
         }
 ```
 
