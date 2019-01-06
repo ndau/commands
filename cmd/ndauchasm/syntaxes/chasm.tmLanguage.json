@@ -33,9 +33,19 @@
 					"comment": "complex opcodes"
 				},
 				{
-					"match": "(?i)\\b(0x[A-Fa-f0-9]+)\\b",
+					"match": "(?i)\\b(0x[A-Fa-f0-9_]+)\\b",
 					"name": "constant.numeric.asm",
 					"comment": "Hex number constant"
+				},
+				{
+					"match": "(?i)\\b(0b[01_]+)\\b",
+					"name": "constant.numeric.asm",
+					"comment": "Binary number constant"
+				},
+				{
+					"match": "(?i)\\b(0[0-7_]+)\\b",
+					"name": "constant.numeric.asm",
+					"comment": "Octal number constant"
 				},
 				{
 					"match": "(?i)\\b([0-9]+)\\b",
