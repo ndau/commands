@@ -35,6 +35,21 @@ func TestSimplePush(t *testing.T) {
 	checkParse(t, "SimplePush", code, "800001 20 88")
 }
 
+func TestNumberFormats(t *testing.T) {
+	code := `
+		; comment
+		func foo(1) {
+			push 0xabcd
+			push 01777
+			push 0b1010101001010101
+			push 0b001_1101
+			push 0xbad_cab
+			push 127
+		}
+`
+	checkParse(t, "NumberFormats", code, "800001 22cdab 22ff03 2255aa 211d 23abdcba 217f 88")
+}
+
 func TestPushB(t *testing.T) {
 	code := `
 		; comment

@@ -2,7 +2,7 @@
     "name": "ndauchasm",
     "displayName": "ndauchasm",
     "description": "Support for ndau's chaincode assembly language, chasm",
-    "version": "0.0.1",
+    "version": "0.2.0",
     "publisher": "Oneiro",
     "engines": {
         "vscode": "^1.28.0"
@@ -15,11 +15,11 @@
             {
                 "id": "chasm",
                 "aliases": [
-                    "chasm",
                     "chasm"
                 ],
                 "extensions": [
-                    ".chasm"
+                    ".chasm",
+                    ".crank"
                 ],
                 "configuration": "./language-configuration.json"
             }

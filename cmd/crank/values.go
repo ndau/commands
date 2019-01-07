@@ -33,11 +33,23 @@ func getRandomAccount() backing.AccountData {
 
 var predefined = predefinedConstants()
 
+// parseInt parses an integer from a string. It is just like
+// strconv.ParseInt(s, 0, bitSize) except that it can handle binary.
+func parseInt(s string, bitSize int) (int64, error) {
+	// remove embedded _ characters
+	s = strings.Replace(s, "_", "", -1)
+	if strings.HasPrefix(s, "0b") {
+		return strconv.ParseInt(s[2:], 2, bitSize)
+	}
+	return strconv.ParseInt(s, 0, bitSize)
+}
+
 func parseValues(s string) ([]vm.Value, error) {
 	// timestamp
 	tsp := regexp.MustCompile("^[0-9-]+T[0-9:]+Z")
-	// number is a base-10 signed integer OR a hex value starting with 0x
-	nump := regexp.MustCompile("^0x([0-9A-Fa-f]+)|^-?[0-9]+")
+	// number is a base-10 signed integer OR a binary value starting with 0x (hex), 0b (binary), or 0 (octal)
+	// Embedded _ characters are removed before parsing
+	nump := regexp.MustCompile("^0[bx]?([0-9A-Fa-f_]+)|^-?[0-9_]+")
 	// napu is a base-10 positive integer preceded with np; it is delivered as an integer number of napu
 	napup := regexp.MustCompile("^np([0-9]+)")
 	// ndau values are a base-10 positive decimal, which is multiplied by 10^8 and converted to integer
@@ -127,7 +139,7 @@ func parseValues(s string) ([]vm.Value, error) {
 		case nump.FindString(s) != "":
 			found := nump.FindString(s)
 			s = s[len(found):]
-			n, _ := strconv.ParseInt(found, 0, 64)
+			n, _ := parseInt(found, 64)
 			retval = append(retval, vm.NewNumber(n))
 
 		case napup.FindString(s) != "":
