@@ -147,9 +147,9 @@ Value =
 
 ConstantRef <- _? k:Constant                   { cm := c.globalStore["constants"].(map[string]string); return cm[k.(string)], nil }
 Integer <-
-    ( _? "0x" [0-9A-Fa-f_]+                     { return strings.TrimSpace(strings.Replace(string(c.text), "_", "", -1)), nil }
-    / _? "0b" [01_]+                            { return strings.TrimSpace(strings.Replace(string(c.text), "_", "", -1)), nil }
-    / _? "0"  [0-7_]+                           { return strings.TrimSpace(strings.Replace(string(c.text), "_", "", -1)), nil }
+    ( _? "0x" [0-9A-Fa-f_]+                    { return strings.TrimSpace(strings.Replace(string(c.text), "_", "", -1)), nil }
+    / _? "0b" [01_]+                           { return strings.TrimSpace(strings.Replace(string(c.text), "_", "", -1)), nil }
+    / _? "0"  [0-7_]+                          { return strings.TrimSpace(strings.Replace(string(c.text), "_", "", -1)), nil }
     / _? "addr(" ([0-9A-Fa-f][0-9A-Fa-f])+ ')' { return strings.TrimSpace(string(c.text)), nil }
     / _? '-'? [0-9]+                           { return strings.TrimSpace(string(c.text)), nil }
     )
