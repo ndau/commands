@@ -20,7 +20,7 @@ These steps only need to be performed once:
 1. Install [Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
 1. Install [Go](https://golang.org/doc/install)
 1. Install [Python3](https://www.python.org/downloads/)
-1. Restart your terminal if necessary to update `$PATH`.
+1. Restart your terminal if necessary to update `$PATH`
 1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
     ```sh
     python3 -m pip install remarshal --user
@@ -33,7 +33,7 @@ These steps only need to be performed once:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git $GOPATH/src/github.com/oneiro-ndev/commands
     ```
-1. Run `bin/setup.sh` from the repo root
+1. Run `./bin/setup.sh N` where `N` is the number of nodes you'd like to run
 
 ### Demo mode
 
@@ -41,13 +41,13 @@ These steps only need to be performed once:
 
 ### Running
 
-Use `./run.sh` from the `bin/` directory.
+Use `./bin/run.sh`.
 
 This will run all the tasks in the proper sequence and create a set of appropriately-named .pid and .log files, one for each task.  All tasks will run in the background.
 
 ### Shutting it down
 
-Use `./kill.sh`
+Use `./kill.sh`.
 
 This will shut down any running tasks in the reverse order from which they were run. If a task doesn't shut itself down nicely, it will be killed.
 
@@ -57,7 +57,7 @@ To run with fresh databases, run `./reset.sh` before your next `./run.sh`.
 
 ### Individual commands
 
-Both `run.sh` and `kill.sh` take a single argument, which is the name of the task you wish to run or kill. Valid task names are:
+Both `run.sh` and `kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
 
 * chaos_redis
 * chaos_noms
@@ -68,9 +68,16 @@ Both `run.sh` and `kill.sh` take a single argument, which is the name of the tas
 * ndau_node
 * ndau_tm
 
+You can also specify the node number for each.  For example, if you ran `setup.sh` with a node count greater than 1, then you can `./bin/run.sh chaos_redis 1` to run chaos redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
+
 ### Rebuild
 
-Use `./build.sh` from the `bin/` directory if you make changes to any of the tools and want to rebuild them before running again.
+Use `./bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
+
+### Test
+
+Use `./bin/test.sh` to run unit tests on the latest built tools.
+Use `./bin/test.sh -i` to run integration tests found in `/ndauapi/routes`.
 
 ## Other Tools
 
@@ -83,11 +90,11 @@ Normally we have cloned `chaos` and `ndau` into `~/go/src/github.com/oneiro-ndev
 Steps:
 
 1. Clone `metanode` next to `commands`
-1. Run `./linkdep.sh metanode` from anywhere
+1. Run `./bin/linkdep.sh metanode` from anywhere
 
-What this does is it creates symbolic links from the `commands` vendor directory for metanode back to your cloned copy of metanode.  You then can make changes from within your cloned directory and interact with git as usual.  When you want to test any changes you've made to metanode, you can run `./build.sh` and `./test.sh` as usual.
+What this does is it creates symbolic links from the `commands` vendor directory for metanode back to your cloned copy of metanode.  You then can make changes from within your cloned directory and interact with git as usual.  When you want to test any changes you've made to metanode, you can run `./bin/build.sh` and `./bin/test.sh` as usual.
 
-Any time you run a `dep ensure` from `commands`, you must run `./linkdep.sh metanode` again if you'd like to test more local changes to metanode that haven't yet been pushed and landed to the appropriate branch (usually master) on github.
+Any time you run a `dep ensure` from `commands`, you must run `./bin/linkdep.sh metanode` again if you'd like to test more local changes to metanode that haven't yet been pushed and landed to the appropriate branch (usually master) on github.
 
 #### Rationale
 

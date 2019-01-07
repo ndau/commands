@@ -8,17 +8,29 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
-# Start with fresh ndau/chaos and tendermint config files.
-echo SETUP: Ensuring fresh configs...
-rm -rf "$REDIS_CHAOS_DATA_DIR"
-rm -rf "$REDIS_NDAU_DATA_DIR"
-rm -rf "$NOMS_CHAOS_DATA_DIR"
-rm -rf "$NOMS_NDAU_DATA_DIR"
-rm -rf "$NODE_DATA_DIR"
-rm -rf "$TENDERMINT_CHAOS_DATA_DIR"
-rm -rf "$TENDERMINT_NDAU_DATA_DIR"
+# Process command line arguments.
+node_count="$1"
+if [ -z "$node_count" ]; then
+    echo "Usage: ./setup.sh node_count"
+    exit 1
+fi
+if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
+    echo Node count must be a positive integer
+    exit 1
+fi
+if [ "$node_count" -lt 1 ] || [ "$node_count" -gt "$MAX_NODE_COUNT" ]; then
+    echo Node count must be in [1, "$MAX_NODE_COUNT"]
+    exit 1
+fi
 
-# noms
+# Initialize global config for the localnet we're setting up.
+echo SETUP: Initializing a "$node_count"-node localnet...
+# Recreate the localnet dir which contains the root data dir.
+rm -rf "$LOCALNET_DIR"
+mkdir -p "$ROOT_DATA_DIR"
+echo "$node_count" > "$NODE_COUNT_FILE"
+
+# Get the correct version of noms source.
 mkdir -p "$ATTICLABS_DIR"
 cd "$ATTICLABS_DIR"
 if [ -d "noms" ]; then
@@ -39,7 +51,7 @@ else
     git clone "$NOMS_REPO"
 fi
 
-# tendermint
+# Get the correct version of tendermint source.
 echo SETUP: Getting dep...
 go get -u github.com/golang/dep/...
 mkdir -p "$TM_DIR"
@@ -63,6 +75,7 @@ patch -i "$COMMANDS_DIR"/deploy/tendermint/root.go.patch cmd/tendermint/commands
 echo SETUP: Ensuring dependencies for tendermint...
 "$GO_DIR"/bin/dep ensure
 
+# Get the ndev repos.
 update_repo() {
     repo="$1"
     cd "$NDEV_DIR"
@@ -83,14 +96,12 @@ update_repo() {
     fi
 }
 
-# ndev repos
 mkdir -p "$NDEV_DIR"
 update_repo commands
 update_repo chaos
 update_repo ndau
 update_repo chaos_genesis
 
-# utilities
 cd "$NDEV_DIR"/commands
 echo SETUP: Ensuring dependencies for commands...
 "$GO_DIR"/bin/dep ensure
