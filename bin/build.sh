@@ -45,7 +45,7 @@ build_ndau() {
     # build.  e.g. We use separate TMHOME's for each of chaos and ndau.
     VERSION=$(git describe --long --tags)
     echo "  VERSION=$VERSION"
-    VERSION_FILE="NDEV_SUBDIR"/ndau/pkg/version
+    VERSION_FILE="$NDEV_SUBDIR"/ndau/pkg/version
 
     cd "$COMMANDS_DIR"
     go build -ldflags "-X $VERSION_FILE.version=$VERSION" ./"$NDAU_CMD"
