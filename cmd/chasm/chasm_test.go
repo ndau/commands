@@ -42,10 +42,12 @@ func TestNumberFormats(t *testing.T) {
 			push 0xabcd
 			push 01777
 			push 0b1010101001010101
+			push 0b001_1101
+			push 0xbad_cab
 			push 127
 		}
 `
-	checkParse(t, "NumberFormats", code, "800001 22cdab 22ff03 2255aa 217f 88")
+	checkParse(t, "NumberFormats", code, "800001 22cdab 22ff03 2255aa 211d 23abdcba 217f 88")
 }
 
 func TestPushB(t *testing.T) {
