@@ -16,8 +16,7 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v0.10.3"
-branch = "kjq-submit"
+version = "~v0.11"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
