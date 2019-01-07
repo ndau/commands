@@ -4,9 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/signal"
 	"path/filepath"
-	"syscall"
 
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/config"
@@ -76,27 +74,6 @@ func check(err error) {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
-}
-
-type siglistener struct {
-	sigchan chan os.Signal
-}
-
-// Support closing the app with Ctrl+C when running in a shell.
-func (s *siglistener) watchSignals() {
-	go func() {
-		if s.sigchan == nil {
-			s.sigchan = make(chan os.Signal, 1)
-		}
-		signal.Notify(s.sigchan, syscall.SIGTERM, syscall.SIGINT)
-		for {
-			sig := <-s.sigchan
-			switch sig {
-			case syscall.SIGTERM, syscall.SIGINT:
-				os.Exit(0)
-			}
-		}
-	}()
 }
 
 func main() {
@@ -180,12 +157,11 @@ func main() {
 	} else {
 		entry = entry.WithError(err)
 	}
-	sl := &siglistener{}
-	sl.watchSignals()
 	entry.Info("started ABCI socket server")
-	// we want to keep this service running indefinitely
-	// if there were more commands to run, we'd probably want to split this into a separate
-	// goroutine and deal with closing options, but for now, it's probably fine to actually
-	// just let the main routine hang here
+
+	// This gives us a mechanism to kill off the server with an OS signal (for example, Ctrl-C)
+	app.App.WatchSignals()
+
+	// This runs forever until a signal happens
 	<-server.Quit()
 }

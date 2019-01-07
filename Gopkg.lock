@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:2ab85e1c0578804ec09602b075bb7637f7cfb6892d827d39707b58f49eec613a"
+  digest = "1:81f300bb8c779b70cdae0285c220ceb21d09b282eb7d1a07a28078dadd305f1a"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "3991042237b45cf58c9d5f34295942d5533c28c6"
-  version = "v1.16.11"
+  revision = "fb5f514796fc4fdc6afdcf5a675a5b2baa714b9f"
+  version = "v1.16.14"
 
 [[projects]]
   branch = "master"
@@ -468,7 +468,7 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:a30ee7aa47ebe2a397615d8dcb262d73eae856db4659f356e574e6ba38e3d943"
+  digest = "1:60ec8d38f0eaaf2f89541dd8920fcd493108f6c196890a8e10a116355ccf964b"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -478,8 +478,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "cfb2c2d83e0da95082f40c20f70f1cda84389259"
-  version = "v0.12.0"
+  revision = "d6d073c8c62e403099cd549546a1753fe8442408"
+  version = "v0.12.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -498,7 +498,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:5315071b3a50ce33541b84cede10f3a109ad5861ddd2415299e2aff43891491f"
+  digest = "1:d580a149703ec1517896a42b44b98ccc21addbb5c2c356bbd6eeeaa4a597109c"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -518,11 +518,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "b3f6a57af9445ffed7f695ec2d9394a7dc22abd9"
-  version = "v0.10.3"
+  revision = "f217bfb8fb2d9b46cdd312c0b274d99871ae21ca"
+  version = "v0.11.0"
 
 [[projects]]
-  digest = "1:569cceb9b3d2d7a3b275523db0f560cb90f02cceca615a0f90c9630be16bc046"
+  digest = "1:f57144206d7437c9513d9d7b0d7d7eb8b7f94a41172d74777169b929e20cd25f"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -544,8 +544,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "4ba7382461fb7618aeb4bd7ac47c929d7f8ef6fe"
-  version = "v0.8.0"
+  revision = "595266284a2ce6684900fe7f9ec14d0d3227c472"
+  version = "v0.8.1"
 
 [[projects]]
   branch = "master"
@@ -629,7 +629,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4c3c11c0cd3bb16e36fd94ed778a3136972459baa5e248989cbf8ed3e6b5a55e"
+  digest = "1:43465e4460e21f6462de4dbfdd864a2a48b743b25175d436932fb3e09765c937"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -637,11 +637,11 @@
     "model",
   ]
   pruneopts = ""
-  revision = "67670fe90761d7ff18ec1d640135e53b9198328f"
+  revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
 
 [[projects]]
   branch = "master"
-  digest = "1:f018264df94f8206c400c90c114ce3e33ecfd8ab643939273c03d67c19a28db4"
+  digest = "1:b9a435d988632d00a70882d2754f2a59468d4be56fd62022ab2ca4640fc70c66"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -650,7 +650,7 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "14fa7590c24d4615893b68e22fce3b3489689f65"
+  revision = "b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1"
 
 [[projects]]
   digest = "1:15bcdc717654ef21128e8af3a63eec39a6d08a830e297f93d65163f87c8eb523"
@@ -692,23 +692,23 @@
   revision = "f19e41f79f8f006116f682c1af454591bc278ad4"
 
 [[projects]]
-  digest = "1:9d57e200ef5ccc4217fe0a34287308bac652435e7c6513f6263e0493d2245c56"
+  digest = "1:9a3c631555e0351fdc4e696577bb63afd90c399d782a8462dba9d100d7021db3"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = ""
-  revision = "bcd833dfe83d3cebad139e4a29ed79cb2318bf95"
-  version = "v1.2.0"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
 
 [[projects]]
-  digest = "1:c587772fb8ad29ad4db67575dad25ba17a51f072ff18a22b4f0257a4d9c24f75"
+  digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = ""
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
-  version = "v1.2.2"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -835,7 +835,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6980cd6b0dac532550cafc9c8f1cd943576fb53f6aec1ba17f853170fdb9ab82"
+  digest = "1:59b49c47c11a48f1054529207f65907c014ecf5f9a7c0d9c0f1616dec7b062ed"
   name = "golang.org/x/crypto"
   packages = [
     "chacha20poly1305",
@@ -853,7 +853,7 @@
     "ssh/terminal",
   ]
   pruneopts = ""
-  revision = "8d7daa0c54b357f3071e11eaef7efc4e19a417e2"
+  revision = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
 
 [[projects]]
   digest = "1:dfab7264a3c6473112bc0cc6fdf46f991b5fa2e3bf0107cad156271076a1451d"
@@ -873,7 +873,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:528fd80cf9b601eec370e035bfa4b32dc98bb4dbf64de45686387249dd82a7cd"
+  digest = "1:04494e21fbf5896db7542267f6a66013a7f289a2d202929bf9ec58de0cc783c2"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -881,7 +881,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "82a175fd1598e8a172e58ebdf5ed262bb29129e5"
+  revision = "cb59ee3660675d463e86971646692ea3e470021c"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -908,11 +908,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7acc3c3e2c2ee4a1c7ceb05e1cd2ab51577a5c900f1a91fc074cd80b05028241"
+  digest = "1:3c23c0076e7986e9992daf381da4170d2dfa62c1db27fb4386b8044a50984e55"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "79186431cf2917562ba2e632326924b5594ce114"
+  revision = "e063def13b29c433b3c57fc99257c18c1f9399ce"
 
 [[projects]]
   branch = "master"
@@ -996,6 +996,7 @@
     "github.com/oneiro-ndev/ndau/pkg/ndau/backing",
     "github.com/oneiro-ndev/ndau/pkg/ndau/config",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg",
+    "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
     "github.com/oneiro-ndev/ndau/pkg/tool",
     "github.com/oneiro-ndev/ndau/pkg/tool.config",
