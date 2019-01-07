@@ -28,19 +28,24 @@ export TM_RPC_PORT=26670
 
 # Go source path.
 GO_DIR=$(go env GOPATH)
+if [[ "$GO_DIR" == *":"* ]]; then
+    echo Multiple Go paths not supported
+    exit 1
+fi
 export GO_DIR
 
 # Repository locations.
-export ATTICLABS_DIR=$GO_DIR/src/github.com/attic-labs
-export NDEV_DIR=$GO_DIR/src/github.com/oneiro-ndev
-export TM_DIR=$GO_DIR/src/github.com/tendermint
+export ATTICLABS_DIR="$GO_DIR"/src/github.com/attic-labs
+export NDEV_SUBDIR=github.com/oneiro-ndev
+export NDEV_DIR="$GO_DIR/src/$NDEV_SUBDIR"
+export TM_DIR="$GO_DIR"/src/github.com/tendermint
 
 # Build locations.
-export CHAOS_DIR=$NDEV_DIR/chaos
-export COMMANDS_DIR=$NDEV_DIR/commands
-export NDAU_DIR=$NDEV_DIR/ndau
-export NOMS_DIR=$ATTICLABS_DIR/noms
-export TENDERMINT_DIR=$TM_DIR/tendermint
+export CHAOS_DIR="$NDEV_DIR"/chaos
+export COMMANDS_DIR="$NDEV_DIR"/commands
+export NDAU_DIR="$NDEV_DIR"/ndau
+export NOMS_DIR="$ATTICLABS_DIR"/noms
+export TENDERMINT_DIR="$TM_DIR"/tendermint
 
 # Localnet directories common to all nodes.
 export LOCALNET_DIR=~/.localnet
@@ -76,3 +81,95 @@ fi
 
 # File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
 export NEEDS_UPDATE_FLAG_FILE="$ROOT_DATA_DIR"/needs_update
+
+# Check if the given repo source dir exists.
+check_source_dir() {
+    REPO="$1"
+
+    SOURCE_DIR="$NDEV_DIR/$REPO"
+    if [ ! -d "$SOURCE_DIR" ]; then
+        echo Must clone "$REPO" into "$SOURCE_DIR" first
+        exit 1
+    fi
+}
+
+# Move away the commands vendor subdirectory for the given repo.
+backup_vendor_subdir() {
+    REPO="$1"
+
+    VENDOR_DIR="$COMMANDS_DIR/vendor/$NDEV_SUBDIR/$REPO"
+    if [ -d "$VENDOR_DIR" ] && [ ! -L "$VENDOR_DIR" ]; then
+        echo moving away "$REPO" subdirectory in vendor directory
+        rm -rf "$VENDOR_DIR-backup"
+        mv "$VENDOR_DIR" "$VENDOR_DIR-backup"
+    fi
+}
+
+# Put back the commands vendor subdirectory for the given repo.
+restore_vendor_subdir() {
+    REPO="$1"
+
+    VENDOR_DIR="$COMMANDS_DIR/vendor/$NDEV_SUBDIR/$REPO"
+    if [ -d "$VENDOR_DIR-backup" ]; then
+        echo moving back "$REPO" subdirectory in vendor directory
+        rm -rf "$VENDOR_DIR"
+        mv "$VENDOR_DIR-backup" "$VENDOR_DIR"
+    fi
+}
+
+# Make the commands vendor subdirectory for a given repo point to the local copy of that repo.
+link_vendor_for_build() {
+    REPO="$1"
+
+    # Repo source dir must exist in order to link to it.
+    check_source_dir "$REPO"
+
+    # Move the vendor directory away before linking from it.
+    backup_vendor_subdir "$REPO"
+
+    echo linking vendor directory to "$REPO"
+    VENDOR_DIR="$COMMANDS_DIR/vendor/$NDEV_SUBDIR/$REPO"
+    rm -rf "$VENDOR_DIR"
+    ln -s "$NDEV_DIR/$REPO" "$VENDOR_DIR"
+}
+
+# Undo what link_vendor_for_build() did for a given repo.
+unlink_vendor_for_build() {
+    REPO="$1"
+
+    restore_vendor_subdir "$REPO"
+}
+
+# Make the vendor directory for a given repo point to the commands vendor directory.
+link_vendor_for_test() {
+    REPO="$1"
+
+    # Repo source dir must exist in order to link from it.
+    check_source_dir "$REPO"
+
+    unlink_vendor_for_test "$REPO"
+
+    # Allow go test to find all the dependencies in the commands vendor directory.
+    echo linking vendor directory in "$REPO"
+    SOURCE_VENDOR="$NDEV_DIR/$REPO/vendor"
+    rm -rf "$SOURCE_VENDOR"
+    ln -s "$COMMANDS_DIR"/vendor "$SOURCE_VENDOR"
+
+    # Avoid circular references when testing the given repo.
+    backup_vendor_subdir "$REPO"
+}
+
+# Undo what link_vendor_for_test() did for a given repo.
+unlink_vendor_for_test() {
+    REPO="$1"
+
+    restore_vendor_subdir "$REPO"
+
+    SOURCE_VENDOR="$NDEV_DIR/$REPO/vendor"
+    # Ensure there is no vendor file or symbolic link here.
+    # Also, in case someone has the old glide vendor directory lying around.
+    if [ -e "$SOURCE_VENDOR" ]; then
+        echo removing vendor from "$REPO"
+        rm -rf "$SOURCE_VENDOR"
+    fi
+}

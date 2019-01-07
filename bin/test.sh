@@ -20,49 +20,9 @@ initialize() {
     done
 }
 
-link_vendor_in_cwd() {
-    REPO="$1"
-
-    unlink_vendor_in_cwd "$REPO"
-
-    # Allow go test to find all the dependencies in the commands vendor directory.
-    echo linking vendor directory in "$REPO"
-    ln -s "$COMMANDS_DIR"/vendor vendor
-
-    # Avoid circular references when testing the given repo.
-    DIR="$COMMANDS_DIR"/vendor/github.com/oneiro-ndev/"$REPO"
-    if [ -e "$DIR" ]; then
-        echo moving away "$REPO" subdirectory in vendor directory
-        rm -rf "$DIR-backup"
-        mv "$DIR" "$DIR-backup"
-    fi
-}
-
-unlink_vendor_in_cwd() {
-    REPO="$1"
-
-    DIR="$COMMANDS_DIR"/vendor/github.com/oneiro-ndev/"$REPO"
-    if [ -e "$DIR-backup" ]; then
-        echo moving back "$REPO" subdirectory in vendor directory
-        rm -rf "$DIR"
-        mv "$DIR-backup" "$DIR"
-    fi
-
-    if [ -e vendor ]; then
-        echo removing vendor from "$REPO"
-        if [ -d vendor ]; then
-            # In case someone has the old glide vendor directory lying around.
-            rm -rf vendor
-        else
-            # Ensure there is no vendor file or symbolic link here.
-            rm -f vendor
-        fi
-    fi
-}
-
 test_chaos() {
     cd "$CHAOS_DIR"
-    link_vendor_in_cwd chaos
+    link_vendor_for_test chaos
 
     if [ "$RUN_INTEGRATION" == 0 ]; then
         echo
@@ -71,12 +31,12 @@ test_chaos() {
         echo
     fi
 
-    unlink_vendor_in_cwd chaos
+    unlink_vendor_for_test chaos
 }
 
 test_ndau() {
     cd "$NDAU_DIR"
-    link_vendor_in_cwd ndau
+    link_vendor_for_test ndau
 
     if [ "$RUN_INTEGRATION" == 0 ]; then
         echo
@@ -107,7 +67,7 @@ test_ndau() {
         "$CMDBIN_DIR"/kill.sh
     fi
 
-    unlink_vendor_in_cwd ndau
+    unlink_vendor_for_test ndau
 }
 
 test_all() {

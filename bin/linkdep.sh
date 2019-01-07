@@ -1,55 +1,63 @@
 #!/bin/bash
 
 # Create symlinks from the commands vendor directories to the given dependency repo.
-# Useful if you want to make changes to a dependency project and test locally.
-# Run this after doing a `dep ensure` from the commands repo.
-#
-# Usage example:
-#   ./linkdep.sh metanode
-#
-# Assumes you've already cloned the dependency repo next to chaos and ndau repos.
-# This script can be run from anywhere.
-#
-# Use `dep ensure` again to undo what this script did to the vendor subdirectories.
+# Useful if you want to make changes to a dependency project and build or test locally.
+# NOTE: Running `dep ensure` from the commands repo may undo any links previously made.
 
-DEP="$1"
-if [ -z "$DEP" ]; then
-    echo Usage examples:
-    echo "  ./linkdep.sh metanode"
-    echo "  ./linkdep.sh chaos"
-    echo "  ./linkdep.sh ndau"
-    echo "  ./linkdep.sh all"
-    exit 1
-fi
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
+# shellcheck disable=SC1090
+source "$CMDBIN_DIR"/env.sh
 
-GO_DIR=$(go env GOPATH)
-if [[ "$GO_DIR" == *":"* ]]; then
-    echo Multiple Go paths not supported
-    exit 1
-fi
+# Repo name.
+REPO=""
 
-NDEV_SUBDIR=github.com/oneiro-ndev
-SOURCE_DIR="$GO_DIR/src/$NDEV_SUBDIR"
+# Linking or unlinking.
+IS_LINKING=1
 
-link_dep() {
-    REPO="$1"
+# For building or testing.
+FOR_BUILDING=1
 
-    DEP_VENDOR_DIR="$SOURCE_DIR/commands/vendor/$NDEV_SUBDIR/$REPO"
-    DEP_SOURCE_DIR="$SOURCE_DIR/$REPO"
-
-    if [ ! -d "$DEP_SOURCE_DIR" ]; then
-        echo Must clone "$REPO" into "$DEP_SOURCE_DIR" first
-        exit 1
+ARGS=("$@")
+for arg in "${ARGS[@]}"; do
+    # It's possible to specify conflicting arguments.  The later one "wins".
+    if [ "$arg" = "-l" ] || [ "$arg" = "--link" ]; then
+        IS_LINKING=1
+    elif [ "$arg" = "-u" ] || [ "$arg" = "--unlink" ]; then
+        IS_LINKING=0
+    elif [ "$arg" = "-b" ] || [ "$arg" = "--build" ]; then
+        FOR_BUILDING=1
+    elif [ "$arg" = "-t" ] || [ "$arg" = "--test" ]; then
+        FOR_BUILDING=0
+    else
+        REPO="$arg"
     fi
+done
 
-    rm -rf "$DEP_VENDOR_DIR"
-    ln -s "$DEP_SOURCE_DIR" "$DEP_VENDOR_DIR"
-}
-
-if [ "$DEP" == "all" ]; then
-    link_dep metanode
-    link_dep chaos
-    link_dep ndau
-else
-    link_dep "$DEP"
+if [ -z "$REPO" ]; then
+    echo linkdep: Link or unlink vendor directories of a repo, for build or test purposes
+    echo Usage:
+    echo "  ./linkdep.sh {metanode|chaos|ndau|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
+    exit 1
 fi
+
+if [ "$REPO" = "all" ]; then
+    repos=(metanode chaos ndau)
+else
+    repos=("$REPO")
+fi
+
+for repo in "${repos[@]}"; do
+    if [ "$FOR_BUILDING" != 0 ]; then
+        if [ "$IS_LINKING" != 0 ]; then
+            link_vendor_for_build "$repo"
+        else
+            unlink_vendor_for_build "$repo"
+        fi
+    else
+        if [ "$IS_LINKING" != 0 ]; then
+            link_vendor_for_test "$repo"
+        else
+            unlink_vendor_for_test "$repo"
+        fi
+    fi
+done
