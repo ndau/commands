@@ -19,17 +19,23 @@ wait_port() {
 
 #---------- redis for chaos -------------
 chaos_redis() {
-    echo running redis for chaos
-    mkdir -p "$REDIS_CHAOS_DATA_DIR"
-    redis-server --dir "$REDIS_CHAOS_DATA_DIR" \
-                 --port "$REDIS_CHAOS_PORT" \
+    node_num="$1"
+    echo running redis for "chaos-$node_num"
+
+    data_dir="$REDIS_CHAOS_DATA_DIR-$node_num"
+    redis_port=$(expr "$REDIS_PORT" + 2 \* "$node_num")
+    output_name="$CMDBIN_DIR/chaos_redis-$node_num"
+
+    mkdir -p "$data_dir"
+    redis-server --dir "$data_dir" \
+                 --port "$redis_port" \
                  --save 60 1 \
-                 >"$CMDBIN_DIR"/chaos_redis.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/chaos_redis.pid
-    wait_port "$REDIS_CHAOS_PORT"
+                 >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$redis_port"
 
     # Redis isn't really ready when it's port is open, wait for a ping to work.
-    until [[ $(redis-cli -p "$REDIS_CHAOS_PORT" ping) == "PONG" ]]
+    until [[ $(redis-cli -p "$redis_port" ping) == "PONG" ]]
     do
         :
     done
@@ -37,144 +43,210 @@ chaos_redis() {
 
 #---------- noms for chaos -------------
 chaos_noms() {
-    echo running noms for chaos
+    node_num="$1"
+    echo running noms for "chaos-$node_num"
+
+    data_dir="$NOMS_CHAOS_DATA_DIR-$node_num"
+    noms_port=$(expr "$NOMS_PORT" + 2 \* "$node_num")
+    output_name="$CMDBIN_DIR/chaos_noms-$node_num"
+
     cd "$NOMS_DIR" || exit 1
-    mkdir -p "$NOMS_CHAOS_DATA_DIR"
-    ./noms serve --port="$NOMS_CHAOS_PORT" "$NOMS_CHAOS_DATA_DIR" >"$CMDBIN_DIR"/chaos_noms.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/chaos_noms.pid
-    wait_port "$NOMS_CHAOS_PORT"
+
+    mkdir -p "$data_dir"
+    ./noms serve --port="$noms_port" "$data_dir" >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$noms_port"
 }
 
 #---------- run chaosnode ----------
 chaos_node() {
+    node_num="$1"
+    echo running node for "chaos-$node_num"
+
+    ndau_home="$NODE_DATA_DIR-$node_num"
+    port_offset=$(expr 2 \* "$node_num")
+    noms_port=$(expr "$NOMS_PORT" + "$port_offset")
+    redis_port=$(expr "$REDIS_PORT" + "$port_offset")
+    node_port=$(expr "$NODE_PORT" + "$port_offset")
+    genesis_config="$TENDERMINT_CHAOS_DATA_DIR-$node_num/config/genesis"
+    output_name="$CMDBIN_DIR/chaos_node-$node_num"
+
     cd "$COMMANDS_DIR" || exit 1
 
     #---------- get app hash from chaosnode ----------
-    echo getting chaosnode app hash
-    CHAOS_HASH=$(./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" -echo-hash 2>/dev/null)
+    echo "  getting chaosnode app hash"
+    chaos_hash=$(NDAUHOME="$ndau_home" \
+        ./chaosnode -spec http://localhost:"$noms_port" -echo-hash 2>/dev/null)
     # jq doesn't support an inplace operation
-    jq ".app_hash= if .app_hash == \"\" then \"$CHAOS_HASH\" else .app_hash end" \
-        "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json \
-        > "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json &&
-        mv "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.new.json "$TENDERMINT_CHAOS_DATA_DIR"/config/genesis.json
+    jq ".app_hash= if .app_hash == \"\" then \"$chaos_hash\" else .app_hash end" \
+        "$genesis_config.json" > "$genesis_config.new.json" && \
+        mv "$genesis_config.new.json" "$genesis_config.json"
 
-    echo running chaosnode
+    echo "  launching chaosnode"
     HONEYCOMB_DATASET=chaos-dev \
-    ./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" \
-                -index localhost:"$REDIS_CHAOS_PORT" \
-                >"$CMDBIN_DIR"/chaos_node.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/chaos_node.pid
-    wait_port "$NODE_CHAOS_PORT"
+    NDAUHOME="$ndau_home" \
+    ./chaosnode -spec http://localhost:"$noms_port" \
+                -index localhost:"$redis_port" \
+                -addr 0.0.0.0:"$node_port" \
+                >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$node_port"
 }
 
 #---------- run chaos tendermint ----------
 chaos_tm() {
-    echo running chaos tendermint
+    node_num="$1"
+    echo running tendermint for "chaos-$node_num"
+
+    data_dir="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
+    port_offset=$(expr 2 \* "$node_num")
+    node_port=$(expr "$NODE_PORT" + "$port_offset")
+    p2p_port=$(expr "$TM_P2P_PORT" + "$port_offset")
+    rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset")
+    output_name="$CMDBIN_DIR/chaos_tm-$node_num"
+
     cd "$TENDERMINT_DIR" || exit 1
+
     HONEYCOMB_DATASET=chaos-tm-dev \
-    ./tendermint node --home "$TENDERMINT_CHAOS_DATA_DIR" \
-                      --proxy_app tcp://localhost:"$NODE_CHAOS_PORT" \
-                      --p2p.laddr tcp://0.0.0.0:"$TM_CHAOS_P2P_PORT" \
-                      --rpc.laddr tcp://0.0.0.0:"$TM_CHAOS_RPC_PORT" \
-                      >"$CMDBIN_DIR"/chaos_tm.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/chaos_tm.pid
-    wait_port "$TM_CHAOS_RPC_PORT"
-    wait_port "$TM_CHAOS_P2P_PORT"
+    ./tendermint node --home "$data_dir" \
+                      --proxy_app tcp://localhost:"$node_port" \
+                      --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
+                      --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
+                      >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$rpc_port"
+    wait_port "$p2p_port"
 }
 
 #---------- redis for ndau -------------
 ndau_redis() {
-    echo running redis for ndau
-    mkdir -p "$REDIS_NDAU_DATA_DIR"
-    redis-server --dir "$REDIS_NDAU_DATA_DIR" \
-                 --port "$REDIS_NDAU_PORT" \
+    node_num="$1"
+    echo running redis for "ndau-$node_num"
+
+    data_dir="$REDIS_NDAU_DATA_DIR-$node_num"
+    redis_port=$(expr "$REDIS_PORT" + 2 \* "$node_num" + 1)
+    output_name="$CMDBIN_DIR/ndau_redis-$node_num"
+
+    mkdir -p "$data_dir"
+    redis-server --dir "$data_dir" \
+                 --port "$redis_port" \
                  --save 60 1 \
-                 >"$CMDBIN_DIR"/ndau_redis.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/ndau_redis.pid
-    wait_port "$REDIS_NDAU_PORT"
+                 >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$redis_port"
 
     # Redis isn't really ready when it's port is open, wait for a ping to work.
-    until [[ $(redis-cli -p "$REDIS_NDAU_PORT" ping) == "PONG" ]]
+    until [[ $(redis-cli -p "$redis_port" ping) == "PONG" ]]
     do
         :
     done
 }
 
+#---------- noms for ndau -------------
 ndau_noms() {
-    #---------- noms for ndau -------------
-    echo running noms for ndau
+    node_num="$1"
+    echo running noms for "ndau-$node_num"
+
+    data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
+    noms_port=$(expr "$NOMS_PORT" + 2 \* "$node_num" + 1)
+    output_name="$CMDBIN_DIR/ndau_noms-$node_num"
+
     cd "$NOMS_DIR" || exit 1
-    mkdir -p "$NOMS_NDAU_DATA_DIR"
-    ./noms serve --port="$NOMS_NDAU_PORT" "$NOMS_NDAU_DATA_DIR" >"$CMDBIN_DIR"/ndau_noms.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/ndau_noms.pid
-    wait_port "$NOMS_NDAU_PORT"
+
+    mkdir -p "$data_dir"
+    ./noms serve --port="$noms_port" "$data_dir" >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$noms_port"
 }
 
+#---------- run ndaunode -------------
 ndau_node() {
-    #---------- run ndaunode -------------
+    node_num="$1"
+    echo running node for "ndau-$node_num"
+
+    ndau_home="$NODE_DATA_DIR-$node_num"
+    port_offset=$(expr 2 \* "$node_num" + 1)
+    noms_port=$(expr "$NOMS_PORT" + "$port_offset")
+    redis_port=$(expr "$REDIS_PORT" + "$port_offset")
+    node_port=$(expr "$NODE_PORT" + "$port_offset")
+    chaos_rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset" - 1)
+    genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
+    output_name="$CMDBIN_DIR/ndau_node-$node_num"
+
     cd "$COMMANDS_DIR" || exit 1
 
     # Import genesis data if we haven't already.
-    if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
+    if [ -e "$NEEDS_UPDATE_FLAG_FILE-$node_num" ]; then
         # We should only have one of each of these files, but these commands get the latest ones.
         # shellcheck disable=SC2012
-        GENESIS_TOML=$(ls -t "$NODE_DATA_DIR"/genesis.*.toml | head -n 1)
+        GENESIS_TOML=$(ls -t "$ROOT_DATA_DIR"/genesis.*.toml | head -n 1)
         # shellcheck disable=SC2012
-        ASSC_TOML=$(ls -t "$NODE_DATA_DIR"/assc.*.toml | head -n 1)
+        ASSC_TOML=$(ls -t "$ROOT_DATA_DIR"/assc.*.toml | head -n 1)
 
-        echo updating ndau config using "$GENESIS_TOML"
-        ./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" \
-                   -index localhost:"$REDIS_NDAU_PORT" \
+        echo "  updating ndau config using $GENESIS_TOML"
+        NDAUHOME="$ndau_home" \
+        ./ndaunode -spec http://localhost:"$noms_port" \
+                   -index localhost:"$redis_port" \
                    -update-conf-from "$GENESIS_TOML"
 
         # The config toml file has now been generated, edit it.
         sed -i '' \
-        -e "s@ChaosAddress = \".*\"@ChaosAddress = \"http://localhost:$TM_CHAOS_RPC_PORT\"@" \
-        "$NODE_DATA_DIR"/ndau/config.toml
+            -e "s@ChaosAddress = \".*\"@ChaosAddress = \"http://localhost:$chaos_rpc_port\"@" \
+            "$ndau_home/ndau/config.toml"
 
-        echo updating ndau chain using "$ASSC_TOML"
-        ./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" \
-                   -index localhost:"$REDIS_NDAU_PORT" \
+        echo "  updating ndau chain using $ASSC_TOML"
+        NDAUHOME="$ndau_home" \
+        ./ndaunode -spec http://localhost:"$noms_port" \
+                   -index localhost:"$redis_port" \
                    -update-chain-from "$ASSC_TOML"
 
         # We've updated, remove the flag file so we don't update again on the next run.
-        rm "$NEEDS_UPDATE_FLAG_FILE"
+        rm "$NEEDS_UPDATE_FLAG_FILE-$node_num"
     fi
 
     #---------- get app hash from ndaunode ----------
-    echo getting ndaunode app hash
-    NDAU_HASH=$(./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" -echo-hash 2>/dev/null)
+    echo "  getting ndaunode app hash"
+    ndau_hash=$(NDAUHOME="$ndau_home" \
+        ./ndaunode -spec http://localhost:"$noms_port" -echo-hash 2>/dev/null)
     # jq doesn't support an inplace operation
-    jq ".app_hash= if .app_hash == \"\" then \"$NDAU_HASH\" else .app_hash end" \
-        "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json \
-        > "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.new.json &&
-        mv "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.new.json "$TENDERMINT_NDAU_DATA_DIR"/config/genesis.json
+    jq ".app_hash= if .app_hash == \"\" then \"$ndau_hash\" else .app_hash end" \
+        "$genesis_config.json" > "$genesis_config.new.json" && \
+        mv "$genesis_config.new.json" "$genesis_config.json"
 
-    # now we can run ndaunode
-    echo running ndaunode
+    echo "  launching ndaunode"
     HONEYCOMB_DATASET=ndau-dev \
-    ./ndaunode -spec http://localhost:"$NOMS_NDAU_PORT" \
-               -index localhost:"$REDIS_NDAU_PORT" \
-               -addr 0.0.0.0:"$NODE_NDAU_PORT" \
-               >"$CMDBIN_DIR"/ndau_node.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/ndau_node.pid
-    wait_port "$NODE_NDAU_PORT"
+    NDAUHOME="$ndau_home" \
+    ./ndaunode -spec http://localhost:"$noms_port" \
+               -index localhost:"$redis_port" \
+               -addr 0.0.0.0:"$node_port" \
+               >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$node_port"
 }
 
+#---------- run ndau tendermint ----------
 ndau_tm() {
-    #---------- run ndau tendermint ----------
-    echo running ndau tendermint
+    node_num="$1"
+    echo running tendermint for "ndau-$node_num"
+
+    data_dir="$TENDERMINT_NDAU_DATA_DIR-$node_num"
+    port_offset=$(expr 2 \* "$node_num" + 1)
+    node_port=$(expr "$NODE_PORT" + "$port_offset")
+    p2p_port=$(expr "$TM_P2P_PORT" + "$port_offset")
+    rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset")
+    output_name="$CMDBIN_DIR/ndau_tm-$node_num"
 
     cd "$TENDERMINT_DIR" || exit 1
+
     HONEYCOMB_DATASET=ndau-tm-dev \
-    ./tendermint node --home "$TENDERMINT_NDAU_DATA_DIR" \
-                      --proxy_app tcp://localhost:"$NODE_NDAU_PORT" \
-                      --p2p.laddr tcp://0.0.0.0:"$TM_NDAU_P2P_PORT" \
-                      --rpc.laddr tcp://0.0.0.0:"$TM_NDAU_RPC_PORT" \
-                      >"$CMDBIN_DIR"/ndau_tm.log 2>&1 &
-    echo $! >"$CMDBIN_DIR"/ndau_tm.pid
-    wait_port "$TM_NDAU_RPC_PORT"
-    wait_port "$TM_NDAU_P2P_PORT"
+    ./tendermint node --home "$data_dir" \
+                      --proxy_app tcp://localhost:"$node_port" \
+                      --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
+                      --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
+                      >"$output_name.log" 2>&1 &
+    echo $! >"$output_name.pid"
+    wait_port "$rpc_port"
+    wait_port "$p2p_port"
 }
 
 if [ -z "$1" ]; then
@@ -183,20 +255,29 @@ if [ -z "$1" ]; then
     # Kill everything first.  It's too easy to forget the ./kill.sh between test runs.
     "$CMDBIN_DIR"/kill.sh
 
-    chaos_redis
-    chaos_noms
-    chaos_node
-    chaos_tm
-    ndau_redis
-    ndau_noms
-    ndau_node
-    ndau_tm
-else
-    initialize
-    for cmd in "$@"; do
-        echo running "$cmd"
-        "$cmd"
+    for node_num in $(seq 0 "$HIGH_NODE_NUM");
+    do
+        chaos_redis "$node_num"
+        chaos_noms "$node_num"
+        chaos_node "$node_num"
+        chaos_tm "$node_num"
+        ndau_redis "$node_num"
+        ndau_noms "$node_num"
+        ndau_node "$node_num"
+        ndau_tm "$node_num"
     done
+else
+    # We support running a single process for a given node.
+    cmd="$1"
+    node_num="$2"
+
+    # Default to the first node in a single-node localnet.
+    if [ -z "$node_num" ]; then
+        node_num=0
+    fi
+
+    initialize
+    "$cmd" "$node_num"
 fi
 
 echo "done."

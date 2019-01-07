@@ -1,5 +1,11 @@
 #!/bin/bash
 
+initialize() {
+    CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
+    # shellcheck disable=SC1090
+    source "$CMDBIN_DIR"/env.sh
+}
+
 export WHT="\\33[22;37m"
 export TEAL="\\33[22;36m"
 export BLK="\\33[22;30m"
@@ -47,15 +53,13 @@ status_one() {
             chgcol=$YEL
             msg=$(printf "%2d files changed" "$changed")
         fi
-        printf "%15s: $brcol %16s $KILLCOLOR $chgcol(%s)$KILLCOLOR\\n" "$1" "$branch" "$msg"
+        printf "%17s: $brcol %16s $KILLCOLOR $chgcol(%s)$KILLCOLOR\\n" "$1" "$branch" "$msg"
     else
-        printf "%15s: %18s $RED(%16s)$KILLCOLOR\\n" "$1" " " "not present"
+        printf "%17s: %18s $RED(%16s)$KILLCOLOR\\n" "$1" " " "not present"
     fi
 }
 
-CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
-# shellcheck disable=SC1090
-source "$CMDBIN_DIR"/env.sh
-for f in {automation,chaincode,chaos,chaos_genesis,commands,metanode,ndau,ndaumath,noms}; do
+initialize
+for f in {automation,chaincode,chaos,chaos_genesis,commands,integration-tests,metanode,ndau,ndaumath}; do
     status_one "$f"
 done

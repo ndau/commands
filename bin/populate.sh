@@ -5,35 +5,37 @@ initialize() {
     # shellcheck disable=SC1090
     source "$CMDBIN_DIR"/env.sh
 
-    ND=$COMMANDS_DIR/ndau
+    # We use the home directory of the 0'th node, even in a multi-node localnet.
+    ndau_home="$NODE_DATA_DIR-0"
+    ND="$COMMANDS_DIR"/ndau
 }
 
 createaccount() {
     name=$1
-    "$ND" account new "$name"
+    NDAUHOME="$ndau_home" "$ND" account new "$name"
 }
 
 claimaccount() {
     name=$1
-    "$ND" account claim "$name"
+    NDAUHOME="$ndau_home" "$ND" account claim "$name"
 }
 
 rfeTo() {
     name=$1
     amt=$2
-    "$ND" -v rfe "$amt" "$name"
+    NDAUHOME="$ndau_home" "$ND" -v rfe "$amt" "$name"
 }
 
 transfer() {
     from=$1
     to=$2
     amt=$3
-    "$ND" transfer "$amt" "$from" "$to"
+    NDAUHOME="$ndau_home" "$ND" transfer "$amt" "$from" "$to"
 }
 
 query() {
     name=$1
-    "$ND" account query "$name"
+    NDAUHOME="$ndau_home" "$ND" account query "$name"
 }
 
 create() {
