@@ -12,24 +12,9 @@ initialize() {
 # Ensure we have no vendor links for tests active, as they will fail the build.
 ensure_no_test_link() {
     REPO="$1"
-    # First part of the conditional:
-    #   If there's something in the commands vendor directory, it means it's either linked to the
-    #   source directory for building, or it's a real directory from being `dep ensure`d.  We can
-    #   leave things alone in either of those cases and skip the if block.  Both are valid ways
-    #   to build.
-    #
-    # Second part of the conditional:
-    #   As a backup, we also look for the presence of vendor in the source repo directory, which
-    #   indicates a link back to the commands vendor directory.  We could have used -L, but there
-    #   shouldn't be anything named vendor in that directory when building, so we use -e.
-    #
-    # If it so happened that the repo subdirectory exists in commands vendor and we also have
-    # a link from the source repo vendor, that's an invalid link setup that doesn't work for
-    # testing *or* building.  The 2nd part of the overall conditional catches this case.  It
-    # likely means that linkdep was run for testing, then ran a `dep ensure` after.  So this
-    # cleans things up back to being a `dep ensure`d situation in commands w/o leaving a
-    # build-breaking vendor link in the source repo.
-    if [ ! -e "$COMMANDS_DIR/vendor/$NDEV_SUBDIR/$REPO" ] || [ -e "$NDEV_DIR/$REPO/vendor" ]; then
+
+    # Use -e not -L for extra robustness.  There shouldn't be anything named vendor there.
+    if [ -e "$NDEV_DIR/$REPO/vendor" ]; then
         unlink_vendor_for_test "$REPO"
     fi
 }

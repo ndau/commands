@@ -82,15 +82,22 @@ fi
 # File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
 export NEEDS_UPDATE_FLAG_FILE="$ROOT_DATA_DIR"/needs_update
 
-# Check if the given repo source dir exists.
-check_source_dir() {
+# Common steps to be done prior to linking for building or testing.
+prepare_for_linking() {
     REPO="$1"
 
+    # Ensure the given repo source dir exists to be linked to or from.
     SOURCE_DIR="$NDEV_DIR/$REPO"
     if [ ! -d "$SOURCE_DIR" ]; then
         echo Must clone "$REPO" into "$SOURCE_DIR" first
         exit 1
     fi
+
+    # Ensure we start with a clean setup before linking, in case we linkdep'd for building and
+    # testing (which would create a circular vendor referencing situation).  Only one link kind
+    # can be active at any given time.
+    unlink_vendor_for_build "$REPO"
+    unlink_vendor_for_test "$REPO"
 }
 
 # Move away the commands vendor subdirectory for the given repo.
@@ -121,8 +128,7 @@ restore_vendor_subdir() {
 link_vendor_for_build() {
     REPO="$1"
 
-    # Repo source dir must exist in order to link to it.
-    check_source_dir "$REPO"
+    prepare_for_linking "$REPO"
 
     # Move the vendor directory away before linking from it.
     backup_vendor_subdir "$REPO"
@@ -144,10 +150,7 @@ unlink_vendor_for_build() {
 link_vendor_for_test() {
     REPO="$1"
 
-    # Repo source dir must exist in order to link from it.
-    check_source_dir "$REPO"
-
-    unlink_vendor_for_test "$REPO"
+    prepare_for_linking "$REPO"
 
     # Allow go test to find all the dependencies in the commands vendor directory.
     echo linking vendor directory in "$REPO"
