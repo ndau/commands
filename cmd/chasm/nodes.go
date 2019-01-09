@@ -12,6 +12,24 @@ import (
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
 )
 
+// parseInt parses an integer from a string. It is just like
+// strconv.ParseInt(s, 0, bitSize) except that it can handle binary.
+func parseInt(s string, bitSize int) (int64, error) {
+	if strings.HasPrefix(s, "0b") {
+		return strconv.ParseInt(s[2:], 2, bitSize)
+	}
+	return strconv.ParseInt(s, 0, bitSize)
+}
+
+// parseUint parses an unsigned integer from a string. It is just like
+// strconv.ParseUint(s, 0, bitSize) except that it can handle binary.
+func parseUint(s string, bitSize int) (uint64, error) {
+	if strings.HasPrefix(s, "0b") {
+		return strconv.ParseUint(s[2:], 2, bitSize)
+	}
+	return strconv.ParseUint(s, 0, bitSize)
+}
+
 func toIfaceSlice(v interface{}) []interface{} {
 	if v == nil {
 		return nil
@@ -169,7 +187,7 @@ func (n *FunctionDef) bytes() []byte {
 }
 
 func newFunctionDef(name string, argcount string, nodes interface{}) (*FunctionDef, error) {
-	argc, err := strconv.ParseInt(argcount, 0, 8)
+	argc, err := parseInt(argcount, 8)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +230,7 @@ func (n BinaryOpcode) bytes() []byte {
 }
 
 func newBinaryOpcode(op vm.Opcode, v string) (*BinaryOpcode, error) {
-	n, err := strconv.ParseUint(v, 0, 8)
+	n, err := parseUint(v, 8)
 	if err != nil {
 		return &BinaryOpcode{}, err
 	}
@@ -270,7 +288,7 @@ func (n *DecoOpcode) bytes() []byte {
 }
 
 func newDecoOpcode(op vm.Opcode, name string, fieldid string) (*DecoOpcode, error) {
-	fid, err := strconv.ParseInt(fieldid, 0, 8)
+	fid, err := parseInt(fieldid, 8)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +335,7 @@ func (n *PushOpcode) bytes() []byte {
 }
 
 func newPushOpcode(s string) (*PushOpcode, error) {
-	v, err := strconv.ParseInt(s, 0, 64)
+	v, err := parseInt(s, 64)
 	return &PushOpcode{arg: v}, err
 }
 

@@ -9,9 +9,26 @@ initialize() {
     source "$CMDBIN_DIR"/env.sh
 }
 
+# Ensure we have no vendor links for tests active, as they will fail the build.
+ensure_no_test_link() {
+    REPO="$1"
+
+    # Use -e not -L for extra robustness.  There shouldn't be anything named vendor there.
+    if [ -e "$NDEV_DIR/$REPO/vendor" ]; then
+        unlink_vendor_for_test "$REPO"
+    fi
+}
+
+ensure_no_test_links() {
+    ensure_no_test_link chaos
+    ensure_no_test_link ndau
+}
+
 build_chaos() {
     echo building chaos
     cd "$COMMANDS_DIR"
+
+    ensure_no_test_links
 
     go build ./"$CHAOS_CMD"
     go build ./"$CHAOSNODE_CMD"
@@ -20,12 +37,15 @@ build_chaos() {
 build_ndau() {
     echo building ndau
     cd "$NDAU_DIR"
+
+    ensure_no_test_links
+
     # This was adapted from ndau/bin/build.sh.  We don't want to use any more of it than what we
     # have here since it uses different environment settings than our setup scripts do for a local
     # build.  e.g. We use separate TMHOME's for each of chaos and ndau.
     VERSION=$(git describe --long --tags)
     echo "  VERSION=$VERSION"
-    VERSION_FILE=github.com/oneiro-ndev/ndau/pkg/version
+    VERSION_FILE="$NDEV_SUBDIR"/ndau/pkg/version
 
     cd "$COMMANDS_DIR"
     go build -ldflags "-X $VERSION_FILE.version=$VERSION" ./"$NDAU_CMD"
