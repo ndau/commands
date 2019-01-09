@@ -60,6 +60,6 @@ status_one() {
 }
 
 initialize
-for f in {automation,chaincode,chaos,chaos_genesis,commands,integration-tests,metanode,ndau,ndaumath}; do
+for f in {automation,chaincode,chaos,commands,integration-tests,metanode,ndau,ndaumath}; do
     status_one "$f"
 done

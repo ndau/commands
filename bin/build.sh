@@ -57,7 +57,6 @@ build_chaos_genesis() {
     echo building chaos_genesis
     cd "$COMMANDS_DIR"
 
-    go build ./"$GENERATE_CMD"
     go build ./"$GENESIS_CMD"
 }
 

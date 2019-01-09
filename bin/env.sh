@@ -47,9 +47,12 @@ export NDAU_DIR="$NDEV_DIR"/ndau
 export NOMS_DIR="$ATTICLABS_DIR"/noms
 export TENDERMINT_DIR="$TM_DIR"/tendermint
 
-# Localnet directories common to all nodes.
+# Localnet directories common to all nodes.  The data dir is deleted and recreated by reset.sh.
 export LOCALNET_DIR=~/.localnet
 export ROOT_DATA_DIR="$LOCALNET_DIR"/data
+export GENESIS_FILES_DIR="$LOCALNET_DIR"/genesis_files
+export GENESIS_TOML="$GENESIS_FILES_DIR/genesis.*.toml"
+export ASSC_TOML="$GENESIS_FILES_DIR/assc.*.toml"
 
 # Data directories.  These get "-$node_num" appended to them when they are used.
 export NODE_DATA_DIR="$ROOT_DATA_DIR"/ndau
@@ -63,7 +66,6 @@ export TENDERMINT_NDAU_DATA_DIR="$ROOT_DATA_DIR"/tendermint-ndau
 # Command source subdirectories.  We build all tools in their respective repo roots, though.
 export CHAOS_CMD=cmd/chaos
 export CHAOSNODE_CMD=cmd/chaosnode
-export GENERATE_CMD=cmd/generate
 export GENESIS_CMD=cmd/genesis
 export NDAU_CMD=cmd/ndau
 export NDAUAPI_CMD=cmd/ndauapi
