@@ -23,10 +23,16 @@ if [ "$node_count" -lt 1 ] || [ "$node_count" -gt "$MAX_NODE_COUNT" ]; then
     exit 1
 fi
 
+# Ensure the genesis files were installed.
+if [ ! -e "$GENESIS_TOML" ] || [ ! -e "$ASSC_TOML" ]; then
+    echo Cannot find "$GENESIS_FILES_DIR/*.toml" - See ../README.md for install instructions
+    exit 1
+fi
+
 # Initialize global config for the localnet we're setting up.
 echo SETUP: Initializing a "$node_count"-node localnet...
-# Recreate the localnet dir which contains the root data dir.
-rm -rf "$LOCALNET_DIR"
+# Ensure a fresh data directory.
+rm -rf "$ROOT_DATA_DIR"
 mkdir -p "$ROOT_DATA_DIR"
 echo "$node_count" > "$NODE_COUNT_FILE"
 
@@ -91,7 +97,6 @@ mkdir -p "$NDEV_DIR"
 update_repo commands
 update_repo chaos
 update_repo ndau
-update_repo chaos_genesis
 
 cd "$NDEV_DIR"/commands
 echo "SETUP: Running commands' dep ensure..."
@@ -107,6 +112,6 @@ echo SETUP: Testing...
 
 # Configure everything.
 echo SETUP: Configuring...
-"$CMDBIN_DIR"/conf.sh
+"$CMDBIN_DIR"/conf.sh --needs_update
 
 echo SETUP: Setup complete

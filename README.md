@@ -31,8 +31,16 @@ These steps only need to be performed once:
 1. Install `jq`: `brew install jq`
 1. Clone this repo:
     ```sh
-    git clone git@github.com:oneiro-ndev/commands.git $GOPATH/src/github.com/oneiro-ndev/commands
+    git clone git@github.com:oneiro-ndev/commands.git ~/go/src/github.com/oneiro-ndev/commands
     ```
+1. Set up genesis files:
+    - Get a copy of `genesis_files.tar` from Oneiro's 1password account
+    - Create the directory `~/.localnet`
+    - Extract `genesis_files.tar` within `~/.localnet`
+    - You should now see the following items in your `~/.localnet/genesis_files/` directory:
+        - `assc.*.toml`
+        - `genesis.*.toml`
+        - (any other files or subdirectories in here are not needed and can be removed if desired)
 1. Run `./bin/setup.sh N` where `N` is the number of nodes you'd like to run
 
 ### Demo mode
