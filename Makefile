@@ -27,7 +27,7 @@ VALIDATIONS = ../validation_scripts
 
 .PHONY: generate clean fuzz fuzzmillion benchmarks \
 	test examples chaincodeall build chasm crank chfmt \
-	opcodes format validations vtests
+	opcodes format validations vtests vformat vgen vclean
 
 opcodes: $(OPCODES)
 
