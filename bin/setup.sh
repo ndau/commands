@@ -65,7 +65,7 @@ cd "$TM_DIR"
 if [ -d "tendermint" ]; then
     echo SETUP: Updating tendermint...
     cd tendermint
-    # Simulate the same state as the else case for consistency.
+    # Simulate same state as the else case for consistency and to prepare for version checkout.
     git checkout -- .
     git checkout master
     git pull origin master
