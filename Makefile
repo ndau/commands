@@ -11,6 +11,7 @@
 CHASM = cmd/chasm/chasm
 CHAIN = cmd/chain/chain
 CRANK = cmd/crank/crank
+CRANKGEN = cmd/crank/crankgen.py
 CHFMT = cmd/chfmt/chfmt
 PEGGOFMT = cmd/peggofmt/peggofmt
 EXAMPLES = cmd/chasm/examples
@@ -26,7 +27,7 @@ VALIDATIONS = ../validation_scripts
 
 .PHONY: generate clean fuzz fuzzmillion benchmarks \
 	test examples chaincodeall build chasm crank chfmt \
-	opcodes format validations vtests
+	opcodes format validations vtests vformat vgen vclean
 
 opcodes: $(OPCODES)
 
@@ -139,14 +140,20 @@ examples: $(CHASM)
 	$(CHASM) --output $(EXAMPLES)/zero.chbin --comment "returns numeric 0 in all cases" $(EXAMPLES)/zero.chasm
 	$(CHASM) --output $(EXAMPLES)/rfe.chbin --comment "standard RFE rules" $(EXAMPLES)/rfe.chasm
 
+vclean:
+	find $(VALIDATIONS) -name "*gen.crank" -print0 | xargs -0 rm
+
 validations: $(CHASM)
 	find $(VALIDATIONS) -name "*.chasm" |sed s/\.chasm/.ch/g | xargs -n1 -I{} $(CHASM) --output {}bin {}asm
 
-vtests: $(CRANK) validations
-	find $(VALIDATIONS) -name "*.crank" | xargs -n1 -I{} $(CRANK) -script {}
+vgen: $(CRANK) validations vclean
+	find $(VALIDATIONS) -name "*.crankgen" -print0 | xargs -0 $(CRANKGEN)
+
+vtests: $(CRANK) vgen
+	find $(VALIDATIONS) -name "*.crank" -print0 | xargs -0 -n1 -I{} $(CRANK) -script {}
 
 vformat: $(CHFMT) validations
-	find $(VALIDATIONS) -name "*.chasm" | xargs -n1 -I{} $(CHFMT) -O {}
+	find $(VALIDATIONS) -name "*.chasm" -print0 | xargs -0 -n1 -I{} $(CHFMT) -O {}
 
 ###################################
 ### The chfmt formatter
