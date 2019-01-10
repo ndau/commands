@@ -1,0 +1,15 @@
+diff --git a/Gopkg.toml b/Gopkg.toml
+index d3bca19e..dae15d39 100644
+--- a/Gopkg.toml
++++ b/Gopkg.toml
+@@ -24,6 +24,10 @@
+ # Packages without releases must pin to a commit.
+ 
+ 
++[[constraint]]
++  name = "github.com/oneiro-ndev/o11y"
++  branch = "master"
++
+ [[constraint]]
+   name = "github.com/go-kit/kit"
+   version = "=0.6.0"

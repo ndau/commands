@@ -15,23 +15,6 @@ FROM golang:1.11-alpine3.8 AS build
 ENV TM_VERSION_TAG v0.25.0
 RUN apk add --no-cache git openssh-client bash
 
-# Normally there is a very clear rule:
-# DO NOT DO THIS.
-# If we copy a keyfile into a container, its contents can be
-# recovered later, even if we delete the file from the container.
-#
-# Multi-stage builds change that rule. We still want to be careful
-# about how we handle the keyfile, but the general rule is now that
-# non-terminal stages vanish irrecoverably from the final container.
-# This means that it's not only easier to get compact containers, but
-# it's no longer a huge security issue to pass in a keyfile to a non-
-# terminal container.
-ARG SSH_KEY_FILE="machine_user_key"
-COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
-COPY ./bin/check-github-fingerprint.sh /root/
-RUN /root/check-github-fingerprint.sh
-RUN chmod 0600 /root/.ssh/*
-
 # Use dep instead of glide, glide no longer supported in TM v0.18.0
 RUN go get -u github.com/golang/dep/... && \
     mkdir -p /go/src/github.com/tendermint && \
@@ -40,9 +23,11 @@ RUN go get -u github.com/golang/dep/... && \
     cd /go/src/github.com/tendermint/tendermint && \
     git checkout ${TM_VERSION_TAG}
 
-# We're going to apply a patch before building, so first get the patch file
-COPY ./docker/*.go.patch /patch/
-RUN patch  -i /patch/root.go.patch /go/src/github.com/tendermint/tendermint/cmd/tendermint/commands/root.go
+# Get patch files and apply them
+COPY ./deploy/tendermint/Gopkg.toml.patch /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/Gopkg.toml.patch
+COPY ./deploy/tendermint/root.go.patch /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/root.go.patch
+RUN patch -i /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/Gopkg.toml.patch /go/src/github.com/tendermint/tendermint/Gopkg.toml && \
+    patch -i /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/root.go.patch /go/src/github.com/tendermint/tendermint/cmd/tendermint/commands/root.go
 
 # now we can build
 WORKDIR /go/src/github.com/tendermint/tendermint

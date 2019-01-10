@@ -65,8 +65,8 @@ cd "$TM_DIR"
 if [ -d "tendermint" ]; then
     echo SETUP: Updating tendermint...
     cd tendermint
-    git checkout -- Gopkg.lock
     # Simulate the same state as the else case for consistency.
+    git checkout -- .
     git checkout master
     git pull origin master
 else
@@ -76,7 +76,10 @@ else
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git checkout "$TENDERMINT_VER"
-echo SETUP: Ensuring tendermint dependencies...
+echo SETUP: Patching tendermint...
+patch -i "$COMMANDS_DIR"/deploy/tendermint/Gopkg.toml.patch Gopkg.toml
+patch -i "$COMMANDS_DIR"/deploy/tendermint/root.go.patch cmd/tendermint/commands/root.go
+echo SETUP: Ensuring dependencies for tendermint...
 "$GO_DIR"/bin/dep ensure
 
 # Get the ndev repos.
@@ -86,7 +89,14 @@ update_repo() {
     if [ -d "$repo" ]; then
         echo SETUP: Updating "$repo"...
         cd "$repo"
-        git pull origin "$("$CMDBIN_DIR"/branch.sh)"
+        branch=$("$CMDBIN_DIR"/branch.sh)
+        exists=$(git ls-remote --heads git@github.com:oneiro-ndev/"$repo".git "$branch")
+        if [ -z "$exists" ]; then
+            # This just means you have a local branch you haven't pushed yet, and that's fine.
+            echo Branch $branch does not exist on remote
+        else
+            git pull origin "$branch"
+        fi
     else
         echo SETUP: Cloning "$repo"...
         git clone git@github.com:oneiro-ndev/"$repo".git
@@ -99,7 +109,7 @@ update_repo chaos
 update_repo ndau
 
 cd "$NDEV_DIR"/commands
-echo "SETUP: Running commands' dep ensure..."
+echo SETUP: Ensuring dependencies for commands...
 "$GO_DIR"/bin/dep ensure
 
 # Build everything.
