@@ -151,14 +151,14 @@ general_config: &general_config
         ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
         # Bump these versions, and commit to master to upload a new version to ECR
         NOMS_CONTAINER_VERSION: 0.0.1
-        STARTING_PORT: "30050"
+        STARTING_PORT: "30000"
         ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
         # These node names are removed first before new ones are installed.
         # If these names change, the old names will have to be removed manually.
-        NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-        RELEASE_NAME: "devnet"
+        NODE_NAMES: "jsgnet-0 jsgnet-1"
+        RELEASE_NAME: "jsgnet"
         # Number of nodes to deploy
-        NODE_NUM: "5"
+        NODE_NUM: "2"
         KUBECONFIG: /root/kubeconfig
 
 jobs:
