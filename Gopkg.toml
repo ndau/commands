@@ -16,7 +16,7 @@ version = "~v0.12.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-branch = "jsg-TMv0.27.4"
+revision = "98dce98f2139e8e46ae528e9fd0d10555f1be398"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
