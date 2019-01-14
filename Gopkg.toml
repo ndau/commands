@@ -16,7 +16,7 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.11"
+branch = "prgn-commands-60-tildes"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
