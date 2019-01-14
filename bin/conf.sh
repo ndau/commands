@@ -20,6 +20,8 @@ done
 echo Configuring tendermint...
 cd "$TENDERMINT_DIR" || exit 1
 
+go build ./cmd/tendermint
+
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
     tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
