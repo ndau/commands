@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:cb29d4a99dcff6f33a3f89cc1fa3f203350e0512a566cf97da72331c7d3ee9ef"
+  digest = "1:d308a6c1896a41fe2cc8b822acd7a9a40174cde114a0236b77c5174bf2d67934"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "6d55516ad2946220d9e26804f224c1c215f293ea"
-  version = "v1.16.17"
+  revision = "aabf189db35ba7eb5a35afe6d681fc0f70954fca"
+  version = "v1.16.18"
 
 [[projects]]
   branch = "master"
@@ -490,6 +490,7 @@
   version = "1.0.1"
 
 [[projects]]
+  branch = "jsg-TMv0.27.4"
   digest = "1:2a8e3e2ae3fba16fc8e8d25adee9dd61f7a044500f6b827eb3c86ba7a7e16b6a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -759,7 +760,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:bc26a8e83fd827008c2cd218eedf6696c0b9ed4b2c4821f8d08cb58d56525ed2"
+  digest = "1:3a8ab2c91f313c810ee47b208abfc6c884536fd78b86eb5ee7cfcf5f241a6d0d"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -813,8 +814,8 @@
     "version",
   ]
   pruneopts = ""
-  revision = "b771798d48c27630fb37b74c8e229da5a8b2042c"
-  version = "v0.26.4"
+  revision = "1e1ca15bccedc16c2452c73745c3c2b5df91ae96"
+  version = "v0.27.4"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
@@ -825,7 +826,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:48a6e91c788191617fc2273c6915bbc38c318c241831ce4c6d9ff24c7b5c6dd1"
+  digest = "1:887074c37fcefc2f49b5ae9c6f9f36107341aec23185613d0e9f1ee81db7f94a"
   name = "golang.org/x/crypto"
   packages = [
     "chacha20poly1305",
@@ -843,8 +844,7 @@
     "ssh/terminal",
   ]
   pruneopts = ""
-  revision = "3764759f34a542a3aef74d6b02e35be7ab893bba"
-  source = "github.com/tendermint/crypto"
+  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
 
 [[projects]]
   digest = "1:dfab7264a3c6473112bc0cc6fdf46f991b5fa2e3bf0107cad156271076a1451d"
@@ -864,7 +864,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:682e21255aca5ab896dd001984417c1a13cea5fc7821c79455d9f9d34e35c6d1"
+  digest = "1:b7e6db8822c87cf81925add756de72c26101d775f014f27cad36ba76e4ac3136"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -872,7 +872,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "48ac38b7c8cbedd50b1613c0fccacfc7d88dfcdf"
+  revision = "2be51725563103c17124a318f1745b66f2347acb"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -899,11 +899,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e4af9fa04ca9f6fbd9c2d00ee313d6d99aeb74f4e5bfed60c265a8ae29e63b59"
+  digest = "1:20d88050fd2ec7f77865cd23dcca07bf47b52b8fe9b8f35a6abf122336abb82d"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "4b7be70d8ad9781b0ec435623d9707d1e54ea2ce"
+  revision = "fc1d57b08d7be19e6befb8d9a9405221faa3d5c9"
 
 [[projects]]
   branch = "master"
