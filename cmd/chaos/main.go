@@ -6,13 +6,12 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
-
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/chaos/pkg/chaos/ns"
 	"github.com/oneiro-ndev/chaos/pkg/tool"
 	twrite "github.com/oneiro-ndev/chaos/pkg/tool.write"
 	ntconf "github.com/oneiro-ndev/ndau/pkg/tool.config"
+	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
 )
 
