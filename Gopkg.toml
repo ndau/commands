@@ -4,7 +4,8 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
-version = "~v0.1"
+# version = "~v0.1"
+branch = "prgn-bpc-assc-keys"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"

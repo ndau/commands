@@ -452,15 +452,15 @@
   version = "v0.12.1"
 
 [[projects]]
-  digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"
+  branch = "prgn-bpc-assc-keys"
+  digest = "1:1fbc0bb8acdddf1722c822772bdb313107778b098086a5dc3691f1c11f4e523c"
   name = "github.com/oneiro-ndev/chaos_genesis"
   packages = [
     "pkg/genesis",
     "pkg/genesis.generator",
   ]
   pruneopts = ""
-  revision = "1b8ea444d9166cc4f17957e2c1598dba6b455b07"
-  version = "v0.1.2"
+  revision = "b1df31b789a2f73aa376dfb55b2e7f233d8563f6"
 
 [[projects]]
   branch = "master"
