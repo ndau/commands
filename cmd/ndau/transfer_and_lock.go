@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getTransferAndLock(verbose *bool, keys *int) func(*cli.Cmd) {
+func getTransferAndLock(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"%s %s %s %s",
@@ -29,7 +29,7 @@ func getTransferAndLock(verbose *bool, keys *int) func(*cli.Cmd) {
 			to := getTo()
 			duration := getDuration()
 
-			if *verbose {
+			if verbose {
 				fmt.Printf(
 					"Transfer %s ndau from %s to %s, locking for %s\n",
 					ndauQty, from, to, duration,
@@ -57,7 +57,7 @@ func getTransferAndLock(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			tresp, err := tool.SendCommit(tmnode(conf.Node), transfer)
-			finish(*verbose, tresp, err, "transferandlock")
+			finish(verbose, tresp, err, "transferandlock")
 		}
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getRegisterNode(verbose *bool, keys *int) func(*cli.Cmd) {
+func getRegisterNode(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME RPC_ADDRESS DISTRIBUTION_SCRIPT"
 
@@ -36,7 +36,7 @@ func getRegisterNode(verbose *bool, keys *int) func(*cli.Cmd) {
 			script, err := base64.RawStdEncoding.DecodeString(*distScript)
 			orQuit(err)
 
-			if *verbose {
+			if verbose {
 				fmt.Printf(
 					"Registering node %s\n",
 					acct.Address,
@@ -50,7 +50,7 @@ func getRegisterNode(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
-			finish(*verbose, resp, err, "notify")
+			finish(verbose, resp, err, "notify")
 		}
 	}
 }

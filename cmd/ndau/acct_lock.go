@@ -9,7 +9,7 @@ import (
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 )
 
-func getLock(verbose *bool, keys *int) func(*cli.Cmd) {
+func getLock(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME DURATION"
 
@@ -29,7 +29,7 @@ func getLock(verbose *bool, keys *int) func(*cli.Cmd) {
 			duration, err := math.ParseDuration(*durationS)
 			orQuit(err)
 
-			if *verbose {
+			if verbose {
 				fmt.Printf(
 					"Locking acct %s for %s\n",
 					acct.Address.String(),
@@ -45,7 +45,7 @@ func getLock(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
-			finish(*verbose, resp, err, "lock")
+			finish(verbose, resp, err, "lock")
 		}
 	}
 }

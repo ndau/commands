@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getNNR(verbose *bool, keys *int) func(*cli.Cmd) {
+func getNNR(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "(RANDOM | -g)"
 
@@ -35,7 +35,7 @@ func getNNR(verbose *bool, keys *int) func(*cli.Cmd) {
 				orQuit(errors.New("no random number specified"))
 			}
 
-			if *verbose {
+			if verbose {
 				fmt.Printf("Official Random Number: %d\n", random)
 			}
 
@@ -53,7 +53,7 @@ func getNNR(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			result, err := tool.SendCommit(tmnode(conf.Node), nnr)
-			finish(*verbose, result, err, "nnr")
+			finish(verbose, result, err, "nnr")
 		}
 	}
 }

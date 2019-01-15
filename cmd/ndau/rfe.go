@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getRfe(verbose *bool, keys *int) func(*cli.Cmd) {
+func getRfe(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"%s %s",
@@ -25,7 +25,7 @@ func getRfe(verbose *bool, keys *int) func(*cli.Cmd) {
 			ndauQty := getNdau()
 			address := getAddress()
 
-			if *verbose {
+			if verbose {
 				fmt.Printf("Release from endowment: %s ndau to %s\n", ndauQty, address)
 			}
 
@@ -44,7 +44,7 @@ func getRfe(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			result, err := tool.SendCommit(tmnode(conf.Node), rfe)
-			finish(*verbose, result, err, "rfe")
+			finish(verbose, result, err, "rfe")
 		}
 	}
 }

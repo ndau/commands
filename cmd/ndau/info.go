@@ -9,7 +9,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getInfo(verbose *bool) func(*cli.Cmd) {
+func getInfo(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		key := cmd.BoolOpt("k key", false, "when set, emit the public key of the connected node")
 		emithex := cmd.BoolOpt("x hex", false, "when set, emit the key as hex instead of base64")
@@ -35,9 +35,9 @@ func getInfo(verbose *bool) func(*cli.Cmd) {
 				fmt.Println(info.ValidatorInfo.VotingPower)
 			}
 			if !(*key || *pwr) {
-				*verbose = true
+				verbose = true
 			}
-			finish(*verbose, info, err, "info")
+			finish(verbose, info, err, "info")
 		}
 	}
 }

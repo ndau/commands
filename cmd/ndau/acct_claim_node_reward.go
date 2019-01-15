@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getClaimNodeReward(verbose *bool, keys *int) func(*cli.Cmd) {
+func getClaimNodeReward(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
@@ -24,7 +24,7 @@ func getClaimNodeReward(verbose *bool, keys *int) func(*cli.Cmd) {
 				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
 			}
 
-			if *verbose {
+			if verbose {
 				fmt.Printf(
 					"Claiming node reward for %s\n",
 					acct.Address.String(),
@@ -38,7 +38,7 @@ func getClaimNodeReward(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
-			finish(*verbose, resp, err, "claim-node-reward")
+			finish(verbose, resp, err, "claim-node-reward")
 		}
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getAccountQuery(verbose *bool) func(*cli.Cmd) {
+func getAccountQuery(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf("%s", getAddressSpec(""))
 		getAddress := getAddressClosure(cmd, "")
@@ -18,11 +18,11 @@ func getAccountQuery(verbose *bool) func(*cli.Cmd) {
 			config := getConfig()
 			ad, resp, err := tool.GetAccount(tmnode(config.Node), address)
 			if err != nil {
-				finish(*verbose, resp, err, "account")
+				finish(verbose, resp, err, "account")
 			}
 			jsb, err := json.MarshalIndent(ad, "", "  ")
 			fmt.Println(string(jsb))
-			finish(*verbose, resp, err, "account")
+			finish(verbose, resp, err, "account")
 		}
 	}
 }

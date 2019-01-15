@@ -11,7 +11,7 @@ import (
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-func getAccountClaim(verbose *bool) func(*cli.Cmd) {
+func getAccountClaim(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
@@ -45,7 +45,7 @@ func getAccountClaim(verbose *bool) func(*cli.Cmd) {
 				err = conf.Save()
 				orQuit(errors.Wrap(err, "saving config"))
 			}
-			finish(*verbose, resp, err, "account claim")
+			finish(verbose, resp, err, "account claim")
 		}
 	}
 }

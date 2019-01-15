@@ -60,7 +60,7 @@ func cmdVerify(cmd *cli.Cmd) {
 		check(err)
 
 		v := false
-		if verbose != nil && *verbose {
+		if verbose != nil && verbose {
 			v = true
 		}
 

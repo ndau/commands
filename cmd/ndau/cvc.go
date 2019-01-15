@@ -14,7 +14,7 @@ import (
 	amino "github.com/tendermint/tendermint/crypto/encoding/amino"
 )
 
-func getCVC(verbose *bool, keys *int) func(*cli.Cmd) {
+func getCVC(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "(PUBKEY | -x=<PUBKEY_HEX>) POWER"
 
@@ -55,7 +55,7 @@ func getCVC(verbose *bool, keys *int) func(*cli.Cmd) {
 				orQuit(errors.New("cvc POWER must be > 0"))
 			}
 
-			if *verbose {
+			if verbose {
 				fmt.Printf("CommandValidatorChange: PubKey %x (%d bytes) Power %d\n", pkb, len(pkb), *power)
 			}
 
@@ -73,7 +73,7 @@ func getCVC(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			result, err := tool.SendCommit(tmnode(conf.Node), cvc)
-			finish(*verbose, result, err, "cvc")
+			finish(verbose, result, err, "cvc")
 		}
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 )
 
-func getSummary(verbose *bool) func(*cli.Cmd) {
+func getSummary(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		hgt := cmd.BoolOpt("h height", false, "when set, emit only the block height")
 		acct := cmd.BoolOpt("a accounts", false, "when set, emit only the number of accounts")
@@ -23,33 +23,33 @@ func getSummary(verbose *bool) func(*cli.Cmd) {
 
 			// if none of them are set, turn on verbose if it's not on and set the first 3
 			if !*hgt && !*acct && !*tot && !*napu {
-				*verbose = true
+				verbose = true
 				*hgt = true
 				*acct = true
 				*tot = true
 			}
 
-			if *hgt && !*verbose {
+			if *hgt && !verbose {
 				f := "%d\n"
 				fmt.Printf(f, info.BlockHeight)
 			}
 
-			if *acct && !*verbose {
+			if *acct && !verbose {
 				f := "%d\n"
 				fmt.Printf(f, info.NumAccounts)
 			}
 
-			if *tot && !*verbose {
+			if *tot && !verbose {
 				f := "%f\n"
 				fmt.Printf(f, float64(info.TotalNdau)/constants.NapuPerNdau)
 			}
 
-			if *napu && !*verbose {
+			if *napu && !verbose {
 				f := "%d\n"
 				fmt.Printf(f, info.TotalNdau)
 			}
 
-			finish(*verbose, info, err, "summary")
+			finish(verbose, info, err, "summary")
 		}
 	}
 }

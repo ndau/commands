@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getAccountNew(verbose *bool) func(*cli.Cmd) {
+func getAccountNew(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME [--hd]"
 
@@ -27,7 +27,7 @@ func getAccountNew(verbose *bool) func(*cli.Cmd) {
 	}
 }
 
-func getAccountRecover(verbose *bool) func(*cli.Cmd) {
+func getAccountRecover(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME PHRASE... [--lang=<lang code>]"
 
@@ -51,7 +51,7 @@ func getAccountRecover(verbose *bool) func(*cli.Cmd) {
 			orQuit(errors.Wrap(err, "failed to recover identity"))
 			err = config.Save()
 			orQuit(errors.Wrap(err, "saving config"))
-			if verbose != nil && *verbose {
+			if verbose {
 				fmt.Println("OK")
 			}
 		}

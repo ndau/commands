@@ -137,7 +137,7 @@ func main() {
 		cmd.Action = func() {
 			config := getConfig()
 			result, err := twrite.Set(tmnode(config.Node), *name, config, getKey(), getValue())
-			finish(*verbose, result, err, "set")
+			finish(verbose, result, err, "set")
 		}
 	})
 
@@ -170,7 +170,7 @@ func main() {
 				emit(os.Stdout, value)
 			}
 
-			finish(*verbose, result, err, "get")
+			finish(verbose, result, err, "get")
 		}
 	})
 
@@ -185,13 +185,13 @@ func main() {
 			seq, response, err := tool.Sequence(tmnode(config.Node), ns)
 
 			if err == nil {
-				if *verbose {
+				if verbose {
 					fmt.Printf("%x: %d\n", ns, seq)
 				} else {
 					fmt.Println(seq)
 				}
 			}
-			finish(*verbose, response, err, "seq")
+			finish(verbose, response, err, "seq")
 		}
 	})
 
@@ -225,7 +225,7 @@ func main() {
 				emit(os.Stdout, values)
 			}
 
-			finish(*verbose, result, err, "get")
+			finish(verbose, result, err, "get")
 		}
 	})
 
@@ -257,7 +257,7 @@ func main() {
 				}
 			}
 
-			finish(*verbose, result, err, "get-ns")
+			finish(verbose, result, err, "get-ns")
 		}
 	})
 
@@ -285,7 +285,7 @@ func main() {
 			if err == nil {
 				dump(os.Stdout, value)
 			}
-			finish(*verbose, result, err, "dump")
+			finish(verbose, result, err, "dump")
 		}
 	})
 

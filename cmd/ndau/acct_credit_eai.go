@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getAccountCreditEAI(verbose *bool, keys *int) func(*cli.Cmd) {
+func getAccountCreditEAI(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
@@ -24,7 +24,7 @@ func getAccountCreditEAI(verbose *bool, keys *int) func(*cli.Cmd) {
 				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
 			}
 
-			if *verbose {
+			if verbose {
 				fmt.Printf(
 					"Calculating EAI for delegates to node %s\n",
 					acct.Address.String(),
@@ -38,7 +38,7 @@ func getAccountCreditEAI(verbose *bool, keys *int) func(*cli.Cmd) {
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
-			finish(*verbose, resp, err, "compute-eai")
+			finish(verbose, resp, err, "compute-eai")
 		}
 	}
 }

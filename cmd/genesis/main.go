@@ -53,7 +53,7 @@ func main() {
 	)
 
 	app.Action = func() {
-		if *verbose {
+		if verbose {
 			fmt.Printf("%25s: %s\n", "genesisfile path", *gfpath)
 		}
 
