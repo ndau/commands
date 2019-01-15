@@ -4,7 +4,7 @@
 
 This document contains steps for getting set up to build and test ndev applications.  By the end you will be able to run `chaos` and `ndau` blockchains, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
 
-The `/bin` directory also contains other scripts useful for developing within a local development environment.
+The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](bin/README.md).
 
 ## Setup Tools
 
@@ -87,37 +87,6 @@ Use `./bin/build.sh` if you make changes to any of the tools and want to rebuild
 Use `./bin/test.sh` to run unit tests on the latest built tools.
 Use `./bin/test.sh -i` to run integration tests found in `/ndauapi/routes`.
 
-## Other Tools
-
-### linkdep
-
-This tool is useful when you want to make changes to one of our dependency projects and test it locally without first having to push it up to github.
-
-Normally we have cloned `chaos` and `ndau` into `~/go/src/github.com/oneiro-ndev` and we make changes there to those projects like any other git repos.  But if you want to make changes on one of our dependency probjects, say, `metanode`, then you can use the `linkdep.sh` tool to set that up for you.
-
-Steps:
-
-1. Clone `metanode` next to `commands`
-1. Run `./bin/linkdep.sh metanode` from anywhere
-
-What this does is it creates symbolic links from the `commands` vendor directory for metanode back to your cloned copy of metanode.  You then can make changes from within your cloned directory and interact with git as usual.  When you want to test any changes you've made to metanode, you can run `./bin/build.sh` and `./bin/test.sh` as usual.
-
-Any time you run a `dep ensure` from `commands`, you must run `./bin/linkdep.sh metanode` again if you'd like to test more local changes to metanode that haven't yet been pushed and landed to the appropriate branch (usually master) on github.
-
-#### Rationale
-
-We tried various other approaches that didn't work out as well as this:
-
-* `go get github.com/oneiro-ndev/metanode`
-    - Doesn't get metanode's dependencies, so `go build ./...` fails
-* `glide mirror set git@github.com:oneiro-ndev/metanode.git file:///Users/<username>/go/src/github.com/oneiro-ndev/metanode --vcs git`
-    - One extra global developer step to config
-    - Have to commit changes to your metanode branch and run `glide install` to test
-* `glide init` with `glide install` within `metanode`
-    - Hacky way of using glide
-    - Still have to edit `chaos` and `ndau` glide.yaml to pull from your branch to test locally
-
-
 ## Chaincode tools
 
 ### Building the tools
@@ -147,3 +116,6 @@ If you encounter a puzzling bug, you can use the -verbose switch; if this is set
 
 The `help` and `help verbose` commands will dump some helpful text about how to use crank. Also see the readme in cmd/crank.
 
+## Other tools
+
+See the [README](bin/README.md) in the `./bin` directory for more information on the tools found there
