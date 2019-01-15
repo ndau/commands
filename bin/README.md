@@ -12,7 +12,7 @@ Running `./status.sh` will display the current running state of each component i
 
 ### ndauapi
 
-Once a localnet is up and running (using `./run.sh`), you can use `ndauapi.sh` to fire up an `ndauapi` web server listening on port 3030.  Then you can run commands against it such as:
+Once a localnet is up and running (using `./run.sh`), you can use `./ndauapi.sh` to fire up an `ndauapi` web server listening on port 3030.  Then you can run commands against it such as:
 
 ```sh
 curl --get "http://localhost:3030/version" | jq .
@@ -21,22 +21,22 @@ curl --get "http://localhost:3030/block/current" | jq .
 
 ### populate
 
-Once a localnet is up and running (using `./run.sh`), you can use the `populate.sh` tool to do some basic transactoins against the ndau blockchain.  For example:
+Once a localnet is up and running (using `./run.sh`), you can use the `./populate.sh` tool to do some basic transactoins against the ndau blockchain.  For example:
 
 ```sh
-populate.sh create
-populate.sh claim
-populate.sh issue
-populate.sh xfer
-populate.sh refund
-populate.sh status
+./populate.sh create
+./populate.sh claim
+./populate.sh issue
+./populate.sh xfer
+./populate.sh refund
+./populate.sh status
 ```
 
 ### linkdep
 
 This tool is useful when you want to make changes to one of our dependency projects and test it locally without first having to push it up to github.
 
-Normally we have cloned `chaos` and `ndau` into `~/go/src/github.com/oneiro-ndev` and we make changes there to those projects like any other git repos.  But if you want to make changes on one of our dependency probjects, say, `metanode`, then you can use the `linkdep.sh` tool to set that up for you.
+Normally we have cloned `chaos` and `ndau` into `~/go/src/github.com/oneiro-ndev` and we make changes there to those projects like any other git repos.  But if you want to make changes on one of our dependency probjects, say, `metanode`, then you can use the `./linkdep.sh` tool to set that up for you.
 
 Steps:
 

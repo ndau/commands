@@ -55,17 +55,17 @@ This will run all the tasks in the proper sequence and create a set of appropria
 
 ### Shutting it down
 
-Use `./kill.sh`.
+Use `./bin/kill.sh`.
 
 This will shut down any running tasks in the reverse order from which they were run. If a task doesn't shut itself down nicely, it will be killed.
 
 ### Reset
 
-To run with fresh databases, run `./reset.sh` before your next `./run.sh`.
+To run with fresh databases, run `./bin/reset.sh` before your next `./bin/run.sh`.
 
 ### Individual commands
 
-Both `run.sh` and `kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
+Both `./bin/run.sh` and `./bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
 
 * chaos_redis
 * chaos_noms
@@ -76,7 +76,7 @@ Both `run.sh` and `kill.sh` take an argument, which is the name of the task you 
 * ndau_node
 * ndau_tm
 
-You can also specify the node number for each.  For example, if you ran `setup.sh` with a node count greater than 1, then you can `./bin/run.sh chaos_redis 1` to run chaos redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
+You can also specify the node number for each.  For example, if you ran `./bin/setup.sh` with a node count greater than 1, then you can `./bin/run.sh chaos_redis 1` to run chaos redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
 
 ### Rebuild
 
