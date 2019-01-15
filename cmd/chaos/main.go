@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/BurntSushi/toml"
+	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/chaos/pkg/chaos/ns"
 	"github.com/oneiro-ndev/chaos/pkg/tool"
@@ -45,6 +48,61 @@ func main() {
 		}
 	})
 
+	app.Command("import-assc", "import an assc.toml file", func(cmd *cli.Cmd) {
+		cmd.Spec = "[IDENTITY] ASSC [--bpc]"
+
+		var (
+			idName   = cmd.StringArg("IDENTITY", "sysvar", "name of identity to set from bpc data in assc.toml")
+			asscPath = cmd.StringArg("ASSC", "", "path to assc.toml")
+			bpc      = cmd.StringOpt("bpc", "", "base64-encoded bytes of bpc public key")
+		)
+
+		cmd.Action = func() {
+			bpcsmap := make(map[string]interface{})
+			_, err := toml.DecodeFile(*asscPath, &bpcsmap)
+			orQuit(err)
+
+			if bpc == nil || len(*bpc) == 0 {
+				if len(bpcsmap) == 1 {
+					// we want the only entry
+					for k := range bpcsmap {
+						bpc = &k
+					}
+				} else {
+					orQuit(errors.New("assc.toml ambiguous: must manually specify bpc public key"))
+				}
+			}
+
+			keysmap := bpcsmap[*bpc].(map[string]interface{})
+
+			publicS, ok := keysmap["BPCPublic"]
+			if !ok {
+				orQuit(errors.New("BPCPublic key not found"))
+			}
+			public, err := signature.ParsePublicKey(publicS.(string))
+			orQuit(errors.Wrap(err, "BPCPublic"))
+
+			privateS, ok := keysmap["BPCPrivate"]
+			if !ok {
+				orQuit(errors.New("BPCPrivate key not found"))
+			}
+			private, err := signature.ParsePrivateKey(privateS.(string))
+			orQuit(errors.Wrap(err, "BPCPrivate"))
+
+			config, err := tool.Load()
+			orQuit(err)
+
+			config.Identities[*idName] = tool.Identity{
+				Name: *idName,
+				Chaos: tool.Keypair{
+					Public:  *public,
+					Private: private,
+				},
+			}
+			orQuit(config.Save())
+		}
+	})
+
 	app.Command("id", "manage identities", func(cmd *cli.Cmd) {
 		cmd.Command("list", "list known identities", func(subcmd *cli.Cmd) {
 			subcmd.Action = func() {
@@ -64,7 +122,7 @@ func main() {
 				config := getConfig()
 				err := config.CreateIdentity(*name, os.Stdout)
 				orQuit(errors.Wrap(err, "Failed to create identity"))
-				config.Save()
+				orQuit(config.Save())
 			}
 		})
 
