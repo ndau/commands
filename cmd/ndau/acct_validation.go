@@ -14,7 +14,7 @@ import (
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-func getAccountValidation(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getAccountValidation(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
@@ -23,13 +23,13 @@ func getAccountValidation(verbose bool, keys int, emitJSON, pretty bool) func(*c
 		cmd.Command(
 			"reset",
 			"generate a new transfer key which replaces all current transfer keys",
-			getReset(verbose, name, keys, emitJSON, pretty),
+			getReset(verbose, name, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"add",
 			"add a new transfer key to this account",
-			getAdd(verbose, name, keys, emitJSON, pretty),
+			getAdd(verbose, name, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
@@ -41,12 +41,12 @@ func getAccountValidation(verbose bool, keys int, emitJSON, pretty bool) func(*c
 		cmd.Command(
 			"set-script",
 			"set validation script for this account",
-			getSetScript(verbose, name, keys, emitJSON, pretty),
+			getSetScript(verbose, name, keys, emitJSON, compact),
 		)
 	}
 }
 
-func getReset(verbose bool, name *string, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getReset(verbose *bool, name *string, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = getKeypathSpec(true)
 
@@ -72,10 +72,10 @@ func getReset(verbose bool, name *string, keys int, emitJSON, pretty bool) func(
 				[]signature.PublicKey{newkeys.Public},
 				acct.ValidationScript,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -84,12 +84,12 @@ func getReset(verbose bool, name *string, keys int, emitJSON, pretty bool) func(
 				err = conf.Save()
 				orQuit(errors.Wrap(err, "saving config"))
 			}
-			finish(verbose, resp, err, "account validation reset")
+			finish(*verbose, resp, err, "account validation reset")
 		}
 	}
 }
 
-func getAdd(verbose bool, name *string, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getAdd(verbose *bool, name *string, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = getKeypathSpec(true)
 
@@ -115,10 +115,10 @@ func getAdd(verbose bool, name *string, keys int, emitJSON, pretty bool) func(*c
 				append(acct.TransferPublic(), newkeys.Public),
 				acct.ValidationScript,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -127,12 +127,12 @@ func getAdd(verbose bool, name *string, keys int, emitJSON, pretty bool) func(*c
 				err = conf.Save()
 				orQuit(errors.Wrap(err, "saving config"))
 			}
-			finish(verbose, resp, err, "account validation add")
+			finish(*verbose, resp, err, "account validation add")
 		}
 	}
 }
 
-func getRecover(verbose bool, name *string) func(*cli.Cmd) {
+func getRecover(verbose *bool, name *string) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = getKeypathSpec(false)
 
@@ -154,12 +154,12 @@ func getRecover(verbose bool, name *string) func(*cli.Cmd) {
 			err = conf.Save()
 			orQuit(errors.Wrap(err, "saving config"))
 
-			finish(verbose, nil, err, "account validation recover")
+			finish(*verbose, nil, err, "account validation recover")
 		}
 	}
 }
 
-func getSetScript(verbose bool, name *string, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getSetScript(verbose *bool, name *string, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "[SCRIPT]"
 
@@ -179,7 +179,7 @@ func getSetScript(verbose bool, name *string, keys int, emitJSON, pretty bool) f
 			script, err := base64.RawStdEncoding.DecodeString(*scriptB64)
 			orQuit(err)
 
-			if verbose {
+			if *verbose {
 				fmt.Printf("Script b64: %s\n       hex: %x\n", *scriptB64, script)
 			}
 
@@ -188,14 +188,14 @@ func getSetScript(verbose bool, name *string, keys int, emitJSON, pretty bool) f
 				acct.TransferPublic(),
 				script,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			if verbose {
+			if *verbose {
 				fmt.Printf("%#v\n", cv)
 			}
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -204,7 +204,7 @@ func getSetScript(verbose bool, name *string, keys int, emitJSON, pretty bool) f
 				err = conf.Save()
 				orQuit(errors.Wrap(err, "saving config"))
 			}
-			finish(verbose, resp, err, "account validation add")
+			finish(*verbose, resp, err, "account validation add")
 		}
 	}
 }

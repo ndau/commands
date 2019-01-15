@@ -15,7 +15,7 @@ func writeKey(w io.Writer, k signature.Key, verbose *bool, vprefix string) error
 	if err != nil {
 		return err
 	}
-	if verbose != nil && *verbose {
+	if *verbose != nil && *verbose {
 		_, err = fmt.Fprintf(w, "%7s: ", vprefix)
 		if err != nil {
 			return err

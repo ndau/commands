@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getNotify(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getNotify(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
@@ -24,7 +24,7 @@ func getNotify(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
 			}
 
-			if verbose {
+			if *verbose {
 				fmt.Printf(
 					"Notifying acct %s\n",
 					acct.Address,
@@ -34,11 +34,11 @@ func getNotify(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 			tx := ndau.NewNotify(
 				acct.Address,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
-			finish(verbose, resp, err, "notify")
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)
+			finish(*verbose, resp, err, "notify")
 		}
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getVersion(verbose bool) func(*cli.Cmd) {
+func getVersion(verbose *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Action = v.Emit
 
@@ -18,20 +18,20 @@ func getVersion(verbose bool) func(*cli.Cmd) {
 	}
 }
 
-func getRemote(verbose bool) func(*cli.Cmd) {
+func getRemote(verbose *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Action = func() {
 			config := getConfig()
-			version, resp, err := tool.Version(tmnode(config.Node, false, false))
+			version, resp, err := tool.Version(tmnode(config.Node, nil, nil))
 			if version != "" {
 				fmt.Println(version)
 			}
-			finish(verbose, resp, err, "version remote")
+			finish(*verbose, resp, err, "version remote")
 		}
 	}
 }
 
-func getCheck(verbose bool) func(*cli.Cmd) {
+func getCheck(verbose *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Action = func() {
 			local, err := v.Get()
@@ -39,10 +39,10 @@ func getCheck(verbose bool) func(*cli.Cmd) {
 
 			config := getConfig()
 
-			remote, resp, err := tool.Version(tmnode(config.Node, false, false))
+			remote, resp, err := tool.Version(tmnode(config.Node, nil, nil))
 			if err != nil {
 				err = errors.Wrap(err, "fetching remote version")
-				finish(verbose, resp, err, "version check")
+				finish(*verbose, resp, err, "version check")
 			}
 
 			if local != remote {
@@ -52,10 +52,10 @@ func getCheck(verbose bool) func(*cli.Cmd) {
 					remote,
 				)
 			}
-			if verbose && err == nil {
+			if *verbose && err == nil {
 				fmt.Println("OK")
 			}
-			finish(verbose, resp, err, "version check")
+			finish(*verbose, resp, err, "version check")
 		}
 	}
 }

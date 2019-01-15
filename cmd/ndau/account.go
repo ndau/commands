@@ -4,7 +4,7 @@ import (
 	cli "github.com/jawher/mow.cli"
 )
 
-func getAccount(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Command(
 			"list",
@@ -27,73 +27,73 @@ func getAccount(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 		cmd.Command(
 			"claim",
 			"claim this account on the blockchain",
-			getAccountClaim(verbose, emitJSON, pretty),
+			getAccountClaim(verbose, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"validation",
 			"change the account's validation",
-			getAccountValidation(verbose, keys, emitJSON, pretty),
+			getAccountValidation(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"query",
 			"query the ndau chain about this account",
-			getAccountQuery(verbose, emitJSON, pretty),
+			getAccountQuery(verbose, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"change-settlement-period",
 			"change the settlement period for outbound transfers from this account",
-			getAccountChangeSettlement(verbose, keys, emitJSON, pretty),
+			getAccountChangeSettlement(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"delegate",
 			"delegate EAI calculation to a node",
-			getAccountDelegate(verbose, keys, emitJSON, pretty),
+			getAccountDelegate(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"credit-eai",
 			"credit EAI for accounts which have delegated to this one",
-			getAccountCreditEAI(verbose, keys, emitJSON, pretty),
+			getAccountCreditEAI(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"lock",
 			"lock this account with a specified notice period",
-			getLock(verbose, keys, emitJSON, pretty),
+			getLock(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"notify",
 			"notify that this account should be unlocked once its notice period expires",
-			getNotify(verbose, keys, emitJSON, pretty),
+			getNotify(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"set-rewards-target",
 			"set the rewards target for this account",
-			getSetRewardsDestination(verbose, keys, emitJSON, pretty),
+			getSetRewardsDestination(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"stake",
 			"stake this account to another",
-			getStake(verbose, keys, emitJSON, pretty),
+			getStake(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"register-node",
 			"register this node to activate it",
-			getRegisterNode(verbose, keys, emitJSON, pretty),
+			getRegisterNode(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
 			"claim-node-reward",
 			"claim node reward for this node",
-			getClaimNodeReward(verbose, keys, emitJSON, pretty),
+			getClaimNodeReward(verbose, keys, emitJSON, compact),
 		)
 	}
 }

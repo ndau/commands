@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getRfe(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getRfe(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"%s %s",
@@ -25,7 +25,7 @@ func getRfe(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 			ndauQty := getNdau()
 			address := getAddress()
 
-			if verbose {
+			if *verbose {
 				fmt.Printf("Release from endowment: %s ndau to %s\n", ndauQty, address)
 			}
 
@@ -34,7 +34,7 @@ func getRfe(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				orQuit(errors.New("RFE data not set in tool config"))
 			}
 
-			keys := config.FilterK(conf.RFE.Keys, keys)
+			keys := config.FilterK(conf.RFE.Keys, *keys)
 
 			rfe := ndau.NewReleaseFromEndowment(
 				address,
@@ -43,8 +43,8 @@ func getRfe(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				keys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), rfe)
-			finish(verbose, result, err, "rfe")
+			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), rfe)
+			finish(*verbose, result, err, "rfe")
 		}
 	}
 }

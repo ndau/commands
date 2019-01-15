@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getSetRewardsDestination(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getSetRewardsDestination(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf("NAME %s", getAddressSpec("DESTINATION"))
 		getAddress := getAddressClosure(cmd, "DESTINATION")
@@ -26,7 +26,7 @@ func getSetRewardsDestination(verbose bool, keys int, emitJSON, pretty bool) fun
 
 			dest := getAddress()
 
-			if verbose {
+			if *verbose {
 				fmt.Printf(
 					"Setting rewards target for acct %s to %s\n",
 					acct.Address,
@@ -38,11 +38,11 @@ func getSetRewardsDestination(verbose bool, keys int, emitJSON, pretty bool) fun
 				acct.Address,
 				dest,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
-			finish(verbose, resp, err, "set-rewards-target")
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)
+			finish(*verbose, resp, err, "set-rewards-target")
 		}
 	}
 }

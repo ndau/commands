@@ -49,9 +49,9 @@ func jsonify(jsonable interface{}) (string, error) {
 }
 
 // finish a command by pretty-printing its result as json
-func finish(verbose bool, result interface{}, err error, cmdName string) {
+func finish(*verbose bool, result interface{}, err error, cmdName string) {
 	orQuit(errors.Wrap(err, fmt.Sprintf("Main action failed in %s subcommand", cmdName)))
-	if verbose {
+	if *verbose {
 		jsresult, err := jsonify(result)
 		orQuit(errors.Wrap(err, fmt.Sprintf("jsonify failed in %s subcommand", cmdName)))
 		fmt.Println(jsresult)

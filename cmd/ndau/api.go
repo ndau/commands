@@ -216,40 +216,40 @@ func encodeJSON(w http.ResponseWriter, result interface{}, err error) {
 //
 func getStatus(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	status, err := tool.Info(tmnode(config.Node, false, false).(*client.HTTP))
+	status, err := tool.Info(tmnode(config.Node, nil, nil).(*client.HTTP))
 	encodeJSON(w, status, err)
 }
 
 func getHealth(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	health, err := tmnode(config.Node, false, false).(*client.HTTP).Health()
+	health, err := tmnode(config.Node, nil, nil).(*client.HTTP).Health()
 	encodeJSON(w, health, err)
 }
 func getNetInfo(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	netInfo, err := tmnode(config.Node, false, false).(*client.HTTP).NetInfo()
+	netInfo, err := tmnode(config.Node, nil, nil).(*client.HTTP).NetInfo()
 	encodeJSON(w, netInfo, err)
 }
 func getGenesis(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	genesis, err := tmnode(config.Node, false, false).(*client.HTTP).Genesis()
+	genesis, err := tmnode(config.Node, nil, nil).(*client.HTTP).Genesis()
 	encodeJSON(w, genesis, err)
 }
 func getABCIInfo(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	abciInfo, err := tmnode(config.Node, false, false).(*client.HTTP).ABCIInfo()
+	abciInfo, err := tmnode(config.Node, nil, nil).(*client.HTTP).ABCIInfo()
 	encodeJSON(w, abciInfo, err)
 }
 
 func getNumUnconfirmedTxs(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	txs, err := tmnode(config.Node, false, false).(*client.HTTP).Health()
+	txs, err := tmnode(config.Node, nil, nil).(*client.HTTP).Health()
 	encodeJSON(w, txs, err)
 }
 
 func getDumpConsensusState(w http.ResponseWriter, r *http.Request) {
 	config := getConfig()
-	consensusState, err := tmnode(config.Node, false, false).(*client.HTTP).DumpConsensusState()
+	consensusState, err := tmnode(config.Node, nil, nil).(*client.HTTP).DumpConsensusState()
 	encodeJSON(w, consensusState, err)
 }
 
@@ -258,7 +258,7 @@ func getBlock(w http.ResponseWriter, r *http.Request) {
 	heightParam := r.URL.Query().Get("height")
 	if heightParam != "" {
 		height, err := strconv.ParseInt(heightParam, 10, 64)
-		block, err := tmnode(config.Node, false, false).(*client.HTTP).Block(&height)
+		block, err := tmnode(config.Node, nil, nil).(*client.HTTP).Block(&height)
 		encodeJSON(w, block, err)
 	}
 }
@@ -270,7 +270,7 @@ func getBlockChain(w http.ResponseWriter, r *http.Request) {
 	if minHeightParam != "" && maxHeightParam != "" {
 		minHeight, err := strconv.ParseInt(minHeightParam, 10, 64)
 		maxHeight, err := strconv.ParseInt(maxHeightParam, 10, 64)
-		block, err := tmnode(config.Node, false, false).(*client.HTTP).BlockchainInfo(minHeight, maxHeight)
+		block, err := tmnode(config.Node, nil, nil).(*client.HTTP).BlockchainInfo(minHeight, maxHeight)
 		encodeJSON(w, block, err)
 
 	}

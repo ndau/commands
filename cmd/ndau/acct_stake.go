@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getStake(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getStake(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"NAME %s",
@@ -30,7 +30,7 @@ func getStake(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 
 			node := getNode()
 
-			if verbose {
+			if *verbose {
 				fmt.Printf(
 					"Staking acct %s to %s\n",
 					acct.Address,
@@ -41,11 +41,11 @@ func getStake(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 			tx := ndau.NewStake(
 				acct.Address, node,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
-			finish(verbose, resp, err, "notify")
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)
+			finish(*verbose, resp, err, "notify")
 		}
 	}
 }

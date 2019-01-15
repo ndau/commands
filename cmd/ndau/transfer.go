@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getTransfer(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getTransfer(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"%s %s %s",
@@ -26,7 +26,7 @@ func getTransfer(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 			from := getFrom()
 			to := getTo()
 
-			if verbose {
+			if *verbose {
 				fmt.Printf(
 					"Transfer %s ndau from %s to %s\n",
 					ndauQty, from, to,
@@ -49,11 +49,11 @@ func getTransfer(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				from, to,
 				ndauQty,
 				sequence(conf, from),
-				fromAcct.TransferPrivateK(keys)...,
+				fromAcct.TransferPrivateK(*keys)...,
 			)
 
-			tresp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), transfer)
-			finish(verbose, tresp, err, "transfer")
+			tresp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), transfer)
+			finish(*verbose, tresp, err, "transfer")
 		}
 	}
 }

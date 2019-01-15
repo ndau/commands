@@ -39,9 +39,9 @@ func validateBytes(bytes []byte) {
 var nodeHTTP *client.HTTP
 
 // tmnode sets up a client connection to a Tendermint node
-func tmnode(node string, json, pretty bool) client.ABCIClient {
-	if json {
-		return tool.NewJSONClient(pretty)
+func tmnode(node string, json, compact *bool) client.ABCIClient {
+	if json != nil && *json {
+		return tool.NewJSONClient(!*compact)
 	}
 
 	if nodeHTTP == nil {
@@ -72,7 +72,7 @@ func finish(verbose bool, result interface{}, err error, cmdName string) {
 
 // query the account to get the current sequence
 func sequence(conf *config.Config, addr address.Address) uint64 {
-	ad, _, err := tool.GetAccount(tmnode(conf.Node, false, false), addr)
+	ad, _, err := tool.GetAccount(tmnode(conf.Node, nil, nil), addr)
 	orQuit(errors.Wrap(
 		err,
 		fmt.Sprintf("Failed to get current sequence number for %s", addr),

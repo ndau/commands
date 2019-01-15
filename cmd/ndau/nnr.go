@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getNNR(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getNNR(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "(RANDOM | -g)"
 
@@ -35,7 +35,7 @@ func getNNR(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				orQuit(errors.New("no random number specified"))
 			}
 
-			if verbose {
+			if *verbose {
 				fmt.Printf("Official Random Number: %d\n", random)
 			}
 
@@ -44,7 +44,7 @@ func getNNR(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				orQuit(errors.New("NNR data not set in tool config"))
 			}
 
-			keys := config.FilterK(conf.NNR.Keys, keys)
+			keys := config.FilterK(conf.NNR.Keys, *keys)
 
 			nnr := ndau.NewNominateNodeReward(
 				random,
@@ -52,8 +52,8 @@ func getNNR(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				keys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), nnr)
-			finish(verbose, result, err, "nnr")
+			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), nnr)
+			finish(*verbose, result, err, "nnr")
 		}
 	}
 }

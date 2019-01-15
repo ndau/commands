@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getConf(verbose bool) func(*cli.Cmd) {
+func getConf(verbose *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "[ADDR]"
 

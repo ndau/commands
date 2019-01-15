@@ -8,7 +8,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getAccountDelegate(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
+func getAccountDelegate(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"NAME %s",
@@ -30,7 +30,7 @@ func getAccountDelegate(verbose bool, keys int, emitJSON, pretty bool) func(*cli
 
 			node := getNode()
 
-			if verbose {
+			if *verbose {
 				fmt.Printf(
 					"Delegating %s to node %s\n",
 					acct.Address.String(), node.String(),
@@ -40,11 +40,11 @@ func getAccountDelegate(verbose bool, keys int, emitJSON, pretty bool) func(*cli
 			tx := ndau.NewDelegate(
 				acct.Address, node,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
-			finish(verbose, resp, err, "delegate")
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)
+			finish(*verbose, resp, err, "delegate")
 		}
 	}
 }
