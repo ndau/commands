@@ -41,7 +41,7 @@ func getSetRewardsDestination(verbose bool, keys int, emitJSON, pretty bool) fun
 				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
 			finish(verbose, resp, err, "set-rewards-target")
 		}
 	}

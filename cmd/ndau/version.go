@@ -22,7 +22,7 @@ func getRemote(verbose bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Action = func() {
 			config := getConfig()
-			version, resp, err := tool.Version(tmnode(config.Node))
+			version, resp, err := tool.Version(tmnode(config.Node, false, false))
 			if version != "" {
 				fmt.Println(version)
 			}
@@ -39,7 +39,7 @@ func getCheck(verbose bool) func(*cli.Cmd) {
 
 			config := getConfig()
 
-			remote, resp, err := tool.Version(tmnode(config.Node))
+			remote, resp, err := tool.Version(tmnode(config.Node, false, false))
 			if err != nil {
 				err = errors.Wrap(err, "fetching remote version")
 				finish(verbose, resp, err, "version check")

@@ -54,7 +54,7 @@ func main() {
 	app.Spec = "[-v] [-d] [--out | [-g] [-a]]"
 
 	app.Action = func() {
-		if verbose {
+		if *verbose {
 			if outpath != nil && len(*outpath) > 0 {
 				fmt.Printf("%25s: %s\n", "output directory", *outpath)
 			} else {
@@ -69,7 +69,7 @@ func main() {
 			if outpath != nil && len(*outpath) > 0 {
 				var gfilepath, asscpath string
 				bpc, gfilepath, asscpath, err = generator.GenerateIn(*outpath)
-				if verbose {
+				if *verbose {
 					fmt.Printf("%25s: %s\n", "genesisfile path", gfilepath)
 					fmt.Printf("%25s: %s\n", "associatedfile path", asscpath)
 				}

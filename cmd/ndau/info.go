@@ -7,6 +7,7 @@ import (
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/tendermint/tendermint/rpc/client"
 )
 
 func getInfo(verbose bool) func(*cli.Cmd) {
@@ -19,7 +20,7 @@ func getInfo(verbose bool) func(*cli.Cmd) {
 
 		cmd.Action = func() {
 			config := getConfig()
-			info, err := tool.Info(tmnode(config.Node))
+			info, err := tool.Info(tmnode(config.Node, false, false).(*client.HTTP))
 
 			if *key {
 				b := info.ValidatorInfo.PubKey.Bytes()

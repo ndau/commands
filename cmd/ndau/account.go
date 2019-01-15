@@ -27,7 +27,7 @@ func getAccount(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 		cmd.Command(
 			"claim",
 			"claim this account on the blockchain",
-			getAccountClaim(verbose),
+			getAccountClaim(verbose, emitJSON, pretty),
 		)
 
 		cmd.Command(
@@ -39,7 +39,7 @@ func getAccount(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 		cmd.Command(
 			"query",
 			"query the ndau chain about this account",
-			getAccountQuery(verbose),
+			getAccountQuery(verbose, emitJSON, pretty),
 		)
 
 		cmd.Command(

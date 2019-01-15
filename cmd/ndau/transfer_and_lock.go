@@ -56,7 +56,7 @@ func getTransferAndLock(verbose bool, keys int, emitJSON, pretty bool) func(*cli
 				fromAcct.TransferPrivateK(keys)...,
 			)
 
-			tresp, err := tool.SendCommit(tmnode(conf.Node), transfer)
+			tresp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), transfer)
 			finish(verbose, tresp, err, "transferandlock")
 		}
 	}

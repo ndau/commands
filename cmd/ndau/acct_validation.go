@@ -75,7 +75,7 @@ func getReset(verbose bool, name *string, keys int, emitJSON, pretty bool) func(
 				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -118,7 +118,7 @@ func getAdd(verbose bool, name *string, keys int, emitJSON, pretty bool) func(*c
 				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
@@ -195,7 +195,7 @@ func getSetScript(verbose bool, name *string, keys int, emitJSON, pretty bool) f
 				fmt.Printf("%#v\n", cv)
 			}
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), cv)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cv)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {

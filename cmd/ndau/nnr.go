@@ -52,7 +52,7 @@ func getNNR(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				keys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node), nnr)
+			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), nnr)
 			finish(verbose, result, err, "nnr")
 		}
 	}

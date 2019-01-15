@@ -47,7 +47,7 @@ func getAccountChangeSettlement(verbose bool, keys int, emitJSON, pretty bool) f
 				)
 			}
 
-			resp, err := tool.SendCommit(tmnode(config.Node), cep)
+			resp, err := tool.SendCommit(tmnode(config.Node, emitJSON, pretty), cep)
 			finish(verbose, resp, err, "change-settlement-period")
 		}
 	}

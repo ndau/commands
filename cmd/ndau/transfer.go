@@ -52,7 +52,7 @@ func getTransfer(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				fromAcct.TransferPrivateK(keys)...,
 			)
 
-			tresp, err := tool.SendCommit(tmnode(conf.Node), transfer)
+			tresp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), transfer)
 			finish(verbose, tresp, err, "transfer")
 		}
 	}

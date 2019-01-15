@@ -11,7 +11,7 @@ import (
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-func getAccountClaim(verbose bool) func(*cli.Cmd) {
+func getAccountClaim(verbose bool, emitJSON, pretty bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
@@ -36,7 +36,7 @@ func getAccountClaim(verbose bool) func(*cli.Cmd) {
 				acct.Ownership.Private,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), ca)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), ca)
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {

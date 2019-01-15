@@ -43,7 +43,7 @@ func getRfe(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				keys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node), rfe)
+			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), rfe)
 			finish(verbose, result, err, "rfe")
 		}
 	}

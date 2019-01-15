@@ -43,7 +43,7 @@ func getAccountDelegate(verbose bool, keys int, emitJSON, pretty bool) func(*cli
 				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
 			finish(verbose, resp, err, "delegate")
 		}
 	}

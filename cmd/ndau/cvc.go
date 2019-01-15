@@ -72,7 +72,7 @@ func getCVC(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				fkeys...,
 			)
 
-			result, err := tool.SendCommit(tmnode(conf.Node), cvc)
+			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), cvc)
 			finish(verbose, result, err, "cvc")
 		}
 	}

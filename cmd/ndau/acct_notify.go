@@ -37,7 +37,7 @@ func getNotify(verbose bool, keys int, emitJSON, pretty bool) func(*cli.Cmd) {
 				acct.TransferPrivateK(keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, pretty), tx)
 			finish(verbose, resp, err, "notify")
 		}
 	}

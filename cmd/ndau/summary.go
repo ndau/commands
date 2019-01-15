@@ -19,7 +19,7 @@ func getSummary(verbose bool) func(*cli.Cmd) {
 
 		cmd.Action = func() {
 			config := getConfig()
-			info, _, err := tool.GetSummary(tmnode(config.Node))
+			info, _, err := tool.GetSummary(tmnode(config.Node, false, false))
 
 			// if none of them are set, turn on verbose if it's not on and set the first 3
 			if !*hgt && !*acct && !*tot && !*napu {
