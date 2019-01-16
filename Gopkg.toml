@@ -12,8 +12,7 @@ branch = "master"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-# version = "~v0.12"
-branch = "prgn-tx-clone"
+version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"

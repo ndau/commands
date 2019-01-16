@@ -468,7 +468,6 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  branch = "prgn-tx-clone"
   digest = "1:b5b63ba6c6c1f7b58a73788277d0a59acda242ed5d0a8e9100b0c000399041bf"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -479,7 +478,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "4164c9862125bee44a1e05ef69b87d29c29d5261"
+  revision = "2f15af1dc5589d0e581cb9c9e01ef8a5f2eaba48"
+  version = "v0.12.2"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
