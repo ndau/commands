@@ -20,7 +20,7 @@ func getSendJSON(verbose *bool) func(*cli.Cmd) {
 			tx := getJSONTX()
 			conf := getConfig()
 			resp, err := tool.SendCommit(tmnode(conf.Node, nil, nil), tx)
-			finish(*verbose, resp, err, "transfer")
+			finish(*verbose, resp, err, "send-json")
 		}
 	}
 }
