@@ -116,6 +116,8 @@ chaos_tm() {
     echo $! >"$output_name.pid"
     wait_port "$rpc_port"
     wait_port "$p2p_port"
+
+    echo "  ./chaos conf \"http://localhost:$rpc_port\""
 }
 
 #---------- redis for ndau -------------
@@ -241,6 +243,8 @@ ndau_tm() {
     echo $! >"$output_name.pid"
     wait_port "$rpc_port"
     wait_port "$p2p_port"
+
+    echo "  ./ndau conf \"http://localhost:$rpc_port\""
 }
 
 if [ -z "$1" ]; then

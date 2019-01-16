@@ -31,6 +31,7 @@ func main() {
 	app.Command("summary", "emit summary information about the ndau chain", getSummary(verbose))
 	app.Command("version", "emit version information and quit", getVersion(verbose))
 	app.Command("signable-bytes", "emit the signable bytes of the input tx", getSignableBytes(verbose))
+	app.Command("send", "send a pre-prepared transaction", getSendJSON(verbose))
 
 	app.Run(os.Args)
 }
