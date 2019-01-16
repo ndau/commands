@@ -240,7 +240,7 @@ func main() {
 				getKey(), getHeight(),
 			)
 			if err == nil {
-				emit(os.Stdout, value)
+				emit(value)
 			}
 
 			finish(*verbose, result, err, "get")
