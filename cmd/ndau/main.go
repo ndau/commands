@@ -30,6 +30,7 @@ func main() {
 	app.Command("server", "create server for API endpoint calls", server)
 	app.Command("summary", "emit summary information about the ndau chain", getSummary(verbose))
 	app.Command("version", "emit version information and quit", getVersion(verbose))
+	app.Command("signable-bytes", "emit the signable bytes of the input tx", getSignableBytes(verbose))
 
 	app.Run(os.Args)
 }
