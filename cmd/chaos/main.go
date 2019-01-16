@@ -99,6 +99,22 @@ func main() {
 				},
 			}
 			orQuit(config.Save())
+
+			// temporary code
+			// see https://github.com/oneiro-ndev/commands/pull/64/files#r248228258
+			fmt.Println("IMPORTANT: you are not yet done")
+			fmt.Println()
+			fmt.Println("You must edit the configuration document:")
+			fmt.Println("  i.e.:  $ nano $(./chaos conf-path)")
+			fmt.Println()
+			fmt.Println("- find the ", *idName, " identity")
+			fmt.Println("- add to that identity an [identities.ndau] table")
+			fmt.Println("- add to that table: address: \"ndbmgby86qw9bds9f8wrzut5zrbxuehum5kvgz9sns9hgknh\"")
+			fmt.Println("- add to that table: [[identities.ndau.keys]]")
+			fmt.Println("- get the public and private keys for BPC operations from 1password")
+			fmt.Println("- add those keys to this keys section")
+			fmt.Println()
+			fmt.Println("Once this is complete, you should be able to update system variables")
 		}
 	})
 
