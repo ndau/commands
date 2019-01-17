@@ -251,6 +251,13 @@ finalize() {
     cd "$COMMANDS_DIR" || exit 1
 
     if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
+        # We only update the 0'th node's config.  This is because the account claim step below
+        # affects the blockchain.  It gets propagated to the other nodes' blockchains, but their
+        # ndau and chaos tool configs don't get updated.  This is okay, since developers always
+        # use the ndau-0 directory as NDAUHOME when running chaos and ndau tool commands.  The
+        # other nodes' config files will simply sit there, dormant.  We could even make it so
+        # they are not there at all, but they were needed earlier by ndau_node() for each node,
+        # so we leave them there.  They are valid, but not useable for getting/setting sysvars.
         ndau_home="$NODE_DATA_DIR-0"
 
         # Claim the bpc operations account.  It's okay if it's already claimed (by us).
