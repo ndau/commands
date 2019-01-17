@@ -247,6 +247,23 @@ ndau_tm() {
     echo "  ./ndau conf \"http://localhost:$rpc_port\""
 }
 
+finalize() {
+    cd "$COMMANDS_DIR" || exit 1
+
+    if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
+        ndau_home="$NODE_DATA_DIR-0"
+
+        # Claim the bpc operations account.  It's okay if it's already claimed (by us).
+        NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPERATIONS_ACCOUNT_NAME"
+
+        # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
+        NDAUHOME="$ndau_home" ./chaos id copy-keys-from sysvar "$BPC_OPERATIONS_ACCOUNT_NAME" 
+
+        # We've updated, remove the flag file so we don't update again on the next run.
+        rm "$NEEDS_UPDATE_FLAG_FILE"
+    fi
+}
+
 if [ -z "$1" ]; then
     initialize
 
@@ -264,6 +281,8 @@ if [ -z "$1" ]; then
         ndau_node "$node_num"
         ndau_tm "$node_num"
     done
+
+    finalize
 else
     # We support running a single process for a given node.
     cmd="$1"
@@ -276,6 +295,7 @@ else
 
     initialize
     "$cmd" "$node_num"
+    finalize
 fi
 
 echo "done."

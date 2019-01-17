@@ -109,8 +109,19 @@ done
 
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
+    ndau_home="$NODE_DATA_DIR-$node_num"
+
     ./genesis -g "$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR-$node_num"
-    NDAUHOME="$NODE_DATA_DIR-$node_num" ./ndau conf update-from "$ASSC_TOML"
+    NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
+
+    # For deterministic bpc account address and keys, we recover a special account with 12 eye's.
+    # Since this is only for localnet/devnet/testnet (i.e. not mainnet), this is safe.
+    NDAUHOME="$ndau_home" ./ndau account recover "$BPC_OPERATIONS_ACCOUNT_NAME" \
+        eye eye eye eye eye eye eye eye eye eye eye eye
+
+    # Set up the bpc-operations identity in the chaos tool toml file.
+    # Suppress the big message about next steps.
+    NDAUHOME="$ndau_home" ./chaos import-assc sysvar "$ASSC_TOML" > /dev/null
 
     # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
     # genesis files.
@@ -118,3 +129,9 @@ do
         touch "$NEEDS_UPDATE_FLAG_FILE-$node_num"
     fi
 done
+
+# The no-node-num version of the needs-update file flags that we need to claim the bpc account.
+# It's more or less a global needs-update flag, that causes finalization code to execute.
+if [ "$NEEDS_UPDATE" != 0 ]; then
+    touch "$NEEDS_UPDATE_FLAG_FILE"
+fi
