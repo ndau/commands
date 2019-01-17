@@ -23,7 +23,7 @@ func getAccountDestroy(verbose *bool) func(*cli.Cmd) {
 
 			acct, ok := conf.Accounts[*name]
 			if !ok {
-				orQuit(fmt.Errorf("unknonw acct: \"%s\"", *name))
+				orQuit(fmt.Errorf("unknown acct: \"%s\"", *name))
 			}
 
 			if !*force {
