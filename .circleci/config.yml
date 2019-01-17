@@ -126,8 +126,6 @@ workflows:
           filters:
             tags:
               only: /.*-deploy$/
-            branches:
-              ignore: /.*/
       - integration:
           requires:
             - deploy
