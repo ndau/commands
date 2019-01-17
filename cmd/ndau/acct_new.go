@@ -51,7 +51,7 @@ func getAccountRecover(verbose *bool) func(*cli.Cmd) {
 			orQuit(errors.Wrap(err, "failed to recover identity"))
 			err = config.Save()
 			orQuit(errors.Wrap(err, "saving config"))
-			if verbose != nil && *verbose {
+			if *verbose {
 				fmt.Println("OK")
 			}
 		}

@@ -7,9 +7,9 @@ import (
 	"unicode/utf8"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
+	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/rpc/client"
 )
@@ -39,7 +39,11 @@ func validateBytes(bytes []byte) {
 var nodeHTTP *client.HTTP
 
 // tmnode sets up a client connection to a Tendermint node
-func tmnode(node string) *client.HTTP {
+func tmnode(node string, json, compact *bool) client.ABCIClient {
+	if json != nil && *json {
+		return tool.NewJSONClient(!*compact)
+	}
+
 	if nodeHTTP == nil {
 		nodeHTTP = client.NewHTTP(node, "/websocket")
 	}
@@ -68,7 +72,7 @@ func finish(verbose bool, result interface{}, err error, cmdName string) {
 
 // query the account to get the current sequence
 func sequence(conf *config.Config, addr address.Address) uint64 {
-	ad, _, err := tool.GetAccount(tmnode(conf.Node), addr)
+	ad, _, err := tool.GetAccount(tmnode(conf.Node, nil, nil), addr)
 	orQuit(errors.Wrap(
 		err,
 		fmt.Sprintf("Failed to get current sequence number for %s", addr),

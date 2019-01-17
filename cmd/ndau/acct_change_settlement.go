@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getAccountChangeSettlement(verbose *bool, keys *int) func(*cli.Cmd) {
+func getAccountChangeSettlement(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"NAME %s",
@@ -35,7 +35,7 @@ func getAccountChangeSettlement(verbose *bool, keys *int) func(*cli.Cmd) {
 				ad.Address,
 				duration,
 				sequence(config, ad.Address),
-				ad.TransferPrivateK(keys)...,
+				ad.TransferPrivateK(*keys)...,
 			)
 
 			if *verbose {
@@ -47,7 +47,7 @@ func getAccountChangeSettlement(verbose *bool, keys *int) func(*cli.Cmd) {
 				)
 			}
 
-			resp, err := tool.SendCommit(tmnode(config.Node), cep)
+			resp, err := tool.SendCommit(tmnode(config.Node, emitJSON, compact), cep)
 			finish(*verbose, resp, err, "change-settlement-period")
 		}
 	}
