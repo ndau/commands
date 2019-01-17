@@ -79,6 +79,8 @@ func check(err error) {
 func main() {
 	flag.Parse()
 
+	fmt.Println("got past flags")
+
 	if *echoSpec {
 		fmt.Println(getDbSpec())
 		os.Exit(0)
@@ -93,11 +95,17 @@ func main() {
 		version.Emit()
 	}
 
+	fmt.Println("got past version")
+
 	ndauhome := getNdauhome()
+	fmt.Println("ndauhome = ", ndauhome)
 	configPath := config.DefaultConfigPath(ndauhome)
+	fmt.Println("configpath = ", configPath)
 
 	conf, err := config.LoadDefault(configPath)
 	check(err)
+
+	fmt.Println("got past loaddefault")
 
 	if updateConfFrom != nil && len(*updateConfFrom) > 0 {
 		err = conf.UpdateFrom(*updateConfFrom)
@@ -117,8 +125,12 @@ func main() {
 		os.Exit(0)
 	}
 
+	fmt.Println("got past updatechainfrom")
+
 	app, err := ndau.NewApp(getDbSpec(), getIndexAddr(), indexVersion, *conf)
 	check(err)
+
+	fmt.Println("got past newapp")
 
 	logger := app.GetLogger()
 	logger = logger.WithField("bin", "ndaunode")
