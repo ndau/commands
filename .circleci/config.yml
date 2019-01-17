@@ -119,7 +119,7 @@ workflows:
             - test
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
-              only: /.*-push$|.*-deploy$/
+              only: /.*-deploy$/
             branches:
               ignore: /.*/
       - deploy:
