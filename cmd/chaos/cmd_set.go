@@ -9,16 +9,17 @@ import (
 
 func getCmdSet(verbose *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
-		cmd.LongDesc = "Note that the -bjx options are semi-positional: they always modify the following input"
 		cmd.Spec = fmt.Sprintf(
 			"NAME %s %s",
 			getKeySpec(),
 			getValueSpec(),
 		)
 
-		var name = cmd.StringArg("NAME", "", "Name of identity to use")
-		getKey := getKeyClosure(cmd, verbose)
-		getValue := getValueClosure(cmd, verbose)
+		var (
+			name     = cmd.StringArg("NAME", "", "Name of identity to use")
+			getKey   = getKeyClosure(cmd, verbose)
+			getValue = getValueClosure(cmd, verbose)
+		)
 
 		cmd.Action = func() {
 			config := getConfig()

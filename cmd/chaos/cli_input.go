@@ -15,21 +15,37 @@ import (
 	"github.com/pkg/errors"
 )
 
+func inOpt(hyphens bool, name, option string) string {
+	var h string
+	if hyphens {
+		h = "--"
+	}
+	return fmt.Sprintf(
+		"%s%s-%s",
+		h,
+		strings.ToLower(name),
+		option,
+	)
+}
+
 func getInputSpec(name string) string {
 	return fmt.Sprintf(
-		"[-b|-j|-x] (%s | --%s-file=<PATH>)",
+		"[%s|%s|%s] (%s | %s=<PATH>)",
+		inOpt(true, name, "base64"),
+		inOpt(true, name, "json"),
+		inOpt(true, name, "hex"),
 		strings.ToUpper(name),
-		strings.ToLower(name),
+		inOpt(true, name, "file"),
 	)
 }
 
 func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 	var (
-		base64In  = cmd.BoolOpt("b base64", false, "if set, interpret input as base64-encoded")
-		jsonIn    = cmd.BoolOpt("j json", false, "if set, interpret input as JSON and convert to MSGP format")
-		hexIn     = cmd.BoolOpt("x hex", false, "if set, interpret input as hex-encoded")
+		base64In  = cmd.BoolOpt(inOpt(false, name, "base64"), false, "if set, interpret input as base64-encoded")
+		jsonIn    = cmd.BoolOpt(inOpt(false, name, "json"), false, "if set, interpret input as JSON and convert to MSGP format")
+		hexIn     = cmd.BoolOpt(inOpt(false, name, "hex"), false, "if set, interpret input as hex-encoded")
 		input     = cmd.StringArg(strings.ToUpper(name), "", fmt.Sprintf("%s input", name))
-		inputFile = cmd.StringOpt(fmt.Sprintf("%s-file", name), "", "read input from this file instead of the CLI")
+		inputFile = cmd.StringOpt(inOpt(false, name, "file"), "", "read input from this file instead of the CLI")
 	)
 
 	return func() []byte {
@@ -55,10 +71,6 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 		data, err := ioutil.ReadAll(reader)
 		orQuit(err)
 
-		if *verbose {
-			fmt.Printf("%s input is %d bytes long\n", name, len(data))
-		}
-
 		switch {
 		case base64In != nil && *base64In:
 			if *verbose {
@@ -66,6 +78,9 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 			}
 			out, err := base64.StdEncoding.DecodeString(string(data))
 			orQuit(err)
+			if *verbose {
+				fmt.Printf("%s input is %d bytes long\n", name, len(out))
+			}
 			return out
 		case hexIn != nil && *hexIn:
 			if *verbose {
@@ -73,6 +88,9 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 			}
 			out, err := hex.DecodeString(string(data))
 			orQuit(err)
+			if *verbose {
+				fmt.Printf("%s input is %d bytes long\n", name, len(out))
+			}
 			return out
 		case jsonIn != nil && *jsonIn:
 			if *verbose {
@@ -82,10 +100,15 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 			outbuf := &bytes.Buffer{}
 			err = json2msgp.ConvertStream(inbuf, outbuf)
 			orQuit(err)
-			return outbuf.Bytes()
+			out := outbuf.Bytes()
+			if *verbose {
+				fmt.Printf("%s input is %d bytes long\n", name, len(out))
+			}
+			return out
 		default:
 			if *verbose {
 				fmt.Println(name, "input is a string literal")
+				fmt.Printf("%s input is %d bytes long\n", name, len(data))
 			}
 			return data
 		}

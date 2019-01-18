@@ -35,7 +35,6 @@ func getEmitClosure(cmd *cli.Cmd, verbose *bool) func([]byte) {
 			_, err := msgp.CopyToJSON(os.Stdout, bytes.NewBuffer(output))
 			orQuit(err)
 		case *rawOut, *stringOut:
-			fmt.Print(string(output))
 			if *stringOut && !utf8.Valid(output) {
 				orQuit(errors.New(
 					"output was not a string: " + base64.StdEncoding.EncodeToString(output),
