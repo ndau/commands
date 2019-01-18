@@ -19,8 +19,8 @@ func getCmdGet(verbose *bool) func(*cli.Cmd) {
 
 		getNs := getNamespaceClosure(cmd)
 		getHeight := getHeightClosure(cmd)
-		getKey := getKeyClosure(cmd)
-		emit := getEmitClosure(cmd)
+		getKey := getKeyClosure(cmd, verbose)
+		emit := getEmitClosure(cmd, verbose)
 
 		cmd.Action = func() {
 			config := getConfig()

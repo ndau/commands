@@ -20,7 +20,7 @@ func getEmitSpec() string {
 	return "[-S][-m|-r|-s|-x]"
 }
 
-func getEmitClosure(cmd *cli.Cmd) func([]byte) {
+func getEmitClosure(cmd *cli.Cmd, verbose *bool) func([]byte) {
 	var (
 		strip     = cmd.BoolOpt("S strip", false, "if set, do not append a newline after output")
 		msgpOut   = cmd.BoolOpt("m msgp", false, "if set, convert msgp output to json")

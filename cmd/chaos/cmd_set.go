@@ -17,8 +17,8 @@ func getCmdSet(verbose *bool) func(*cli.Cmd) {
 		)
 
 		var name = cmd.StringArg("NAME", "", "Name of identity to use")
-		getKey := getKeyClosure(cmd)
-		getValue := getValueClosure(cmd)
+		getKey := getKeyClosure(cmd, verbose)
+		getValue := getValueClosure(cmd, verbose)
 
 		cmd.Action = func() {
 			config := getConfig()

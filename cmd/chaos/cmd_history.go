@@ -18,7 +18,7 @@ func getCmdHistory(verbose *bool) func(*cli.Cmd) {
 		)
 
 		getNs := getNamespaceClosure(cmd)
-		getKey := getKeyClosure(cmd)
+		getKey := getKeyClosure(cmd, verbose)
 		emit := getEmitHistoryClosure(cmd)
 
 		cmd.Action = func() {
