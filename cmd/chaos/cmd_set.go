@@ -1,0 +1,29 @@
+package main
+
+import (
+	"fmt"
+
+	cli "github.com/jawher/mow.cli"
+	twrite "github.com/oneiro-ndev/chaos/pkg/tool.write"
+)
+
+func getCmdSet(verbose *bool) func(*cli.Cmd) {
+	return func(cmd *cli.Cmd) {
+		cmd.LongDesc = "Note that the -bjx options are semi-positional: they always modify the following input"
+		cmd.Spec = fmt.Sprintf(
+			"NAME %s %s",
+			getKeySpec(),
+			getValueSpec(),
+		)
+
+		var name = cmd.StringArg("NAME", "", "Name of identity to use")
+		getKey := getKeyClosure(cmd)
+		getValue := getValueClosure(cmd)
+
+		cmd.Action = func() {
+			config := getConfig()
+			result, err := twrite.Set(tmnode(config.Node), *name, config, getKey(), getValue())
+			finish(*verbose, result, err, "set")
+		}
+	}
+}
