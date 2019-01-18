@@ -260,11 +260,11 @@ finalize() {
         # so we leave them there.  They are valid, but not useable for getting/setting sysvars.
         ndau_home="$NODE_DATA_DIR-0"
 
-        # Claim the bpc operations account.  It's okay if it's already claimed (by us).
-        NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPERATIONS_ACCOUNT_NAME"
+        # Claim the bpc operations account.  This puts the validation keys into ndautool.toml.
+        NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
 
         # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
-        NDAUHOME="$ndau_home" ./chaos id copy-keys-from sysvar "$BPC_OPERATIONS_ACCOUNT_NAME" 
+        NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME" 
 
         # We've updated, remove the flag file so we don't update again on the next run.
         rm "$NEEDS_UPDATE_FLAG_FILE"

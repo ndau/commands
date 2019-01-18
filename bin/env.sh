@@ -28,7 +28,9 @@ export TM_RPC_PORT=26670
 
 # We programmatically create and claim the bpc account on localnet.  This is its name.
 # It's required in order to change system variables on the chaos chain.
-BPC_OPERATIONS_ACCOUNT_NAME=bpc-operations
+BPC_OPS_ACCT_NAME=bpc-operations
+# This is the chaos-side identity that will be associated with the BPC account.
+SYSVAR_ID=sysvar
 
 # Go source path.
 GO_DIR=$(go env GOPATH)

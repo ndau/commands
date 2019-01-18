@@ -116,12 +116,12 @@ do
 
     # For deterministic bpc account address and keys, we recover a special account with 12 eye's.
     # Since this is only for localnet/devnet/testnet (i.e. not mainnet), this is safe.
-    NDAUHOME="$ndau_home" ./ndau account recover "$BPC_OPERATIONS_ACCOUNT_NAME" \
+    NDAUHOME="$ndau_home" ./ndau account recover "$BPC_OPS_ACCT_NAME" \
         eye eye eye eye eye eye eye eye eye eye eye eye
 
     # Set up the bpc-operations identity in the chaos tool toml file.
     # Suppress the big message about next steps.
-    NDAUHOME="$ndau_home" ./chaos import-assc sysvar "$ASSC_TOML" > /dev/null
+    NDAUHOME="$ndau_home" ./chaos import-assc "$SYSVAR_ID" "$ASSC_TOML" > /dev/null
 
     # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
     # genesis files.
