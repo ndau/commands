@@ -7,6 +7,7 @@ import (
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/tendermint/tendermint/rpc/client"
 )
 
 func getInfo(verbose *bool) func(*cli.Cmd) {
@@ -19,7 +20,7 @@ func getInfo(verbose *bool) func(*cli.Cmd) {
 
 		cmd.Action = func() {
 			config := getConfig()
-			info, err := tool.Info(tmnode(config.Node))
+			info, err := tool.Info(tmnode(config.Node, nil, nil).(*client.HTTP))
 
 			if *key {
 				b := info.ValidatorInfo.PubKey.Bytes()
@@ -35,7 +36,8 @@ func getInfo(verbose *bool) func(*cli.Cmd) {
 				fmt.Println(info.ValidatorInfo.VotingPower)
 			}
 			if !(*key || *pwr) {
-				*verbose = true
+				vb := true
+				verbose = &vb
 			}
 			finish(*verbose, info, err, "info")
 		}

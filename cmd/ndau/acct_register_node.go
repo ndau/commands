@@ -9,7 +9,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
-func getRegisterNode(verbose *bool, keys *int) func(*cli.Cmd) {
+func getRegisterNode(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME RPC_ADDRESS DISTRIBUTION_SCRIPT"
 
@@ -46,10 +46,10 @@ func getRegisterNode(verbose *bool, keys *int) func(*cli.Cmd) {
 			tx := ndau.NewRegisterNode(
 				acct.Address, script, *rpcAddr,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(keys)...,
+				acct.TransferPrivateK(*keys)...,
 			)
 
-			resp, err := tool.SendCommit(tmnode(conf.Node), tx)
+			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)
 			finish(*verbose, resp, err, "notify")
 		}
 	}

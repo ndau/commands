@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:d308a6c1896a41fe2cc8b822acd7a9a40174cde114a0236b77c5174bf2d67934"
+  digest = "1:70457884e4b0a5ca3f9b62978655595d63731f2d141f3dcce8f51c4820727d68"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "aabf189db35ba7eb5a35afe6d681fc0f70954fca"
-  version = "v1.16.18"
+  revision = "a0a1669c06da522317116cc7624ac257d9c5fdfd"
+  version = "v1.16.21"
 
 [[projects]]
   branch = "master"
@@ -132,11 +132,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3341498fe6dda7accb37b46d33020ebcf15883d86730d26ad55f6ad0e42c57b7"
+  digest = "1:057aee12ac2f820c94b04da39a3ebcd865bee3bdda697ee0e6bbf75e00476b5f"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
   pruneopts = ""
-  revision = "5bda5314ca9549a589e63d7b2e6104492a0d5328"
+  revision = "ed77733ec07dfc8a513741138419b8d9d3de9d2d"
 
 [[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
@@ -240,12 +240,12 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:c6a85071666d8cd6f03b34ad69457b3fcee048b16cfd0e203de8e3089f459532"
+  digest = "1:81a7ff0b813e894da72760f905238789e9fcfd18919934d82e651cb026222815"
   name = "github.com/go-zoo/bone"
   packages = ["."]
   pruneopts = ""
-  revision = "fd0aebc74e908868b09ac140fb5a53cb363884c1"
-  version = "1.2"
+  revision = "d7ce1372afa7a4319e9b84ab08593d1342a8c10a"
+  version = "1.2.1"
 
 [[projects]]
   digest = "1:6e73003ecd35f4487a5e88270d3ca0a81bc80dc88053ac7e4dcfec5fba30d918"
@@ -365,12 +365,12 @@
   revision = "9bdec3dec7c611fa97beadc374d75bdf02cd880e"
 
 [[projects]]
-  digest = "1:19f3a4ee57d3ee5bc20993939095a014aaed7f1fc8294d26b931fe97ec1c2a36"
+  digest = "1:98a8f8bd19887064f9d5bd71c56c4ea47d62dec4233b3862005a692ddc334a45"
   name = "github.com/kentquirk/boneful"
   packages = ["."]
   pruneopts = ""
-  revision = "3803229ab933de2ae9bc4809a89295b28286cf36"
-  version = "v1.0.0"
+  revision = "a964f6ab3e5751b2da3771527e3f458cf78d9e14"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -436,15 +436,15 @@
   version = "v0.12.1"
 
 [[projects]]
-  digest = "1:11a0a4ecd96275d814777fbb770d3861507488c371d76e42b291063d681756ef"
+  digest = "1:1fbc0bb8acdddf1722c822772bdb313107778b098086a5dc3691f1c11f4e523c"
   name = "github.com/oneiro-ndev/chaos_genesis"
   packages = [
     "pkg/genesis",
     "pkg/genesis.generator",
   ]
   pruneopts = ""
-  revision = "1b8ea444d9166cc4f17957e2c1598dba6b455b07"
-  version = "v0.1.2"
+  revision = "3e571a8610097fa7a85a463ffac818a9de1774b1"
+  version = "v0.1.3"
 
 [[projects]]
   branch = "master"
@@ -460,7 +460,7 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
-  digest = "1:60ec8d38f0eaaf2f89541dd8920fcd493108f6c196890a8e10a116355ccf964b"
+  digest = "1:b5b63ba6c6c1f7b58a73788277d0a59acda242ed5d0a8e9100b0c000399041bf"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -470,8 +470,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "d6d073c8c62e403099cd549546a1753fe8442408"
-  version = "v0.12.1"
+  revision = "2f15af1dc5589d0e581cb9c9e01ef8a5f2eaba48"
+  version = "v0.12.2"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -615,11 +615,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3fa49ea0332c644e4d4ce3864d8eee2cc6c858cb52bf935e32c28d194a0f2bfa"
+  digest = "1:adace4b303867385ba60abf9337de102689e96d47fc9a48c29fde202e12dd229"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = ""
-  revision = "f287a105a20ec685d797f65cd0ce8fbeaef42da1"
+  revision = "56726106282f1985ea77d5305743db7231b0c0a8"
 
 [[projects]]
   branch = "master"
@@ -635,7 +635,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b9a435d988632d00a70882d2754f2a59468d4be56fd62022ab2ca4640fc70c66"
+  digest = "1:b9f39c2f3278c4c3e9901d9b6a9b0316a1cb54fa6a0367e3498a8e8babc773b3"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -644,7 +644,7 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1"
+  revision = "bf6a532e95b1f7a62adf0ab5050a5bb2237ad2f4"
 
 [[projects]]
   digest = "1:15bcdc717654ef21128e8af3a63eec39a6d08a830e297f93d65163f87c8eb523"
@@ -864,7 +864,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b7e6db8822c87cf81925add756de72c26101d775f014f27cad36ba76e4ac3136"
+  digest = "1:057806b6e218f4ceac80d27ccd8dd80b2c06b0050289aa46e0edfd82cc4faa2c"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -872,7 +872,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "2be51725563103c17124a318f1745b66f2347acb"
+  revision = "11f53e03133963fb11ae0588e08b5e0b85be8be5"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -899,11 +899,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:20d88050fd2ec7f77865cd23dcca07bf47b52b8fe9b8f35a6abf122336abb82d"
+  digest = "1:1c7094a77c36fbbfd5a3da1151ccd6adcdef0bd7e02cca77b7f67ae4f1cbcf0e"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil"]
   pruneopts = ""
-  revision = "fc1d57b08d7be19e6befb8d9a9405221faa3d5c9"
+  revision = "b4b6fe2cb82970f144debbe03ecb71e340b15446"
 
 [[projects]]
   branch = "master"
@@ -914,7 +914,7 @@
   revision = "db91494dd46c1fdcbbde05e5ff5eb56df8f7d79a"
 
 [[projects]]
-  digest = "1:d141efe4aaad714e3059c340901aab3147b6253e58c85dafbcca3dd8b0e88ad6"
+  digest = "1:39d4d828b87d58d114fdc211f0638f32dcae84019fe17d6b48f9b697f4b60213"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -950,8 +950,8 @@
     "tap",
   ]
   pruneopts = ""
-  revision = "df014850f6dee74ba2fc94874043a9f3f75fbfd8"
-  version = "v1.17.0"
+  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
+  version = "v1.18.0"
 
 [[projects]]
   digest = "1:73ebcbf8b130be886f04e5b928308604a36620e53343b833926a3aa4f2582abd"
