@@ -117,7 +117,7 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
         ./genesis -g "$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR-$node_num"
         NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
 
-        # For deterministic bpc account address and keys, we recover special account with 12 eyes.
+        # For deterministic bpc account address/keys, we recover a special account with 12 eyes.
         # Since this is only for localnet/devnet/testnet (i.e. not mainnet), this is safe.
         NDAUHOME="$ndau_home" ./ndau account recover "$BPC_OPS_ACCT_NAME" \
             eye eye eye eye eye eye eye eye eye eye eye eye
