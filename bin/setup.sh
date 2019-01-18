@@ -75,12 +75,15 @@ else
     cd tendermint
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
-git fetch
+git fetch --prune
 git checkout "$TENDERMINT_VER"
 echo SETUP: Patching tendermint...
 patch -i "$COMMANDS_DIR"/deploy/tendermint/Gopkg.toml.patch Gopkg.toml
 patch -i "$COMMANDS_DIR"/deploy/tendermint/root.go.patch cmd/tendermint/commands/root.go
 echo SETUP: Ensuring dependencies for tendermint...
+# These vendor directories sometimes cause dep ensure to fail, remove them first.
+rm -rf vendor
+rm -rf .vendor-new
 "$GO_DIR"/bin/dep ensure
 
 # Get the ndev repos.
