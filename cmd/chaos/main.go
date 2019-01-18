@@ -195,16 +195,15 @@ func main() {
 	})
 
 	app.Command("set", "set K-V pairs", func(cmd *cli.Cmd) {
-		allowBinaryKey := true
-
+		cmd.LongDesc = "Note that the -bjx options are semi-positional: they always modify the following input"
 		cmd.Spec = fmt.Sprintf(
 			"NAME %s %s",
-			getKeySpec(allowBinaryKey),
+			getKeySpec(),
 			getValueSpec(),
 		)
 
 		var name = cmd.StringArg("NAME", "", "Name of identity to use")
-		getKey := getKeyClosure(cmd, allowBinaryKey)
+		getKey := getKeyClosure(cmd)
 		getValue := getValueClosure(cmd)
 
 		cmd.Action = func() {
@@ -215,20 +214,17 @@ func main() {
 	})
 
 	app.Command("get", "get K-V pairs", func(cmd *cli.Cmd) {
-		cmd.LongDesc = "get K-V pairs\n\nIf neither -s nor -f is set, the value is base64-encoded"
-		allowBinaryKey := true
-
 		cmd.Spec = fmt.Sprintf(
 			"%s %s %s %s",
 			getNamespaceSpec(),
 			getHeightSpec(),
-			getKeySpec(allowBinaryKey),
+			getKeySpec(),
 			getEmitSpec(),
 		)
 
 		getNs := getNamespaceClosure(cmd)
 		getHeight := getHeightClosure(cmd)
-		getKey := getKeyClosure(cmd, allowBinaryKey)
+		getKey := getKeyClosure(cmd)
 		emit := getEmitClosure(cmd)
 
 		cmd.Action = func() {
@@ -269,18 +265,15 @@ func main() {
 	})
 
 	app.Command("history", "get historical values for a key", func(cmd *cli.Cmd) {
-		cmd.LongDesc = "get historical values for a key\n\nIf neither -s nor -f is set, the value is base64-encoded"
-		allowBinaryKey := true
-
 		cmd.Spec = fmt.Sprintf(
 			"%s %s %s",
 			getNamespaceSpec(),
-			getKeySpec(allowBinaryKey),
+			getKeySpec(),
 			getEmitHistorySpec(),
 		)
 
 		getNs := getNamespaceClosure(cmd)
-		getKey := getKeyClosure(cmd, allowBinaryKey)
+		getKey := getKeyClosure(cmd)
 		emit := getEmitHistoryClosure(cmd)
 
 		cmd.Action = func() {

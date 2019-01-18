@@ -476,6 +476,14 @@
   revision = "5571b19b947bb8066f93cc1afaa6140959b9aeb1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ba7cbb32fc3d33903d2a596d2eb7a2ddbfc1aca65a2cf4ae785b5cd59373b418"
+  name = "github.com/oneiro-ndev/json2msgp"
+  packages = ["."]
+  pruneopts = ""
+  revision = "51e787c1b8ab0b3c6cc0f7db8c7b650753541899"
+
+[[projects]]
   digest = "1:b5b63ba6c6c1f7b58a73788277d0a59acda242ed5d0a8e9100b0c000399041bf"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -997,6 +1005,7 @@
     "github.com/oneiro-ndev/genesis/pkg/config",
     "github.com/oneiro-ndev/genesis/pkg/etl",
     "github.com/oneiro-ndev/genesis/pkg/genesis",
+    "github.com/oneiro-ndev/json2msgp",
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
@@ -1028,6 +1037,7 @@
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",
+    "github.com/tinylib/msgp/msgp",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

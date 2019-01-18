@@ -10,11 +10,10 @@ import (
 	"os"
 	"unicode/utf8"
 
-	"github.com/tinylib/msgp/msgp"
-
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/chaos/pkg/chaos/query"
 	"github.com/pkg/errors"
+	"github.com/tinylib/msgp/msgp"
 )
 
 func getEmitSpec() string {
