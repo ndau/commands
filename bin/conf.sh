@@ -5,17 +5,18 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 source "$CMDBIN_DIR"/env.sh
 
 # Protection against conf.sh being run multiple times.
-# We only want to flag for needs_update if we're being called from setup.sh or reset.sh.
+# We only want to flag for needs-update if we're being called from setup.sh or reset.sh.
 NEEDS_UPDATE=0
 
 # Process command line arguments.
 ARGS=("$@")
 for arg in "${ARGS[@]}"; do
-    if [ "$arg" = "--needs_update" ]; then
+    if [ "$arg" = "--needs-update" ]; then
         NEEDS_UPDATE=1
         break
     fi
 done
+
 
 echo Configuring tendermint...
 cd "$TENDERMINT_DIR" || exit 1
@@ -102,6 +103,8 @@ do
     NDAUHOME="$ndau_home" ./chaosnode --set-ndaunode "$ndau_rpc_addr"
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
 done
+
+#
 
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do

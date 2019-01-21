@@ -122,6 +122,6 @@ echo SETUP: Testing...
 
 # Configure everything.
 echo SETUP: Configuring...
-"$CMDBIN_DIR"/conf.sh --needs_update
+"$CMDBIN_DIR"/conf.sh --needs-update
 
 echo SETUP: Setup complete
