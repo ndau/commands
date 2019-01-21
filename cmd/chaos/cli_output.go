@@ -1,52 +1,55 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
+	"unicode/utf8"
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/chaos/pkg/chaos/query"
+	"github.com/pkg/errors"
+	"github.com/tinylib/msgp/msgp"
 )
 
-// getEmitSpec returns a portion of the specification string,
-// specifying value emission options
 func getEmitSpec() string {
-	return "[(-s | -t)... | -f=<FILE>]"
+	return "[-S][-m|-r|-s|-x]"
 }
 
-// getEmitClosure returns a closure which emits the specified bytes per
-// the options specified on the command line
-func getEmitClosure(cmd *cli.Cmd) func(io.Writer, []byte) error {
+func getEmitClosure(cmd *cli.Cmd, verbose *bool) func([]byte) {
 	var (
-		asString = cmd.BoolOpt("s string", false, "Interpret the returned value as a utf-8 string")
-		trim     = cmd.BoolOpt("t trim", false, "Do not add a newline after the value")
-		file     = cmd.StringOpt("f file", "", "Write the returned value to a file named by FILE. Implies -t. Does not encode the data as base64.")
+		strip     = cmd.BoolOpt("S strip", false, "if set, do not append a newline after output")
+		msgpOut   = cmd.BoolOpt("m msgp", false, "if set, convert msgp output to json")
+		rawOut    = cmd.BoolOpt("r raw", false, "if set, do not encode output (implies -S) (default: base64)")
+		stringOut = cmd.BoolOpt("s string", false, "if set, interpret output as utf-8")
+		hexOut    = cmd.BoolOpt("x hex", false, "if set, emit output as hexadecimal (default: base64)")
 	)
 
-	return func(w io.Writer, value []byte) error {
-		// if file is set, just emit the output to the file
-		if len(*file) > 0 {
-			// default permissions: u=rw;go-
-			return ioutil.WriteFile(*file, value, 0600)
+	return func(output []byte) {
+		switch {
+		case *msgpOut:
+			_, err := msgp.CopyToJSON(os.Stdout, bytes.NewBuffer(output))
+			orQuit(err)
+		case *rawOut, *stringOut:
+			if *stringOut && !utf8.Valid(output) {
+				orQuit(errors.New(
+					"output was not a string: " + base64.StdEncoding.EncodeToString(output),
+				))
+			}
+			fmt.Print(string(output))
+		case *hexOut:
+			fmt.Print(hex.EncodeToString(output))
+		default:
+			fmt.Print(base64.StdEncoding.EncodeToString(output))
 		}
 
-		if *asString {
-			// interpret as string and emit
-			fmt.Fprint(w, string(value))
-		} else {
-			// interpret as bytes; emit base64 encoding
-			b64 := base64.StdEncoding.EncodeToString(value)
-			fmt.Fprint(w, b64)
+		if !(*strip || *rawOut) {
+			fmt.Println()
 		}
-
-		// newline if not trim
-		if !*trim {
-			fmt.Fprint(w, "\n")
-		}
-
-		return nil
 	}
 }
 
