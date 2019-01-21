@@ -93,7 +93,7 @@ update_repo() {
         exists=$(git ls-remote --heads git@github.com:oneiro-ndev/"$repo".git "$branch")
         if [ -z "$exists" ]; then
             # This just means you have a local branch you haven't pushed yet, and that's fine.
-            echo Branch $branch does not exist on remote
+            echo "Branch $branch does not exist on remote"
         else
             git pull origin "$branch"
         fi

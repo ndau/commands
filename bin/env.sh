@@ -77,8 +77,10 @@ export TENDERMINT_CMD=cmd/tendermint
 # We use it for storing meta info about the local nodes we manage.
 export NODE_COUNT_FILE="$LOCALNET_DIR"/node_count
 if [ -e "$NODE_COUNT_FILE" ]; then
+    # cat can't fail in this situation
+    # shellcheck disable=SC2155
     export NODE_COUNT=$(cat "$NODE_COUNT_FILE")
-    export HIGH_NODE_NUM=$(expr "$NODE_COUNT" - 1)
+    export HIGH_NODE_NUM=$(("$NODE_COUNT" - 1))
 fi
 
 # File used by conf.sh to tell run.sh to import genesis data on first run after a reset.

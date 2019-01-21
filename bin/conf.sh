@@ -62,9 +62,9 @@ if [ "$NODE_COUNT" -gt 1 ]; then
     # So for every node's config, we only need to tell it about one other node, not all of
     # them.  The last node therefore doesn't need to know about any peers, because the
     # previous one will dial it up as a peer.
-    for node_num in $(seq 0 $(expr "$HIGH_NODE_NUM" - 1));
+    for node_num in $(seq 0 "$(("$HIGH_NODE_NUM" - 1))");
     do
-        peer_num=$(expr "$node_num" + 1)
+        peer_num=$(("$node_num" + 1))
 
         src_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$peer_num"
         src_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$peer_num"
@@ -72,14 +72,14 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         dst_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
 
         peer_id=$(./tendermint show_node_id --home "$src_tm_chaos_home")
-        peer_port=$(expr "$TM_P2P_PORT" + 2 \* "$peer_num")
+        peer_port=$(("$TM_P2P_PORT" + 2 * "$peer_num"))
         peer="$peer_id@127.0.0.1:$peer_port"
         sed -i '' -E \
             -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
             "$dst_tm_chaos_home/config/config.toml"
 
         peer_id=$(./tendermint show_node_id --home "$src_tm_ndau_home")
-        peer_port=$(expr "$TM_P2P_PORT" + 2 \* "$peer_num" + 1)
+        peer_port=$(("$TM_P2P_PORT" + 2 * "$peer_num" + 1))
         peer="$peer_id@127.0.0.1:$peer_port"
         sed -i '' -E \
             -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
@@ -93,9 +93,9 @@ cd "$COMMANDS_DIR" || exit 1
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
     ndau_home="$NODE_DATA_DIR-$node_num"
-    port_offset=$(expr 2 \* "$node_num")
-    chaos_rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset")
-    ndau_rpc_port=$(expr "$TM_RPC_PORT" + "$port_offset" + 1)
+    port_offset=$((2 * "$node_num"))
+    chaos_rpc_port=$(("$TM_RPC_PORT" + "$port_offset"))
+    ndau_rpc_port=$(("$TM_RPC_PORT" + "$port_offset" + 1))
     chaos_rpc_addr="http://localhost:$chaos_rpc_port"
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
