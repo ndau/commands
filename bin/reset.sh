@@ -16,4 +16,4 @@ rm -rf "$ROOT_DATA_DIR"
 mkdir -p "$ROOT_DATA_DIR"
 
 # Reconfigure everything since we deleted all the home/data directories.
-"$CMDBIN_DIR"/conf.sh --needs_update
+"$CMDBIN_DIR"/conf.sh --needs-update

@@ -17,7 +17,7 @@ if [ -z "$REPO" ]; then
     exit 1
 fi
 
-cd "$NDEV_DIR/$REPO"
+cd "$NDEV_DIR/$REPO" || exit 1
 go generate ./...
 
 # Strip out all the "msgp.WrapError" lines that don't compile in unit tests.
