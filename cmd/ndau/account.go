@@ -19,15 +19,21 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
-			"recover",
-			"recover an account from its recovery phrase",
-			getAccountRecover(verbose),
-		)
-
-		cmd.Command(
 			"claim",
 			"claim this account on the blockchain",
 			getAccountClaim(verbose, emitJSON, compact),
+		)
+
+		cmd.Command(
+			"destroy",
+			"remove all local knowledge of this account",
+			getAccountDestroy(verbose),
+		)
+
+		cmd.Command(
+			"recover",
+			"recover an account from its recovery phrase",
+			getAccountRecover(verbose),
 		)
 
 		cmd.Command(

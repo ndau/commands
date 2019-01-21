@@ -80,14 +80,18 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         dst_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
         dst_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
 
-        peer_id=$(./tendermint show_node_id --home "$src_tm_chaos_home")
+        peer_id=$(./tendermint show_node_id --home "$src_tm_chaos_home" | \
+                      sed -e 's/^.*honeycomb.*$//')
+        peer_id=$(echo -e "$peer_id" | tr -d '[:space:]')
         peer_port=$((TM_P2P_PORT + 2 * peer_num))
         peer="$peer_id@127.0.0.1:$peer_port"
         sed -i '' -E \
             -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
             "$dst_tm_chaos_home/config/config.toml"
 
-        peer_id=$(./tendermint show_node_id --home "$src_tm_ndau_home")
+        peer_id=$(./tendermint show_node_id --home "$src_tm_ndau_home" | \
+                      sed -e 's/^.*honeycomb.*$//')
+        peer_id=$(echo -e "$peer_id" | tr -d '[:space:]')
         peer_port=$((TM_P2P_PORT + 2 * peer_num + 1))
         peer="$peer_id@127.0.0.1:$peer_port"
         sed -i '' -E \
