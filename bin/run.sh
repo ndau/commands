@@ -192,9 +192,11 @@ ndau_node() {
                    -index localhost:"$redis_port" \
                    -update-conf-from "$GENESIS_TOML"
 
-        # The config toml file has now been generated, edit it.
+        # The config toml file has now been generated.
+        # Set the chaos address and use chaos for sysvars instead of the genesis file as a mock.
         sed -i '' \
             -e "s@ChaosAddress = \".*\"@ChaosAddress = \"http://localhost:$chaos_rpc_port\"@" \
+            -e "s@UseMock = \".*\"@@" \
             "$ndau_home/ndau/config.toml"
 
         echo "  updating ndau chain using $ASSC_TOML"
