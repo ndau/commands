@@ -57,6 +57,13 @@ else
     git clone "$NOMS_REPO"
 fi
 
+run_dep_ensure() {
+    # These vendor directories sometimes cause dep ensure to fail, remove them first.
+    rm -rf vendor
+    rm -rf .vendor-new
+    "$GO_DIR"/bin/dep ensure
+}
+
 # Get the correct version of tendermint source.
 echo SETUP: Getting dep...
 go get -u github.com/golang/dep/...
@@ -75,16 +82,13 @@ else
     cd tendermint
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
-git fetch --prune
+git fetch origin "$TENDERMINT_VER" --prune
 git checkout "$TENDERMINT_VER"
 echo SETUP: Patching tendermint...
 patch -i "$COMMANDS_DIR"/deploy/tendermint/Gopkg.toml.patch Gopkg.toml
 patch -i "$COMMANDS_DIR"/deploy/tendermint/root.go.patch cmd/tendermint/commands/root.go
 echo SETUP: Ensuring dependencies for tendermint...
-# These vendor directories sometimes cause dep ensure to fail, remove them first.
-rm -rf vendor
-rm -rf .vendor-new
-"$GO_DIR"/bin/dep ensure
+run_dep_ensure
 
 # Get the ndev repos.
 update_repo() {
@@ -114,10 +118,7 @@ update_repo ndau
 
 cd "$NDEV_DIR"/commands
 echo SETUP: Ensuring dependencies for commands...
-# These vendor directories sometimes cause dep ensure to fail, remove them first.
-rm -rf vendor
-rm -rf .vendor-new
-"$GO_DIR"/bin/dep ensure
+run_dep_ensure
 
 # Build everything.
 echo SETUP: Building...
