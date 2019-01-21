@@ -120,6 +120,7 @@ chaos_tm() {
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
+    echo "  tm coming up; waiting for ports $rpc_port and $p2p_port..."
     wait_port "$rpc_port"
     wait_port "$p2p_port"
 
@@ -247,6 +248,7 @@ ndau_tm() {
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
+    echo "  tm coming up; waiting for ports $rpc_port and $p2p_port..."
     wait_port "$rpc_port"
     wait_port "$p2p_port"
 

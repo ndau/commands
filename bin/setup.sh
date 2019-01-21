@@ -11,8 +11,8 @@ source "$CMDBIN_DIR"/env.sh
 # Process command line arguments.
 node_count="$1"
 if [ -z "$node_count" ]; then
-    echo "Usage: ./setup.sh node_count"
-    exit 1
+    echo "node_count not set; defaulting to 1"
+    node_count=1
 fi
 if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
     echo Node count must be a positive integer
