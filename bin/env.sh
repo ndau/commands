@@ -26,6 +26,12 @@ export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 
+# We programmatically create and claim the bpc account on localnet.  This is its name.
+# It's required in order to change system variables on the chaos chain.
+BPC_OPS_ACCT_NAME=bpc-operations
+# This is the chaos-side identity that will be associated with the BPC account.
+SYSVAR_ID=sysvar
+
 # Go source path.
 GO_DIR=$(go env GOPATH)
 if [[ "$GO_DIR" == *":"* ]]; then
@@ -51,8 +57,8 @@ export TENDERMINT_DIR="$TM_DIR"/tendermint
 export LOCALNET_DIR=~/.localnet
 export ROOT_DATA_DIR="$LOCALNET_DIR"/data
 export GENESIS_FILES_DIR="$LOCALNET_DIR"/genesis_files
-export GENESIS_TOML="$GENESIS_FILES_DIR/genesis.*.toml"
-export ASSC_TOML="$GENESIS_FILES_DIR/assc.*.toml"
+export GENESIS_TOML="$GENESIS_FILES_DIR/genesis.toml"
+export ASSC_TOML="$GENESIS_FILES_DIR/associated.toml"
 
 # Data directories.  These get "-$node_num" appended to them when they are used.
 export NODE_DATA_DIR="$ROOT_DATA_DIR"/ndau

@@ -38,8 +38,8 @@ These steps only need to be performed once:
     - Create the directory `~/.localnet`
     - Extract `genesis_files.tar` within `~/.localnet`
     - You should now see the following items in your `~/.localnet/genesis_files/` directory:
-        - `assc.*.toml`
-        - `genesis.*.toml`
+        - `associated.toml`
+        - `genesis.toml`
         - (any other files or subdirectories in here are not needed and can be removed if desired)
 1. Run `./bin/setup.sh N` where `N` is the number of nodes you'd like to run
 
