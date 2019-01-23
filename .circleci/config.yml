@@ -120,6 +120,8 @@ workflows:
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
               only: /.*-push$|.*-deploy$/
+            branches:
+              ignore: /.*/
       - deploy:
           requires:
             - push
