@@ -8,7 +8,8 @@ version = "~v0.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-branch = "master"
+# branch = "master"
+branch = "prgn-total-rfe"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
@@ -20,7 +21,8 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.11"
+# version = "~v0.11"
+branch = "prgn-rfe-total-and-currency-seats"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
@@ -49,4 +51,4 @@ branch = "master"
 
 [[override]]
 name = "github.com/oneiro-ndev/chaincode"
-version = "~v0.20"
+version = "~v0.21"
