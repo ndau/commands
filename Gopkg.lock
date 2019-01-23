@@ -425,7 +425,8 @@
   version = "v0.20.0"
 
 [[projects]]
-  digest = "1:3fe31571aa9fe0e5b9ce05dd056d5915287449a427a87d648ce794205360bff1"
+  branch = "prgn-fix-sidechaintx"
+  digest = "1:f0562fd8b190068d16b901da32378f43d51f467b0b0296c13e1720d8b44c0511"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -441,8 +442,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "2b889fbac01af10441bd9894ecebb73c7ba9d066"
-  version = "v0.12.1"
+  revision = "940500a296cb000cf4465ee92bb4bf99d0a0c346"
 
 [[projects]]
   digest = "1:1fbc0bb8acdddf1722c822772bdb313107778b098086a5dc3691f1c11f4e523c"
