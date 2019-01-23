@@ -40,7 +40,7 @@ do
 
     sed -i '' -E \
         -e 's/^(create_empty_blocks = .*)/# \1/' \
-        -e 's/^(create_empty_blocks_interval =) (.*)/\1 300/' \
+        -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
         -e 's/^(addr_book_strict =) (.*)/\1 false/' \
         -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"'\"/' \
         "$tm_chaos_home/config/config.toml" \

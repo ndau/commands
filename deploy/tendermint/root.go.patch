@@ -2,15 +2,15 @@ diff --git a/cmd/tendermint/commands/root.go b/cmd/tendermint/commands/root.go
 index 3c67ddc1..d74de9b1 100644
 --- a/cmd/tendermint/commands/root.go
 +++ b/cmd/tendermint/commands/root.go
-@@ -3,6 +3,7 @@ package commands
- import (
+@@ -4,6 +4,7 @@
+ 	"fmt"
  	"os"
  
 +	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
  	"github.com/spf13/cobra"
  	"github.com/spf13/viper"
  
-@@ -12,9 +13,23 @@ import (
+@@ -13,9 +14,23 @@
  	"github.com/tendermint/tendermint/libs/log"
  )
  
@@ -26,7 +26,7 @@ index 3c67ddc1..d74de9b1 100644
 +	}
 +	return l
 +}
-+
++	
  var (
  	config = cfg.DefaultConfig()
 -	logger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
