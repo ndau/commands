@@ -11,8 +11,8 @@ source "$CMDBIN_DIR"/env.sh
 # Process command line arguments.
 node_count="$1"
 if [ -z "$node_count" ]; then
-    echo "Usage: ./setup.sh node_count"
-    exit 1
+    echo "node_count not set; defaulting to 1"
+    node_count=1
 fi
 if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
     echo Node count must be a positive integer
@@ -101,7 +101,7 @@ update_repo() {
         exists=$(git ls-remote --heads git@github.com:oneiro-ndev/"$repo".git "$branch")
         if [ -z "$exists" ]; then
             # This just means you have a local branch you haven't pushed yet, and that's fine.
-            echo Branch $branch does not exist on remote
+            echo "Branch $branch does not exist on remote"
         else
             git pull origin "$branch"
         fi
@@ -130,6 +130,6 @@ echo SETUP: Testing...
 
 # Configure everything.
 echo SETUP: Configuring...
-"$CMDBIN_DIR"/conf.sh --needs_update
+"$CMDBIN_DIR"/conf.sh --needs-update
 
 echo SETUP: Setup complete

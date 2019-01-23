@@ -11,6 +11,10 @@ name = "github.com/oneiro-ndev/genesis"
 branch = "master"
 
 [[constraint]]
+name = "github.com/oneiro-ndev/json2msgp"
+branch = "master"
+
+[[constraint]]
 name = "github.com/oneiro-ndev/metanode"
 version = "~v0.12"
 
