@@ -25,6 +25,8 @@ var echoHash = flag.Bool("echo-hash", false, "if set, echo the current DB hash a
 var echoVersion = flag.Bool("version", false, "if set, echo the current version and exit")
 var updateConfFrom = flag.String("update-conf-from", "", "if set, update app configuration from the given genesisfile and exit")
 var updateChainFrom = flag.String("update-chain-from", "", "if set, update noms from the given associated data file and exit")
+var setChaosnode = flag.String("set-chaosnode", "", "set the configured chaos node address and quit")
+var unsetChaosnode = flag.Bool("unset-chaosnode", false, "unset chaos node in configuration and quit")
 
 // Bump this any time we need to reset and reindex the ndau chain.  For example, if we change the
 // format of something in the index, say, needing to use unsorted sets instead of sorted sets; if
@@ -92,6 +94,9 @@ func main() {
 	if *echoVersion {
 		version.Emit()
 	}
+
+	setChaosnodeF(setChaosnode)
+	unsetChaosnodeF(unsetChaosnode)
 
 	ndauhome := getNdauhome()
 	configPath := config.DefaultConfigPath(ndauhome)

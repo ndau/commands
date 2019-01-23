@@ -112,9 +112,10 @@ do
     chaos_rpc_addr="http://localhost:$chaos_rpc_port"
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
-    NDAUHOME="$ndau_home" ./chaos conf "$chaos_rpc_addr"
+    NDAUHOME="$ndau_home" ./chaos conf "$chaos_rpc_addr" --ndau "$ndau_rpc_addr"
     NDAUHOME="$ndau_home" ./chaosnode --set-ndaunode "$ndau_rpc_addr"
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
+    NDAUHOME="$ndau_home" ./ndaunode --set-chaosnode "$chaos_rpc_addr"
 done
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
@@ -125,7 +126,7 @@ if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     chaos_rpc_addr="http://localhost:$chaos_rpc_port"
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
-    ./chaos conf "$chaos_rpc_addr"
+    ./chaos conf "$chaos_rpc_addr" --ndau "$ndau_rpc_addr"
     ./ndau conf "$ndau_rpc_addr"
 fi
 

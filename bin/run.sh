@@ -178,7 +178,6 @@ ndau_node() {
     noms_port=$((NOMS_PORT + port_offset))
     redis_port=$((REDIS_PORT + port_offset))
     node_port=$((NODE_PORT + port_offset))
-    chaos_rpc_port=$((TM_RPC_PORT + port_offset - 1))
     genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
     output_name="$CMDBIN_DIR/ndau_node-$node_num"
 
@@ -193,10 +192,9 @@ ndau_node() {
                    -update-conf-from "$GENESIS_TOML"
 
         # The config toml file has now been generated.
-        # Set the chaos address and use chaos for sysvars instead of the genesis file as a mock.
+        # use chaos for sysvars instead of the genesis file as a mock.
         sed -i '' \
-            -e "s@ChaosAddress = \".*\"@ChaosAddress = \"http://localhost:$chaos_rpc_port\"@" \
-            -e "s@UseMock = \".*\"@@" \
+            -e "/UseMock/d" \
             "$ndau_home/ndau/config.toml"
 
         echo "  updating ndau chain using $ASSC_TOML"
@@ -274,7 +272,7 @@ finalize() {
         NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
 
         # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
-        NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME" 
+        NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME"
 
         # We've updated, remove the flag file so we don't update again on the next run.
         rm "$NEEDS_UPDATE_FLAG_FILE"
