@@ -464,7 +464,7 @@
 
 [[projects]]
   branch = "prgn-total-rfe"
-  digest = "1:7511f0f1c3a0e3553eb9956e02c4dd2427464eea080c1ea8c69356c1685064d0"
+  digest = "1:950f9f52455ae0ae024e8d2182cde37851d6d48ec436c949802167b95a2f9614"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -473,7 +473,7 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "6c46563386d099d91059e53f1458271132d4dd80"
+  revision = "e8f566c4832611a2452cad87d21d47abf6d41f77"
 
 [[projects]]
   branch = "master"
