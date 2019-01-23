@@ -4,8 +4,7 @@ version = "~v0.20"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-# version = "~v0.12"
-branch = "prgn-fix-sidechaintx"
+version = "~v0.12.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
