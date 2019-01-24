@@ -1,6 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaincode"
-version = "~v0.20"
+version = "~v0.21"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
