@@ -40,7 +40,7 @@ do
 
     sed -i '' -E \
         -e 's/^(create_empty_blocks = .*)/# \1/' \
-        -e 's/^(create_empty_blocks_interval =) (.*)/\1 300/' \
+        -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
         -e 's/^(addr_book_strict =) (.*)/\1 false/' \
         -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"'\"/' \
         "$tm_chaos_home/config/config.toml" \
@@ -112,9 +112,10 @@ do
     chaos_rpc_addr="http://localhost:$chaos_rpc_port"
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
-    NDAUHOME="$ndau_home" ./chaos conf "$chaos_rpc_addr"
+    NDAUHOME="$ndau_home" ./chaos conf "$chaos_rpc_addr" --ndau "$ndau_rpc_addr"
     NDAUHOME="$ndau_home" ./chaosnode --set-ndaunode "$ndau_rpc_addr"
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
+    NDAUHOME="$ndau_home" ./ndaunode --set-chaosnode "$chaos_rpc_addr"
 done
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
@@ -125,21 +126,36 @@ if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     chaos_rpc_addr="http://localhost:$chaos_rpc_port"
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
-    ./chaos conf "$chaos_rpc_addr"
+    ./chaos conf "$chaos_rpc_addr" --ndau "$ndau_rpc_addr"
     ./ndau conf "$ndau_rpc_addr"
 fi
 
-for node_num in $(seq 0 "$HIGH_NODE_NUM");
-do
-    ./genesis -g "$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR-$node_num"
-    NDAUHOME="$NODE_DATA_DIR-$node_num" ./ndau conf update-from "$ASSC_TOML"
+# Use this as a flag for run.sh to know whether to update ndau conf and chain with the
+# genesis files, claim bpc account, etc.
+if [ "$NEEDS_UPDATE" != 0 ]; then
+    for node_num in $(seq 0 "$HIGH_NODE_NUM");
+    do
+        ndau_home="$NODE_DATA_DIR-$node_num"
 
-    # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
-    # genesis files.
-    if [ "$NEEDS_UPDATE" != 0 ]; then
+        ./genesis -g "$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR-$node_num"
+        NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
+
+        # For deterministic bpc account address/keys, we recover a special account with 12 eyes.
+        # Since this is only for localnet/devnet/testnet (i.e. not mainnet), this is safe.
+        NDAUHOME="$ndau_home" ./ndau account recover "$BPC_OPS_ACCT_NAME" \
+            eye eye eye eye eye eye eye eye eye eye eye eye
+
+        # Set up the bpc-operations identity in the chaos tool toml file.
+        # Suppress the big message about next steps.
+        NDAUHOME="$ndau_home" ./chaos import-assc "$SYSVAR_ID" "$ASSC_TOML" > /dev/null
+
         touch "$NEEDS_UPDATE_FLAG_FILE-$node_num"
-    fi
-done
+    done
+
+    # The no-node-num form of the needs-update file flags that we need to claim the bpc account.
+    # It's more or less a global needs-update flag, that causes finalization code to execute.
+    touch "$NEEDS_UPDATE_FLAG_FILE"
+fi
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     ./ndau conf update-from "$ASSC_TOML"

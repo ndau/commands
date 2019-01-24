@@ -178,7 +178,6 @@ ndau_node() {
     noms_port=$((NOMS_PORT + port_offset))
     redis_port=$((REDIS_PORT + port_offset))
     node_port=$((NODE_PORT + port_offset))
-    chaos_rpc_port=$((TM_RPC_PORT + port_offset - 1))
     genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
     output_name="$CMDBIN_DIR/ndau_node-$node_num"
 
@@ -192,9 +191,10 @@ ndau_node() {
                    -index localhost:"$redis_port" \
                    -update-conf-from "$GENESIS_TOML"
 
-        # The config toml file has now been generated, edit it.
+        # The config toml file has now been generated.
+        # use chaos for sysvars instead of the genesis file as a mock.
         sed -i '' \
-            -e "s@ChaosAddress = \".*\"@ChaosAddress = \"http://localhost:$chaos_rpc_port\"@" \
+            -e "/UseMock/d" \
             "$ndau_home/ndau/config.toml"
 
         echo "  updating ndau chain using $ASSC_TOML"
@@ -255,6 +255,30 @@ ndau_tm() {
     echo "  ./ndau conf \"http://localhost:$rpc_port\""
 }
 
+finalize() {
+    cd "$COMMANDS_DIR" || exit 1
+
+    if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
+        # We only update the 0'th node's config.  This is because the account claim step below
+        # affects the blockchain.  It gets propagated to the other nodes' blockchains, but their
+        # ndau and chaos tool configs don't get updated.  This is okay, since developers always
+        # use the ndau-0 directory as NDAUHOME when running chaos and ndau tool commands.  The
+        # other nodes' config files will simply sit there, dormant.  We could even make it so
+        # they are not there at all, but they were needed earlier by ndau_node() for each node,
+        # so we leave them there.  They are valid, but not useable for getting/setting sysvars.
+        ndau_home="$NODE_DATA_DIR-0"
+
+        # Claim the bpc operations account.  This puts the validation keys into ndautool.toml.
+        NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
+
+        # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
+        NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME"
+
+        # We've updated, remove the flag file so we don't update again on the next run.
+        rm "$NEEDS_UPDATE_FLAG_FILE"
+    fi
+}
+
 if [ -z "$1" ]; then
     initialize
 
@@ -272,6 +296,8 @@ if [ -z "$1" ]; then
         ndau_node "$node_num"
         ndau_tm "$node_num"
     done
+
+    finalize
 else
     # We support running a single process for a given node.
     cmd="$1"
@@ -284,6 +310,7 @@ else
 
     initialize
     "$cmd" "$node_num"
+    finalize
 fi
 
 echo "done."

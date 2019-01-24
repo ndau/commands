@@ -128,16 +128,12 @@ workflows:
           filters:
             tags:
               only: /.*-deploy$/
-            branches:
-              ignore: /.*/
       - integration:
           requires:
             - deploy
           filters:
             tags:
               only: /.*-deploy$/
-            branches:
-              ignore: /.*/
 
 general_config: &general_config
     working_directory: /commands
@@ -216,6 +212,8 @@ jobs:
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
             RELEASE=$RELEASE_NAME \
+            CHAOS_TM_TAG=v0.27.4 \
+            NDAU_TM_TAG=v0.27.4 \
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
