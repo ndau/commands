@@ -463,7 +463,7 @@
   version = "v0.1.3"
 
 [[projects]]
-  branch = "prgn-total-rfe"
+  branch = "master"
   digest = "1:950f9f52455ae0ae024e8d2182cde37851d6d48ec436c949802167b95a2f9614"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
@@ -473,7 +473,7 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "e8f566c4832611a2452cad87d21d47abf6d41f77"
+  revision = "365d6ea5cc5e3ee9ab0ab4484f392d55683ad665"
 
 [[projects]]
   branch = "master"
@@ -514,8 +514,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-rfe-total-and-currency-seats"
-  digest = "1:83088e23de889f58e762bf595bd90d69f2ef14d4016d206faf22fb41b99ae818"
+  digest = "1:d1e1d066af72305cf51b5b9b1592fa8bb1d1a682dd25fd2bc6f8f2099d933879"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -535,7 +534,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "97f6a13b7176c2ae2682ea2563d1a1586e23d142"
+  revision = "82fc83ffdb97a21ac3df79d285a280461990536d"
+  version = "v0.11.7"
 
 [[projects]]
   digest = "1:f57144206d7437c9513d9d7b0d7d7eb8b7f94a41172d74777169b929e20cd25f"
