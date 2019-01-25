@@ -79,3 +79,14 @@ func sequence(conf *config.Config, addr address.Address) uint64 {
 	))
 	return ad.Sequence + 1
 }
+
+// this function depends on the input string arriving pre-sorted
+func dedup(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, s := range in {
+		if len(out) == 0 || s != out[len(out)-1] {
+			out = append(out, s)
+		}
+	}
+	return out
+}
