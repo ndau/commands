@@ -10,7 +10,7 @@ index 3c67ddc1..d74de9b1 100644
  	"github.com/spf13/cobra"
  	"github.com/spf13/viper"
  
-@@ -13,9 +14,23 @@
+@@ -13,9 +14,22 @@
  	"github.com/tendermint/tendermint/libs/log"
  )
  
@@ -19,7 +19,6 @@ index 3c67ddc1..d74de9b1 100644
 +	if logwriter, err := honeycomb.NewWriter(); err != nil {
 +		// if honeycomb fails, just use the standard tm logger
 +		l = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-+		l.Info("unable to initialize honeycomb - using standard logger")
 +	} else {
 +		l = log.NewTMJSONLogger(log.NewSyncWriter(logwriter))
 +		l.With("hives", 2).Info("honeycomb initialized")
