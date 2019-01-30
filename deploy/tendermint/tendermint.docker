@@ -21,7 +21,6 @@ RUN go get -u github.com/golang/dep/... && \
     git clone https://github.com/tendermint/tendermint.git \
     /go/src/github.com/tendermint/tendermint && \
     cd /go/src/github.com/tendermint/tendermint && \
-    git fetch --prune && \
     git checkout ${TM_VERSION_TAG}
 
 # Get patch files and apply them
