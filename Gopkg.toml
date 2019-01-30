@@ -41,7 +41,7 @@ source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
-version = "v0.27.4"
+version = "v0.29.1"
 
 [[override]]
 name = "github.com/satori/go.uuid"

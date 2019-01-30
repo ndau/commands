@@ -12,7 +12,7 @@
 FROM golang:1.11-alpine3.8 AS build
 
 # This is the release of tendermint to pull in.
-ENV TM_VERSION_TAG v0.27.4
+ENV TM_VERSION_TAG v0.29.1
 RUN apk add --no-cache git openssh-client bash
 
 # Use dep instead of glide, glide no longer supported in TM v0.18.0
@@ -21,6 +21,7 @@ RUN go get -u github.com/golang/dep/... && \
     git clone https://github.com/tendermint/tendermint.git \
     /go/src/github.com/tendermint/tendermint && \
     cd /go/src/github.com/tendermint/tendermint && \
+    git fetch --prune
     git checkout ${TM_VERSION_TAG}
 
 # Get patch files and apply them

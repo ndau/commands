@@ -212,8 +212,8 @@ jobs:
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
             RELEASE=$RELEASE_NAME \
-            CHAOS_TM_TAG=v0.27.4 \
-            NDAU_TM_TAG=v0.27.4 \
+            CHAOS_TM_TAG=v0.29.1 \
+            NDAU_TM_TAG=v0.29.1 \
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
