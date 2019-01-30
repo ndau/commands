@@ -4,7 +4,7 @@ NET=$1   # devnet or testnet
 CHAIN=$2 # ndau or chaos
 
 if [ -z "$NET" ]; then
-    echo nodeurl: Echo the URL for a node net.
+    echo nodeurl: Echo the URL for a tendermint node.
     echo Must have kubectl set up.  See integration-tests repo README.md for details.
     echo Usage:
     echo "  ./nodeurl.sh NET CHAIN"
