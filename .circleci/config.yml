@@ -51,7 +51,14 @@ commands:
           name: Checkout code
           command: |
             # depth=1 makes the clone a lot faster
-            git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+            if [ x$CIRCLE_BRANCH == "x" ] 
+            then
+              echo "CIRCL_TAG = $CIRCLE_TAG"
+              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands --depth=1
+            else
+              echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
+              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+            fi
 
             # add the circle image's known_hosts file to the known_hosts used inside the images
             cp /root/.ssh/known_hosts /commands/deploy/known_hosts
@@ -104,36 +111,36 @@ workflows:
               only: /master/
   tagged-build:
     jobs:
-      - deps:
-          filters:  # required since `test` has tag filters AND requires `deps`
-            tags:
-              only: /.*/
-      - test:
-          requires:
-            - deps
-          filters:  # required since `push` has tag filters AND requires `test`
-            tags:
-              only: /.*/
-      - push:
-          requires:
-            - test
-          filters:  # required since `deploy` has tag filters AND requires `push`
-            tags:
-              only: /.*-push$|.*-deploy$/
-            branches:
-              ignore: /.*/
-      - deploy:
-          requires:
-            - push
-          filters:
-            tags:
-              only: /.*-deploy$/
+      # - deps:
+      #     filters:  # required since `test` has tag filters AND requires `deps`
+      #       tags:
+      #         only: /.*/
+      # - test:
+      #     requires:
+      #       - deps
+      #     filters:  # required since `push` has tag filters AND requires `test`
+      #       tags:
+      #         only: /.*/
+      # - push:
+      #     requires:
+      #       - test
+      #     filters:  # required since `deploy` has tag filters AND requires `push`
+      #       tags:
+      #         only: /.*-push$|.*-deploy$/
+      #       branches:
+      #         ignore: /.*/
+      # - deploy:
+      #     requires:
+      #       - push
+      #     filters:
+      #       tags:
+      #         only: /.*-deploy$/
       - integration:
-          requires:
-            - deploy
+          # requires:
+          #   - deploy
           filters:
             tags:
-              only: /.*-deploy$/
+              only: /.*/
 
 general_config: &general_config
     working_directory: /commands
@@ -275,11 +282,19 @@ jobs:
             # ensure go path location
             mkdir -p /go/src/github.com/oneiro-ndev
             cd /go/src/github.com/oneiro-ndev
+            export GOPATH=/go
+            mkdir -p $GOPATH/bin
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
+            apk add sed          
 
-            # clone integration tests
-            git clone git@github.com:oneiro-ndev/integration-tests.git
+            # clone integration tests and ndev dep repos
+            git clone git@github.com:oneiro-ndev/integration-tests.git -b jsg-circle-fix
+            git clone git@github.com:oneiro-ndev/chaos.git
+            git clone git@github.com:oneiro-ndev/commands.git
+            git clone git@github.com:oneiro-ndev/ndau.git
+            git clone git@github.com:oneiro-ndev/whitelist.git
             cd integration-tests
 
             # run tests
             pipenv sync
-            pipenv run pytest -v
+            pipenv run pytest -v --net=devnet
