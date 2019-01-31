@@ -111,36 +111,36 @@ workflows:
               only: /master/
   tagged-build:
     jobs:
-      # - deps:
-      #     filters:  # required since `test` has tag filters AND requires `deps`
-      #       tags:
-      #         only: /.*/
-      # - test:
-      #     requires:
-      #       - deps
-      #     filters:  # required since `push` has tag filters AND requires `test`
-      #       tags:
-      #         only: /.*/
-      # - push:
-      #     requires:
-      #       - test
-      #     filters:  # required since `deploy` has tag filters AND requires `push`
-      #       tags:
-      #         only: /.*-push$|.*-deploy$/
-      #       branches:
-      #         ignore: /.*/
-      # - deploy:
-      #     requires:
-      #       - push
-      #     filters:
-      #       tags:
-      #         only: /.*-deploy$/
-      - integration:
-          # requires:
-          #   - deploy
-          filters:
+      - deps:
+          filters:  # required since `test` has tag filters AND requires `deps`
             tags:
               only: /.*/
+      - test:
+          requires:
+            - deps
+          filters:  # required since `push` has tag filters AND requires `test`
+            tags:
+              only: /.*/
+      - push:
+          requires:
+            - test
+          filters:  # required since `deploy` has tag filters AND requires `push`
+            tags:
+              only: /.*-push$|.*-deploy$/
+            branches:
+              ignore: /.*/
+      - deploy:
+          requires:
+            - push
+          filters:
+            tags:
+              only: /.*-deploy$/
+      - integration:
+          requires:
+            - deploy
+          filters:
+            tags:
+              only: /.*-deploy$/
 
 general_config: &general_config
     working_directory: /commands
