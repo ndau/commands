@@ -506,8 +506,8 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-ttd-sc"
-  digest = "1:716a8f77cd66ea13f7f1aeb0d07143b527c630852f0eaafcae3a096a0b3962b2"
+  branch = "prgn-issue-tx"
+  digest = "1:e26f7dfc32a2e46a19ce019486da3718ae811589acfaca97480b300397707739"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -527,7 +527,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "058908522d429d34f7aded86b23af1fe67bd1a61"
+  revision = "22a816bef3cc0128edac19f1eadcb32b19e30d0d"
 
 [[projects]]
   branch = "prgn-ttd-sc"
