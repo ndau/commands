@@ -51,7 +51,14 @@ commands:
           name: Checkout code
           command: |
             # depth=1 makes the clone a lot faster
-            git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+            if [ -z $CIRCLE_BRANCH ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
+            then
+              echo "CIRCLE_TAG = $CIRCLE_TAG"
+              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands --depth=1
+            else # use CIRCLE_BRANCH
+              echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
+              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+            fi
 
             # add the circle image's known_hosts file to the known_hosts used inside the images
             cp /root/.ssh/known_hosts /commands/deploy/known_hosts
@@ -275,11 +282,18 @@ jobs:
             # ensure go path location
             mkdir -p /go/src/github.com/oneiro-ndev
             cd /go/src/github.com/oneiro-ndev
+            export GOPATH=/go
+            mkdir -p $GOPATH/bin
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
+            apk add sed          
 
-            # clone integration tests
+            # clone integration tests and ndev dep repos
             git clone git@github.com:oneiro-ndev/integration-tests.git
+            git clone git@github.com:oneiro-ndev/chaos.git
+            git clone git@github.com:oneiro-ndev/commands.git
+            git clone git@github.com:oneiro-ndev/ndau.git
             cd integration-tests
 
             # run tests
             pipenv sync
-            pipenv run pytest -v
+            pipenv run pytest -v --net=devnet
