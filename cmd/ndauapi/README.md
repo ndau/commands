@@ -999,6 +999,7 @@ _Returns the history of changes to a value of a single chaos chain variable._
 
 The history includes the block height and the value of each change to the variable.
 The result is sorted chronologically.
+Namespace and key must be URL query-escaped
 
 
 _**Parameters:**_
@@ -1039,7 +1040,7 @@ _**Writes:**_
 
 _Returns the names and current values of all currently-defined variables in a given namespace on the chaos chain._
 
-
+Namespace must be URL query-escaped
 
 
 _**Parameters:**_
@@ -1070,7 +1071,7 @@ _**Writes:**_
 
 _Returns the current value of a single namespaced variable from the chaos chain._
 
-
+Namespace and key must be URL query-escaped
 
 
 _**Parameters:**_
@@ -1520,6 +1521,7 @@ _Returns the history of changes to a value of a system variable._
 
 The history includes the timestamp, new value, and transaction ID of each change to the value.
 The result is reverse sorted chronologically from the current time, and supports paging by time.
+Key must be URL query-escaped.
 
 
 _**Parameters:**_
@@ -1624,7 +1626,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: Delegate, Lock, SetRewardsDestination, ClaimNodeReward, ReleaseFromEndowment, ChangeSettlementPeriod, NominateNodeReward, ChangeValidation, Stake, CommandValidatorChange, SidechainTx, CreditEAI, Notify, ClaimAccount, RegisterNode, TransferAndLock, Transfer
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: Notify, ReleaseFromEndowment, Lock, NominateNodeReward, CommandValidatorChange, ChangeSettlementPeriod, ChangeValidation, Delegate, Stake, ClaimNodeReward, SidechainTx, Transfer, SetRewardsDestination, ClaimAccount, RegisterNode, TransferAndLock, CreditEAI
 
 
 _**Parameters:**_
