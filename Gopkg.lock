@@ -425,7 +425,7 @@
 
 [[projects]]
   branch = "prgn-ttd-sc"
-  digest = "1:481c9c2b5df4d9d7097329e3d529fcdf59afd1d0a744c30e194deda1e77754f6"
+  digest = "1:f4e5262aa3a0d1a8285cb05098c90c443eccd8462b8701014f043bf277bd8f23"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -441,7 +441,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "3edef880e0ff397cfd183cb7ee4e6213fa4f76bb"
+  revision = "0b3438879043863e90bdbe90c7181e77dad7c14a"
 
 [[projects]]
   branch = "prgn-ttd-sc"
