@@ -24,6 +24,10 @@ ensure_no_test_links() {
     ensure_no_test_link ndau
 }
 
+escape_newlines() {
+    echo "$1" | sed -e ':a' -e 'N' -e '$!ba' -e's/\n/\\n/g'
+}
+
 build_chaos() {
     echo building chaos
     cd "$COMMANDS_DIR"
@@ -51,6 +55,14 @@ build_ndau() {
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAU_CMD"
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAUNODE_CMD"
     go build ./"$NDAUAPI_CMD"
+
+    # generate api documentation
+    api_doc="$(escape_newlines "$(./ndauapi -docs)")"
+    tmpl="$(escape_newlines "$(cat $NDAUAPI_CMD/README-template.md)")"
+
+    # generate new readme with api documentation
+    readme="${tmpl/api_replacement_token/$api_doc}"
+    echo -e "$readme" > "$NDAUAPI_CMD/README.md"
 }
 
 build_chaos_genesis() {
