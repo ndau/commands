@@ -4,11 +4,13 @@ version = "~v0.21"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-version = "~v0.12.2"
+# version = "~v0.12.2"
+branch = "prgn-ttd-sc"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
-version = "~v0.1"
+# version = "~v0.1"
+branch = "prgn-ttd-sc"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
@@ -24,7 +26,16 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.12"
+# version = "~v0.12"
+branch = "prgn-ttd-sc"
+
+[[constraint]]
+name = "github.com/oneiro-ndev/ndaumath"
+branch = "prgn-ttd-sc"
+
+[[constraint]]
+name = "github.com/oneiro-ndev/system_vars"
+branch = "prgn-ttd-sc"
 
 [[override]]
 name = "github.com/attic-labs/graphql"

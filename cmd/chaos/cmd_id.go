@@ -77,8 +77,10 @@ func getCmdIDCopyKeysFrom() func(*cli.Cmd) {
 				orQuit(fmt.Errorf("%s has no transfer keys", *ndauName))
 			}
 
+			kind := nid.Address.Kind()
+
 			id.Ndau = &tool.NdauAccount{
-				Address: nid.Address,
+				AddrKind: &kind,
 			}
 
 			for _, trKeys := range nid.Transfer {
