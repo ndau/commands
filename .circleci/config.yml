@@ -208,7 +208,7 @@ jobs:
             # Redeploy nodegroup testnet
 
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            git clone -b eas-commands-86 git@github.com:oneiro-ndev/automation.git /root/automation
 
             # Remove old test net
             helm del --purge $NODE_NAMES --tls ||\
