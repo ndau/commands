@@ -51,7 +51,7 @@ commands:
           name: Checkout code
           command: |
             # depth=1 makes the clone a lot faster
-            if [ -z $CIRCLE_BRANCH ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
+            if [ -z "$CIRCLE_BRANCH" ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
             then
               echo "CIRCLE_TAG = $CIRCLE_TAG"
               git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands --depth=1
