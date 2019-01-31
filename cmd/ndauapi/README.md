@@ -1626,7 +1626,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: Notify, ReleaseFromEndowment, Lock, NominateNodeReward, CommandValidatorChange, ChangeSettlementPeriod, ChangeValidation, Delegate, Stake, ClaimNodeReward, SidechainTx, Transfer, SetRewardsDestination, ClaimAccount, RegisterNode, TransferAndLock, CreditEAI
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock
 
 
 _**Parameters:**_
