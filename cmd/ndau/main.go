@@ -21,6 +21,7 @@ func main() {
 	app.Command("conf", "perform initial configuration", getConf(verbose))
 	app.Command("conf-path", "show location of config file", confPath)
 	app.Command("account", "manage accounts", getAccount(verbose, keys, emitJSON, compact))
+	app.Command("currency-seats", "list all currency seats on the blockchain", getCurrencySeats(verbose))
 	app.Command("transfer", "transfer ndau from one account to another", getTransfer(verbose, keys, emitJSON, compact))
 	app.Command("transfer-lock", "transfer ndau from one account to a new account and lock the destination", getTransferAndLock(verbose, keys, emitJSON, compact))
 	app.Command("rfe", "release ndau from the endowment", getRfe(verbose, keys, emitJSON, compact))
