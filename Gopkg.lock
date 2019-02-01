@@ -1012,7 +1012,6 @@
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
-    "github.com/oneiro-ndev/ndau/pkg/query",
     "github.com/oneiro-ndev/ndau/pkg/tool",
     "github.com/oneiro-ndev/ndau/pkg/tool.config",
     "github.com/oneiro-ndev/ndau/pkg/txmobile/generator",
