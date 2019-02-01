@@ -4,7 +4,7 @@ version = "~v0.21"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-version = "~v0.12.2"
+version = "~v0.13"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
@@ -24,7 +24,15 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.13"
+version = "~v0.14"
+
+[[constraint]]
+name = "github.com/oneiro-ndev/ndaumath"
+version = "~v0.9"
+
+[[constraint]]
+name = "github.com/oneiro-ndev/system_vars"
+version = "~v0.2"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
