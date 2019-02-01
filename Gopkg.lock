@@ -424,7 +424,6 @@
   version = "v0.21.0"
 
 [[projects]]
-  branch = "prgn-ttd-sc"
   digest = "1:f4e5262aa3a0d1a8285cb05098c90c443eccd8462b8701014f043bf277bd8f23"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
@@ -441,10 +440,10 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "0b3438879043863e90bdbe90c7181e77dad7c14a"
+  revision = "af2394839f5850cfa2dc67fc6590954fbc0ba40d"
+  version = "v0.13.0"
 
 [[projects]]
-  branch = "prgn-ttd-sc"
   digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"
   name = "github.com/oneiro-ndev/chaos_genesis"
   packages = [
@@ -452,7 +451,8 @@
     "pkg/genesis.generator",
   ]
   pruneopts = ""
-  revision = "149e3f4d862dc9a4cb17f439dff564bf52358189"
+  revision = "32b0a4e290d98f06070f35acbd3792757f4fcfc2"
+  version = "v0.1.4"
 
 [[projects]]
   branch = "master"
@@ -506,8 +506,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-issue-tx"
-  digest = "1:e26f7dfc32a2e46a19ce019486da3718ae811589acfaca97480b300397707739"
+  digest = "1:5e02eb5a724a1ecace99465036bb5e5da926c95fd6ea65f50cf6a09bb4169e3f"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -527,10 +526,10 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "22a816bef3cc0128edac19f1eadcb32b19e30d0d"
+  revision = "ef82f359696b3c068a592e82d1940e6edc1d57d9"
+  version = "v0.14.0"
 
 [[projects]]
-  branch = "prgn-ttd-sc"
   digest = "1:cbdc299eb6ada76bbc1c972b3f018e591686b902ef787c372f246f2cced6f5cf"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
@@ -553,7 +552,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "af6c5a4706ffb34c983ca8a9b22557f97e6d2928"
+  revision = "9afb05769de3f1b3f4ae9d4ca05d2335ef642efc"
+  version = "v0.9.1"
 
 [[projects]]
   branch = "master"
@@ -572,7 +572,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "prgn-ttd-sc"
   digest = "1:73340d3506411f843968aee1d890a7abe6b18669c6fe91943d70f5b574e62ba8"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -580,7 +579,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "918daa9a5dda591072d41c4231569b57d56196be"
+  revision = "3857af6c069bcc981af11ead1858734634c9e343"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
