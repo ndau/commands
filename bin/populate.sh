@@ -26,6 +26,11 @@ rfeTo() {
     NDAUHOME="$ndau_home" "$ND" -v rfe "$amt" "$name"
 }
 
+issueNdau() {
+    amt=$1
+    NDAUHOME="$ndau_home" "$ND" -v issue "$amt"
+}
+
 transfer() {
     from=$1
     to=$2
@@ -45,11 +50,27 @@ create() {
     createaccount drew
 }
 
+createbig() {
+    createaccount xavier
+    createaccount yannis
+    createaccount zelda
+}
+
 issue() {
     rfeTo alice 10
     rfeTo bob 20
     rfeTo carol 30
     rfeTo drew 40
+    issueNdau 100
+}
+
+issuebig() {
+    rfeTo xavier 10000
+    issueNdau 10000
+    rfeTo yannis 1000
+    issueNdau 1000
+    rfeTo zelda 20000
+    issueNdau 20000
 }
 
 claim() {

@@ -25,6 +25,7 @@ func main() {
 	app.Command("transfer", "transfer ndau from one account to another", getTransfer(verbose, keys, emitJSON, compact))
 	app.Command("transfer-lock", "transfer ndau from one account to a new account and lock the destination", getTransferAndLock(verbose, keys, emitJSON, compact))
 	app.Command("rfe", "release ndau from the endowment", getRfe(verbose, keys, emitJSON, compact))
+	app.Command("issue", "issue ndau that have been rfe'd", getIssue(verbose, keys, emitJSON, compact))
 	app.Command("nnr", "nominate node reward", getNNR(verbose, keys, emitJSON, compact))
 	app.Command("info", "get information about node's current status", getInfo(verbose))
 	app.Command("cvc", "send a command validator change", getCVC(verbose, keys, emitJSON, compact))
