@@ -484,7 +484,7 @@
   revision = "51e787c1b8ab0b3c6cc0f7db8c7b650753541899"
 
 [[projects]]
-  digest = "1:b5b63ba6c6c1f7b58a73788277d0a59acda242ed5d0a8e9100b0c000399041bf"
+  digest = "1:7655ff1576ddf91cb9ed121a1a0d808d2c153cedfec644e4167bb3d68cfd04b7"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -494,8 +494,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "2f15af1dc5589d0e581cb9c9e01ef8a5f2eaba48"
-  version = "v0.12.2"
+  revision = "10b2cd1c04082d703bbe71475bec29af277d348c"
+  version = "v0.12.3"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -684,14 +684,6 @@
   pruneopts = ""
   revision = "9a47f48565a795472d43519dd49aac781f3034fb"
   version = "v1.6.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:47081c00d00c1dfc9a530c2556e78be391a5c24db1043efe6d406af882a169a1"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  pruneopts = ""
-  revision = "b2ce2384e17bbe0c6d34077efa39dbab3e09123b"
 
 [[projects]]
   branch = "master"
@@ -991,7 +983,6 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
-    "github.com/gofrs/uuid",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/boneful",
     "github.com/kentquirk/rewriter/pkg/rewriter",
