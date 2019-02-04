@@ -20,14 +20,14 @@ OPCODESMD = cmd/opcodes/opcodes.md
 
 # And identify the locations of related packages
 CHAINCODEPKG = ../chaincode/pkg
-VALIDATIONS = ../validation_scripts
+SCRIPTS = ../chaincode_scripts
 
 ###################################
 ### Some conveniences
 
 .PHONY: generate clean fuzz fuzzmillion benchmarks \
 	test examples chaincodeall build chasm crank chfmt \
-	opcodes format validations vtests vformat vgen vclean
+	opcodes format scripts scripttests scriptformat scriptgen scriptclean
 
 opcodes: $(OPCODES)
 
@@ -140,20 +140,20 @@ examples: $(CHASM)
 	$(CHASM) --output $(EXAMPLES)/zero.chbin --comment "returns numeric 0 in all cases" $(EXAMPLES)/zero.chasm
 	$(CHASM) --output $(EXAMPLES)/rfe.chbin --comment "standard RFE rules" $(EXAMPLES)/rfe.chasm
 
-vclean:
-	find $(VALIDATIONS) -name "*gen.crank" -print0 | xargs -0 rm
+scriptclean:
+	find $(SCRIPTS) -name "*gen.crank" -print0 | xargs -0 rm
 
-validations: $(CHASM)
-	find $(VALIDATIONS) -name "*.chasm" |sed s/\.chasm/.ch/g | xargs -n1 -I{} $(CHASM) --output {}bin {}asm
+scripts: $(CHASM)
+	find $(SCRIPTS) -name "*.chasm" |sed s/\.chasm/.ch/g | xargs -n1 -I{} $(CHASM) --output {}bin {}asm
 
-vgen: $(CRANK) validations vclean
-	find $(VALIDATIONS) -name "*.crankgen" -print0 | xargs -0 $(CRANKGEN)
+scriptgen: $(CRANK) scripts scriptclean
+	find $(SCRIPTS) -name "*.crankgen" -print0 | xargs -0 $(CRANKGEN)
 
-vtests: $(CRANK) vgen
-	find $(VALIDATIONS) -name "*.crank" -print0 | xargs -0 -n1 -I{} $(CRANK) -script {}
+scripttests: $(CRANK) scriptgen
+	find $(SCRIPTS) -name "*.crank" -print0 | xargs -0 -n1 -I{} $(CRANK) -script {}
 
-vformat: $(CHFMT) validations
-	find $(VALIDATIONS) -name "*.chasm" -print0 | xargs -0 -n1 -I{} $(CHFMT) -O {}
+scriptformat: $(CHFMT) scripts
+	find $(SCRIPTS) -name "*.chasm" -print0 | xargs -0 -n1 -I{} $(CHFMT) -O {}
 
 ###################################
 ### The chfmt formatter
