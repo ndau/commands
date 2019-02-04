@@ -248,6 +248,14 @@
   version = "1.2.1"
 
 [[projects]]
+  digest = "1:141cc9fc6279592458b304038bd16a05ef477d125c6dad281216345a11746fd7"
+  name = "github.com/gofrs/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
+  version = "v3.2.0"
+
+[[projects]]
   digest = "1:6e73003ecd35f4487a5e88270d3ca0a81bc80dc88053ac7e4dcfec5fba30d918"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -983,6 +991,7 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
+    "github.com/gofrs/uuid",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/boneful",
     "github.com/kentquirk/rewriter/pkg/rewriter",
