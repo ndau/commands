@@ -4,7 +4,7 @@ version = "~v0.21"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-version = "~v0.13"
+branch = "eas-chaos-57"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
@@ -24,11 +24,11 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.14"
+branch = "eas-chaos-57"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v0.9"
+branch = "eas-chaos-57"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
