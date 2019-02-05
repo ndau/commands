@@ -515,7 +515,7 @@
 
 [[projects]]
   branch = "eas-chaos-57"
-  digest = "1:b416e3d630d988e00ac3fa830ef338c8a9ca6ab9a4fe8d7f68a21b100477766a"
+  digest = "1:e4150addd4a7e4af1dbd6539efb48275055e6b3fb57f22993b03806bb210b572"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -535,7 +535,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "d4697306c924f710c8e451daf1716613685f597e"
+  revision = "f0b866f839887872d63a530e0198ed9ede6d10ed"
 
 [[projects]]
   branch = "eas-chaos-57"
