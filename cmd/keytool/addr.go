@@ -14,7 +14,7 @@ func getKindSpec() string {
 	return "[-k=<kind> | -a | -n | -e | -x | -b | -m]"
 }
 
-func getKindClosure(cmd *cli.Cmd) func() address.Kind {
+func getKindClosure(cmd *cli.Cmd) func() byte {
 	var (
 		pkind  = cmd.StringOpt("k kind", string(address.KindUser), "manually specify address kind")
 		kuser  = cmd.BoolOpt("a user", false, "address kind: user (default)")
@@ -25,8 +25,8 @@ func getKindClosure(cmd *cli.Cmd) func() address.Kind {
 		kmm    = cmd.BoolOpt("m market-maker", false, "address kind: market maker")
 	)
 
-	return func() address.Kind {
-		kind := address.Kind(*pkind) // never nil dereference; defaults to user
+	return func() byte {
+		var kind byte
 		switch {
 		case kuser != nil && *kuser:
 			kind = address.KindUser
@@ -40,10 +40,16 @@ func getKindClosure(cmd *cli.Cmd) func() address.Kind {
 			kind = address.KindBPC
 		case kmm != nil && *kmm:
 			kind = address.KindMarketMaker
+		default:
+			kindString := *pkind // never nil dereference; defaults to user
+			if len(kindString) != 1 {
+				check(fmt.Errorf("invalid kind length: '%s'", kindString))
+			}
+			kind = kindString[0]
 		}
 
 		if !address.IsValidKind(kind) {
-			check(errors.New("invalid kind: " + string(kind)))
+			check(fmt.Errorf("invalid kind byte: %x", kind))
 		}
 		return kind
 	}

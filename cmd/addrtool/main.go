@@ -98,13 +98,14 @@ func readAsHex(in io.Reader) ([]byte, error) {
 
 func main() {
 	var args args
-	args.Kind = "a"
+	args.Kind = string(address.KindUser)
 	arg.MustParse(&args)
 
-	if !address.IsValidKind(address.Kind(args.Kind)) {
+	if len(args.Kind) != 1 || !address.IsValidKind(args.Kind[0]) {
 		fmt.Fprintf(os.Stderr, "%s is not a valid Kind\n", args.Kind)
 		os.Exit(1)
 	}
+	kind := args.Kind[0]
 
 	// figure out where we get our input stream from
 	var in io.Reader
@@ -180,7 +181,7 @@ func main() {
 	if args.Verbose {
 		fmt.Printf("input data:\n%s\n", hex.Dump(data))
 	}
-	a, err := address.Generate(address.Kind(args.Kind), data)
+	a, err := address.Generate(kind, data)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
