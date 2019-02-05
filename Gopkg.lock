@@ -539,7 +539,7 @@
 
 [[projects]]
   branch = "eas-chaos-57"
-  digest = "1:df2236ac91fecb172a4a1ee611cfc390e0facab428fa52b5660e37fcdd66f1a6"
+  digest = "1:4c2c0c22a5a0eda2fcaf0f2dafeb16d94023d1da8627d8a8bf802f900eae8c55"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -561,7 +561,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "43575ed9097b7bffcd032c070a9ecb0b0c3d1b21"
+  revision = "9adadadc4a75219b9202e163495f23c55e6c0995"
 
 [[projects]]
   branch = "master"
