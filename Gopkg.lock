@@ -433,7 +433,7 @@
 
 [[projects]]
   branch = "eas-chaos-57"
-  digest = "1:3746f626e192c58eab1541a90b989213e120b73fa25e1ea5b4d684466065389a"
+  digest = "1:687dc2250b0698ce0ac8204334c08a976f2f65ffa85881d083b29fbfe8b5d2ab"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -449,7 +449,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "4bfb1c22ba3797bb60b7d4e23f6f361ce34a1467"
+  revision = "3b64c439ccdd2486c8dbde19d7fbb947c32afa34"
 
 [[projects]]
   digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"
