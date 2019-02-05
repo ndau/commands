@@ -433,7 +433,7 @@
 
 [[projects]]
   branch = "eas-chaos-57"
-  digest = "1:250c77a7fe03d395be36bd2da877788c1bf91a931e51d6d3f1403dee7058995c"
+  digest = "1:d00b2a7fb578c8e010d621baa629f3ac13bf90cb3ed2bd2ca0b22c2dcfca4440"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -449,7 +449,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "0706af41dda32f0b4363ce52089372b894757821"
+  revision = "808eb76845c46e2c72664deea6acd4819abffad5"
 
 [[projects]]
   digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"
@@ -539,7 +539,7 @@
 
 [[projects]]
   branch = "eas-chaos-57"
-  digest = "1:173c4b1a3f2bb628d1bde5bc0a1acceaf08f22cc53bc4e881789a42b6b96059f"
+  digest = "1:b623847dd39bb357336a3a100370549c90449bf80815aa8839d17d1cfe390c73"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -561,7 +561,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "67c703b0225fe67c6e94c558b73dee541711e79e"
+  revision = "bdb26cdfdc8b696878324dc343e094a8812adbc7"
 
 [[projects]]
   branch = "master"
