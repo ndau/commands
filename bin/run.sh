@@ -163,6 +163,12 @@ ndau_noms() {
     cd "$NOMS_DIR" || exit 1
 
     mkdir -p "$data_dir"
+    if [ "$RUN_ETL" = "1" ]; then
+        echo etl for ndau noms
+        cd $GOPATH/src/github.com/oneiro-ndev/genesis
+        $GOPATH/src/github.com/oneiro-ndev/commands/cmd/etl/etl
+        cd "$NOMS_DIR" || exit 1
+    fi  
     ./noms serve --port="$noms_port" "$data_dir" >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
     wait_port "$noms_port"
