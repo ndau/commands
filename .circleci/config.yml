@@ -84,37 +84,39 @@ workflows:
       - deps:
           filters:
             branches:
-              only: /master/
+              only: /^master$/
       - test:
           requires:
             - deps
           filters:
             branches:
-              only: /master/
+              only: /^master$/
       - push:
           requires:
             - test
           filters:
             branches:
-              only: /master/
+              only: /^master$/
       - deploy:
           requires:
             - push
           filters:
             branches:
-              only: /master/
+              only: /^master$/
       - integration:
           requires:
             - deploy
           filters:
             branches:
-              only: /master/
+              only: /^master$/
   tagged-build:
     jobs:
       - deps:
           filters:  # required since `test` has tag filters AND requires `deps`
             tags:
               only: /.*/
+            branches:
+              ignore: /^master$/
       - test:
           requires:
             - deps
@@ -284,8 +286,8 @@ jobs:
             cd /go/src/github.com/oneiro-ndev
             export GOPATH=/go
             mkdir -p $GOPATH/bin
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh  
-            apk add sed          
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            apk add sed
 
             # clone integration tests and ndev dep repos
             git clone git@github.com:oneiro-ndev/integration-tests.git

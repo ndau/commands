@@ -91,6 +91,13 @@ func getCmdIDCopyKeysFrom() func(*cli.Cmd) {
 				)
 			}
 
+			// This is part of what allows the ndau account to pay for sidechain transactions.
+			// The chaos id's namespace must match the ndau account's ownership keys.
+			id.Chaos = tool.Keypair{
+				Public:  nid.Ownership.Public,
+				Private: &nid.Ownership.Private,
+			}
+
 			conf.Identities[*name] = id
 
 			orQuit(conf.Save())

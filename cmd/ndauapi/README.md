@@ -78,6 +78,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [AccountList](#accountlist)
 
+* [AccountCurrencySeats](#accountcurrencyseats)
+
 * [BlockCurrent](#blockcurrent)
 
 * [BlockHash](#blockhash)
@@ -173,11 +175,11 @@ _**Writes:**_
           "sequence": 0,
           "settlements": null,
           "settlementSettings": {
-            "Period": "t0s",
-            "ChangesAt": null,
-            "Next": null
+            "period": "t0s",
+            "changesAt": null,
+            "next": null
           },
-          "currency_seat_date": null
+          "currencySeatDate": null
         }
 ```
 
@@ -236,11 +238,11 @@ _**Writes:**_
             "sequence": 0,
             "settlements": null,
             "settlementSettings": {
-              "Period": "t0s",
-              "ChangesAt": null,
-              "Next": null
+              "period": "t0s",
+              "changesAt": null,
+              "next": null
             },
-            "currency_seat_date": null
+            "currencySeatDate": null
           }
         }
 ```
@@ -365,6 +367,47 @@ Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  pageindex | Query | The 0-based page index to get. default=0 | int
  pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=10000 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "NumAccounts": 1,
+          "FirstIndex": 1,
+          "PageSize": 1000,
+          "PageIndex": 0,
+          "Accounts": [
+            "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
+          ]
+        }
+```
+
+
+
+---
+## AccountCurrencySeats
+
+### `GET /account/currencyseats`
+
+_Returns a list of ndau 'currency seats', which are accounts containing more than 1000 ndau._
+
+The ndau currency seats are accounts containing more than 1000 ndau. The seniority of
+a currency seat is determined by how long it has been above the 1000 threshold, so this endpoint
+also sorts the result by age (oldest first). It does not return detailed account information.
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ limit | Query | The max number of items to return (default=3000) | int
 
 
 
@@ -1371,8 +1414,9 @@ _**Writes:**_
           "marketPrice": 0,
           "targetPrice": 0,
           "floorPrice": 0,
-          "endowmentSold": 0,
+          "totalIssued": 0,
           "totalNdau": 0,
+          "sib": 0,
           "priceUnit": ""
         }
 ```
@@ -1409,8 +1453,9 @@ _**Writes:**_
           "marketPrice": 0,
           "targetPrice": 0,
           "floorPrice": 0,
-          "endowmentSold": 0,
+          "totalIssued": 0,
           "totalNdau": 0,
+          "sib": 0,
           "priceUnit": ""
         }
 ```
@@ -1480,8 +1525,9 @@ _**Writes:**_
           "marketPrice": 16.85,
           "targetPrice": 17,
           "floorPrice": 2.57,
-          "endowmentSold": 291900000000000,
+          "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
+          "sib": 0,
           "priceUnit": "USD"
         }
 ```
@@ -1626,7 +1672,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
 
 
 _**Parameters:**_

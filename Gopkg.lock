@@ -248,6 +248,14 @@
   version = "1.2.1"
 
 [[projects]]
+  digest = "1:141cc9fc6279592458b304038bd16a05ef477d125c6dad281216345a11746fd7"
+  name = "github.com/gofrs/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
+  version = "v3.2.0"
+
+[[projects]]
   digest = "1:6e73003ecd35f4487a5e88270d3ca0a81bc80dc88053ac7e4dcfec5fba30d918"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -424,7 +432,7 @@
   version = "v0.21.0"
 
 [[projects]]
-  digest = "1:f4e5262aa3a0d1a8285cb05098c90c443eccd8462b8701014f043bf277bd8f23"
+  digest = "1:687dc2250b0698ce0ac8204334c08a976f2f65ffa85881d083b29fbfe8b5d2ab"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -440,8 +448,8 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "af2394839f5850cfa2dc67fc6590954fbc0ba40d"
-  version = "v0.13.0"
+  revision = "00c967f56b95955cbe66a695ebe02f7da9ca888e"
+  version = "v0.14.0"
 
 [[projects]]
   digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"
@@ -476,7 +484,7 @@
   revision = "51e787c1b8ab0b3c6cc0f7db8c7b650753541899"
 
 [[projects]]
-  digest = "1:b5b63ba6c6c1f7b58a73788277d0a59acda242ed5d0a8e9100b0c000399041bf"
+  digest = "1:7655ff1576ddf91cb9ed121a1a0d808d2c153cedfec644e4167bb3d68cfd04b7"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -486,8 +494,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "2f15af1dc5589d0e581cb9c9e01ef8a5f2eaba48"
-  version = "v0.12.2"
+  revision = "10b2cd1c04082d703bbe71475bec29af277d348c"
+  version = "v0.12.3"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -506,7 +514,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:5e02eb5a724a1ecace99465036bb5e5da926c95fd6ea65f50cf6a09bb4169e3f"
+  digest = "1:df170eed7e572271c3c6ef59aa36918c6f0ea5be64d5d6df0c766f93c9524636"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -526,11 +534,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "ef82f359696b3c068a592e82d1940e6edc1d57d9"
-  version = "v0.14.0"
+  revision = "e411fc22b3fa901ea4a844d026ac5f93842e7cfd"
+  version = "v0.16.1"
 
 [[projects]]
-  digest = "1:cbdc299eb6ada76bbc1c972b3f018e591686b902ef787c372f246f2cced6f5cf"
+  digest = "1:7d0de12416cd60e7599ee8d012c0583de5c75b7d5dfcae94eb8654986fb9f0f4"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -542,6 +550,7 @@
     "pkg/key",
     "pkg/keyaddr",
     "pkg/ndauerr",
+    "pkg/pricecurve",
     "pkg/signature",
     "pkg/signature/algorithms/ed25519",
     "pkg/signature/algorithms/null",
@@ -552,8 +561,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "9afb05769de3f1b3f4ae9d4ca05d2335ef642efc"
-  version = "v0.9.1"
+  revision = "270f81bd9e3375cf2371f61e3c4245bcf8e8badf"
+  version = "v0.11.0"
 
 [[projects]]
   branch = "master"
@@ -676,14 +685,6 @@
   pruneopts = ""
   revision = "9a47f48565a795472d43519dd49aac781f3034fb"
   version = "v1.6.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:47081c00d00c1dfc9a530c2556e78be391a5c24db1043efe6d406af882a169a1"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  pruneopts = ""
-  revision = "b2ce2384e17bbe0c6d34077efa39dbab3e09123b"
 
 [[projects]]
   branch = "master"

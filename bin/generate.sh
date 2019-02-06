@@ -20,11 +20,4 @@ fi
 cd "$NDEV_DIR/$REPO" || exit 1
 go generate ./...
 
-# Strip out all the "msgp.WrapError" lines that don't compile in unit tests.
-GEN=$(git diff-index HEAD --name-only)
-for f in $GEN;
-do
-    if [[ "$f" == *_gen.go ]]; then
-        grep -v "^.*msgp.WrapError.*$" "$f" > "$f-tmp" && mv "$f-tmp" "$f"
-    fi
-done
+# At this point we can do optional post-processing if ever needed.
