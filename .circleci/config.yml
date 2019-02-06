@@ -114,7 +114,7 @@ workflows:
       - deps:
           filters:  # required since `test` has tag filters AND requires `deps`
             tags:
-              ignore: /.*-testnet$/
+              ignore: /.*-testnet$|.*-mainnet$/ # only deploy for these tags
             branches:
               ignore: /^master$/
       - test:
@@ -143,7 +143,13 @@ workflows:
               only: /.*-testnet$/
             branches:
               ignore: /.*/
-       - integration:
+      - deploy-mainnet:
+          filters:
+            tags:
+              only: /.*-mainnet$/
+            branches:
+              ignore: /.*/
+      - integration:
           requires:
             - deploy
           filters:
@@ -192,6 +198,28 @@ testnet_config: &testnet_config
         RELEASE_NAME: "testnet"
         # Number of nodes to deploy
         NODE_NUM: "2"
+        KUBECONFIG: /root/kubeconfig
+
+mainnet_config: &mainnet_config
+    working_directory: /commands
+    docker:
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+    environment:
+        shell: /bin/bash
+        # Used for ECR
+        AWS_DEFAULT_REGION: us-east-1
+        # ECR's
+        ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+        # Bump these versions, and commit to master to upload a new version to ECR
+        NOMS_CONTAINER_VERSION: 0.0.1
+        STARTING_PORT: "30100"
+        ELB_SUBDOMAIN: main.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+        # These node names are removed first before new ones are installed.
+        # If these names change, the old names will have to be removed manually.
+        NODE_NAMES: "node-0 node-1 node-2 node-3 node-4"
+        RELEASE_NAME: "node"
+        # Number of nodes to deploy
+        NODE_NUM: "5"
         KUBECONFIG: /root/kubeconfig
 
 jobs:
@@ -262,6 +290,9 @@ jobs:
           name: run the deploy script
           command: |
             # Redeploy nodegroup testnet
+            cd /commands
+            export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
+            echo SHA=$SHA
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
@@ -269,6 +300,48 @@ jobs:
             # Remove old test net
             helm del --purge $NODE_NAMES --tls ||\
                 echo "Releases: $NODE_NAMES could not be deleted" >&2
+
+            # wait for stragglers to die
+            sleep 30
+
+            # create new multinode test net
+            # Use $SHA here instead of the automation's git ls-remote method.
+            CHAOSNODE_TAG=$SHA \
+            NDAUNODE_TAG=$SHA \
+            RELEASE=$RELEASE_NAME \
+            CHAOS_TM_TAG=v0.27.4 \
+            NDAU_TM_TAG=v0.27.4 \
+            ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
+                /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+
+  deploy-mainnet:
+    <<: *mainnet_config
+    steps:
+      - setup
+      - run:
+          name: run the deploy script
+          command: |
+            # Redeploy nodegroup mainnet
+            cd /commands
+            export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
+            echo SHA=$SHA
+
+            echo -e "$helm_ca_pem_main" > /root/.helm/ca.pem
+            echo -e "$helm_cert_pem_main" > /root/.helm/cert.pem
+            echo -e "$helm_key_pem_main" > /root/.helm/key.pem
+
+            # install kube config certs
+            echo -e "$kube_config_main" > /root/kubeconfig
+
+            # Clone the automation repo master branch
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+
+            # Remove old mainnet
+            helm del --purge $NODE_NAMES --tls ||\
+                echo "Releases: $NODE_NAMES could not be deleted" >&2
+
+            # wait for stragglers to die
+            sleep 30
 
             # create new multinode test net
             # Use $SHA here instead of the automation's git ls-remote method.
