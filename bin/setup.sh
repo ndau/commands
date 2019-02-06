@@ -115,6 +115,7 @@ mkdir -p "$NDEV_DIR"
 update_repo commands
 update_repo chaos
 update_repo ndau
+update_repo genesis
 
 cd "$NDEV_DIR"/commands
 echo SETUP: Ensuring dependencies for commands...
