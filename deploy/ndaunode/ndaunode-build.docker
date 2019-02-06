@@ -20,4 +20,4 @@ RUN cp /go/bin/ndaunode /bin/
 
 RUN go tool nm /bin/ndaunode |grep version.version
 RUN echo version should be $VERSION, and is:
-RUN bin/ndaunode -version
+RUN /bin/ndaunode -version
