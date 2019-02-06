@@ -88,6 +88,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [BlockRange](#blockrange)
 
+* [BlockTransactions](#blocktransactions)
+
 * [BlockDateRange](#blockdaterange)
 
 * [ChaosBlockRange](#chaosblockrange)
@@ -341,7 +343,7 @@ _**Writes:**_
             {
               "Balance": 123000000,
               "Timestamp": "2018-07-10T20:01:02Z",
-              "TxHash": "abc123def456"
+              "TxHash": "L4hD20bp7w4Hi19vpn46wQ"
             }
           ]
         }
@@ -806,6 +808,39 @@ _**Writes:**_
             }
           ]
         }
+```
+
+
+
+---
+## BlockTransactions
+
+### `GET /block/transactions/:height`
+
+_Returns transaction hashes for a given block. These can be used to fetch data for individual transactions._
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ height | Path | Height of the block in chain containing transactions. | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        [
+          "L4hD20bp7w4Hi19vpn46wQ"
+        ]
 ```
 
 
