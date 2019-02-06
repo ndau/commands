@@ -13,7 +13,7 @@ COPY --from=deps ${DEP_DIR}/vendor ${DIR}/vendor
 ARG VERSION
 
 # build it
-RUN CGO_ENABLED=0 GOOS=linux go install -a -ldflags "-extldflags \"-static\" -X github.com/oneiro-ndev/commands/vendor/github.com/oneiro-ndev/ndau/pkg/version.version=$VERSION" ./cmd/ndaunode
+RUN CGO_ENABLED=0 GOOS=linux go install -a -ldflags "-extldflags \"-static\" -X github.com/oneiro-ndev/ndau/vendor/github.com/oneiro-ndev/ndau/pkg/version.version=$VERSION" ./cmd/ndaunode
 
 # Copy binary to known location. The run containers won't know GOPATH.
 RUN cp /go/bin/ndaunode /bin/
