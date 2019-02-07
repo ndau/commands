@@ -10,7 +10,7 @@ commands:
       - run:
           name: send message
           command: |
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}'
+              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
                 https://hooks.slack.com/services/${SLACK_KEY}
 
   notify_error:
@@ -22,7 +22,7 @@ commands:
       - run:
           name: send error message
           command: |
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}'
+              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
                 https://hooks.slack.com/services/${SLACK_KEY}
           when: on_fail
 
@@ -37,8 +37,8 @@ commands:
       - run:
           name: create marker
           command: |
-            curl https://api.honeycomb.io/1/markers/<< parameters.dataset >> -X POST
-              -H "X-Honeycomb-Team: ${HONEYCOMB_KEY}"
+            curl https://api.honeycomb.io/1/markers/<< parameters.dataset >> -X POST \
+              -H "X-Honeycomb-Team: ${HONEYCOMB_KEY}" \
               -d '{"message":"<< parameters.msg >>", "type":"deploy"}'
 
   save_image:
@@ -275,7 +275,7 @@ jobs:
       - save_image:
           img_name: deps:latest
       - notify_error:
-          msg: deps step for ${CIRCLE_BUILD_URL} failed!
+          msg: ${CIRCLE_USERNAME} - deps step for ${CIRCLE_BUILD_URL} failed!
 
   test:
     <<: *general_config
@@ -291,9 +291,9 @@ jobs:
                 deps \
                 /bin/sh /root/test-and-build.sh
       - notify:
-          msg: ${CIRCLE_USERNAME}'s build ${CIRCLE_BUILD_URL} passed its unit tests.
+          msg: ${CIRCLE_BUILD_URL} for ${CIRCLE_USERNAME} passed its unit tests.
       - notify_error:
-          msg: notify step for ${CIRCLE_BUILD_URL} failed!
+          msg: ${CIRCLE_USERNAME} - test step for ${CIRCLE_BUILD_URL} failed!
 
   push:
     <<: *general_config
@@ -305,7 +305,7 @@ jobs:
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
       - notify_error:
-          msg: push step for ${CIRCLE_BUILD_URL} failed!
+          msg: ${CIRCLE_USERNAME} - push step for ${CIRCLE_BUILD_URL} failed!
 
   deploy:
     <<: *general_config
@@ -412,7 +412,7 @@ jobs:
       - notify:
           msg: Deploy complete; nodes are now starting up.
       - notify_error:
-          msg: deploy step for ${CIRCLE_BUILD_URL} failed!
+          msg: ${CIRCLE_USERNAME} - deploy step for ${CIRCLE_BUILD_URL} failed!
 
   integration:
     <<: *general_config
@@ -488,7 +488,7 @@ jobs:
             pipenv sync
             pipenv run pytest -v --net=devnet
       - notify:
-          msg: ${CIRCLE_USERNAME}'s build ${CIRCLE_BUILD_URL} passed integration tests.
+          msg: ${CIRCLE_BUILD_URL} for ${CIRCLE_USERNAME} passed integration tests.
       - notify_error:
-          msg: integration tests for ${CIRCLE_BUILD_URL} failed!
+          msg: ${CIRCLE_USERNAME} - integration tests for ${CIRCLE_BUILD_URL} failed!
 
