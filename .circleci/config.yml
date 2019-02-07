@@ -290,6 +290,8 @@ jobs:
                 -e CI=true \
                 deps \
                 /bin/sh /root/test-and-build.sh
+      - notify:
+          msg: ${CIRCLE_USERNAME}'s build ${CIRCLE_BUILD_URL} passed its unit tests.
       - notify_error:
           msg: notify step for ${CIRCLE_BUILD_URL} failed!
 
@@ -485,6 +487,8 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --net=devnet
+      - notify:
+          msg: ${CIRCLE_USERNAME}'s build ${CIRCLE_BUILD_URL} passed integration tests.
       - notify_error:
           msg: integration tests for ${CIRCLE_BUILD_URL} failed!
 
