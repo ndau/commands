@@ -39,7 +39,7 @@ commands:
           name: create marker
           command: |
             echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" >parms.txt
-            cat parms.txt
+            cat parms.txt   #just to be sure
             curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt https://api.honeycomb.io/1/markers/<< parameters.dataset >>
 
   save_image:
