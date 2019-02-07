@@ -76,7 +76,7 @@ func server(cmd *cli.Cmd) {
 			Produces("application/json").
 			Writes(rpctypes.ResultBlockchainInfo{}))
 
-		log.Printf("Chaos server listening on port %s\n", *port)
+		log.Printf("server listening on port %s\n", *port)
 		server := &http.Server{Addr: ":" + *port, Handler: svc.Mux()}
 		log.Fatal(server.ListenAndServe())
 	}
