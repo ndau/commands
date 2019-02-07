@@ -79,6 +79,7 @@ export NDAUAPI_CMD=cmd/ndauapi
 export NDAUNODE_CMD=cmd/ndaunode
 export NOMS_CMD=cmd/noms
 export TENDERMINT_CMD=cmd/tendermint
+export ETL_CMD=cmd/etl
 
 # The localnet data directory is created by setup.sh and is not modified by any other script.
 # We use it for storing meta info about the local nodes we manage.
