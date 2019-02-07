@@ -9,18 +9,10 @@ commands:
     steps:
       - run:
           name: send message
-          environment:
-              FOO: $CI_USER
-              BAR: $CIRCLE_BRANCH
-              BAZZ: blah blah blah
           command: |
-              echo $CI_USER
-              echo $FOO
-              echo $BAR
-              echo << parameters.msg >>
-              export M="{\"text\":\"<< parameters.msg >>\"}"
-              echo M is $M
-              curl -X POST -H 'Content-type: application/json' --data '$M' https://hooks.slack.com/services/$SLACK_KEY
+              echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
+              cat parms.txt
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
 
   notify_error:
     description: "Notifies the team with a message only when an error occurs"
