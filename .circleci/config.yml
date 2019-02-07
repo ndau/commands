@@ -10,8 +10,8 @@ commands:
       - run:
           name: send message
           command: |
+              # this is necessary to get the environment variables to interpolate properly
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
-              cat parms.txt
               curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
 
   notify_error:
@@ -23,8 +23,8 @@ commands:
       - run:
           name: send error message
           command: |
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
-                https://hooks.slack.com/services/$SLACK_KEY
+              echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
           when: on_fail
 
   mark_honeycomb:
@@ -38,9 +38,9 @@ commands:
       - run:
           name: create marker
           command: |
-            curl https://api.honeycomb.io/1/markers/<< parameters.dataset >> -X POST \
-              -H "X-Honeycomb-Team: $HONEYCOMB_KEY" \
-              -d '{"message":"<< parameters.msg >>", "type":"deploy"}'
+            echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" >parms.txt
+            cat parms.txt
+            curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt https://api.honeycomb.io/1/markers/<< parameters.dataset >>
 
   save_image:
     description: "Saves a docker image to the cache"
