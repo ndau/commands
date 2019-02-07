@@ -6,10 +6,16 @@ commands:
     parameters:
       msg:
         type: string
+      user:
+        type: env_var_name
+        default: CI_USER
     steps:
       - run:
           name: send message
           command: |
+              echo $CI_USER
+              echo << parameters.user >>
+              echo << parameters.msg >>
               curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
                 https://hooks.slack.com/services/$SLACK_KEY
 
