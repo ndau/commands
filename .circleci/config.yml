@@ -50,14 +50,13 @@ commands:
       - run:
           name: Checkout code
           command: |
-            # depth=1 makes the clone a lot faster
             if [ -z "$CIRCLE_BRANCH" ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
             then
               echo "CIRCLE_TAG = $CIRCLE_TAG"
-              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands --depth=1
+              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands
             else # use CIRCLE_BRANCH
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
-              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands --depth=1
+              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands
             fi
 
             # add the circle image's known_hosts file to the known_hosts used inside the images
@@ -198,7 +197,7 @@ jobs:
           name: run all sub project docker scripts
           command: |
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-            find . -name "docker-build-push.sh" -exec {} \;
+            find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
 
   deploy:
     <<: *general_config
