@@ -9,8 +9,14 @@ commands:
     steps:
       - run:
           name: send message
+          environment:
+              FOO: $CI_USER
+              BAR: $CIRCLE_BRANCH
+              BAZZ: blah blah blah
           command: |
               echo $CI_USER
+              echo $FOO
+              echo $BAR
               echo << parameters.msg >>
               curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
                 https://hooks.slack.com/services/$SLACK_KEY
