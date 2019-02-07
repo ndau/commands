@@ -1,7 +1,7 @@
 version: 2.1
 docker_cache_key: &docker_cache_key "{{ .Revision }}"
 commands:
-  notify_team:
+  notify:
     description: "Notifies the team with a message"
     parameters:
       msg:
@@ -9,9 +9,22 @@ commands:
     steps:
       - run:
           name: send message
-          command:
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
+          command: |
+              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}'
                 https://hooks.slack.com/services/${SLACK_KEY}
+
+  notify_error:
+    description: "Notifies the team with a message only when an error occurs"
+    parameters:
+      msg:
+        type: string
+    steps:
+      - run:
+          name: send error message
+          command: |
+              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}'
+                https://hooks.slack.com/services/${SLACK_KEY}
+          when: on_fail
 
   mark_honeycomb:
     description: "Places a marker in the specified honeycomb dataset"
@@ -23,10 +36,10 @@ commands:
     steps:
       - run:
           name: create marker
-          command:
-            curl https://api.honeycomb.io/1/markers/<< parameters.dataset >> -X POST \
-                -H "X-Honeycomb-Team: ${HONEYCOMB_KEY}" \
-                -d '{"message":"<< parameters.msg >>", "type":"deploy"}'
+          command: |
+            curl https://api.honeycomb.io/1/markers/<< parameters.dataset >> -X POST
+              -H "X-Honeycomb-Team: ${HONEYCOMB_KEY}"
+              -d '{"message":"<< parameters.msg >>", "type":"deploy"}'
 
   save_image:
     description: "Saves a docker image to the cache"
@@ -202,9 +215,8 @@ jobs:
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
-      - notify_team:
+      - notify_error:
           msg: deps step for ${CIRCLE_BUILD_URL} failed!
-          when: on_fail
 
   test:
     <<: *general_config
@@ -219,10 +231,8 @@ jobs:
                 -e CI=true \
                 deps \
                 /bin/sh /root/test-and-build.sh
-      - notify_team:
+      - notify_error:
           msg: notify step for ${CIRCLE_BUILD_URL} failed!
-          when: on_fail
-
 
   push:
     <<: *general_config
@@ -233,15 +243,14 @@ jobs:
           command: |
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
-      - notify_team:
+      - notify_error:
           msg: push step for ${CIRCLE_BUILD_URL} failed!
-          when: on_fail
 
   deploy:
     <<: *general_config
     steps:
       - setup
-      - notify_team:
+      - notify:
           msg: Beginning deploy of ${CIRCLE_BUILD_URL}.
       - mark_honeycomb:
           dataset: ci-deploy
@@ -266,11 +275,10 @@ jobs:
             NDAU_TM_TAG=v0.27.4 \
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
-      - notify_team:
+      - notify:
           msg: Deploy complete; nodes are now starting up.
-      - notify_team:
+      - notify_error:
           msg: deploy step for ${CIRCLE_BUILD_URL} failed!
-          when: on_fail
 
   integration:
     <<: *general_config
@@ -345,7 +353,6 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --net=devnet
-      - notify_team:
+      - notify_error:
           msg: integration tests for ${CIRCLE_BUILD_URL} failed!
-          when: on_fail
 
