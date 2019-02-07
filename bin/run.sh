@@ -89,7 +89,7 @@ chaos_node() {
         mv "$genesis_config.new.json" "$genesis_config.json"
 
     echo "  launching chaosnode"
-    HONEYCOMB_DATASET=chaos-dev \
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     NDAUHOME="$ndau_home" \
     ./chaosnode -spec http://localhost:"$noms_port" \
                 -index localhost:"$redis_port" \
@@ -113,7 +113,7 @@ chaos_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
-    HONEYCOMB_DATASET=chaos-tm-dev \
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
@@ -222,7 +222,7 @@ ndau_node() {
         mv "$genesis_config.new.json" "$genesis_config.json"
 
     echo "  launching ndaunode"
-    HONEYCOMB_DATASET=ndau-dev \
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     NDAUHOME="$ndau_home" \
     ./ndaunode -spec http://localhost:"$noms_port" \
                -index localhost:"$redis_port" \
@@ -246,7 +246,7 @@ ndau_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
-    HONEYCOMB_DATASET=ndau-tm-dev \
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
