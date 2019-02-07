@@ -31,6 +31,7 @@ export TM_RPC_PORT=26670
 BPC_OPS_ACCT_NAME=bpc-operations
 # This is the chaos-side identity that will be associated with the BPC account.
 SYSVAR_ID=sysvar
+HONEYCOMB_DATASET=localnet
 
 # Go source path.
 GO_DIR=$(go env GOPATH)
