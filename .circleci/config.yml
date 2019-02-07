@@ -217,6 +217,8 @@ general_config: &general_config
         NODE_NUM: "5"
         KUBECONFIG: /root/kubeconfig
         HONEYCOMB_DATASET: "devnet"
+        CI_URL: $CIRCLE_BUILD_URL
+        CI_USER: $CIRCLE_USERNAME
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -271,7 +273,13 @@ jobs:
       - setup
       - run:
           name: build the deps image
-          command: docker build -t deps -f /commands/deploy/deps.docker /commands/
+          command: |
+            echo $CIRCLE_USERNAME
+            echo $CI_USER
+            echo $CIRCLE_BUILD_URL
+            echo $CI_URL
+            echo $HONEYCOMB_KEY
+            docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
       - notify_error:
