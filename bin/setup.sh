@@ -82,7 +82,7 @@ else
     cd tendermint
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
-git fetch origin "$TENDERMINT_VER" --prune
+git fetch --prune
 git checkout "$TENDERMINT_VER"
 echo SETUP: Patching tendermint...
 patch -i "$COMMANDS_DIR"/deploy/tendermint/Gopkg.toml.patch Gopkg.toml
