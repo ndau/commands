@@ -310,9 +310,9 @@ jobs:
     steps:
       - setup
       - notify:
-          msg: Beginning deploy of ${CIRCLE_BUILD_URL}.
+          msg: Beginning deploy of ${CIRCLE_BUILD_URL} to ${RELEASE_NAME}.
       - mark_honeycomb:
-          dataset: ci-deploy
+          dataset: ${HONEYCOMB_DATASET}
           msg: Deploy ${CIRCLE_BUILD_NUM}
       - run:
           name: run the deploy script
