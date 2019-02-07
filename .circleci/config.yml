@@ -271,19 +271,15 @@ jobs:
     <<: *general_config
     steps:
       - setup
+      - notify:
+          msg: $CI_URL for $CI_USER starting up on circleci.
       - run:
           name: build the deps image
-          command: |
-            echo $CIRCLE_USERNAME
-            echo $CI_USER
-            echo $CIRCLE_BUILD_URL
-            echo $CI_URL
-            echo $HONEYCOMB_KEY
-            docker build -t deps -f /commands/deploy/deps.docker /commands/
+          command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
       - notify_error:
-          msg: $CIRCLE_USERNAME - deps step for $CIRCLE_BUILD_URL failed!
+          msg: $CI_USER - deps step for $CI_URL failed!
 
   test:
     <<: *general_config
@@ -299,9 +295,9 @@ jobs:
                 deps \
                 /bin/sh /root/test-and-build.sh
       - notify:
-          msg: $CIRCLE_BUILD_URL for $CIRCLE_USERNAME passed its unit tests.
+          msg: $CI_URL for $CI_USER passed its unit tests.
       - notify_error:
-          msg: $CIRCLE_USERNAME - test step for $CIRCLE_BUILD_URL failed!
+          msg: $CI_USER - test step for $CI_URL failed!
 
   push:
     <<: *general_config
@@ -313,14 +309,14 @@ jobs:
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
       - notify_error:
-          msg: $CIRCLE_USERNAME - push step for $CIRCLE_BUILD_URL failed!
+          msg: $CI_USER - push step for $CI_URL failed!
 
   deploy:
     <<: *general_config
     steps:
       - setup
       - notify:
-          msg: Beginning deploy of $CIRCLE_BUILD_URL to $RELEASE_NAME.
+          msg: Beginning deploy of $CI_URL to $RELEASE_NAME.
       - mark_honeycomb:
           dataset: $HONEYCOMB_DATASET
           msg: Deploy $CIRCLE_BUILD_NUM
@@ -420,7 +416,7 @@ jobs:
       - notify:
           msg: Deploy complete; nodes are now starting up.
       - notify_error:
-          msg: $CIRCLE_USERNAME - deploy step for $CIRCLE_BUILD_URL failed!
+          msg: $CIRCLE_USERNAME - deploy step for $CI_URL failed!
 
   integration:
     <<: *general_config
@@ -496,7 +492,7 @@ jobs:
             pipenv sync
             pipenv run pytest -v --net=devnet
       - notify:
-          msg: $CIRCLE_BUILD_URL for $CIRCLE_USERNAME passed integration tests.
+          msg: $CI_URL for $CI_USER passed integration tests.
       - notify_error:
-          msg: $CIRCLE_USERNAME - integration tests for $CIRCLE_BUILD_URL failed!
+          msg: $CI_USER - integration tests for $CI_URL failed!
 
