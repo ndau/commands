@@ -168,7 +168,7 @@ general_config: &general_config
         # Bump these versions, and commit to master to upload a new version to ECR
         NOMS_CONTAINER_VERSION: 0.0.1
         STARTING_PORT: "30050"
-        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from devnet.api.ndau.tech
         # These node names are removed first before new ones are installed.
         # If these names change, the old names will have to be removed manually.
         NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
@@ -176,6 +176,7 @@ general_config: &general_config
         # Number of nodes to deploy
         NODE_NUM: "5"
         KUBECONFIG: /root/kubeconfig
+        HONEYCOMB_DATASET: "devnet"
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -190,7 +191,7 @@ testnet_config: &testnet_config
         # Bump these versions, and commit to master to upload a new version to ECR
         NOMS_CONTAINER_VERSION: 0.0.1
         STARTING_PORT: "30100"
-        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from testnet.api.ndau.tech
         # These node names are removed first before new ones are installed.
         # If these names change, the old names will have to be removed manually.
         NODE_NAMES: "testnet-0 testnet-1"
@@ -198,6 +199,7 @@ testnet_config: &testnet_config
         # Number of nodes to deploy
         NODE_NUM: "2"
         KUBECONFIG: /root/kubeconfig
+        HONEYCOMB_DATASET: "testnet"
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -212,7 +214,7 @@ mainnet_config: &mainnet_config
         # Bump these versions, and commit to master to upload a new version to ECR
         NOMS_CONTAINER_VERSION: 0.0.1
         STARTING_PORT: "30100"
-        ELB_SUBDOMAIN: main.ndau.tech # nodes will be accessible from mario.api.ndau.tech
+        ELB_SUBDOMAIN: main.ndau.tech # nodes will be accessible from node.api.ndau.tech
         # These node names are removed first before new ones are installed.
         # If these names change, the old names will have to be removed manually.
         NODE_NAMES: "node-0 node-1 node-2 node-3 node-4"
@@ -220,6 +222,7 @@ mainnet_config: &mainnet_config
         # Number of nodes to deploy
         NODE_NUM: "5"
         KUBECONFIG: /root/kubeconfig
+        HONEYCOMB_DATASET: "mainnet"
 
 jobs:
   deps:
@@ -290,6 +293,7 @@ jobs:
           command: |
             # Redeploy nodegroup testnet
             cd /commands
+            # set SHA to latest master update
             export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
             echo SHA=$SHA
 
@@ -308,8 +312,8 @@ jobs:
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
             RELEASE=$RELEASE_NAME \
-            CHAOS_TM_TAG=v0.27.4 \
-            NDAU_TM_TAG=v0.27.4 \
+            CHAOS_TM_TAG=v0.29.1 \
+            NDAU_TM_TAG=v0.29.1 \
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
@@ -322,14 +326,15 @@ jobs:
           command: |
             # Redeploy nodegroup mainnet
             cd /commands
+            # set SHA to latest master update
             export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
             echo SHA=$SHA
-
+            # set helm certs to mainnet values
             echo -e "$helm_ca_pem_main" > /root/.helm/ca.pem
             echo -e "$helm_cert_pem_main" > /root/.helm/cert.pem
             echo -e "$helm_key_pem_main" > /root/.helm/key.pem
 
-            # install kube config certs
+            # install kube config certs for mainnet
             echo -e "$kube_config_main" > /root/kubeconfig
 
             # Clone the automation repo master branch
@@ -347,8 +352,8 @@ jobs:
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
             RELEASE=$RELEASE_NAME \
-            CHAOS_TM_TAG=v0.27.4 \
-            NDAU_TM_TAG=v0.27.4 \
+            CHAOS_TM_TAG=v0.29.1 \
+            NDAU_TM_TAG=v0.29.1 \
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
 
