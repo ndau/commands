@@ -6,15 +6,11 @@ commands:
     parameters:
       msg:
         type: string
-      user:
-        type: env_var_name
-        default: CI_USER
     steps:
       - run:
           name: send message
           command: |
               echo $CI_USER
-              echo << parameters.user >>
               echo << parameters.msg >>
               curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
                 https://hooks.slack.com/services/$SLACK_KEY
@@ -117,6 +113,8 @@ commands:
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+            echo 'export CI_USER=$CIRCLE_USERNAME' >> $BASH_ENV
+            echo 'export CI_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
       # docker_cache_key references a cache directory that has docker images in tar balls.
       # the tarballs were saved with a command called save_image, defined in `commands` above.
       - restore_cache:
@@ -223,8 +221,6 @@ general_config: &general_config
         NODE_NUM: "5"
         KUBECONFIG: /root/kubeconfig
         HONEYCOMB_DATASET: "devnet"
-        CI_URL: $CIRCLE_BUILD_URL
-        CI_USER: $CIRCLE_USERNAME
 
 testnet_config: &testnet_config
     working_directory: /commands
