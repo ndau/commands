@@ -18,8 +18,9 @@ commands:
               echo $FOO
               echo $BAR
               echo << parameters.msg >>
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"<< parameters.msg >>"}' \
-                https://hooks.slack.com/services/$SLACK_KEY
+              export M="{\"text\":\"<< parameters.msg >>\"}"
+              echo M is $M
+              curl -X POST -H 'Content-type: application/json' --data '$M' https://hooks.slack.com/services/$SLACK_KEY
 
   notify_error:
     description: "Notifies the team with a message only when an error occurs"
