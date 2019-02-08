@@ -272,15 +272,11 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - notify:
-          msg: $CI_URL for $CI_USER starting up on circleci.
       - run:
           name: build the deps image
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
-      - notify_error:
-          msg: $CI_USER - deps step for $CI_URL failed!
 
   test:
     <<: *general_config
@@ -295,10 +291,6 @@ jobs:
                 -e CI=true \
                 deps \
                 /bin/sh /root/test-and-build.sh
-      - notify:
-          msg: $CI_URL for $CI_USER passed its unit tests.
-      - notify_error:
-          msg: $CI_USER - test step for $CI_URL failed!
 
   push:
     <<: *general_config
@@ -309,18 +301,14 @@ jobs:
           command: |
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
             find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
-      - notify_error:
-          msg: $CI_USER - push step for $CI_URL failed!
 
   deploy:
     <<: *general_config
     steps:
       - setup
-      - notify:
-          msg: Beginning deploy of $CI_URL to $RELEASE_NAME.
       - mark_honeycomb:
           dataset: $HONEYCOMB_DATASET
-          msg: Deploy $CIRCLE_BUILD_NUM
+          msg: Start deploy for build $CIRCLE_BUILD_NUM
       - run:
           name: run the deploy script
           command: |
@@ -415,9 +403,7 @@ jobs:
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
       - notify:
-          msg: Deploy complete; nodes are now starting up.
-      - notify_error:
-          msg: $CIRCLE_USERNAME - deploy step for $CI_URL failed!
+          msg: Deploy complete; nodes for $RELEASE_NAME are now starting up.
 
   integration:
     <<: *general_config
@@ -492,8 +478,4 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --net=devnet
-      - notify:
-          msg: $CI_URL for $CI_USER passed integration tests.
-      - notify_error:
-          msg: $CI_USER - integration tests for $CI_URL failed!
 
