@@ -31,6 +31,10 @@ name = "github.com/oneiro-ndev/ndaumath"
 version = "~v0.11"
 
 [[constraint]]
+name = "github.com/oneiro-ndev/o11y"
+version = "~v1.3"
+
+[[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
 version = "~v0.2"
 
