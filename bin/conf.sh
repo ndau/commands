@@ -69,6 +69,7 @@ if [ "$NODE_COUNT" -gt 1 ]; then
     # them.  The last node therefore wouldn't need to know about any peers, because the
     # previous one will dial it up as a peer.  However, to be more like how things are done in
     # the automation repo, we share all peers with each other.
+    genesis_time=""
     chaos_peers=()
     ndau_peers=()
     chaos_addresses=()
@@ -96,6 +97,11 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         peer="$peer_id@127.0.0.1:$peer_port"
         ndau_peers+=("$peer")
 
+        # We'll use the time from chaos node 0 for all nodes over all chains.
+        if [ -z "$genesis_time" ]; then
+            genesis_time=$(jq -c .genesis_time "$tm_chaos_genesis")
+        fi
+
         chaos_addresses+=($(jq -c .address "$tm_chaos_priv"))
         ndau_addresses+=($(jq -c .address "$tm_ndau_priv"))
         chaos_pub_keys+=($(jq -c .pub_key "$tm_chaos_priv"))
@@ -106,6 +112,14 @@ if [ "$NODE_COUNT" -gt 1 ]; then
            "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
             mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
         jq ".validators = []" \
+           "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
+            mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
+
+        # Set the genesis time to be the same across all nodes and blockchains.
+        jq ".genesis_time = $genesis_time" \
+           "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
+            mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
+        jq ".genesis_time = $genesis_time" \
            "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
             mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
     done
@@ -193,7 +207,17 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
     do
         ndau_home="$NODE_DATA_DIR-$node_num"
 
-        ./genesis -g "$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR-$node_num"
+        # Generate noms data for chaos node 0, copy from node 0 otherwise.
+        data_dir="$NOMS_CHAOS_DATA_DIR-$node_num"
+        if [ "$node_num" = 0 ]; then
+            echo "Updating chaos noms using $GENESIS_TOML"
+            ./genesis -g "$GENESIS_TOML" -n "$data_dir"
+        else
+            echo "Copying chaos noms from node 0 to node $node_num"
+            rm -rf "$data_dir"
+            cp -r "$NOMS_CHAOS_DATA_DIR-0" "$data_dir"
+        fi
+
         NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
 
         # For deterministic bpc account address/keys, we recover a special account with 12 eyes.
@@ -205,7 +229,27 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
         # Suppress the big message about next steps.
         NDAUHOME="$ndau_home" ./chaos import-assc "$SYSVAR_ID" "$ASSC_TOML" > /dev/null
 
-        touch "$NEEDS_UPDATE_FLAG_FILE-$node_num"
+        # Import genesis data.
+        echo "  updating ndau config using $GENESIS_TOML"
+        NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -update-conf-from "$GENESIS_TOML"
+
+        # The config toml file has now been generated.
+        # use chaos for sysvars instead of the genesis file as a mock.
+        sed -i '' \
+            -e "/UseMock/d" \
+            "$ndau_home/ndau/config.toml"
+
+        # Generate noms data for ndau node 0, copy from node 0 otherwise.
+        data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
+        if [ "$node_num" = 0 ]; then
+            echo "  updating ndau noms using $ASSC_TOML"
+            NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -update-chain-from "$ASSC_TOML"
+            mv "$ndau_home/ndau/noms" "$data_dir"
+        else
+            echo "  copying ndau noms from node 0 to node $node_num"
+            rm -rf "$data_dir"
+            cp -r "$NOMS_NDAU_DATA_DIR-0" "$data_dir"
+        fi
     done
 
     # The no-node-num form of the needs-update file flags that we need to claim the bpc account.

@@ -2,8 +2,8 @@
 
 echo ETL for ndau noms
 # don't run ETL if we've updated this node already
-echo "$NEEDS_UPDATE_FLAG_FILE-$1"
-if [ ! -e "$NEEDS_UPDATE_FLAG_FILE-$1" ]; then
+echo "$NEEDS_UPDATE_FLAG_FILE"
+if [ ! -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
     echo ETL already run on node, unset \$RUN_ETL var to continue, exiting
     exit 1
 fi
