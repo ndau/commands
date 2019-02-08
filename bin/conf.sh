@@ -214,7 +214,6 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
             ./genesis -g "$GENESIS_TOML" -n "$data_dir"
         else
             echo "Copying chaos noms from node 0 to node $node_num"
-            rm -rf "$data_dir"
             cp -r "$NOMS_CHAOS_DATA_DIR-0" "$data_dir"
         fi
 
@@ -247,7 +246,6 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
             mv "$ndau_home/ndau/noms" "$data_dir"
         else
             echo "  copying ndau noms from node 0 to node $node_num"
-            rm -rf "$data_dir"
             cp -r "$NOMS_NDAU_DATA_DIR-0" "$data_dir"
         fi
     done
