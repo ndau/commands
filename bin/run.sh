@@ -89,6 +89,7 @@ chaos_node() {
         mv "$genesis_config.new.json" "$genesis_config.json"
 
     echo "  launching chaosnode"
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     NDAUHOME="$ndau_home" \
     ./chaosnode -spec http://localhost:"$noms_port" \
                 -index localhost:"$redis_port" \
@@ -112,6 +113,7 @@ chaos_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
@@ -161,6 +163,11 @@ ndau_noms() {
     cd "$NOMS_DIR" || exit 1
 
     mkdir -p "$data_dir"
+    # set var below if ETL step is to be run
+    # this needs to be here because ETL needs to push data direct to noms dir, and before noms starts
+    if [ "$RUN_ETL" = "1" ]; then
+        "$CMDBIN_DIR"/etl.sh $node_num
+    fi
     ./noms serve --port="$noms_port" "$data_dir" >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
     wait_port "$noms_port"
@@ -215,6 +222,7 @@ ndau_node() {
         mv "$genesis_config.new.json" "$genesis_config.json"
 
     echo "  launching ndaunode"
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     NDAUHOME="$ndau_home" \
     ./ndaunode -spec http://localhost:"$noms_port" \
                -index localhost:"$redis_port" \
@@ -238,6 +246,7 @@ ndau_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
+    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \

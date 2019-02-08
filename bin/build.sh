@@ -72,6 +72,13 @@ build_chaos_genesis() {
     go build ./"$GENESIS_CMD"
 }
 
+build_etl() {
+    echo building etl
+    cd "$COMMANDS_DIR"
+
+    go build ./"$ETL_CMD"
+}
+
 build_tm() {
     echo building tendermint
     cd "$TENDERMINT_DIR"
@@ -91,6 +98,7 @@ build_all() {
     build_chaos
     build_ndau
     build_chaos_genesis
+    build_etl
 }
 
 build_all

@@ -31,6 +31,7 @@ export TM_RPC_PORT=26670
 BPC_OPS_ACCT_NAME=bpc-operations
 # This is the chaos-side identity that will be associated with the BPC account.
 SYSVAR_ID=sysvar
+HONEYCOMB_DATASET=localnet
 
 # Go source path.
 GO_DIR=$(go env GOPATH)
@@ -78,6 +79,7 @@ export NDAUAPI_CMD=cmd/ndauapi
 export NDAUNODE_CMD=cmd/ndaunode
 export NOMS_CMD=cmd/noms
 export TENDERMINT_CMD=cmd/tendermint
+export ETL_CMD=cmd/etl
 
 # The localnet data directory is created by setup.sh and is not modified by any other script.
 # We use it for storing meta info about the local nodes we manage.
