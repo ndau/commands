@@ -274,6 +274,23 @@ jobs:
             helm del --purge $NODE_NAMES --tls ||\
                 echo "Releases: $NODE_NAMES could not be deleted" >&2
 
+            # copy and unzip installation scripts from aws
+            mkdir -p /root/nodegroups
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp s3://ndau-deploy-secrets/all.tgz /root/nodegroups/all.tgz
+            (
+              cd /root/nodegroups
+              tar xvf all.tgz
+            )
+
+            # bring down nodes
+            /root/nodegroups/down.sh
+
+            # brings nodes back up
+            HELM_CHART_PATH=/root/automation/helm/nodegroup \
+              /root/nodegroups/up.sh
+
             # create new multinode test net
             # Use $SHA here instead of the automation's git ls-remote method.
             CHAOSNODE_TAG=$SHA \
