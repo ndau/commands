@@ -305,6 +305,9 @@ jobs:
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
 
+            # get bash environments manually
+            source $BASH_ENV
+
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
@@ -318,10 +321,20 @@ jobs:
             # bring down nodes
             /root/nodegroups/down.sh
 
-            # wait for stragglers to die
+            # wait for stragglers to die. pvcs always go down last
             # TODO add some smarter resource detection
-            # if [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ]; then echo "yes"; else echo "no"; fi
-            sleep 30
+            while true; do
+              if
+                [ "$(kubectl get pvc -l release=devnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
+                  break
+              else
+                echo "waiting";
+              fi
+            done
 
             # brings nodes back up
             # Use $SHA here instead of the automation's git ls-remote method.
@@ -360,10 +373,17 @@ jobs:
             # bring down nodes
             /root/nodegroups/down.sh
 
-            # wait for stragglers to die
+            # wait for stragglers to die. pvcs always go down last
             # TODO add some smarter resource detection
-            # if [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ]; then echo "yes"; else echo "no"; fi
-            sleep 30
+            while true; do
+              if
+                [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=testnet-1 | wc -l | tr -d "[:space:]")" == "0" ]; then
+                  break
+              else
+                echo "waiting";
+              fi
+            done
 
             # brings nodes back up
             # Use $SHA here instead of the automation's git ls-remote method.
@@ -409,10 +429,20 @@ jobs:
             # bring down nodes
             /root/nodegroups/down.sh
 
-            # wait for stragglers to die
+            # wait for stragglers to die. pvcs always go down last
             # TODO add some smarter resource detection
-            # if [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ]; then echo "yes"; else echo "no"; fi
-            sleep 30
+            while true; do
+              if
+                [ "$(kubectl get pvc -l release=mainnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=mainnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=mainnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=mainnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=mainnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
+                  break
+              else
+                echo "waiting";
+              fi
+            done
 
             # brings nodes back up
             # Use $SHA here instead of the automation's git ls-remote method.
