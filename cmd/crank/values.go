@@ -55,7 +55,8 @@ func parseValues(s string) ([]vm.Value, error) {
 	// ndau values are a base-10 positive decimal, which is multiplied by 10^8 and converted to integer
 	ndaup := regexp.MustCompile(`^nd([0-9]+)(\.[0-9]*)?`)
 	// quoted strings can be either single, double, or triple quotes of either kind; no escapes.
-	quotep := regexp.MustCompile(`^'([^']*)'|^"([^"]*)"|^'''(.*)'''|^"""(.*)"""`)
+	// the ordering of these matters -- the triplequotes must come before the corresponding single version
+	quotep := regexp.MustCompile(`^^'''(.*)'''|'([^']*)'|^"""(.*)"""|^"([^"]*)"`)
 	// arrays of bytes are B(hex) with individual bytes as hex strings with no 0x; embedded spaces are ignored
 	bytep := regexp.MustCompile(`^B\((([0-9A-Fa-f][0-9A-Fa-f] *)+)\)`)
 	// fields for structs are fieldid:Value; they are returned as a struct with one field that
@@ -169,7 +170,19 @@ func parseValues(s string) ([]vm.Value, error) {
 
 		case quotep.FindString(s) != "":
 			subm := quotep.FindSubmatch([]byte(s))
-			contents := subm[1]
+			// because there are multiple patterns, we need to search the submatches to find
+			// the non-empty one
+			var contents []byte
+			for i := 1; i < 5; i++ {
+				if subm[i] != nil {
+					contents = subm[i]
+					break
+				}
+			}
+			// this shouldn't happen
+			if contents == nil {
+				return nil, errors.New("busted quote " + s)
+			}
 			s = s[len(subm[0]):]
 			retval = append(retval, vm.NewBytes(contents))
 

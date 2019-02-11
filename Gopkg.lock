@@ -573,12 +573,12 @@
   revision = "7711be769e350176643c97a46d4de3a113841fd8"
 
 [[projects]]
-  digest = "1:231cfce4748d46931ebdb37bf244c640cf52b03c43e11bf325f1b5bc52b307b3"
+  digest = "1:054f0b4110b30f53da18450b7d341b1c27a939ad0edcd214c0d3eda7cbb39895"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "2640540d1f41f4c09dd67b755226ae53ea7d9d97"
-  version = "v1.2.0"
+  revision = "b9ebe5797d7a13e39f5e5488e260d1211c4c9df4"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:73340d3506411f843968aee1d890a7abe6b18669c6fe91943d70f5b574e62ba8"

@@ -1,6 +1,47 @@
 version: 2.1
 docker_cache_key: &docker_cache_key "{{ .Revision }}"
 commands:
+  notify:
+    description: "Notifies the team with a message"
+    parameters:
+      msg:
+        type: string
+    steps:
+      - run:
+          name: send message
+          command: |
+              # this is necessary to get the environment variables to interpolate properly
+              echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
+
+  notify_error:
+    description: "Notifies the team with a message only when an error occurs"
+    parameters:
+      msg:
+        type: string
+    steps:
+      - run:
+          name: send error message
+          command: |
+              echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
+          when: on_fail
+
+  mark_honeycomb:
+    description: "Places a marker in the specified honeycomb dataset"
+    parameters:
+      msg:
+        type: string
+      dataset:
+        type: string
+    steps:
+      - run:
+          name: create marker
+          command: |
+            echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" >parms.txt
+            cat parms.txt   #just to be sure
+            curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt https://api.honeycomb.io/1/markers/<< parameters.dataset >>
+
   save_image:
     description: "Saves a docker image to the cache"
     parameters:
@@ -71,6 +112,8 @@ commands:
             cd /commands
             echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
             echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+            echo 'export CI_USER=$CIRCLE_USERNAME' >> $BASH_ENV
+            echo 'export CI_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
       # docker_cache_key references a cache directory that has docker images in tar balls.
       # the tarballs were saved with a command called save_image, defined in `commands` above.
       - restore_cache:
@@ -234,6 +277,7 @@ jobs:
           command: docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
+
   test:
     <<: *general_config
     steps:
@@ -262,17 +306,36 @@ jobs:
     <<: *general_config
     steps:
       - setup
+      - mark_honeycomb:
+          dataset: $HONEYCOMB_DATASET
+          msg: Start deploy for build $CIRCLE_BUILD_NUM
       - run:
           name: run the deploy script
           command: |
             # Redeploy nodegroup testnet
-
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
 
             # Remove old test net
             helm del --purge $NODE_NAMES --tls ||\
                 echo "Releases: $NODE_NAMES could not be deleted" >&2
+
+            # copy and unzip installation scripts from aws
+            mkdir -p /root/nodegroups
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp s3://ndau-deploy-secrets/all.tgz /root/nodegroups/all.tgz
+            (
+              cd /root/nodegroups
+              tar xvf all.tgz
+            )
+
+            # bring down nodes
+            /root/nodegroups/down.sh
+
+            # brings nodes back up
+            HELM_CHART_PATH=/root/automation/helm/nodegroup \
+              /root/nodegroups/up.sh
 
             # create new multinode test net
             # Use $SHA here instead of the automation's git ls-remote method.
@@ -356,6 +419,8 @@ jobs:
             NDAU_TM_TAG=v0.29.1 \
             ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
                 /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+      - notify:
+          msg: Deploy complete; nodes for $RELEASE_NAME are now starting up.
 
   integration:
     <<: *general_config
@@ -430,3 +495,4 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --net=devnet
+

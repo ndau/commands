@@ -1,10 +1,5 @@
 {
     package main
-
-	// import (
-	// 	"github.com/oneiro-ndev/chaincode/pkg/vm"
-	// )
-
 }
 
 Script <- Commands EOL
@@ -26,8 +21,7 @@ Command <-
     / Value
     )
 
-DisassembleCommand <-
-    _ ( "disassemble" / "disasm" / "dis" / "d" )
+DisassembleCommand <- _ ( "disassemble" / "disasm" / "dis" / "d" )
 
 ExitCommand <- _ ( "exit" / "quit" / "q" )
 

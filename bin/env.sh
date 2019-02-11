@@ -33,7 +33,7 @@ BPC_OPS_ACCT_NAME=bpc-operations
 SYSVAR_ID=sysvar
 
 if [[ -z "$HONEYCOMB_DATASET" ]]; then
-    HONEYCOMB_DATASET=localnet
+    export HONEYCOMB_DATASET=localnet
 fi
 
 # Go source path.
