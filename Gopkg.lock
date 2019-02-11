@@ -168,6 +168,14 @@
   version = "v3.3.1"
 
 [[projects]]
+  digest = "1:ef56a889da489cd51a892c658b59d85ec60c7a9fe33846ef5951dd68270b7b99"
+  name = "github.com/ethereum/go-ethereum"
+  packages = ["crypto/secp256k1"]
+  pruneopts = ""
+  revision = "7fa3509e2eaf1a4ebc12344590e5699406690f15"
+  version = "v1.8.22"
+
+[[projects]]
   branch = "master"
   digest = "1:88b37f144a80737f9e5cd50c887c00c2f3c7211257f884b8b80ce97e61ed1ccb"
   name = "github.com/facebookgo/clock"
@@ -751,14 +759,6 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:6790807aaaced345f02e74f9d80fc4b78e122c0cdc88ec3c2f972460ec72d127"
-  name = "github.com/tendermint/btcd"
-  packages = ["btcec"]
-  pruneopts = ""
-  revision = "80daadac05d1cd29571fccf27002d79667a88b58"
-  version = "v0.1.1"
-
-[[projects]]
   branch = "master"
   digest = "1:12be8593db70e72fd05efb6d63f5bda3feddc69e2034296e6207d72b60776d21"
   name = "github.com/tendermint/ed25519"
@@ -778,7 +778,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:570051403d30bb2754be52172a6863d3f5eb14e6a13e941a2d4921289b1fb6f6"
+  digest = "1:2b3698795360c70e1a9793e307b9b3f306cc3f1775bf5db5fa11a043358b24d5"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -833,8 +833,8 @@
     "version",
   ]
   pruneopts = ""
-  revision = "4d7b29cd8f8ef998cf8f7141f3a100b0a4fa718d"
-  version = "v0.29.1"
+  revision = "28d75ec8016b7fb043735cbe4c4d92ec73355de7"
+  version = "v0.30.0"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
