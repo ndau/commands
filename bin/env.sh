@@ -32,7 +32,7 @@ BPC_OPS_ACCT_NAME=bpc-operations
 # This is the chaos-side identity that will be associated with the BPC account.
 SYSVAR_ID=sysvar
 
-if [[ -z $HONEYCOMB_DATASET ]]; then
+if [[ -z "$HONEYCOMB_DATASET" ]]; then
     HONEYCOMB_DATASET=localnet
 fi
 
