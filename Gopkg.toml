@@ -53,7 +53,7 @@ source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
-version = "v0.30.0"
+version = "v0.29.1"
 
 [[override]]
 name = "github.com/gofrs/uuid"
