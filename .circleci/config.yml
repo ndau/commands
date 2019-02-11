@@ -1,5 +1,8 @@
 version: 2.1
 docker_cache_key: &docker_cache_key "{{ .Revision }}"
+aws_default_region: us-east-1
+aws_erc_endpoint: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+
 commands:
   notify:
     description: "Notifies the team with a message"
@@ -205,21 +208,18 @@ general_config: &general_config
     environment:
         shell: /bin/bash
         # Used for ECR
-        AWS_DEFAULT_REGION: us-east-1
-        # ECR's
-        ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-        # Bump these versions, and commit to master to upload a new version to ECR
-        NOMS_CONTAINER_VERSION: 0.0.1
-        STARTING_PORT: "30050"
-        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from devnet.api.ndau.tech
-        # These node names are removed first before new ones are installed.
-        # If these names change, the old names will have to be removed manually.
-        NODE_NAMES: "devnet-0 devnet-1 devnet-2 devnet-3 devnet-4"
-        RELEASE_NAME: "devnet"
-        # Number of nodes to deploy
-        NODE_NUM: "5"
+        AWS_DEFAULT_REGION: *aws_default_region
+        ECR_ENDPOINT: *aws_ecr_endpoint
+        # nodes will be accessible from their release name combined with a number
+        # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
+        ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
+        S3_DEPLOY_ARCHIVE: devnet.tgz
         HONEYCOMB_DATASET: "devnet"
+        CHAOS_TM_TAG: v0.29.1
+        CHAOS_NOMS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.29.1
+        NDAU_NOMS_TAG: 0.0.1
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -228,21 +228,18 @@ testnet_config: &testnet_config
     environment:
         shell: /bin/bash
         # Used for ECR
-        AWS_DEFAULT_REGION: us-east-1
-        # ECR's
-        ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-        # Bump these versions, and commit to master to upload a new version to ECR
-        NOMS_CONTAINER_VERSION: 0.0.1
-        STARTING_PORT: "30100"
-        ELB_SUBDOMAIN: api.ndau.tech # nodes will be accessible from testnet.api.ndau.tech
-        # These node names are removed first before new ones are installed.
-        # If these names change, the old names will have to be removed manually.
-        NODE_NAMES: "testnet-0 testnet-1"
-        RELEASE_NAME: "testnet"
-        # Number of nodes to deploy
-        NODE_NUM: "2"
+        AWS_DEFAULT_REGION: *aws_default_region
+        ECR_ENDPOINT: *aws_ecr_endpoint
+        # nodes will be accessible from their release name combined with a number
+        # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
+        ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
+        S3_DEPLOY_ARCHIVE: testnet.tgz
         HONEYCOMB_DATASET: "testnet"
+        CHAOS_TM_TAG: v0.29.1
+        CHAOS_NOMS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.29.1
+        NDAU_NOMS_TAG: 0.0.1
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -251,21 +248,18 @@ mainnet_config: &mainnet_config
     environment:
         shell: /bin/bash
         # Used for ECR
-        AWS_DEFAULT_REGION: us-east-1
-        # ECR's
-        ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
-        # Bump these versions, and commit to master to upload a new version to ECR
-        NOMS_CONTAINER_VERSION: 0.0.1
-        STARTING_PORT: "30100"
-        ELB_SUBDOMAIN: main.ndau.tech # nodes will be accessible from node.api.ndau.tech
-        # These node names are removed first before new ones are installed.
-        # If these names change, the old names will have to be removed manually.
-        NODE_NAMES: "node-0 node-1 node-2 node-3 node-4"
-        RELEASE_NAME: "node"
-        # Number of nodes to deploy
-        NODE_NUM: "5"
+        AWS_DEFAULT_REGION: *aws_default_region
+        ECR_ENDPOINT: *aws_ecr_endpoint
+        # nodes will be accessible from their release name combined with a number
+        # and the subdomain of the ELB. (e.g. node-0.main.ndau.tech)
+        ELB_SUBDOMAIN: main.ndau.tech
         KUBECONFIG: /root/kubeconfig
+        S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
+        CHAOS_TM_TAG: v0.29.1
+        CHAOS_NOMS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.29.1
+        NDAU_NOMS_TAG: 0.0.1
 
 jobs:
   deps:
@@ -312,40 +306,35 @@ jobs:
       - run:
           name: run the deploy script
           command: |
-            # Redeploy nodegroup testnet
+            # Redeploy devnet
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
-
-            # Remove old test net
-            helm del --purge $NODE_NAMES --tls ||\
-                echo "Releases: $NODE_NAMES could not be deleted" >&2
 
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/all.tgz /root/nodegroups/all.tgz
+              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
             (
               cd /root/nodegroups
-              tar xvf all.tgz
+              tar xvf $S3_DEPLOY_ARCHIVE
             )
 
             # bring down nodes
             /root/nodegroups/down.sh
 
-            # brings nodes back up
-            HELM_CHART_PATH=/root/automation/helm/nodegroup \
-              /root/nodegroups/up.sh
+            # wait for stragglers to die
+            # TODO add some smarter resource detection
+            # if [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ]; then echo "yes"; else echo "no"; fi
+            sleep 30
 
-            # create new multinode test net
+            # brings nodes back up
             # Use $SHA here instead of the automation's git ls-remote method.
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
-            RELEASE=$RELEASE_NAME \
-            CHAOS_TM_TAG=v0.29.1 \
-            NDAU_TM_TAG=v0.29.1 \
-            ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
-                /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+            HELM_CHART_PATH=/root/automation/helm/nodegroup \
+              /root/nodegroups/up.sh
+
 
   deploy-testnet:
     <<: *testnet_config
@@ -363,22 +352,30 @@ jobs:
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
 
-            # Remove old test net
-            helm del --purge $NODE_NAMES --tls ||\
-                echo "Releases: $NODE_NAMES could not be deleted" >&2
+            # copy and unzip installation scripts from aws
+            mkdir -p /root/nodegroups
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
+            (
+              cd /root/nodegroups
+              tar xvf $S3_DEPLOY_ARCHIVE
+            )
+
+            # bring down nodes
+            /root/nodegroups/down.sh
 
             # wait for stragglers to die
+            # TODO add some smarter resource detection
+            # if [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ]; then echo "yes"; else echo "no"; fi
             sleep 30
 
-            # create new multinode test net
+            # brings nodes back up
             # Use $SHA here instead of the automation's git ls-remote method.
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
-            RELEASE=$RELEASE_NAME \
-            CHAOS_TM_TAG=v0.29.1 \
-            NDAU_TM_TAG=v0.29.1 \
-            ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
-                /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+            HELM_CHART_PATH=/root/automation/helm/nodegroup \
+              /root/nodegroups/up.sh
 
   deploy-mainnet:
     <<: *mainnet_config
@@ -392,6 +389,7 @@ jobs:
             # set SHA to latest master update
             export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
             echo SHA=$SHA
+
             # set helm certs to mainnet values
             echo -e "$helm_ca_pem_main" > /root/.helm/ca.pem
             echo -e "$helm_cert_pem_main" > /root/.helm/cert.pem
@@ -403,22 +401,31 @@ jobs:
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
 
-            # Remove old mainnet
-            helm del --purge $NODE_NAMES --tls ||\
-                echo "Releases: $NODE_NAMES could not be deleted" >&2
+            # copy and unzip installation scripts from aws
+            mkdir -p /root/nodegroups
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
+            (
+              cd /root/nodegroups
+              tar xvf $S3_DEPLOY_ARCHIVE
+            )
+
+            # bring down nodes
+            /root/nodegroups/down.sh
 
             # wait for stragglers to die
+            # TODO add some smarter resource detection
+            # if [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ]; then echo "yes"; else echo "no"; fi
             sleep 30
 
-            # create new multinode test net
+            # brings nodes back up
             # Use $SHA here instead of the automation's git ls-remote method.
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
-            RELEASE=$RELEASE_NAME \
-            CHAOS_TM_TAG=v0.29.1 \
-            NDAU_TM_TAG=v0.29.1 \
-            ELB_SUBDOMAIN=$ELB_SUBDOMAIN \
-                /root/automation/testnet/gen_node_groups.py $NODE_NUM $STARTING_PORT
+            HELM_CHART_PATH=/root/automation/helm/nodegroup \
+              /root/nodegroups/up.sh
+
       - notify:
           msg: Deploy complete; nodes for $RELEASE_NAME are now starting up.
 
