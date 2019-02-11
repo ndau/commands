@@ -45,18 +45,6 @@ do
         -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"'\"/' \
         "$tm_chaos_home/config/config.toml" \
         "$tm_ndau_home/config/config.toml"
-
-    # Replace the test-chain-XXXX with a constant, so that peers can connect to each other.
-    # Tendermint uses this chain_id as a network identifier.
-    genesis_config="$TENDERMINT_CHAOS_DATA_DIR-$node_num/config/genesis"
-    jq ".chain_id=\"local-chain-chaos\"" \
-        "$genesis_config.json" > "$genesis_config.new.json" && \
-        mv "$genesis_config.new.json" "$genesis_config.json"
-
-    genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
-    jq ".chain_id=\"local-chain-ndau\"" \
-        "$genesis_config.json" > "$genesis_config.new.json" && \
-        mv "$genesis_config.new.json" "$genesis_config.json"
 done
 
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
@@ -64,12 +52,11 @@ join_by() { local IFS="$1"; shift; echo "$*"; }
 
 # Point tendermint nodes to each other if there are more than one node in the localnet.
 if [ "$NODE_COUNT" -gt 1 ]; then
-    # Because of Tendermint's PeX feature, each node could gissip known peers to the others.
+    # Because of Tendermint's PeX feature, each node could gossip known peers to the others.
     # So for every node's config, we'd only need to tell it about one other node, not all of
     # them.  The last node therefore wouldn't need to know about any peers, because the
     # previous one will dial it up as a peer.  However, to be more like how things are done in
     # the automation repo, we share all peers with each other.
-    genesis_time=""
     chaos_peers=()
     ndau_peers=()
     chaos_addresses=()
@@ -82,8 +69,6 @@ if [ "$NODE_COUNT" -gt 1 ]; then
     do
         tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
         tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
-        tm_chaos_genesis="$tm_chaos_home/config/genesis.json"
-        tm_ndau_genesis="$tm_ndau_home/config/genesis.json"
         tm_chaos_priv="$tm_chaos_home/config/priv_validator_key.json"
         tm_ndau_priv="$tm_ndau_home/config/priv_validator_key.json"
 
@@ -97,31 +82,10 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         peer="$peer_id@127.0.0.1:$peer_port"
         ndau_peers+=("$peer")
 
-        # We'll use the time from chaos node 0 for all nodes over all chains.
-        if [ -z "$genesis_time" ]; then
-            genesis_time=$(jq -c .genesis_time "$tm_chaos_genesis")
-        fi
-
         chaos_addresses+=($(jq -c .address "$tm_chaos_priv"))
         ndau_addresses+=($(jq -c .address "$tm_ndau_priv"))
         chaos_pub_keys+=($(jq -c .pub_key "$tm_chaos_priv"))
         ndau_pub_keys+=($(jq -c .pub_key "$tm_ndau_priv"))
-
-        # Clear out the validator list.  We'll reconstruct it from scratch below.
-        jq ".validators = []" \
-           "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
-            mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
-        jq ".validators = []" \
-           "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
-            mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
-
-        # Set the genesis time to be the same across all nodes and blockchains.
-        jq ".genesis_time = $genesis_time" \
-           "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
-            mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
-        jq ".genesis_time = $genesis_time" \
-           "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
-            mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
     done
 
     # Share the peer list with every node (minus each node's own peer id).
@@ -131,42 +95,54 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
         tm_chaos_genesis="$tm_chaos_home/config/genesis.json"
         tm_ndau_genesis="$tm_ndau_home/config/genesis.json"
-        tm_chaos_config="$tm_chaos_home/config/config.toml"
-        tm_ndau_config="$tm_ndau_home/config/config.toml"
 
         non_self_peers=("${chaos_peers[@]}")
         unset 'non_self_peers[$node_num]'
         peers=$(join_by , "${non_self_peers[@]}")
         sed -i '' -E \
             -e 's/^(persistent_peers =) (.*)/\1 \"'"$peers"'\"/' \
-            "$tm_chaos_config"
+            "$tm_chaos_home/config/config.toml"
 
         non_self_peers=("${ndau_peers[@]}")
         unset 'non_self_peers[$node_num]'
         peers=$(join_by , "${non_self_peers[@]}")
         sed -i '' -E \
             -e 's/^(persistent_peers =) (.*)/\1 \"'"$peers"'\"/' \
-            "$tm_ndau_config"
+            "$tm_ndau_home/config/config.toml"
 
         # Make every node's genesis file have all nodes set up as validators.
-        for peer_num in $(seq 0 "$HIGH_NODE_NUM");
-        do
-            a=${chaos_addresses[$peer_num]}
-            k=${chaos_pub_keys[$peer_num]}
-            p=10
-            n="chaos-$peer_num"
-            jq ".validators+=[{\"address\":$a,\"pub_key\":$k,\"power\":\"$p\",\"name\":\"$n\"}]" \
+        if [ "$node_num" = 0 ]; then
+            # Construct the validator list from scratch for node 0.
+            jq ".validators = []" \
                "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
                 mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
-
-            a=${ndau_addresses[$peer_num]}
-            k=${ndau_pub_keys[$peer_num]}
-            p=10
-            n="ndau-$peer_num"
-            jq ".validators+=[{\"address\":$a,\"pub_key\":$k,\"power\":\"$p\",\"name\":\"$n\"}]" \
+            jq ".validators = []" \
                "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
                 mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
-        done
+
+            for peer_num in $(seq 0 "$HIGH_NODE_NUM");
+            do
+                a=${chaos_addresses[$peer_num]}
+                k=${chaos_pub_keys[$peer_num]}
+                p=10
+                n="chaos-$peer_num"
+                jq ".validators+=[{\"address\":$a,\"pub_key\":$k,\"power\":\"$p\",\"name\":\"$n\"}]" \
+                   "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
+                    mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
+
+                a=${ndau_addresses[$peer_num]}
+                k=${ndau_pub_keys[$peer_num]}
+                p=10
+                n="ndau-$peer_num"
+                jq ".validators+=[{\"address\":$a,\"pub_key\":$k,\"power\":\"$p\",\"name\":\"$n\"}]" \
+                   "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
+                    mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
+            done
+        else
+            # Copy the entire genesis.json files from node 0 to all other nodes.
+            cp "$TENDERMINT_CHAOS_DATA_DIR-0/config/genesis.json" "$tm_chaos_genesis"
+            cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$tm_ndau_genesis"
+        fi
     done
 fi
 
