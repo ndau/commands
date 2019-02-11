@@ -120,7 +120,7 @@ chaos_tm() {
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
-    echo "  tm coming up; waiting for ports $rpc_port and $p2p_port..."
+    echo "  tm coming up; waiting for ports $rpc_port and $p2p_port"
     wait_port "$rpc_port"
     wait_port "$p2p_port"
 
@@ -188,30 +188,6 @@ ndau_node() {
 
     cd "$COMMANDS_DIR" || exit 1
 
-    # Import genesis data if we haven't already.
-    if [ -e "$NEEDS_UPDATE_FLAG_FILE-$node_num" ]; then
-        echo "  updating ndau config using $GENESIS_TOML"
-        NDAUHOME="$ndau_home" \
-        ./ndaunode -spec http://localhost:"$noms_port" \
-                   -index localhost:"$redis_port" \
-                   -update-conf-from "$GENESIS_TOML"
-
-        # The config toml file has now been generated.
-        # use chaos for sysvars instead of the genesis file as a mock.
-        sed -i '' \
-            -e "/UseMock/d" \
-            "$ndau_home/ndau/config.toml"
-
-        echo "  updating ndau chain using $ASSC_TOML"
-        NDAUHOME="$ndau_home" \
-        ./ndaunode -spec http://localhost:"$noms_port" \
-                   -index localhost:"$redis_port" \
-                   -update-chain-from "$ASSC_TOML"
-
-        # We've updated, remove the flag file so we don't update again on the next run.
-        rm "$NEEDS_UPDATE_FLAG_FILE-$node_num"
-    fi
-
     #---------- get app hash from ndaunode ----------
     echo "  getting ndaunode app hash"
     ndau_hash=$(NDAUHOME="$ndau_home" \
@@ -253,7 +229,7 @@ ndau_tm() {
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
-    echo "  tm coming up; waiting for ports $rpc_port and $p2p_port..."
+    echo "  tm coming up; waiting for ports $rpc_port and $p2p_port"
     wait_port "$rpc_port"
     wait_port "$p2p_port"
 
@@ -261,6 +237,8 @@ ndau_tm() {
 }
 
 finalize() {
+    echo finalizing
+
     cd "$COMMANDS_DIR" || exit 1
 
     if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
@@ -274,9 +252,11 @@ finalize() {
         ndau_home="$NODE_DATA_DIR-0"
 
         # Claim the bpc operations account.  This puts the validation keys into ndautool.toml.
+        echo "  claiming $BPC_OPS_ACCT_NAME account"
         NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
 
         # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
+        echo "  copying keys to $SYSVAR_ID identity"
         NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME"
 
         # We've updated, remove the flag file so we don't update again on the next run.

@@ -3,7 +3,7 @@
 # 3rd party repos and version to use.
 export NOMS_REPO=https://github.com/oneiro-ndev/noms.git
 export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
-export TENDERMINT_VER=v0.29.1
+export TENDERMINT_VER=v0.30.0
 
 # For multi-node support.
 export MAX_NODE_COUNT=5
@@ -31,6 +31,8 @@ export TM_RPC_PORT=26670
 BPC_OPS_ACCT_NAME=bpc-operations
 # This is the chaos-side identity that will be associated with the BPC account.
 SYSVAR_ID=sysvar
+
+# Set a honeycomb dataset for localnet if one isn't currently present in an environment variable.
 if [[ -z "$HONEYCOMB_DATASET" ]]; then
     export HONEYCOMB_DATASET=localnet
 fi

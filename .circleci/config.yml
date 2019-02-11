@@ -215,9 +215,9 @@ general_config: &general_config
         KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: devnet.tgz
         HONEYCOMB_DATASET: "devnet"
-        CHAOS_TM_TAG: v0.29.1
+        CHAOS_TM_TAG: v0.30.0
         CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.29.1
+        NDAU_TM_TAG: v0.30.0
         NDAU_NOMS_TAG: 0.0.1
 
 testnet_config: &testnet_config
@@ -233,9 +233,9 @@ testnet_config: &testnet_config
         KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: testnet.tgz
         HONEYCOMB_DATASET: "testnet"
-        CHAOS_TM_TAG: v0.29.1
+        CHAOS_TM_TAG: v0.30.0
         CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.29.1
+        NDAU_TM_TAG: v0.30.0
         NDAU_NOMS_TAG: 0.0.1
 
 mainnet_config: &mainnet_config
@@ -251,9 +251,9 @@ mainnet_config: &mainnet_config
         KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
-        CHAOS_TM_TAG: v0.29.1
+        CHAOS_TM_TAG: v0.30.0
         CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.29.1
+        NDAU_TM_TAG: v0.30.0
         NDAU_NOMS_TAG: 0.0.1
 
 jobs:
@@ -332,7 +332,8 @@ jobs:
                 [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting";
+                echo "waiting"
+                sleep 1
               fi
             done
 
@@ -381,7 +382,8 @@ jobs:
                 [ "$(kubectl get pvc -l release=testnet-1 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting";
+                echo "waiting"
+                sleep 1
               fi
             done
 
@@ -440,7 +442,8 @@ jobs:
                 [ "$(kubectl get pvc -l release=mainnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting";
+                echo "waiting"
+                sleep 1
               fi
             done
 

@@ -26,7 +26,6 @@ for arg in "${ARGS[@]}"; do
     fi
 done
 
-
 echo Configuring tendermint...
 cd "$TENDERMINT_DIR" || exit 1
 
@@ -46,54 +45,104 @@ do
         -e 's/^(moniker =) (.*)/\1 \"localnet-'"$node_num"'\"/' \
         "$tm_chaos_home/config/config.toml" \
         "$tm_ndau_home/config/config.toml"
-
-    # Replace the test-chain-XXXX with a constant, so that peers can connect to each other.
-    # Tendermint uses this chain_id as a network identifier.
-    genesis_config="$TENDERMINT_CHAOS_DATA_DIR-$node_num/config/genesis"
-    jq ".chain_id=\"local-chain-chaos\"" \
-        "$genesis_config.json" > "$genesis_config.new.json" && \
-        mv "$genesis_config.new.json" "$genesis_config.json"
-    jq ".validators[0].name=\"chaos-$node_num\"" \
-        "$genesis_config.json" > "$genesis_config.new.json" && \
-        mv "$genesis_config.new.json" "$genesis_config.json"
-
-    genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
-    jq ".chain_id=\"local-chain-ndau\"" \
-        "$genesis_config.json" > "$genesis_config.new.json" && \
-        mv "$genesis_config.new.json" "$genesis_config.json"
-    jq ".validators[0].name=\"ndau-$node_num\"" \
-        "$genesis_config.json" > "$genesis_config.new.json" && \
-        mv "$genesis_config.new.json" "$genesis_config.json"
 done
+
+# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
+join_by() { local IFS="$1"; shift; echo "$*"; }
 
 # Point tendermint nodes to each other if there are more than one node in the localnet.
 if [ "$NODE_COUNT" -gt 1 ]; then
-    # Because of Tendermint's PeX feature, each node will gissip known peers to the others.
-    # So for every node's config, we only need to tell it about one other node, not all of
-    # them.  The last node therefore doesn't need to know about any peers, because the
-    # previous one will dial it up as a peer.
-    for node_num in $(seq 0 "$((HIGH_NODE_NUM - 1))");
+    # Because of Tendermint's PeX feature, each node could gossip known peers to the others.
+    # So for every node's config, we'd only need to tell it about one other node, not all of
+    # them.  The last node therefore wouldn't need to know about any peers, because the
+    # previous one will dial it up as a peer.  However, to be more like how things are done in
+    # the automation repo, we share all peers with each other.
+    chaos_peers=()
+    ndau_peers=()
+    chaos_addresses=()
+    ndau_addresses=()
+    chaos_pub_keys=()
+    ndau_pub_keys=()
+
+    # Build the full list of peers.
+    for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
-        peer_num=$((node_num + 1))
+        tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
+        tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
+        tm_chaos_priv="$tm_chaos_home/config/priv_validator_key.json"
+        tm_ndau_priv="$tm_ndau_home/config/priv_validator_key.json"
 
-        src_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$peer_num"
-        src_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$peer_num"
-        dst_tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
-        dst_tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
-
-        peer_id=$(./tendermint show_node_id --home "$src_tm_chaos_home")
-        peer_port=$((TM_P2P_PORT + 2 * peer_num))
+        peer_id=$(./tendermint show_node_id --home "$tm_chaos_home")
+        peer_port=$((TM_P2P_PORT + 2 * node_num))
         peer="$peer_id@127.0.0.1:$peer_port"
-        sed -i '' -E \
-            -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
-            "$dst_tm_chaos_home/config/config.toml"
+        chaos_peers+=("$peer")
 
-        peer_id=$(./tendermint show_node_id --home "$src_tm_ndau_home")
-        peer_port=$((TM_P2P_PORT + 2 * peer_num + 1))
+        peer_id=$(./tendermint show_node_id --home "$tm_ndau_home")
+        peer_port=$((TM_P2P_PORT + 2 * node_num + 1))
         peer="$peer_id@127.0.0.1:$peer_port"
+        ndau_peers+=("$peer")
+
+        chaos_addresses+=($(jq -c .address "$tm_chaos_priv"))
+        ndau_addresses+=($(jq -c .address "$tm_ndau_priv"))
+        chaos_pub_keys+=($(jq -c .pub_key "$tm_chaos_priv"))
+        ndau_pub_keys+=($(jq -c .pub_key "$tm_ndau_priv"))
+    done
+
+    # Share the peer list with every node (minus each node's own peer id).
+    for node_num in $(seq 0 "$HIGH_NODE_NUM");
+    do
+        tm_chaos_home="$TENDERMINT_CHAOS_DATA_DIR-$node_num"
+        tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
+        tm_chaos_genesis="$tm_chaos_home/config/genesis.json"
+        tm_ndau_genesis="$tm_ndau_home/config/genesis.json"
+
+        non_self_peers=("${chaos_peers[@]}")
+        unset 'non_self_peers[$node_num]'
+        peers=$(join_by , "${non_self_peers[@]}")
         sed -i '' -E \
-            -e 's/^(persistent_peers =) (.*)/\1 \"'"$peer"'\"/' \
-            "$dst_tm_ndau_home/config/config.toml"
+            -e 's/^(persistent_peers =) (.*)/\1 \"'"$peers"'\"/' \
+            "$tm_chaos_home/config/config.toml"
+
+        non_self_peers=("${ndau_peers[@]}")
+        unset 'non_self_peers[$node_num]'
+        peers=$(join_by , "${non_self_peers[@]}")
+        sed -i '' -E \
+            -e 's/^(persistent_peers =) (.*)/\1 \"'"$peers"'\"/' \
+            "$tm_ndau_home/config/config.toml"
+
+        # Make every node's genesis file have all nodes set up as validators.
+        if [ "$node_num" = 0 ]; then
+            # Construct the validator list from scratch for node 0.
+            jq ".validators = []" \
+               "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
+                mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
+            jq ".validators = []" \
+               "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
+                mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
+
+            for peer_num in $(seq 0 "$HIGH_NODE_NUM");
+            do
+                a=${chaos_addresses[$peer_num]}
+                k=${chaos_pub_keys[$peer_num]}
+                p=10
+                n="chaos-$peer_num"
+                jq ".validators+=[{\"address\":$a,\"pub_key\":$k,\"power\":\"$p\",\"name\":\"$n\"}]" \
+                   "$tm_chaos_genesis" > "$tm_chaos_genesis.new" && \
+                    mv "$tm_chaos_genesis.new" "$tm_chaos_genesis"
+
+                a=${ndau_addresses[$peer_num]}
+                k=${ndau_pub_keys[$peer_num]}
+                p=10
+                n="ndau-$peer_num"
+                jq ".validators+=[{\"address\":$a,\"pub_key\":$k,\"power\":\"$p\",\"name\":\"$n\"}]" \
+                   "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
+                    mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
+            done
+        else
+            # Copy the entire genesis.json files from node 0 to all other nodes.
+            cp "$TENDERMINT_CHAOS_DATA_DIR-0/config/genesis.json" "$tm_chaos_genesis"
+            cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$tm_ndau_genesis"
+        fi
     done
 fi
 
@@ -134,7 +183,16 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
     do
         ndau_home="$NODE_DATA_DIR-$node_num"
 
-        ./genesis -g "$GENESIS_TOML" -n "$NOMS_CHAOS_DATA_DIR-$node_num"
+        # Generate noms data for chaos node 0, copy from node 0 otherwise.
+        data_dir="$NOMS_CHAOS_DATA_DIR-$node_num"
+        if [ "$node_num" = 0 ]; then
+            echo "Updating chaos noms using $GENESIS_TOML"
+            ./genesis -g "$GENESIS_TOML" -n "$data_dir"
+        else
+            echo "Copying chaos noms from node 0 to node $node_num"
+            cp -r "$NOMS_CHAOS_DATA_DIR-0" "$data_dir"
+        fi
+
         NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
 
         # For deterministic bpc account address/keys, we recover a special account with 12 eyes.
@@ -146,7 +204,26 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
         # Suppress the big message about next steps.
         NDAUHOME="$ndau_home" ./chaos import-assc "$SYSVAR_ID" "$ASSC_TOML" > /dev/null
 
-        touch "$NEEDS_UPDATE_FLAG_FILE-$node_num"
+        # Import genesis data.
+        echo "  updating ndau config using $GENESIS_TOML"
+        NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -update-conf-from "$GENESIS_TOML"
+
+        # The config toml file has now been generated.
+        # use chaos for sysvars instead of the genesis file as a mock.
+        sed -i '' \
+            -e "/UseMock/d" \
+            "$ndau_home/ndau/config.toml"
+
+        # Generate noms data for ndau node 0, copy from node 0 otherwise.
+        data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
+        if [ "$node_num" = 0 ]; then
+            echo "  updating ndau noms using $ASSC_TOML"
+            NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -update-chain-from "$ASSC_TOML"
+            mv "$ndau_home/ndau/noms" "$data_dir"
+        else
+            echo "  copying ndau noms from node 0 to node $node_num"
+            cp -r "$NOMS_NDAU_DATA_DIR-0" "$data_dir"
+        fi
     done
 
     # The no-node-num form of the needs-update file flags that we need to claim the bpc account.
