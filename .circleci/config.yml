@@ -1,7 +1,8 @@
 version: 2.1
 docker_cache_key: &docker_cache_key "{{ .Revision }}"
-aws_default_region: us-east-1
-aws_erc_endpoint: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+aws_defaults: &aws_defaults
+  AWS_DEFAULT_REGION: us-east-1
+  ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
 
 commands:
   notify:
@@ -207,9 +208,7 @@ general_config: &general_config
         - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
     environment:
         shell: /bin/bash
-        # Used for ECR
-        AWS_DEFAULT_REGION: *aws_default_region
-        ECR_ENDPOINT: *aws_ecr_endpoint
+        <<: *aws_defaults
         # nodes will be accessible from their release name combined with a number
         # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
         ELB_SUBDOMAIN: api.ndau.tech
@@ -227,9 +226,7 @@ testnet_config: &testnet_config
         - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
     environment:
         shell: /bin/bash
-        # Used for ECR
-        AWS_DEFAULT_REGION: *aws_default_region
-        ECR_ENDPOINT: *aws_ecr_endpoint
+        <<: *aws_defaults
         # nodes will be accessible from their release name combined with a number
         # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
         ELB_SUBDOMAIN: api.ndau.tech
@@ -247,9 +244,7 @@ mainnet_config: &mainnet_config
         - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
     environment:
         shell: /bin/bash
-        # Used for ECR
-        AWS_DEFAULT_REGION: *aws_default_region
-        ECR_ENDPOINT: *aws_ecr_endpoint
+        <<: *aws_defaults
         # nodes will be accessible from their release name combined with a number
         # and the subdomain of the ELB. (e.g. node-0.main.ndau.tech)
         ELB_SUBDOMAIN: main.ndau.tech
@@ -502,4 +497,3 @@ jobs:
             # run tests
             pipenv sync
             pipenv run pytest -v --net=devnet
-
