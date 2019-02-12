@@ -131,7 +131,6 @@
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
 
 [[projects]]
-  branch = "master"
   digest = "1:057aee12ac2f820c94b04da39a3ebcd865bee3bdda697ee0e6bbf75e00476b5f"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
@@ -522,7 +521,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:7ead64293c453a04bc308d92a0f294306b1ab69bc244f0b952e7f1ac71b2191d"
+  digest = "1:6344f9ccdca374a62f3c4721aa3866298eb297d103e36283f8c74911be4620a1"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,8 +541,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "629299a283036eda4dcdb1dff06d28b22dc34a39"
-  version = "v0.16.3"
+  revision = "f9e5594f7d41305c7923bec46bef2ddc03a8c0ee"
+  version = "v0.17.0"
 
 [[projects]]
   digest = "1:7d0de12416cd60e7599ee8d012c0583de5c75b7d5dfcae94eb8654986fb9f0f4"
