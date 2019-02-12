@@ -521,7 +521,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:6344f9ccdca374a62f3c4721aa3866298eb297d103e36283f8c74911be4620a1"
+  branch = "prgn-delegates-query"
+  digest = "1:2f38ee86f4b8d157f60280500be89b213b0dac7bc4b9151018f092b2f91f0893"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -541,8 +542,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "f9e5594f7d41305c7923bec46bef2ddc03a8c0ee"
-  version = "v0.17.0"
+  revision = "5fea9550fbd1748defb68c9703febdd4e25e98e1"
 
 [[projects]]
   digest = "1:7d0de12416cd60e7599ee8d012c0583de5c75b7d5dfcae94eb8654986fb9f0f4"
@@ -986,7 +986,6 @@
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
     "github.com/jawher/mow.cli",
-    "github.com/kentquirk/boneful",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
@@ -1005,7 +1004,6 @@
     "github.com/oneiro-ndev/genesis/pkg/etl",
     "github.com/oneiro-ndev/genesis/pkg/genesis",
     "github.com/oneiro-ndev/json2msgp",
-    "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
     "github.com/oneiro-ndev/ndau/pkg/ndau",
@@ -1014,7 +1012,6 @@
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
-    "github.com/oneiro-ndev/ndau/pkg/tool",
     "github.com/oneiro-ndev/ndau/pkg/tool.config",
     "github.com/oneiro-ndev/ndau/pkg/txmobile/generator",
     "github.com/oneiro-ndev/ndau/pkg/version",
@@ -1031,11 +1028,8 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/crypto/ed25519",
-    "github.com/tendermint/tendermint/crypto/encoding/amino",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
-    "github.com/tendermint/tendermint/rpc/core/types",
     "github.com/tinylib/msgp/msgp",
   ]
   solver-name = "gps-cdcl"
