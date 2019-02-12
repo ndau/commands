@@ -521,7 +521,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-rename-srd-source-target"
   digest = "1:6344f9ccdca374a62f3c4721aa3866298eb297d103e36283f8c74911be4620a1"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -542,7 +541,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "7f3d7d10fdc1ff4359b2dceb5ff1a4604e199f3b"
+  revision = "f9e5594f7d41305c7923bec46bef2ddc03a8c0ee"
+  version = "v0.17.0"
 
 [[projects]]
   digest = "1:7d0de12416cd60e7599ee8d012c0583de5c75b7d5dfcae94eb8654986fb9f0f4"
