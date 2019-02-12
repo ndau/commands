@@ -24,7 +24,8 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.16"
+# version = "~v0.16"
+branch = "prgn-rename-srd-source-target"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
