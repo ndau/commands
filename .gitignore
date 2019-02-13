@@ -66,3 +66,7 @@ update_genesis_json
 !*/update_genesis_json
 vmtest
 !*/vmtest
+verify-pre-etl
+!*/verify-pre-etl
+verify-pre-eai
+!*/verify-pre-eai
