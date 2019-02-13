@@ -10,6 +10,11 @@ vendor/
 *.log
 *.pid
 
+# ETL files
+config.toml
+output.csv
+DashData*
+
 # keys
 **/github_chaos_deploy
 **/machine_user_key
