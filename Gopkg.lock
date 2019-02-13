@@ -470,8 +470,8 @@
   version = "v0.1.4"
 
 [[projects]]
-  branch = "master"
-  digest = "1:5e2b6077ffeafa87511e9167bf0ae7a3fe9721275a2205190a2b4af5c99f1e40"
+  branch = "prgn-fix-row-number-leak"
+  digest = "1:108ea8e4753920bf831037c945889bb353701671dc23560ec4272e83a57d1f4e"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -480,7 +480,7 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "3bd64503d359074248a470d2f7ca66ac3b5cf838"
+  revision = "4b95d1eb73a03a078c7384d0c82fc5c6d0df7702"
 
 [[projects]]
   branch = "master"
