@@ -163,11 +163,6 @@ ndau_noms() {
     cd "$NOMS_DIR" || exit 1
 
     mkdir -p "$data_dir"
-    # set var below if ETL step is to be run
-    # this needs to be here because ETL needs to push data direct to noms dir, and before noms starts
-    if [ "$RUN_ETL" = "1" ]; then
-        "$CMDBIN_DIR"/etl.sh $node_num
-    fi
     ./noms serve --port="$noms_port" "$data_dir" >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
     wait_port "$noms_port"
