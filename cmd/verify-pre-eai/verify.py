@@ -24,9 +24,29 @@ from datetime import timezone
 from pathlib import Path
 
 
+def requests_retry_session(
+    retries=3, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None
+):
+    from requests.adapters import HTTPAdapter
+    from requests.packages.urllib3.util.retry import Retry
+
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session
+
+
 def get_account_data(host, address):
-    response = requests.get(f"{host}/account/account/{address}")
-    response.check_for_status()
+    response = requests_retry_session().get(f"{host}/account/account/{address}")
+    response.raise_for_status()
     return response.json()
 
 
@@ -70,14 +90,15 @@ def verify_row(host, row, verbose=False):
     mismatch = []
 
     expect_balance = int(float(row["ndau amount in"]) * 100_000_000)
-    actual_balance = acct_data["balance"]
+    actual_balance = acct_data[addr]["balance"]
+
     if expect_balance != actual_balance:
         mismatch.append(f"balance: want {expect_balance}, have {actual_balance}")
 
     expect_date = dtparser.parse(row["chain date"])
     if expect_date.tzinfo is None:
         expect_date = expect_date.replace(tzinfo=timezone.utc)
-    actual_date = dtparser.isoparse(acct_data["lastEAIUpdate"])
+    actual_date = dtparser.isoparse(acct_data[addr]["lastEAIUpdate"])
     assert actual_date.tzinfo is not None
     if expect_date != actual_date:
         mismatch.append(
@@ -98,7 +119,11 @@ def verify_row(host, row, verbose=False):
 def verify(host, conf_path, verbose=False):
     all_ok = True
     for row in get_rows(conf_path):
-        err = verify_row(host, row, verbose)
+        try:
+            err = verify_row(host, row, verbose)
+        except requests.exceptions.HTTPError as e:
+            err = str(e)
+
         if err != "":
             all_ok = False
             if not verbose:
