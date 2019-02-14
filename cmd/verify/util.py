@@ -13,9 +13,17 @@ def get_account_data(address):
         capture_output=True,
         text=True,
         check=True,
+        timeout=3,  # seconds
     )
     ad = json.loads(query.stdout)
     return ad
+
+
+def get_currency_seats():
+    query = subprocess.run(
+        ["./ndau", "currency-seats"], capture_output=True, text=True, timeout=10
+    )
+    return [line for line in query.stdout.splitlines() if line != ""]
 
 
 @functools.lru_cache(1)
@@ -32,7 +40,7 @@ def get_headers(conf_path):
     with open(csv_path(conf_path), "r") as f:
         for i, line in enumerate(f):
             if i == line_no:
-                return line.split(",")
+                return line.strip().split(",")
 
 
 @functools.lru_cache(1)
