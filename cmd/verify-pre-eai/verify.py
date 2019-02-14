@@ -15,19 +15,25 @@ Note: this tool assumes that the ndau tool is available and correctly configured
 
 import csv
 import functools
-import requests
-import sys
+import json
+import subprocess
 import toml
+import sys
 
 from dateutil import parser as dtparser
 from datetime import timezone
 from pathlib import Path
 
 
-def get_account_data(host, address):
-    response = requests.get(f"{host}/account/account/{address}")
-    response.check_for_status()
-    return response.json()
+def get_account_data(address):
+    query = subprocess.run(
+        ["./ndau", "account", "query", "-a", address],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    ad = json.loads(query.stdout)
+    return ad
 
 
 @functools.lru_cache(1)
@@ -60,12 +66,12 @@ def get_rows(conf_path):
                 yield row
 
 
-def verify_row(host, row, verbose=False):
+def verify_row(row, verbose=False):
     addr = row["address ID"].strip()
     if verbose:
         print(f"{addr}... ", end="", flush=True)
 
-    acct_data = get_account_data(host, addr)
+    acct_data = get_account_data(addr)
 
     mismatch = []
 
@@ -95,10 +101,10 @@ def verify_row(host, row, verbose=False):
     return errs
 
 
-def verify(host, conf_path, verbose=False):
+def verify(conf_path, verbose=False):
     all_ok = True
     for row in get_rows(conf_path):
-        err = verify_row(host, row, verbose)
+        err = verify_row(row, verbose)
         if err != "":
             all_ok = False
             if not verbose:
@@ -121,41 +127,6 @@ if __name__ == "__main__":
         default="config.toml",
         help="path to etl config.toml (default: ./config.toml)",
     )
-    parser.add_argument(
-        "--host",
-        action="store",
-        default="http://localhost:3030",
-        dest="host",
-        help="specify an arbitrary host location",
-    )
-    parser.add_argument(
-        "--main",
-        action="store_const",
-        dest="host",
-        const="https://node-0.main.ndau.tech",
-        help="use mainnet as host",
-    )
-    parser.add_argument(
-        "--test",
-        action="store_const",
-        dest="host",
-        const="https://testnet-0.api.ndau.tech",
-        help="use testnet as host",
-    )
-    parser.add_argument(
-        "--dev",
-        action="store_const",
-        dest="host",
-        const="https://devnet-0.api.ndau.tech",
-        help="use devnet as host",
-    )
-    parser.add_argument(
-        "--local",
-        action="store_const",
-        dest="host",
-        const="http://localhost:3030",
-        help="use localhost:3030 as host",
-    )
 
     args = parser.parse_args()
-    verify(args.host, args.conf_path, args.verbose)
+    verify(args.conf_path, args.verbose)
