@@ -1,4 +1,6 @@
-# `verify-pre-eai`: Pre-EAI verification of genesis account data
+# `verify`: verification of genesis account data
+
+## `pre-eai.py`
 
 The mandate here is fairly simple:
 
