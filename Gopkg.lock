@@ -470,8 +470,7 @@
   version = "v0.1.4"
 
 [[projects]]
-  branch = "prgn-fix-row-number-leak"
-  digest = "1:108ea8e4753920bf831037c945889bb353701671dc23560ec4272e83a57d1f4e"
+  digest = "1:39c65bd128e381c9e9d87bec837e8a86c48731756f7979c2c12bacbc9dcdf079"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -480,7 +479,8 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "4b95d1eb73a03a078c7384d0c82fc5c6d0df7702"
+  revision = "20f0157f5d5fffbd8af8e3e851ef6f5f16506d43"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
@@ -521,7 +521,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-delegates-query"
   digest = "1:cc015deffee845a9209856e3be6ae217a106434255ac05f84754e805ca0971cf"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -542,7 +541,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "f3141566f67802c9e039e37daf737545aae04084"
+  revision = "8f67cedfddd2f3e6cbb30541c8f794ec6c4759d1"
+  version = "v0.17.1"
 
 [[projects]]
   digest = "1:7d0de12416cd60e7599ee8d012c0583de5c75b7d5dfcae94eb8654986fb9f0f4"

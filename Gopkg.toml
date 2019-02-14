@@ -12,8 +12,7 @@ version = "~v0.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-# branch = "master"
-branch = "prgn-fix-row-number-leak"
+version = "~v0.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
@@ -25,8 +24,7 @@ version = "~v0.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v0.17"
-branch = "prgn-delegates-query"
+version = "~v0.17"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
