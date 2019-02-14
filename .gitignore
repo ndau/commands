@@ -10,6 +10,9 @@ vendor/
 *.log
 *.pid
 
+# Python chaff
+**/__pycache__/
+
 # ETL files
 config.toml
 output.csv

@@ -71,29 +71,32 @@ def verify_row(row, verbose=False):
     if verbose:
         print(f"{addr}... ", end="", flush=True)
 
-    acct_data = get_account_data(addr)
+    try:
+        acct_data = get_account_data(addr)
+    except Exception as e:
+        errs = str(e)
+    else:
+        mismatch = []
 
-    mismatch = []
+        expect_balance = int(float(row["ndau amount in"]) * 100_000_000)
+        actual_balance = acct_data["balance"]
+        if expect_balance != actual_balance:
+            mismatch.append(f"balance: want {expect_balance}, have {actual_balance}")
 
-    expect_balance = int(float(row["ndau amount in"]) * 100_000_000)
-    actual_balance = acct_data["balance"]
-    if expect_balance != actual_balance:
-        mismatch.append(f"balance: want {expect_balance}, have {actual_balance}")
+        expect_date = dtparser.parse(row["chain date"])
+        if expect_date.tzinfo is None:
+            expect_date = expect_date.replace(tzinfo=timezone.utc)
+        actual_date = dtparser.isoparse(acct_data["lastEAIUpdate"])
+        assert actual_date.tzinfo is not None
+        if expect_date != actual_date:
+            mismatch.append(
+                f"acct date: want {expect_date.isoformat()}, have {actual_date.isoformat()}"
+            )
 
-    expect_date = dtparser.parse(row["chain date"])
-    if expect_date.tzinfo is None:
-        expect_date = expect_date.replace(tzinfo=timezone.utc)
-    actual_date = dtparser.isoparse(acct_data["lastEAIUpdate"])
-    assert actual_date.tzinfo is not None
-    if expect_date != actual_date:
-        mismatch.append(
-            f"acct date: want {expect_date.isoformat()}, have {actual_date.isoformat()}"
-        )
-
-    errs = "; ".join(mismatch)
+        errs = "; ".join(mismatch)
 
     if verbose:
-        if mismatch == "":
+        if errs == "":
             print("OK")
         else:
             print(errs)
