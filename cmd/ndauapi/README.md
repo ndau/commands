@@ -126,6 +126,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [OrderCurrent](#ordercurrent)
 
+* [StateDelegates](#statedelegates)
+
 * [SystemAll](#systemall)
 
 * [SystemHistoryKey](#systemhistorykey)
@@ -1565,6 +1567,30 @@ _**Writes:**_
           "sib": 0,
           "priceUnit": "USD"
         }
+```
+
+
+
+---
+## StateDelegates
+
+### `GET /state/delegates`
+
+_Returns the current collection of delegate information._
+
+
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        ""
 ```
 
 
