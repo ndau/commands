@@ -31,6 +31,7 @@ func main() {
 	app.Command("cvc", "send a command validator change", getCVC(verbose, keys, emitJSON, compact))
 	app.Command("server", "create server for API endpoint calls", server)
 	app.Command("summary", "emit summary information about the ndau chain", getSummary(verbose))
+	app.Command("show-delegates", "emit information about the chain's delegates", getDelegates(verbose))
 	app.Command("version", "emit version information and quit", getVersion(verbose))
 	app.Command("signable-bytes", "emit the signable bytes of the input tx", getSignableBytes(verbose))
 	app.Command("send", "send a pre-prepared transaction", getSendJSON(verbose))
