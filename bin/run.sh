@@ -89,7 +89,6 @@ chaos_node() {
         mv "$genesis_config.new.json" "$genesis_config.json"
 
     echo "  launching chaosnode"
-    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     NDAUHOME="$ndau_home" \
     ./chaosnode -spec http://localhost:"$noms_port" \
                 -index localhost:"$redis_port" \
@@ -113,11 +112,19 @@ chaos_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
-    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
+    # https://blog.cosmos.network/one-of-the-exciting-new-features-in-0-10-0-release-is-smart-log-level-flag-e2506b4ab756
+    # for details on how to configure `log_level` config variable.
+    # If you're trying to debug Tendermint or asked to provide logs with debug
+    # logging level, you can do so by running tendermint with
+    # `--log_level="*:debug"` but you can configure individual modules differently,
+    # like `--log_level="state:info,mempool:error,*:error"`.
+    # value choices are debug/info/error/none
+    # module options include consensus, state, p2p, mempool, proxy, node, main
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
+                      --log_level="*:debug" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
     echo "  tm coming up; waiting for ports $rpc_port and $p2p_port"
@@ -198,7 +205,6 @@ ndau_node() {
         mv "$genesis_config.new.json" "$genesis_config.json"
 
     echo "  launching ndaunode"
-    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
     NDAUHOME="$ndau_home" \
     ./ndaunode -spec http://localhost:"$noms_port" \
                -index localhost:"$redis_port" \
@@ -222,11 +228,19 @@ ndau_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
-    HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
+    # https://blog.cosmos.network/one-of-the-exciting-new-features-in-0-10-0-release-is-smart-log-level-flag-e2506b4ab756
+    # for details on how to configure `log_level` config variable.
+    # If you're trying to debug Tendermint or asked to provide logs with debug
+    # logging level, you can do so by running tendermint with
+    # `--log_level="*:debug"` but you can configure individual modules differently,
+    # like `--log_level="state:info,mempool:error,*:error"`.
+    # value choices are debug/info/error/none
+    # module options include consensus, state, p2p, mempool, proxy, node, main
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
+                      --log_level="*:debug" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
     echo "  tm coming up; waiting for ports $rpc_port and $p2p_port"
