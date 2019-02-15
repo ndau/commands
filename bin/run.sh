@@ -112,6 +112,14 @@ chaos_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
+    # https://blog.cosmos.network/one-of-the-exciting-new-features-in-0-10-0-release-is-smart-log-level-flag-e2506b4ab756
+    # for details on how to configure `log_level` config variable.
+    # If you're trying to debug Tendermint or asked to provide logs with debug
+    # logging level, you can do so by running tendermint with
+    # `--log_level="*:debug"` but you can configure individual modules differently,
+    # like `--log_level="state:info,mempool:error,*:error"`.
+    # value choices are debug/info/error/none
+    # module options include consensus, state, p2p, mempool, proxy, node, main
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
@@ -220,6 +228,14 @@ ndau_tm() {
 
     cd "$TENDERMINT_DIR" || exit 1
 
+    # https://blog.cosmos.network/one-of-the-exciting-new-features-in-0-10-0-release-is-smart-log-level-flag-e2506b4ab756
+    # for details on how to configure `log_level` config variable.
+    # If you're trying to debug Tendermint or asked to provide logs with debug
+    # logging level, you can do so by running tendermint with
+    # `--log_level="*:debug"` but you can configure individual modules differently,
+    # like `--log_level="state:info,mempool:error,*:error"`.
+    # value choices are debug/info/error/none
+    # module options include consensus, state, p2p, mempool, proxy, node, main
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
