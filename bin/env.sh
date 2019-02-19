@@ -32,11 +32,6 @@ BPC_OPS_ACCT_NAME=bpc-operations
 # This is the chaos-side identity that will be associated with the BPC account.
 SYSVAR_ID=sysvar
 
-# Set a honeycomb dataset for localnet if one isn't currently present in an environment variable.
-if [[ -z "$HONEYCOMB_DATASET" ]]; then
-    export HONEYCOMB_DATASET=localnet
-fi
-
 # Go source path.
 GO_DIR=$(go env GOPATH)
 if [[ "$GO_DIR" == *":"* ]]; then

@@ -215,6 +215,7 @@ general_config: &general_config
         KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: devnet.tgz
         HONEYCOMB_DATASET: "devnet"
+        NETWORK_NAME: "devnet" # used for snapshots
         CHAOS_TM_TAG: v0.30.0
         CHAOS_NOMS_TAG: 0.0.1
         NDAU_TM_TAG: v0.30.0
@@ -233,6 +234,7 @@ testnet_config: &testnet_config
         KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: testnet.tgz
         HONEYCOMB_DATASET: "testnet"
+        NETWORK_NAME: "testnet" # used for snapshots
         CHAOS_TM_TAG: v0.30.0
         CHAOS_NOMS_TAG: 0.0.1
         NDAU_TM_TAG: v0.30.0
@@ -251,6 +253,7 @@ mainnet_config: &mainnet_config
         KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
+        NETWORK_NAME: "mainnet" # used for snapshots
         CHAOS_TM_TAG: v0.30.0
         CHAOS_NOMS_TAG: 0.0.1
         NDAU_TM_TAG: v0.30.0
@@ -332,7 +335,7 @@ jobs:
                 [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting"
+                echo "waiting for devnet to die"
                 sleep 1
               fi
             done
@@ -382,7 +385,7 @@ jobs:
                 [ "$(kubectl get pvc -l release=testnet-1 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting"
+                echo "waiting for testnet to die"
                 sleep 1
               fi
             done
@@ -435,14 +438,14 @@ jobs:
             # TODO add some smarter resource detection
             while true; do
               if
-                [ "$(kubectl get pvc -l release=mainnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=mainnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=mainnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=mainnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=mainnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
+                [ "$(kubectl get pvc -l release=node-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=node-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=node-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=node-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=node-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting"
+                echo "waiting for mainnet to die"
                 sleep 1
               fi
             done
@@ -455,7 +458,7 @@ jobs:
               /root/nodegroups/up.sh
 
       - notify:
-          msg: Deploy complete; nodes for $RELEASE_NAME are now starting up.
+          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
 
   integration:
     <<: *general_config
