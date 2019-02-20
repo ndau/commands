@@ -521,7 +521,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:8a2e0522534bff29fec49f6d878783671b33934ec02105706a53dc6ffb3401c2"
+  branch = "prgn-credit-eai-ordering"
+  digest = "1:bf17c96abfcda04d9f773483b0f2f1ed8fa6311f3abef8214d39f6d1a7c807e8"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -541,8 +542,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "94b2b9d954dc376ee88f4d3eed41a16a5f006308"
-  version = "v1.0.2"
+  revision = "3160cdf2b0b1714f09073d2d80f6f6e1bf09d874"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
