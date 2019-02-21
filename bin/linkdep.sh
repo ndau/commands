@@ -36,12 +36,12 @@ done
 if [ -z "$REPO" ]; then
     echo linkdep: Link or unlink vendor directories of a repo, for build or test purposes
     echo Usage:
-    echo "  ./linkdep.sh {metanode|chaos|ndau|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
+    echo "  ./linkdep.sh {metanode|chaos|ndau|genesis|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
     exit 1
 fi
 
 if [ "$REPO" = "all" ]; then
-    repos=(metanode chaos ndau)
+    repos=(metanode chaos ndau genesis)
 else
     repos=("$REPO")
 fi
