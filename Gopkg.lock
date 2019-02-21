@@ -521,8 +521,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-get-account-settlement-param"
-  digest = "1:7855da2987e4f0823d0b78551907cc1789d8161aefb150a97f73aef30644f09c"
+  digest = "1:2e69520586925e73680056f081327c24832bda06a440ada5127591098005b8df"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,7 +541,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "cfcfdaa0ac234ff3e940fa7e300ab44e9077e528"
+  revision = "214d94d794b32c04fb04f884335d66e527f8d410"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"

@@ -24,8 +24,7 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.0"
-branch = "prgn-get-account-settlement-param"
+version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
