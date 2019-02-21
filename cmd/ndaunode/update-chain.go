@@ -13,7 +13,7 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
-	"github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
 	"github.com/pkg/errors"
 )
 
@@ -74,7 +74,10 @@ func updateChain(asscpath string, conf *config.Config) {
 				return st, errors.Wrap(err, "computing current timestamp")
 			}
 
-			ad, _ := st.GetAccount(addr, now)
+			// it would be a pain to ensure that we had system variables here,
+			// and this applies only to special accounts anyway, so the best
+			// solution is to have them simply start with a 0 settlement period.
+			ad, _ := st.GetAccount(addr, now, 0)
 
 			ad.ValidationKeys = append(ad.ValidationKeys, valkey)
 			st.Accounts[addr.String()] = ad

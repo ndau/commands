@@ -20,7 +20,7 @@ import (
 func getRandomAccount() backing.AccountData {
 	const ticksPerDay = 24 * 60 * 60 * 1000000
 	t, _ := types.TimestampFrom(time.Now())
-	ad := backing.NewAccountData(t)
+	ad := backing.NewAccountData(t, types.Duration(rand.Intn(ticksPerDay*30)))
 	// give it a balance between .1 and 100 ndau
 	ad.Balance = types.Ndau((rand.Intn(1000) + 1) * 1000000)
 	// set WAA to some time within 45 days
