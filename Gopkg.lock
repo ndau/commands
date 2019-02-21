@@ -470,7 +470,8 @@
   version = "v0.1.4"
 
 [[projects]]
-  digest = "1:2a309578731e52f34098aeb46b72b5f126026cf4312dc5ba4377e92ace2bddc9"
+  branch = "prgn-flexible-gfilepath"
+  digest = "1:38995afe929817dc3945ab02ef079cec127ef90d7ee0090cc65753cce11bba62"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -479,8 +480,7 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "17568e4f2c6607d3cef7eea1bcbd51740f844aec"
-  version = "v0.1.2"
+  revision = "7a7744deb4b2513c9290ca02c66a555743ec97f9"
 
 [[projects]]
   branch = "master"
