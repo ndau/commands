@@ -1,8 +1,8 @@
 diff --git a/cmd/tendermint/commands/root.go b/cmd/tendermint/commands/root.go
-index 3c67ddc1..d74de9b1 100644
+index 6d79f75c..a3b45886 100644
 --- a/cmd/tendermint/commands/root.go
 +++ b/cmd/tendermint/commands/root.go
-@@ -4,6 +4,7 @@
+@@ -4,6 +4,7 @@ import (
  	"fmt"
  	"os"
  
@@ -10,7 +10,7 @@ index 3c67ddc1..d74de9b1 100644
  	"github.com/spf13/cobra"
  	"github.com/spf13/viper"
  
-@@ -13,9 +14,22 @@
+@@ -13,9 +14,27 @@ import (
  	"github.com/tendermint/tendermint/libs/log"
  )
  
@@ -21,11 +21,16 @@ index 3c67ddc1..d74de9b1 100644
 +		l = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 +	} else {
 +		l = log.NewTMJSONLogger(log.NewSyncWriter(logwriter))
++		nodeID := os.Getenv("NODE_ID")
++		if nodeID == "" {
++			nodeID = config.Moniker
++		}
++		l = l.With("bin", "tendermint").With("node_id", nodeID)
 +		l.With("hives", 2).Info("honeycomb initialized")
 +	}
 +	return l
 +}
-+	
++
  var (
  	config = cfg.DefaultConfig()
 -	logger = log.NewTMLogger(log.NewSyncWriter(os.Stdout))
