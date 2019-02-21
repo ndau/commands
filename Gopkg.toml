@@ -1,10 +1,10 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaincode"
-version = "~v0.21"
+version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-version = "~v0.14"
+version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
@@ -20,15 +20,15 @@ branch = "master"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v0.12"
+version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v0.17"
+version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v0.11"
+version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
