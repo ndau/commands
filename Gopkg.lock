@@ -491,7 +491,8 @@
   revision = "51e787c1b8ab0b3c6cc0f7db8c7b650753541899"
 
 [[projects]]
-  digest = "1:7655ff1576ddf91cb9ed121a1a0d808d2c153cedfec644e4167bb3d68cfd04b7"
+  branch = "prgn-faster-noms-ints"
+  digest = "1:62ec29e30a22a930da051b622b5d5e8e9b01db101a022e29e932d1043b65f66f"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -501,8 +502,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "10b2cd1c04082d703bbe71475bec29af277d348c"
-  version = "v1.0.0"
+  revision = "0b4da5b9e7f28caf83cb8a14c50401b809421af0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
