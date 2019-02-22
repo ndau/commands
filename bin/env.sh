@@ -40,6 +40,9 @@ if [[ "$GO_DIR" == *":"* ]]; then
 fi
 export GO_DIR
 
+# Prefix of node names in the network, e.g. localnet-0, localnet-1, ...
+export MONIKER_PREFIX=localnet
+
 # Repository locations.
 export ATTICLABS_DIR="$GO_DIR"/src/github.com/attic-labs
 export NDEV_SUBDIR=github.com/oneiro-ndev
