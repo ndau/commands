@@ -521,7 +521,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:2e69520586925e73680056f081327c24832bda06a440ada5127591098005b8df"
+  branch = "prgn-int-noblob"
+  digest = "1:9eab977f7cf67a7f6fa4e5448aff0a124b60b1dd815e176aace47ddf529e70d8"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -541,8 +542,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "214d94d794b32c04fb04f884335d66e527f8d410"
-  version = "v1.1.0"
+  revision = "65a8f4b07ba1d44f40eeaceb2fa5821386ca1662"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
@@ -572,12 +572,12 @@
   version = "v1.0.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:8e7e36c52b6d977c22f91744a923b2902f6dccaa035f23b38e740ba2409af14a"
+  branch = "kjq-account-speedup"
+  digest = "1:a10ccbf1d733d997f960c613f2d377e4b0d0202594a15b2c705cba471e27edf2"
   name = "github.com/oneiro-ndev/noms-util"
   packages = ["."]
   pruneopts = ""
-  revision = "7711be769e350176643c97a46d4de3a113841fd8"
+  revision = "6c00b7444414ea55e6ee1ee434d6be0cd30b7390"
 
 [[projects]]
   digest = "1:054f0b4110b30f53da18450b7d341b1c27a939ad0edcd214c0d3eda7cbb39895"

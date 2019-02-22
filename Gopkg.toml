@@ -24,7 +24,8 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.1"
+# version = "~v1.1"
+branch = "prgn-int-noblob"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -50,6 +51,10 @@ version = "v1.1.0"
 name = "github.com/attic-labs/noms"
 branch = "master"
 source = "github.com/oneiro-ndev/noms"
+
+[[override]]
+name = "github.com/oneiro-ndev/noms-util"
+branch = "kjq-account-speedup"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
