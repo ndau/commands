@@ -220,6 +220,11 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
             echo "  updating ndau noms using $ASSC_TOML"
             NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -update-chain-from "$ASSC_TOML"
             mv "$ndau_home/ndau/noms" "$data_dir"
+            # set var below if ETL step is to be run
+            # this needs to be here because ETL needs to push data direct to noms dir, and before noms starts
+            if [ "$RUN_ETL" = "1" ]; then
+                "$CMDBIN_DIR"/etl.sh $node_num
+            fi
         else
             echo "  copying ndau noms from node 0 to node $node_num"
             cp -r "$NOMS_NDAU_DATA_DIR-0" "$data_dir"
