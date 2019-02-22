@@ -121,6 +121,7 @@ chaos_tm() {
     # like `--log_level="state:info,mempool:error,*:error"`.
     # value choices are debug/info/error/none
     # module options include consensus, state, p2p, mempool, proxy, node, main
+    CHAIN=chaos \
     NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
@@ -234,6 +235,7 @@ ndau_tm() {
     # like `--log_level="state:info,mempool:error,*:error"`.
     # value choices are debug/info/error/none
     # module options include consensus, state, p2p, mempool, proxy, node, main
+    CHAIN=ndau \
     NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
