@@ -112,7 +112,16 @@ func main() {
 	}
 
 	logger := app.GetLogger()
-	logger = logger.WithField("bin", "chaosnode")
+	nodeID := os.Getenv("NODE_ID")
+	if nodeID == "" {
+		// NODE_ID should be the tendermint moniker, like "node-0".  We don't know what that
+		// is now since tendermint isn't running yet, so we use a generic node name with pid.
+		nodeID = fmt.Sprintf("node-pid-%d", os.Getpid())
+	}
+	logger = logger.WithFields(logrus.Fields{
+		"bin": "chaosnode",
+		"node_id": nodeID,
+	})
 	app.SetLogger(logger)
 	app.LogState()
 

@@ -90,6 +90,7 @@ chaos_node() {
 
     echo "  launching chaosnode"
     NDAUHOME="$ndau_home" \
+    NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./chaosnode -spec http://localhost:"$noms_port" \
                 -index localhost:"$redis_port" \
                 -addr 0.0.0.0:"$node_port" \
@@ -120,6 +121,7 @@ chaos_tm() {
     # like `--log_level="state:info,mempool:error,*:error"`.
     # value choices are debug/info/error/none
     # module options include consensus, state, p2p, mempool, proxy, node, main
+    NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
@@ -201,6 +203,7 @@ ndau_node() {
 
     echo "  launching ndaunode"
     NDAUHOME="$ndau_home" \
+    NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./ndaunode -spec http://localhost:"$noms_port" \
                -index localhost:"$redis_port" \
                -addr 0.0.0.0:"$node_port" \
@@ -231,6 +234,7 @@ ndau_tm() {
     # like `--log_level="state:info,mempool:error,*:error"`.
     # value choices are debug/info/error/none
     # module options include consensus, state, p2p, mempool, proxy, node, main
+    NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
