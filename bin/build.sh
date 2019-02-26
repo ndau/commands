@@ -44,10 +44,9 @@ build_ndau() {
 
     ensure_no_test_links
 
-    # This was adapted from ndau/bin/build.sh.  We don't want to use any more of it than what we
-    # have here since it uses different environment settings than our setup scripts do for a local
-    # build.  e.g. We use separate TMHOME's for each of chaos and ndau.
-    VERSION=$(git describe --long --tags)
+    # Get the version info from git (we want the most recent tag that starts with v)
+    # then use it to stamp the ndau executable as part of the build.
+    VERSION=$(git describe --long --tags --match="v*")
     echo "  VERSION=$VERSION"
     VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
 
