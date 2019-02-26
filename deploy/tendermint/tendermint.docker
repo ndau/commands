@@ -12,7 +12,7 @@
 FROM golang:1.11-alpine3.8 AS build
 
 # This is the release of tendermint to pull in.
-ENV TM_VERSION_TAG v0.30.0
+ENV TM_VERSION_TAG v0.30.1
 RUN apk add --no-cache git openssh-client bash
 
 # Use dep instead of glide, glide no longer supported in TM v0.18.0
@@ -40,7 +40,7 @@ RUN dep ensure && \
 RUN rm -vf /root/.ssh/id_rsa
 
 FROM alpine:3.8
-ENV TM_VERSION 0.30.0
+ENV TM_VERSION 0.30.1
 # Tendermint will be looking for genesis file in /tendermint (unless you change
 # `genesis_file` in config.toml). You can put your config.toml and private
 # validator file into /tendermint.
