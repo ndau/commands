@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# JSG now accepts "nofinalize" arg, which skips the claim and copy-keys at the end
+# for example: $ bin/run.sh nofinalize
+
 initialize() {
     CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
     # shellcheck disable=SC1090
@@ -265,21 +268,25 @@ finalize() {
         # they are not there at all, but they were needed earlier by ndau_node() for each node,
         # so we leave them there.  They are valid, but not useable for getting/setting sysvars.
         ndau_home="$NODE_DATA_DIR-0"
+        # JSG don't do the claim and copy-keys if we're simulating mainnet
+        if [ "$1" != "nofinalize" ]; then
+            # Claim the bpc operations account.  This puts the validation keys into ndautool.toml.
+            echo "  claiming $BPC_OPS_ACCT_NAME account"
+            NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
 
-        # Claim the bpc operations account.  This puts the validation keys into ndautool.toml.
-        echo "  claiming $BPC_OPS_ACCT_NAME account"
-        NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
-
-        # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
-        echo "  copying keys to $SYSVAR_ID identity"
-        NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME"
+            # Copy the bpc keys to the chaos tool toml file under the sysvar identity.
+            echo "  copying keys to $SYSVAR_ID identity"
+            NDAUHOME="$ndau_home" ./chaos id copy-keys-from "$SYSVAR_ID" "$BPC_OPS_ACCT_NAME"
+        else
+            echo not finalizing due to nofinalize arg
+        fi
 
         # We've updated, remove the flag file so we don't update again on the next run.
         rm "$NEEDS_UPDATE_FLAG_FILE"
     fi
 }
 
-if [ -z "$1" ]; then
+if [ -z "$1" -o "$1" == "nofinalize" ]; then
     initialize
 
     # Kill everything first.  It's too easy to forget the ./kill.sh between test runs.
@@ -297,7 +304,7 @@ if [ -z "$1" ]; then
         ndau_tm "$node_num"
     done
 
-    finalize
+    finalize "$1"
 else
     # We support running a single process for a given node.
     cmd="$1"
