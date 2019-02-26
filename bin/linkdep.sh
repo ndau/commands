@@ -37,6 +37,11 @@ if [ -z "$REPO" ]; then
     echo linkdep: Link or unlink vendor directories of a repo, for build or test purposes
     echo Usage:
     echo "  ./linkdep.sh {metanode|chaos|ndau|genesis|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
+    current="$(find vendor/github.com/oneiro-ndev -type l -depth 1 |sed 's:vendor/github.com/oneiro-ndev/:  :')"
+    if [[ -n "$current" ]]; then
+        echo Currently linked:
+        echo "$current"
+    fi
     exit 1
 fi
 
