@@ -114,8 +114,8 @@ commands:
           name: get git information
           command: |
             cd /commands
-            echo "export VERSION=$(git describe --long --tags)" >> $BASH_ENV
-            echo "export SHA=$(git rev-parse --short $CIRCLE_SHA1)" >> $BASH_ENV
+            echo 'export VERSION=$(git describe --long --tags --match="v*")' >> $BASH_ENV
+            echo 'export SHA=$(git rev-parse --short $CIRCLE_SHA1)' >> $BASH_ENV
             echo 'export CI_USER=$CIRCLE_USERNAME' >> $BASH_ENV
             echo 'export CI_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
       # docker_cache_key references a cache directory that has docker images in tar balls.
