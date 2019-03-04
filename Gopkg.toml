@@ -43,18 +43,26 @@ name = "github.com/attic-labs/graphql"
 branch = "master"
 
 [[override]]
-name = "github.com/tinylabs/msgp"
-version = "v1.1.0"
-
-[[override]]
 name = "github.com/attic-labs/noms"
 branch = "master"
 source = "github.com/oneiro-ndev/noms"
 
 [[override]]
-name = "github.com/tendermint/tendermint"
-version = "v0.30.1"
-
-[[override]]
 name = "github.com/gofrs/uuid"
 version = "~v3.2"
+
+[[override]]
+name = "github.com/tendermint/tendermint"
+version = "~v0.30.1"
+
+[[override]]
+name = "github.com/tinylabs/msgp"
+version = "v1.1.0"
+
+[[override]]
+# why do we do this meaningless thing, given that golang/x/* packages
+# are specified by the go compiler? In short, Tendermint made some bad
+# versioning choices, and this helps fix them.
+# https://ndevtalk.slack.com/archives/CFT5J0N81/p1551689341081100
+name = "golang.org/x/crypto"
+
