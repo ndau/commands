@@ -20,11 +20,13 @@ branch = "master"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.1"
+# version = "~v1.1"
+branch = "prgn-node-stats"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.3"
+# version = "~v1.3"
+branch = "prgn-node-stats-in-node-goodness"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
