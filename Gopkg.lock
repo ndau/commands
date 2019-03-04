@@ -495,7 +495,7 @@
 
 [[projects]]
   branch = "prgn-node-stats"
-  digest = "1:490838cb0a5307839f5e1be276818772795a8356aa538157ce19af9419205206"
+  digest = "1:7baf65d8249fbce003c055415b57659864d729aba33ed84765edfa702502abd7"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -505,7 +505,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "e5ff990e731618f9cc96f229d0a0c4079a29be34"
+  revision = "0a9cda7f67463cff8737c44a99bd84a110d3c347"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
