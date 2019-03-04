@@ -20,7 +20,7 @@ branch = "master"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.1"
+version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"

@@ -442,7 +442,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:687dc2250b0698ce0ac8204334c08a976f2f65ffa85881d083b29fbfe8b5d2ab"
+  digest = "1:597b1f35740d8a69e50c4f6399f1bc9f6fc248f2ddee0d526590c49c28ea2f8f"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -458,8 +458,8 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "00c967f56b95955cbe66a695ebe02f7da9ca888e"
-  version = "v1.0.0"
+  revision = "63d7d12957695d4e8ab14d4422d07496e3a29730"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"
@@ -494,7 +494,7 @@
   revision = "51e787c1b8ab0b3c6cc0f7db8c7b650753541899"
 
 [[projects]]
-  digest = "1:62ec29e30a22a930da051b622b5d5e8e9b01db101a022e29e932d1043b65f66f"
+  digest = "1:7baf65d8249fbce003c055415b57659864d729aba33ed84765edfa702502abd7"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -504,8 +504,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "b43e710e78377f6f9d9f688757b7649a7cc58af9"
-  version = "v1.1.0"
+  revision = "1ca81390e491afda6255ef657e0fc90cbb0635f4"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -524,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:6fd0179a138d8924e223d2d24e9732eaf26e84beb30e009165c09a3fdbe96e59"
+  digest = "1:ebd043fc7460892f2626fdeba28b3919e46fcb401fb4dd47ac13286873d13a35"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,8 +544,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "69c4c92c39c053cf283620002bceb6f1dc4e735a"
-  version = "v1.3.0"
+  revision = "7a1a857ab4c86f12a945345de945af9b4fbdef92"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
