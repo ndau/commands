@@ -442,7 +442,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:687dc2250b0698ce0ac8204334c08a976f2f65ffa85881d083b29fbfe8b5d2ab"
+  branch = "prgn-fix-chaos-with-metanode-tests"
+  digest = "1:597b1f35740d8a69e50c4f6399f1bc9f6fc248f2ddee0d526590c49c28ea2f8f"
   name = "github.com/oneiro-ndev/chaos"
   packages = [
     "pkg/chaos",
@@ -458,8 +459,7 @@
     "pkg/tool.write",
   ]
   pruneopts = ""
-  revision = "00c967f56b95955cbe66a695ebe02f7da9ca888e"
-  version = "v1.0.0"
+  revision = "11c4fb6d9dddf10db41668227be52f0d8d987d53"
 
 [[projects]]
   digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"

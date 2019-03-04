@@ -4,7 +4,8 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos"
-version = "~v1.0"
+# version = "~v1.0"
+branch = "prgn-fix-chaos-with-metanode-tests"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
