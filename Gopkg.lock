@@ -521,8 +521,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-nomsify"
-  digest = "1:3dcf0cdcda4f596f2a3e0509e47f4e8b18ba11dd58e295d17acd379ccb8ed942"
+  digest = "1:6fd0179a138d8924e223d2d24e9732eaf26e84beb30e009165c09a3fdbe96e59"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,7 +541,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "deea2c4f29ffed7e12fa7966f059402eafb6ebf5"
+  revision = "69c4c92c39c053cf283620002bceb6f1dc4e735a"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
