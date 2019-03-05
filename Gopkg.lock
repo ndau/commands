@@ -524,7 +524,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-fix-account-list-panic"
   digest = "1:37a501ecb52cccf828eacfdaf397c5d73b3659e4e647524d6f581ef154584118"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -545,7 +544,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "7fa76ff9ca3cf93c8c70d97c45f36da4d5c125e6"
+  revision = "4b2eb4febcf97b8e1dffa0055c3eceff0a6e8678"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
