@@ -2,6 +2,7 @@
 
 import subprocess
 import shlex
+import sys
 from pathlib import Path
 from base64 import standard_b64decode as b64d
 from functools import lru_cache
@@ -21,12 +22,20 @@ def root():
 
 def chaos(cmd):
     chaos_bin = Path(root()) / "chaos"
-    return rc(f"{chaos_bin} {cmd}")
+    try:
+        return rc(f"{chaos_bin} {cmd}")
+    except subprocess.CalledProcessError as e:
+        print(f"{e.cmd} -> {e.returncode}", file=sys.stderr)
+        print("-----------stdout------------", file=sys.stderr)
+        print(e.stdout, file=sys.stderr)
+        print("-----------stderr------------", file=sys.stderr)
+        print(e.stderr, file=sys.stderr)
+        raise
 
 
 def get_namespaces():
     out = chaos("get-ns")
-    return out.stdout.splitlines()
+    return [line.split()[0] for line in out.stdout.splitlines()]
 
 
 def dump_ns(ns):
@@ -44,7 +53,7 @@ def collect_all():
 
 def stringify(v):
     "recursively replace byte sequences with safe strings"
-    if isinstance(v, str):
+    if isinstance(v, (str, int, float)):
         return v
     elif isinstance(v, bytes):
         return v.decode(errors="backslashreplace")
