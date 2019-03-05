@@ -26,9 +26,6 @@ if [[ ! -z "$node_count" ]]; then
     fi
 
     echo "$node_count" > "$NODE_COUNT_FILE"
-
-    export NODE_COUNT="$node_count"
-    export HIGH_NODE_NUM=$((NODE_COUNT - 1))
 fi
 
 # Reset all blockchain data.
