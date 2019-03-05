@@ -8,9 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-
 	arg "github.com/alexflint/go-arg"
+	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
