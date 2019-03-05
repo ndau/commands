@@ -460,9 +460,9 @@ jobs:
             # Run integration tests
             # get address and port of devnet0 RPC
             NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
-            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
+            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' fetnet-0-nodegroup-ndau-tendermint-service)
             # get address and port of devnet1 RPC
-            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
+            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' fetnet-1-nodegroup-ndau-tendermint-service)
 
             URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
             URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
@@ -521,4 +521,4 @@ jobs:
 
             # run tests
             pipenv sync
-            pipenv run pytest -v --net=devnet
+            pipenv run pytest -v --net=fetnet
