@@ -264,9 +264,6 @@ jobs:
             # build deps image
             docker build -t deps -f /commands/deploy/deps.docker /commands/
 
-            # load all docker images in cache
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
