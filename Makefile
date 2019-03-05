@@ -114,7 +114,7 @@ $(CHAINCODEPKG)/vm/opcode_string.go: $(CHAINCODEPKG)/vm/opcodes.go
 	go generate $(CHAINCODEPKG)/vm
 
 fuzz: test
-	FUZZ_RUNS=10000 go test --race -v -timeout 1m $(CHAINCODEPKG)/vm -run "TestFuzz*" -coverprofile=/tmp/coverfuzz
+	FUZZ_RUNS=10000 go test --race -v -timeout 2m $(CHAINCODEPKG)/vm -run "TestFuzz*" -coverprofile=/tmp/coverfuzz
 
 fuzzmillion: test
 	FUZZ_RUNS=1000000 go test --race -v -timeout 2h $(CHAINCODEPKG)/vm -run "TestFuzz*" -coverprofile=/tmp/coverfuzz
