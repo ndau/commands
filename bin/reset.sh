@@ -4,7 +4,16 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
+# Kill everything before we wipe the pid files.
+"$CMDBIN_DIR"/kill.sh
+
+# Remove temp files.
+rm -f "$CMDBIN_DIR"/*.log
+rm -f "$CMDBIN_DIR"/*.pid
+
 # Optionally change the number of nodes in the localnet setup.
+# Do this after the above commands, so they can use the old node count.
+# Do this before the steps after, so we don't possibly leave localnet in a half set up state.
 node_count="$1"
 if [[ ! -z "$node_count" ]]; then
     if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
@@ -21,13 +30,6 @@ if [[ ! -z "$node_count" ]]; then
     export NODE_COUNT="$node_count"
     export HIGH_NODE_NUM=$((NODE_COUNT - 1))
 fi
-
-# Kill everything before we wipe the pid files.
-"$CMDBIN_DIR"/kill.sh
-
-# Remove temp files.
-rm -f "$CMDBIN_DIR"/*.log
-rm -f "$CMDBIN_DIR"/*.pid
 
 # Reset all blockchain data.
 rm -rf "$ROOT_DATA_DIR"
