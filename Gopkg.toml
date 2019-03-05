@@ -24,8 +24,7 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.3"
-branch = "prgn-fix-account-list-panic"
+version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
