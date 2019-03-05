@@ -3,9 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	arg "github.com/alexflint/go-arg"
@@ -112,6 +115,9 @@ func (r *RequestManager) Post(path string, payload interface{}, result interface
 		if err != nil {
 			return err
 		}
+	} else {
+		buf, _ := ioutil.ReadAll(resp.Body)
+		fmt.Fprintln(os.Stderr, buf)
 	}
 	return nil
 }
@@ -133,13 +139,15 @@ func (r *RequestManager) GetVersion() (string, error) {
 // and sequence.
 func (r *RequestManager) UpdateAccount(acct *Account) error {
 	data := struct {
-		Balance  types.Ndau
-		Sequence uint64
+		Balance  types.Ndau `json:"balance"`
+		Sequence uint64     `json:"sequence"`
 	}{}
 	err := r.Get("/account/account/"+acct.addr.String(), &data)
 	if err != nil {
 		return err
 	}
+	// TODO: figure out why this doesn't work right
+	fmt.Println(data)
 	acct.balance = data.Balance
 	acct.sequence = data.Sequence
 	return nil
@@ -163,17 +171,14 @@ func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (Account, erro
 // Transfer generates a transfer transaction and submits it
 // It prevalidates it first.
 func (r *RequestManager) Transfer(from, to Account, qty types.Ndau) error {
-	tx := ndau.NewTransfer(from.addr, to.addr, qty, from.sequence+1, from.prv)
+	nextseq := from.sequence + 1
+	tx := ndau.NewTransfer(from.addr, to.addr, qty, nextseq, from.prv)
 
-	err := r.Post("/tx/prevalidate", tx, nil)
+	err := r.Post("/tx/submit/transfer", tx, nil)
 	if err != nil {
 		return err
 	}
-
-	err = r.Post("/tx/submit", tx, nil)
-	if err != nil {
-		return err
-	}
+	from.sequence = nextseq
 
 	return nil
 }
@@ -186,6 +191,12 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]
 	fmt.Println("seq", starting.sequence)
 	if err != nil {
 		return nil, err
+	}
+	if naccts == 0 {
+		return nil, errors.New("naccts must not be 0")
+	}
+	if starting.balance == 0 {
+		return nil, errors.New("starting.balance must not be 0")
 	}
 	perAcct := starting.balance / types.Ndau(2*naccts)
 	for i := 0; i < naccts; i++ {
@@ -222,6 +233,8 @@ func main() {
 			a.URL = "https://testnet-0.api.ndau.tech"
 		case "dev", "devnet":
 			a.URL = "https://devnet-0.api.ndau.tech"
+		default:
+			log.Fatalf("Unknown chain: %s", a.Chain)
 		}
 	}
 
@@ -253,7 +266,10 @@ func main() {
 			startingAddr = acct.Address
 			pks := acct.TransferPrivate()
 			if len(pks) != 1 {
-				log.Fatal("Can't use named account unless it has exactly 1 private transfer key.")
+				log.Fatalf(
+					"Can't use named account unless it has exactly 1 private transfer key (found %d).",
+					len(pks),
+				)
 			}
 			startingPrvKey = pks[0]
 		}
@@ -265,6 +281,10 @@ func main() {
 		log.Fatalf("Couldn't create child accounts: %s", err)
 	}
 	fmt.Printf("Version: %s\n", ver)
+
+	if startingAddr.String() == "" {
+		log.Fatal("Starting address or account name must be specified")
+	}
 
 	starting := Account{
 		balance:  0,
