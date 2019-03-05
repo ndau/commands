@@ -127,19 +127,13 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - deps:
-          filters:
-            branches:
-              only: /^master$/
-      - test:
-          requires:
-            - deps
+      - test-build:
           filters:
             branches:
               only: /^master$/
       - push:
           requires:
-            - test
+            - test-build
           filters:
             branches:
               only: /^master$/
@@ -157,21 +151,15 @@ workflows:
               only: /^master$/
   tagged-build:
     jobs:
-      - deps:
-          filters:  # required since `test` has tag filters AND requires `deps`
+      - test-build:
+          filters:  # required since `push` has tag filters AND requires `test-build`
             tags:
               ignore: /.*-testnet$|.*-mainnet$/ # only deploy for these tags
             branches:
               ignore: /^master$/
-      - test:
-          requires:
-            - deps
-          filters:  # required since `push` has tag filters AND requires `test`
-            tags:
-              only: /.*/
       - push:
           requires:
-            - test
+            - test-build
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
               only: /.*-push$|.*-deploy$/
@@ -213,13 +201,15 @@ general_config: &general_config
         # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
         ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
-        S3_DEPLOY_ARCHIVE: devnet.tgz
-        HONEYCOMB_DATASET: "devnet"
-        NETWORK_NAME: "devnet" # used for snapshots
-        CHAOS_TM_TAG: v0.30.1
-        CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1
-        NDAU_NOMS_TAG: 0.0.1
+        S3_DEPLOY_ARCHIVE: fetnet.tgz
+        HONEYCOMB_DATASET: "fetnet"
+        NETWORK_NAME: "fetnet" # used for snapshots
+        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_NOMS_TAG: 0.0.2
+        CHAOS_REDIS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.30.1-a
+        NDAU_NOMS_TAG: 0.0.2
+        NDAU_REDIS_TAG: 0.0.1
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -235,10 +225,12 @@ testnet_config: &testnet_config
         S3_DEPLOY_ARCHIVE: testnet.tgz
         HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
-        CHAOS_TM_TAG: v0.30.1
-        CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1
-        NDAU_NOMS_TAG: 0.0.1
+        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_NOMS_TAG: 0.0.2
+        CHAOS_REDIS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.30.1-a
+        NDAU_NOMS_TAG: 0.0.2
+        NDAU_REDIS_TAG: 0.0.1
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -254,35 +246,35 @@ mainnet_config: &mainnet_config
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
-        CHAOS_TM_TAG: v0.30.1
-        CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1
-        NDAU_NOMS_TAG: 0.0.1
+        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_NOMS_TAG: 0.0.2
+        CHAOS_REDIS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.30.1-a
+        NDAU_NOMS_TAG: 0.0.2
+        NDAU_REDIS_TAG: 0.0.1
 
 jobs:
-  deps:
+  test-build:
     <<: *general_config
     steps:
       - setup
       - run:
-          name: build the deps image
-          command: docker build -t deps -f /commands/deploy/deps.docker /commands/
-      - save_image:
-          img_name: deps:latest
-
-  test:
-    <<: *general_config
-    steps:
-      - setup
-      - run:
-          name: Run tests
+          name: Test and build
           command: |
+            # build deps image
+            docker build -t deps -f /commands/deploy/deps.docker /commands/
+
+            # load all docker images in cache
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
                 deps \
                 /bin/sh /root/test-and-build.sh
+
+      - save_image:
+          img_name: deps:latest
 
   push:
     <<: *general_config
@@ -328,14 +320,14 @@ jobs:
             # TODO add some smarter resource detection
             while true; do
               if
-                [ "$(kubectl get pvc -l release=devnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
+                [ "$(kubectl get pvc -l release=fetnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=fetnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=fetnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=fetnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=fetnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting for devnet to die"
+                echo "waiting for fetnet to die"
                 sleep 1
               fi
             done
@@ -362,7 +354,7 @@ jobs:
             echo SHA=$SHA
 
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation -b josh/114-snapshot-redis
 
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
