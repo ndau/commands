@@ -1,5 +1,9 @@
 # This image downloads dependencies and only installs what is necessary to do so.
-FROM golang:1.11-alpine3.8
+FROM golang:1.11-alpine3.8 as dep-cache
+
+# Bump this, rebuild and push if the cache is getting out of date, and
+# the builds in circleci are getting too long.
+LABEL org.opencontainers.image.version 0.0.1
 
 # Without build tools a cgo error occurs for numerous cmds.
 RUN apk add --no-cache build-base
@@ -22,9 +26,6 @@ COPY ./Gopkg.lock ${DIR}/Gopkg.lock
 COPY ./Gopkg.toml ${DIR}/Gopkg.toml
 COPY ./cmd ${DIR}/cmd
 
-# Copy test script, but do not run it right now.
-COPY ./deploy/test-and-build.sh /root/test-and-build.sh
-
 # Configure git to use ssh instead of https
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 
@@ -32,9 +33,6 @@ RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 # Subsequent images only copy and use specific files from this image and use those.
 ARG SSH_KEY_FILE="machine_user_key"
 COPY ${SSH_KEY_FILE} /root/.ssh/id_rsa
-
-# Bring in dependencies cache from ECR
-COPY --from=578681496768.dkr.ecr.us-east-1.amazonaws.com/deps-cache:0.0.1 /go/src/github.com/oneiro-ndev/commands/vendor /go/src/github.com/oneiro-ndev/commands/vendor
 
 # Download all the dependencies.
 # Remove the secret as soon as possible
