@@ -11,8 +11,12 @@
 
 FROM golang:1.11-alpine3.8 AS build
 
-# This is the release of tendermint to pull in.
-ENV TM_VERSION_TAG v0.30.1
+# The image will be built and tagged with this version
+LABEL org.opencontainers.image.version 0.30.1-a
+
+# This is the release of tendermint to git pull.
+ARG TM_REPO_TAG=v0.30.1
+
 RUN apk add --no-cache git openssh-client bash
 
 # Use dep instead of glide, glide no longer supported in TM v0.18.0
@@ -21,7 +25,7 @@ RUN go get -u github.com/golang/dep/... && \
     git clone https://github.com/tendermint/tendermint.git \
     /go/src/github.com/tendermint/tendermint && \
     cd /go/src/github.com/tendermint/tendermint && \
-    git checkout ${TM_VERSION_TAG}
+    git checkout ${TM_REPO_TAG}
 
 # Get patch files and apply them
 COPY ./deploy/tendermint/Gopkg.toml.patch /go/src/github.com/oneiro-ndev/commands/deploy/tendermint/Gopkg.toml.patch
@@ -36,11 +40,7 @@ RUN dep ensure && \
     CGO_ENABLED=0 GOOS=linux go install -v -a -ldflags '-extldflags "-static"' ./cmd/tendermint && \
     cp /go/bin/tendermint /bin/tendermint
 
-# Remove the secret just in case its directory gets copied below.
-RUN rm -vf /root/.ssh/id_rsa
-
 FROM alpine:3.8
-ENV TM_VERSION 0.30.1
 # Tendermint will be looking for genesis file in /tendermint (unless you change
 # `genesis_file` in config.toml). You can put your config.toml and private
 # validator file into /tendermint.
@@ -58,9 +58,10 @@ RUN mkdir -p $DATA_ROOT && \
     chown -R tmuser:tmuser $DATA_ROOT
 
 # jq and curl used for extracting `pub_key` from private validator while
-# deploying tendermint with Kubernetes. It is nice to have bash so the users
-# could execute bash commands.
-RUN apk add --no-cache bash curl jq
+# deploying tendermint with Kubernetes.
+# curl bash and openssl are used for snapshots
+# perl for text processing
+RUN apk add --no-cache bash curl jq openssl perl
 
 COPY --from=build /bin/tendermint /bin/tendermint
 

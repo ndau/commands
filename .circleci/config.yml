@@ -127,19 +127,13 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - deps:
-          filters:
-            branches:
-              only: /^master$/
-      - test:
-          requires:
-            - deps
+      - test-build:
           filters:
             branches:
               only: /^master$/
       - push:
           requires:
-            - test
+            - test-build
           filters:
             branches:
               only: /^master$/
@@ -157,21 +151,15 @@ workflows:
               only: /^master$/
   tagged-build:
     jobs:
-      - deps:
-          filters:  # required since `test` has tag filters AND requires `deps`
+      - test-build:
+          filters:  # required since `push` has tag filters AND requires `test-build`
             tags:
               ignore: /.*-testnet$|.*-mainnet$/ # only deploy for these tags
             branches:
               ignore: /^master$/
-      - test:
-          requires:
-            - deps
-          filters:  # required since `push` has tag filters AND requires `test`
-            tags:
-              only: /.*/
       - push:
           requires:
-            - test
+            - test-build
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
               only: /.*-push$|.*-deploy$/
@@ -216,10 +204,13 @@ general_config: &general_config
         S3_DEPLOY_ARCHIVE: devnet.tgz
         HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
-        CHAOS_TM_TAG: v0.30.1
-        CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1
-        NDAU_NOMS_TAG: 0.0.1
+        SNAPSHOT_REDIS_TAG: 0.0.1
+        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_NOMS_TAG: 0.0.2
+        CHAOS_REDIS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.30.1-a
+        NDAU_NOMS_TAG: 0.0.2
+        NDAU_REDIS_TAG: 0.0.1
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -235,10 +226,13 @@ testnet_config: &testnet_config
         S3_DEPLOY_ARCHIVE: testnet.tgz
         HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
-        CHAOS_TM_TAG: v0.30.1
-        CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1
-        NDAU_NOMS_TAG: 0.0.1
+        SNAPSHOT_REDIS_TAG: 0.0.1
+        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_NOMS_TAG: 0.0.2
+        CHAOS_REDIS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.30.1-a
+        NDAU_NOMS_TAG: 0.0.2
+        NDAU_REDIS_TAG: 0.0.1
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -254,35 +248,33 @@ mainnet_config: &mainnet_config
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
-        CHAOS_TM_TAG: v0.30.1
-        CHAOS_NOMS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1
-        NDAU_NOMS_TAG: 0.0.1
+        SNAPSHOT_REDIS_TAG: 0.0.1
+        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_NOMS_TAG: 0.0.2
+        CHAOS_REDIS_TAG: 0.0.1
+        NDAU_TM_TAG: v0.30.1-a
+        NDAU_NOMS_TAG: 0.0.2
+        NDAU_REDIS_TAG: 0.0.1
 
 jobs:
-  deps:
+  test-build:
     <<: *general_config
     steps:
       - setup
       - run:
-          name: build the deps image
-          command: docker build -t deps -f /commands/deploy/deps.docker /commands/
-      - save_image:
-          img_name: deps:latest
-
-  test:
-    <<: *general_config
-    steps:
-      - setup
-      - run:
-          name: Run tests
+          name: Test and build
           command: |
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            # build deps image
+            docker build -t deps -f /commands/deploy/deps.docker /commands/
+
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
                 deps \
                 /bin/sh /root/test-and-build.sh
+
+      - save_image:
+          img_name: deps:latest
 
   push:
     <<: *general_config
@@ -307,6 +299,7 @@ jobs:
             # Redeploy devnet
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # get bash environments manually
             source $BASH_ENV
@@ -363,6 +356,7 @@ jobs:
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
@@ -420,6 +414,7 @@ jobs:
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
@@ -525,9 +520,17 @@ jobs:
 
             # clone integration tests and ndev dep repos
             git clone git@github.com:oneiro-ndev/integration-tests.git
+            ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
+
             git clone git@github.com:oneiro-ndev/chaos.git
+            ( cd chaos && echo "chaos repo at $(git rev-parse --short HEAD)" )
+
             git clone git@github.com:oneiro-ndev/commands.git
+            ( cd commands && echo "commands repo at $(git rev-parse --short HEAD)" )
+
             git clone git@github.com:oneiro-ndev/ndau.git
+            ( cd ndau && echo "ndau repo at $(git rev-parse --short HEAD)" )
+
             cd integration-tests
 
             # run tests
