@@ -49,23 +49,13 @@ func (args) Description() string {
 	`
 }
 
+// RequestManager simplifies making HTTP requests to the ndau api
 type RequestManager struct {
 	client  *http.Client
 	baseurl string
 }
 
-type Account struct {
-	balance  types.Ndau
-	addr     address.Address
-	prv      signature.PrivateKey
-	pub      signature.PublicKey
-	sequence uint64
-}
-
-func (a *Account) String() string {
-	return fmt.Sprintf("%s...: %d", a.addr.String()[:6], a.balance)
-}
-
+// NewRequestManager creates a new RequestManager with sensible defaults
 func NewRequestManager(base string) *RequestManager {
 	r := RequestManager{
 		client: &http.Client{
@@ -74,6 +64,19 @@ func NewRequestManager(base string) *RequestManager {
 		baseurl: base,
 	}
 	return &r
+}
+
+// Account keeps track of a subset of account data we care about
+type Account struct {
+	Balance  types.Ndau           `json:"balance"`
+	Addr     address.Address      `json:"address"`
+	Private  signature.PrivateKey `json:"private_key"`
+	Public   signature.PublicKey  `json:"public_key"`
+	Sequence uint64               `json:"sequence"`
+}
+
+func (a *Account) String() string {
+	return fmt.Sprintf("%s...: %d", a.Addr.String()[:6], a.Balance)
 }
 
 // Get fetches the path from the baseurl and JSON-decodes it into interface,
@@ -138,18 +141,19 @@ func (r *RequestManager) GetVersion() (string, error) {
 // UpdateAccount takes a pointer to an account and updates its knowledge of the account balance
 // and sequence.
 func (r *RequestManager) UpdateAccount(acct *Account) error {
-	data := struct {
-		Balance  types.Ndau `json:"balance"`
-		Sequence uint64     `json:"sequence"`
-	}{}
-	err := r.Get("/account/account/"+acct.addr.String(), &data)
+	if acct == nil {
+		return errors.New("nil acct")
+	}
+	// can't just r.Get("/account/account", acct), because the ndauapi
+	// isn't set up to return a single account. Instead, it returns a map of
+	// address to account data.
+	amap := make(map[string]Account)
+	err := r.Get("/account/account/"+acct.Addr.String(), &amap)
 	if err != nil {
 		return err
 	}
-	// TODO: figure out why this doesn't work right
-	fmt.Println(data)
-	acct.balance = data.Balance
-	acct.sequence = data.Sequence
+	acct.Balance = amap[acct.Addr.String()].Balance
+	acct.Sequence = amap[acct.Addr.String()].Sequence
 	return nil
 }
 
@@ -160,25 +164,25 @@ func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (Account, erro
 	if err != nil {
 		return a, err
 	}
-	a.pub = pub
-	a.prv = prv
-	a.balance = initialBalance
-	a.sequence = 0
-	a.addr, err = address.Generate(address.KindUser, a.pub.KeyBytes())
+	a.Public = pub
+	a.Private = prv
+	a.Balance = initialBalance
+	a.Sequence = 0
+	a.Addr, err = address.Generate(address.KindUser, a.Public.KeyBytes())
 	return a, err
 }
 
 // Transfer generates a transfer transaction and submits it
 // It prevalidates it first.
 func (r *RequestManager) Transfer(from, to Account, qty types.Ndau) error {
-	nextseq := from.sequence + 1
-	tx := ndau.NewTransfer(from.addr, to.addr, qty, nextseq, from.prv)
+	nextseq := from.Sequence + 1
+	tx := ndau.NewTransfer(from.Addr, to.Addr, qty, nextseq, from.Private)
 
 	err := r.Post("/tx/submit/transfer", tx, nil)
 	if err != nil {
 		return err
 	}
-	from.sequence = nextseq
+	from.Sequence = nextseq
 
 	return nil
 }
@@ -188,17 +192,17 @@ func (r *RequestManager) Transfer(from, to Account, qty types.Ndau) error {
 func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]Account, error) {
 	accts := make([]Account, naccts)
 	err := r.UpdateAccount(&starting)
-	fmt.Println("seq", starting.sequence)
+	fmt.Println("seq", starting.Sequence)
 	if err != nil {
 		return nil, err
 	}
 	if naccts == 0 {
 		return nil, errors.New("naccts must not be 0")
 	}
-	if starting.balance == 0 {
+	if starting.Balance == 0 {
 		return nil, errors.New("starting.balance must not be 0")
 	}
-	perAcct := starting.balance / types.Ndau(2*naccts)
+	perAcct := starting.Balance / types.Ndau(2*naccts)
 	for i := 0; i < naccts; i++ {
 		acct, err := r.CreateAccount(perAcct)
 		if err != nil {
@@ -287,10 +291,10 @@ func main() {
 	}
 
 	starting := Account{
-		balance:  0,
-		addr:     startingAddr,
-		prv:      startingPrvKey,
-		sequence: 1,
+		Balance:  0,
+		Addr:     startingAddr,
+		Private:  startingPrvKey,
+		Sequence: 1,
 	}
 	children, err := rm.GenerateChildAccounts(a.NAccts, starting)
 	if err != nil {
