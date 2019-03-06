@@ -295,7 +295,7 @@ jobs:
           command: |
             # Redeploy devnet
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation -b josh/114-snapshot-redis
 
             # get bash environments manually
             source $BASH_ENV
