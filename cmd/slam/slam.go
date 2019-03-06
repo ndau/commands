@@ -3,12 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	arg "github.com/alexflint/go-arg"
@@ -17,6 +15,7 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/pkg/errors"
 )
 
 type args struct {
@@ -88,6 +87,8 @@ func (r *RequestManager) Get(path string, result interface{}) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode > 299 || resp.StatusCode < 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		log.Print(string(body))
 		return fmt.Errorf("Got bad status '%s' from %s", resp.Status, path)
 	}
 	if result != nil {
@@ -111,6 +112,8 @@ func (r *RequestManager) Post(path string, payload interface{}, result interface
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode > 299 || resp.StatusCode < 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		log.Print(string(body))
 		return fmt.Errorf("Got bad status '%s' from %s", resp.Status, path)
 	}
 	if result != nil {
@@ -118,9 +121,6 @@ func (r *RequestManager) Post(path string, payload interface{}, result interface
 		if err != nil {
 			return err
 		}
-	} else {
-		buf, _ := ioutil.ReadAll(resp.Body)
-		fmt.Fprintln(os.Stderr, buf)
 	}
 	return nil
 }
@@ -160,25 +160,57 @@ func (r *RequestManager) UpdateAccount(acct *Account) error {
 // CreateAccount creates a new random account with an initial balance
 func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (Account, error) {
 	var a Account
+	// ownership keys
 	pub, prv, err := signature.Generate(signature.Ed25519, nil)
 	if err != nil {
 		return a, err
 	}
-	a.Public = pub
-	a.Private = prv
 	a.Balance = initialBalance
 	a.Sequence = 0
+	a.Public = pub
 	a.Addr, err = address.Generate(address.KindUser, a.Public.KeyBytes())
-	return a, err
+	if err != nil {
+		return a, err
+	}
+
+	vpub, vprv, err := signature.Generate(signature.Ed25519, nil)
+	if err != nil {
+		return a, err
+	}
+
+	a.Private = vprv
+
+	fmt.Printf("create child %s... ", a.Addr)
+
+	// claim the newly-created account
+	tx := ndau.NewClaimAccount(a.Addr, pub, []signature.PublicKey{vpub}, nil, a.Sequence+1, prv)
+	a.Sequence++
+	err = r.Post("/tx/submit/ClaimAccount", tx, nil)
+	if err == nil {
+		fmt.Println("claimed")
+	} else {
+		fmt.Println("error")
+	}
+
+	return a, errors.Wrap(err, "claiming child account: "+a.Addr.String())
 }
 
 // Transfer generates a transfer transaction and submits it
 // It prevalidates it first.
 func (r *RequestManager) Transfer(from, to Account, qty types.Ndau) error {
 	nextseq := from.Sequence + 1
+	log.Printf(
+		"Transfer %s ndau from %s (seq %d) to %s (seq %d) using seq %d",
+		qty,
+		from.Addr,
+		from.Sequence,
+		to.Addr,
+		to.Sequence,
+		nextseq,
+	)
 	tx := ndau.NewTransfer(from.Addr, to.Addr, qty, nextseq, from.Private)
 
-	err := r.Post("/tx/submit/transfer", tx, nil)
+	err := r.Post("/tx/submit/Transfer", tx, nil)
 	if err != nil {
 		return err
 	}
@@ -192,12 +224,12 @@ func (r *RequestManager) Transfer(from, to Account, qty types.Ndau) error {
 func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]Account, error) {
 	accts := make([]Account, naccts)
 	err := r.UpdateAccount(&starting)
-	fmt.Println("seq", starting.Sequence)
+	log.Print("seq ", starting.Sequence)
 	if err != nil {
 		return nil, err
 	}
-	if naccts == 0 {
-		return nil, errors.New("naccts must not be 0")
+	if naccts <= 0 {
+		return nil, errors.New("naccts must not be <= 0")
 	}
 	if starting.Balance == 0 {
 		return nil, errors.New("starting.balance must not be 0")
@@ -284,7 +316,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't create child accounts: %s", err)
 	}
-	fmt.Printf("Version: %s\n", ver)
+	log.Printf("Version: %s", ver)
 
 	if startingAddr.String() == "" {
 		log.Fatal("Starting address or account name must be specified")
@@ -301,6 +333,6 @@ func main() {
 		log.Fatalf("Couldn't create child accounts: %s", err)
 	}
 	for _, a := range children {
-		fmt.Printf("%v\n", a.String())
+		fmt.Printf("%#v\n", a.String())
 	}
 }
