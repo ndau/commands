@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	arg "github.com/alexflint/go-arg"
@@ -19,12 +21,14 @@ import (
 )
 
 type args struct {
-	Chain   string `help:"alternative to url to name mainnet, testnet, devnet, or localnet."`
-	URL     string `help:"Full base URL to an API endpoint: default is localnet."`
-	Min     int64  `help:"The minimum number of napu to transfer each time. Default: 100 napu."`
-	Max     int64  `help:"The maximum number of napu to transfer each time. Default: 1000 napu."`
-	NAccts  int    `help:"Number of child accounts created from the starting account; default 10."`
-	NReq    int    `help:"Number of simultaneous requests that can be in flight at once. Must be <= NAccts; default 5."`
+	Chain  string `help:"alternative to url to name mainnet, testnet, devnet, or localnet."`
+	URL    string `help:"Full base URL to an API endpoint: default is localnet."`
+	Min    int64  `help:"The minimum number of napu to transfer each time. Default: 100 napu."`
+	Max    int64  `help:"The maximum number of napu to transfer each time. Default: 1000 napu."`
+	NAccts int    `help:"Number of child accounts created from the starting account; default 10."`
+	// I don't know a good way to limit the number of simultaneous requests without using some kind of AtomicInt, and
+	// I don't really see the point of doing so in the first place.
+	//	NReq    int    `help:"Number of simultaneous requests that can be in flight at once. Must be <= NAccts; default 5."`
 	Name    string `help:"If specified, uses this name to look up account info in the conf file used by ndau tool."`
 	Account string `help:"Starting account number if name is not specified."`
 	Private string `help:"Private key for signing transactions from the starting account (if name not specified)."`
@@ -42,7 +46,7 @@ func (args) Description() string {
  	to a randomly chosen other child.
 
 	If an account's balance falls below the ability to transfer more, it stops trying. Eventually all the accounts
-	will run out (unless the settlement period is zero).
+	will run out (unless the transfer fee is zero).
 
 	Note that this app uses http to the API, not RPC calls. The ndau config is ONLY used to load account information.
 	`
@@ -66,17 +70,36 @@ func NewRequestManager(base string) *RequestManager {
 }
 
 // Account keeps track of a subset of account data we care about
+//
+// Balance is subject to race conditions. If you need to mess with Balance
+// once there is more than one goroutine floating around, use the relevant methods.
 type Account struct {
 	Balance  types.Ndau           `json:"balance"`
 	Addr     address.Address      `json:"address"`
 	Private  signature.PrivateKey `json:"private_key"`
 	Public   signature.PublicKey  `json:"public_key"`
 	Sequence uint64               `json:"sequence"`
+	lock     sync.RWMutex
 }
 
+// String lists the most interesting pieces of data about the account.
 func (a *Account) String() string {
 	as := a.Addr.String()
-	return fmt.Sprintf("%s...%s: %d", as[:6], as[len(as)-4:], a.Balance)
+	return fmt.Sprintf("%s...%s: %d", as[:6], as[len(as)-4:], a.GetBalance())
+}
+
+// AddBalance adds qty to the balance in a thread-safe way.
+func (a *Account) AddBalance(qty types.Ndau) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+	a.Balance += qty
+}
+
+// GetBalance retrieves the balance in a thread-safe way.
+func (a *Account) GetBalance() types.Ndau {
+	a.lock.RLock()
+	defer a.lock.RUnlock()
+	return a.Balance
 }
 
 // Get fetches the path from the baseurl and JSON-decodes it into interface,
@@ -159,14 +182,15 @@ func (r *RequestManager) UpdateAccount(acct *Account) error {
 }
 
 // CreateAccount creates a new random account with an initial balance
-func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (Account, error) {
-	var a Account
+func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (*Account, error) {
+	a := &Account{
+		Balance: initialBalance,
+	}
 	// ownership keys
 	pub, prv, err := signature.Generate(signature.Ed25519, nil)
 	if err != nil {
 		return a, err
 	}
-	a.Balance = initialBalance
 	a.Sequence = 0
 	a.Public = pub
 	a.Addr, err = address.Generate(address.KindUser, a.Public.KeyBytes())
@@ -198,7 +222,7 @@ func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (Account, erro
 
 // Transfer generates a transfer transaction and submits it
 // It prevalidates it first.
-func (r *RequestManager) Transfer(from *Account, to Account, qty types.Ndau) error {
+func (r *RequestManager) Transfer(from, to *Account, qty types.Ndau) error {
 	nextseq := from.Sequence + 1
 	log.Printf(
 		"Transfer %s ndau from %s (seq %d) to %s (seq %d) using seq %d",
@@ -217,14 +241,17 @@ func (r *RequestManager) Transfer(from *Account, to Account, qty types.Ndau) err
 	}
 	from.Sequence = nextseq
 
+	from.AddBalance(-qty - 1) // default tx fee script takes 1 napu for every tx
+	to.AddBalance(qty)
+
 	return nil
 }
 
 // GenerateChildAccounts creates the appropriate number of child accounts. It uses 50% of the
 // balance in the starting account and distributes it equally to all the children.
-func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]Account, error) {
-	accts := make([]Account, naccts)
-	err := r.UpdateAccount(&starting)
+func (r *RequestManager) GenerateChildAccounts(naccts int, starting *Account) ([]*Account, error) {
+	accts := make([]*Account, 0, naccts)
+	err := r.UpdateAccount(starting)
 	log.Print("seq ", starting.Sequence)
 	starting.Sequence++
 	if err != nil {
@@ -234,7 +261,7 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]
 		return nil, errors.New("naccts must not be <= 0")
 	}
 	if starting.Balance == 0 {
-		return nil, errors.New("starting.balance must not be 0")
+		return nil, errors.New("starting balance must not be 0")
 	}
 	perAcct := starting.Balance / types.Ndau(2*naccts)
 	for i := 0; i < naccts; i++ {
@@ -242,13 +269,58 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]
 		if err != nil {
 			return nil, err
 		}
-		err = r.Transfer(&starting, acct, perAcct)
+		err = r.Transfer(starting, acct, perAcct)
 		if err != nil {
 			return nil, err
 		}
-		accts[i] = acct
+		accts = append(accts, acct)
 	}
 	return accts, nil
+}
+
+// makeTransfers takes control of a single child account, spamming out random
+// transfers from it. It is intended to be run as a goroutine.
+//
+// Mission Statement:
+// > Each of the child accounts then loops -- checking its balance, then
+// > transferring a random value between min and max to a randomly chosen
+// > other child.
+// >
+// > If an account's balance falls below the ability to transfer more, it
+// > stops trying. Eventually all the accounts will run out (unless the
+// > transfer fee is zero).
+//
+// Synchronization is minimal:
+// - at idx, it updates the settlement period
+// - elsewhere, it only ever reads the Addr
+// - the transfer adjusts both balances, but uses appropriate locks
+//
+// Therefore, there can be no race conditions related to writes in children.
+func (r *RequestManager) makeTransfers(children []*Account, idx int, args args, wg *sync.WaitGroup, done <-chan struct{}) {
+	fmt.Printf("makeTransfers(idx=%d)->balance: %d, max tfer: %d\n", idx, children[idx].GetBalance(), args.Max)
+	defer fmt.Printf("makeTransfers(idx=%d)->done\n", idx)
+	defer wg.Done()
+
+	for children[idx].GetBalance() > types.Ndau(args.Max) {
+		fmt.Printf("makeTransfers(idx=%d)->checking if done\n", idx)
+		if _, ok := (<-done); !ok {
+			fmt.Printf("makeTransfers(idx=%d)->done channel closed, exiting\n", idx)
+			// done is closed, which means we must be finished
+			return
+		}
+		fmt.Printf("makeTransfers(idx=%d)->not done; continuing\n", idx)
+		// pick a beneficiary who is not ourselves
+		beneficiary := idx
+		for beneficiary == idx {
+			beneficiary = rand.Intn(len(children))
+		}
+		fmt.Printf("makeTransfers(idx=%d)->picked beneficiary: %d\n", idx, beneficiary)
+
+		qty := types.Ndau(args.Min + rand.Int63n(args.Max-args.Min))
+		fmt.Printf("makeTransfers(idx=%d)->picked qty: %d (between [%d, %d))\n", idx, qty, args.Min, args.Max)
+
+		r.Transfer(children[idx], children[beneficiary], qty)
+	}
 }
 
 func main() {
@@ -256,7 +328,7 @@ func main() {
 		Min:    100,
 		Max:    1000,
 		NAccts: 10,
-		NReq:   5,
+		//		NReq:   5,
 	}
 
 	arg.MustParse(&a)
@@ -330,11 +402,22 @@ func main() {
 		Private:  startingPrvKey,
 		Sequence: 1,
 	}
-	children, err := rm.GenerateChildAccounts(a.NAccts, starting)
+	children, err := rm.GenerateChildAccounts(a.NAccts, &starting)
 	if err != nil {
 		log.Fatalf("Couldn't create child accounts: %s", err)
 	}
-	for _, a := range children {
-		fmt.Printf("%#v\n", a.String())
+
+	// set up synchronization so we can quit all goroutines from the main and
+	// have the main wait on the children
+	wg := sync.WaitGroup{}
+	wg.Add(len(children))
+	// have the children quit if main exits
+	done := make(chan struct{})
+	defer close(done)
+	// launch child goroutines
+	for idx := range children {
+		fmt.Printf("launching %s... (idx %d)\n", children[idx], idx)
+		go rm.makeTransfers(children, idx, a, &wg, done)
 	}
+	wg.Wait()
 }
