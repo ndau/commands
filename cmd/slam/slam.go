@@ -75,7 +75,8 @@ type Account struct {
 }
 
 func (a *Account) String() string {
-	return fmt.Sprintf("%s...: %d", a.Addr.String()[:6], a.Balance)
+	as := a.Addr.String()
+	return fmt.Sprintf("%s...%s: %d", as[:6], as[len(as)-4:], a.Balance)
 }
 
 // Get fetches the path from the baseurl and JSON-decodes it into interface,
@@ -197,7 +198,7 @@ func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (Account, erro
 
 // Transfer generates a transfer transaction and submits it
 // It prevalidates it first.
-func (r *RequestManager) Transfer(from, to Account, qty types.Ndau) error {
+func (r *RequestManager) Transfer(from *Account, to Account, qty types.Ndau) error {
 	nextseq := from.Sequence + 1
 	log.Printf(
 		"Transfer %s ndau from %s (seq %d) to %s (seq %d) using seq %d",
@@ -225,6 +226,7 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]
 	accts := make([]Account, naccts)
 	err := r.UpdateAccount(&starting)
 	log.Print("seq ", starting.Sequence)
+	starting.Sequence++
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +242,7 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting Account) ([]
 		if err != nil {
 			return nil, err
 		}
-		err = r.Transfer(starting, acct, perAcct)
+		err = r.Transfer(&starting, acct, perAcct)
 		if err != nil {
 			return nil, err
 		}

@@ -10,4 +10,4 @@ ndau_rpc_port=$((TM_RPC_PORT + 1))
 
 NDAUAPI_NDAU_RPC_URL=http://localhost:"$ndau_rpc_port" \
 NDAUAPI_CHAOS_RPC_URL=http://localhost:"$chaos_rpc_port" \
-"$COMMANDS_DIR"/ndauapi
+"$COMMANDS_DIR"/ndauapi | grep -v "[cors]"
