@@ -204,6 +204,7 @@ general_config: &general_config
         S3_DEPLOY_ARCHIVE: fetnet.tgz
         HONEYCOMB_DATASET: "fetnet"
         NETWORK_NAME: "fetnet" # used for snapshots
+        SNAPSHOT_REDIS_TAG: 0.0.1
         CHAOS_TM_TAG: v0.30.1-a
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
@@ -225,6 +226,7 @@ testnet_config: &testnet_config
         S3_DEPLOY_ARCHIVE: testnet.tgz
         HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
+        SNAPSHOT_REDIS_TAG: 0.0.1
         CHAOS_TM_TAG: v0.30.1-a
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
@@ -246,6 +248,7 @@ mainnet_config: &mainnet_config
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
+        SNAPSHOT_REDIS_TAG: 0.0.1
         CHAOS_TM_TAG: v0.30.1-a
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
