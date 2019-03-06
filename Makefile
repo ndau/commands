@@ -138,6 +138,7 @@ examples: $(CHASM)
 	$(CHASM) --output $(EXAMPLES)/first.chbin --comment "the first key must be set" $(EXAMPLES)/first.chasm
 	$(CHASM) --output $(EXAMPLES)/one.chbin --comment "unconditionally return numeric 1" $(EXAMPLES)/one.chasm
 	$(CHASM) --output $(EXAMPLES)/zero.chbin --comment "returns numeric 0 in all cases" $(EXAMPLES)/zero.chasm
+	$(CHASM) --output $(EXAMPLES)/two_percent.chbin --comment "returns numeric 2000000 in all cases" $(EXAMPLES)/two_percent.chasm
 	$(CHASM) --output $(EXAMPLES)/rfe.chbin --comment "standard RFE rules" $(EXAMPLES)/rfe.chasm
 
 scriptclean:
@@ -165,6 +166,7 @@ format: $(CHFMT)
 	$(CHFMT) -O $(EXAMPLES)/first.chasm
 	$(CHFMT) -O $(EXAMPLES)/one.chasm
 	$(CHFMT) -O $(EXAMPLES)/zero.chasm
+	$(CHFMT) -O $(EXAMPLES)/two_percent.chasm
 	$(CHFMT) -O $(EXAMPLES)/rfe.chasm
 
 cmd/chfmt/chfmt.go: cmd/chfmt/chfmt.peggo
