@@ -201,9 +201,9 @@ general_config: &general_config
         # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
         ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
-        S3_DEPLOY_ARCHIVE: fetnet.tgz
-        HONEYCOMB_DATASET: "fetnet"
-        NETWORK_NAME: "fetnet" # used for snapshots
+        S3_DEPLOY_ARCHIVE: devnet.tgz
+        HONEYCOMB_DATASET: "devnet"
+        NETWORK_NAME: "devnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
         CHAOS_TM_TAG: v0.30.1-a
         CHAOS_NOMS_TAG: 0.0.2
@@ -299,6 +299,7 @@ jobs:
             # Redeploy devnet
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation -b josh/114-snapshot-redis
+            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # get bash environments manually
             source $BASH_ENV
@@ -320,14 +321,14 @@ jobs:
             # TODO add some smarter resource detection
             while true; do
               if
-                [ "$(kubectl get pvc -l release=fetnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=fetnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=fetnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=fetnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=fetnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
+                [ "$(kubectl get pvc -l release=devnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
+                [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
                   break
               else
-                echo "waiting for fetnet to die"
+                echo "waiting for devnet to die"
                 sleep 1
               fi
             done
@@ -355,6 +356,7 @@ jobs:
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation -b josh/114-snapshot-redis
+            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
@@ -412,6 +414,7 @@ jobs:
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
             mkdir -p /root/nodegroups
@@ -463,9 +466,9 @@ jobs:
             # Run integration tests
             # get address and port of devnet0 RPC
             NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
-            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' fetnet-0-nodegroup-ndau-tendermint-service)
+            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
             # get address and port of devnet1 RPC
-            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' fetnet-1-nodegroup-ndau-tendermint-service)
+            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
 
             URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
             URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
@@ -517,11 +520,19 @@ jobs:
 
             # clone integration tests and ndev dep repos
             git clone git@github.com:oneiro-ndev/integration-tests.git
+            ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
+
             git clone git@github.com:oneiro-ndev/chaos.git
+            ( cd chaos && echo "chaos repo at $(git rev-parse --short HEAD)" )
+
             git clone git@github.com:oneiro-ndev/commands.git
+            ( cd commands && echo "commands repo at $(git rev-parse --short HEAD)" )
+
             git clone git@github.com:oneiro-ndev/ndau.git
+            ( cd ndau && echo "ndau repo at $(git rev-parse --short HEAD)" )
+
             cd integration-tests
 
             # run tests
             pipenv sync
-            pipenv run pytest -v --net=fetnet
+            pipenv run pytest -v --net=devnet
