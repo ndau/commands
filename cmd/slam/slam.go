@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-
 	arg "github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
@@ -130,10 +128,6 @@ func (r *RequestManager) Get(path string, result interface{}) error {
 // then JSON-decodes the response into interface,
 // which must be a pointer.
 func (r *RequestManager) Post(path string, payload interface{}, result interface{}) error {
-	txHash := ""
-	if mtx, ok := payload.(metatx.Transactable); ok {
-		txHash = metatx.Hash(mtx)
-	}
 	body := new(bytes.Buffer)
 	json.NewEncoder(body).Encode(payload)
 	resp, err := r.client.Post(r.baseurl+path, "application/json", body)
@@ -143,7 +137,7 @@ func (r *RequestManager) Post(path string, payload interface{}, result interface
 	defer resp.Body.Close()
 	if resp.StatusCode > 299 || resp.StatusCode < 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("%s: %s (%s) (tx hash: %s)", path, resp.Status, string(body), txHash)
+		return fmt.Errorf("%s: %s (%s)", path, resp.Status, string(body))
 	}
 	if result != nil {
 		err = json.NewDecoder(resp.Body).Decode(result)

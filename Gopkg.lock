@@ -525,7 +525,7 @@
 
 [[projects]]
   branch = "prgn-insufficient-balance-log-account"
-  digest = "1:a8ec0020d97332ddfd3dcc673f27df099b11b672ba735f7026d7e2856937b297"
+  digest = "1:9c34b07e0a28d0e3538c771c67f1902c5b737ea6be5882c6c1d4746a71259835"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -545,7 +545,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "48f2c15518e4990d7d4b142dc706c0e572b72684"
+  revision = "68b42ecde044e38da71a60345088110cb4fd3a8d"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
