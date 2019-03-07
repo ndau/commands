@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+
 	arg "github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
@@ -128,6 +130,10 @@ func (r *RequestManager) Get(path string, result interface{}) error {
 // then JSON-decodes the response into interface,
 // which must be a pointer.
 func (r *RequestManager) Post(path string, payload interface{}, result interface{}) error {
+	txHash := ""
+	if mtx, ok := payload.(metatx.Transactable); ok {
+		txHash = metatx.Hash(mtx)
+	}
 	body := new(bytes.Buffer)
 	json.NewEncoder(body).Encode(payload)
 	resp, err := r.client.Post(r.baseurl+path, "application/json", body)
@@ -137,8 +143,7 @@ func (r *RequestManager) Post(path string, payload interface{}, result interface
 	defer resp.Body.Close()
 	if resp.StatusCode > 299 || resp.StatusCode < 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
-		log.Print(string(body))
-		return fmt.Errorf("Got bad status '%s' from %s", resp.Status, path)
+		return fmt.Errorf("%s: %s (%s) (tx hash: %s)", path, resp.Status, string(body), txHash)
 	}
 	if result != nil {
 		err = json.NewDecoder(resp.Body).Decode(result)
@@ -273,6 +278,11 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting *Account) ([
 		if err != nil {
 			return nil, err
 		}
+		err = r.UpdateAccount(acct)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("acct %s: seq %d, balance %s", acct.Addr, acct.Sequence, acct.Balance)
 		accts = append(accts, acct)
 	}
 	return accts, nil
@@ -296,30 +306,40 @@ func (r *RequestManager) GenerateChildAccounts(naccts int, starting *Account) ([
 // - the transfer adjusts both balances, but uses appropriate locks
 //
 // Therefore, there can be no race conditions related to writes in children.
-func (r *RequestManager) makeTransfers(children []*Account, idx int, args args, wg *sync.WaitGroup, done <-chan struct{}) {
-	fmt.Printf("makeTransfers(idx=%d)->balance: %d, max tfer: %d\n", idx, children[idx].GetBalance(), args.Max)
+func (r *RequestManager) makeTransfers(
+	children []*Account,
+	idx int,
+	args args,
+	wg *sync.WaitGroup,
+	done *bool,
+) {
+	fmt.Printf(
+		"makeTransfers(idx=%d)->balance: %d, max tfer: %d\n",
+		idx,
+		children[idx].GetBalance(),
+		args.Max,
+	)
 	defer fmt.Printf("makeTransfers(idx=%d)->done\n", idx)
 	defer wg.Done()
 
 	for children[idx].GetBalance() > types.Ndau(args.Max) {
-		fmt.Printf("makeTransfers(idx=%d)->checking if done\n", idx)
-		if _, ok := (<-done); !ok {
-			fmt.Printf("makeTransfers(idx=%d)->done channel closed, exiting\n", idx)
+		if *done {
 			// done is closed, which means we must be finished
 			return
 		}
-		fmt.Printf("makeTransfers(idx=%d)->not done; continuing\n", idx)
 		// pick a beneficiary who is not ourselves
 		beneficiary := idx
 		for beneficiary == idx {
 			beneficiary = rand.Intn(len(children))
 		}
-		fmt.Printf("makeTransfers(idx=%d)->picked beneficiary: %d\n", idx, beneficiary)
 
 		qty := types.Ndau(args.Min + rand.Int63n(args.Max-args.Min))
-		fmt.Printf("makeTransfers(idx=%d)->picked qty: %d (between [%d, %d))\n", idx, qty, args.Min, args.Max)
 
-		r.Transfer(children[idx], children[beneficiary], qty)
+		err := r.Transfer(children[idx], children[beneficiary], qty)
+		if err != nil {
+			log.Printf("makeTransfers(idx=%d)->transfer err; exiting: %s", idx, err.Error())
+			return
+		}
 	}
 }
 
@@ -412,12 +432,12 @@ func main() {
 	wg := sync.WaitGroup{}
 	wg.Add(len(children))
 	// have the children quit if main exits
-	done := make(chan struct{})
-	defer close(done)
+	done := false
+	defer func() { done = true }()
 	// launch child goroutines
 	for idx := range children {
 		fmt.Printf("launching %s... (idx %d)\n", children[idx], idx)
-		go rm.makeTransfers(children, idx, a, &wg, done)
+		go rm.makeTransfers(children, idx, a, &wg, &done)
 	}
 	wg.Wait()
 }

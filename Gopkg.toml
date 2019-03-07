@@ -25,7 +25,7 @@ version = "~v1.2"
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
 # version = "~v1.3"
-branch = "prgn-api-propagate-errors"
+branch = "prgn-insufficient-balance-log-account"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"

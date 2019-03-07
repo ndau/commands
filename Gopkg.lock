@@ -524,8 +524,8 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-api-propagate-errors"
-  digest = "1:a3848dda99917dfd64902621c986ee5ab151ae8708b795c997b730a0188291a3"
+  branch = "prgn-insufficient-balance-log-account"
+  digest = "1:a8ec0020d97332ddfd3dcc673f27df099b11b672ba735f7026d7e2856937b297"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -545,7 +545,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "92f0fc81724cd73cb74d9d33313d3ebf7b8f8b7d"
+  revision = "48f2c15518e4990d7d4b142dc706c0e572b72684"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
