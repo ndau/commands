@@ -339,6 +339,8 @@ jobs:
             NDAUNODE_TAG=$SHA \
             HELM_CHART_PATH=/root/automation/helm/nodegroup \
               /root/nodegroups/up.sh
+      - notify:
+          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
 
 
   deploy-testnet:
@@ -390,6 +392,8 @@ jobs:
             NDAUNODE_TAG=$SHA \
             HELM_CHART_PATH=/root/automation/helm/nodegroup \
               /root/nodegroups/up.sh
+      - notify:
+          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
 
   deploy-mainnet:
     <<: *mainnet_config
