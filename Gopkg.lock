@@ -524,7 +524,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:a0fd8d5e5009ecb69ec0418113e042a0bda041d1ad62053c4e440ebbd3d762e6"
+  branch = "eas-ndau-253"
+  digest = "1:f2de3e2ab7dd383f5ee06e8493027340ce9ed40b5502c3d4f937b936b2bbaaef"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,8 +545,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "2657e31e253446b450f90e221d9f31fb66f1d6e3"
-  version = "v1.3.3"
+  revision = "44ea972dbc8c3a6a74b0e2fca09b6d8e7281375d"
 
 [[projects]]
   digest = "1:4c0383d85f646fa3b4ef8a66868e6b76204bd945620f25d65176a16f74d5f030"
@@ -591,15 +591,15 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:73340d3506411f843968aee1d890a7abe6b18669c6fe91943d70f5b574e62ba8"
+  branch = "eas-ndau-253"
+  digest = "1:02bf2f0b895ef53f26eec310e2f8b27a17c416b280ff63538aa39f5aede16bab"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/svi",
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "3857af6c069bcc981af11ead1858734634c9e343"
-  version = "v0.2.0"
+  revision = "d2bda8df4c437119a30aa88dc9e7a5ec06164a99"
 
 [[projects]]
   branch = "master"

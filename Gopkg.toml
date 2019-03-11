@@ -24,7 +24,8 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.3"
+branch = "eas-ndau-253"
+#version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -36,7 +37,8 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-version = "~v0.2"
+branch = "eas-ndau-253"
+#version = "~v0.2"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
