@@ -7,22 +7,34 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
-		cmd.Spec = "NAME CHILD_NAME [--hd]"
+		cmd.Spec = "NAME CHILD_NAME [-p=<CHILD_SETTLEMENT_PERIOD>] [--hd]"
 
 		var (
 			parentName = cmd.StringArg("NAME", "", "Name of parent account")
 			childName  = cmd.StringArg("CHILD_NAME", "", "Name of child account to claim")
-			hd         = cmd.BoolOpt("hd", false, "when set, generate a HD key for this child account")
+			period     = cmd.StringOpt("p period", "", "Initial settlement period for the child account (ndaumath types.ParseDuration format)")
+			hd         = cmd.BoolOpt("hd", false, "Generate an HD key for the child account")
 		)
 
 		cmd.Action = func() {
 			conf := getConfig()
+
+			// Validate the child settlement period.
+			var childSettlementPeriod math.Duration
+			if period == nil || *period == "" {
+				childSettlementPeriod = -math.Duration(1) // Use the default settlement period.
+			} else {
+				dur, err := math.ParseDuration(*period)
+				orQuit(errors.Wrap(err, "Invalid child settlement period"))
+				childSettlementPeriod = dur
+			}
 
 			// Ensure the parent account exists in the config already.
 			parentAcct, hasAcct := conf.Accounts[*parentName]
@@ -64,6 +76,7 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 				childAcct.Address,
 				childAcct.Ownership.Public,
 				childAcct.Ownership.Private.Sign([]byte(childAcct.Address.String())),
+				childSettlementPeriod,
 				[]signature.PublicKey{newChildKeys.Public},
 				childAcct.ValidationScript,
 				sequence(conf, parentAcct.Address),
