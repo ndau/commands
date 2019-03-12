@@ -524,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:f0bda39d8f30f9574a72d0f34ecf68601d2b7ed6baedee53f55718aadb30ea1a"
+  digest = "1:c070d3cd0a2917ea98dd72ff6e470a5f6c44c222d8edfd671687cd2edf57c6a7"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,11 +544,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "5490bd6b7d5a08fe8290b8e4b5d37b3d03cc14fe"
-  version = "v1.3.5"
+  revision = "351b77e8d2a675034fcf9aeaeae1e3e786fb4937"
+  version = "v1.3.6"
 
 [[projects]]
-  digest = "1:191396713e29773144c8659331cb8138a6d30d77fdd6ed4468b29dcdb3bb5a24"
+  digest = "1:bed12f5160b9026d9b121fd2c1ed0eafc9838c035001f4ea217195dc4903b572"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -571,8 +571,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "52727bde22175ec9226235023d25e0db660e8202"
-  version = "v1.0.2"
+  revision = "50099dbf1070c739fc07d9a1a4e2e79426b60928"
+  version = "v1.0.3"
 
 [[projects]]
   branch = "master"
@@ -591,15 +591,15 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:73340d3506411f843968aee1d890a7abe6b18669c6fe91943d70f5b574e62ba8"
+  digest = "1:a0a39d2b66bddabdca0dfc467651a5a7bffed2f06bc04d454bb5e5a9045157ed"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/svi",
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "3857af6c069bcc981af11ead1858734634c9e343"
-  version = "v0.2.0"
+  revision = "a801c0c908911bfc81c02006cef4d0302595a17a"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"

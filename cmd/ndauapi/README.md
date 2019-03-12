@@ -185,7 +185,9 @@ _**Writes:**_
             "changesAt": null,
             "next": null
           },
-          "currencySeatDate": null
+          "currencySeatDate": null,
+          "parent": null,
+          "progenitor": null
         }
 ```
 
@@ -248,7 +250,9 @@ _**Writes:**_
               "changesAt": null,
               "next": null
             },
-            "currencySeatDate": null
+            "currencySeatDate": null,
+            "parent": null,
+            "progenitor": null
           }
         }
 ```
@@ -1774,7 +1778,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
 
 
 _**Parameters:**_

@@ -18,11 +18,12 @@ func init() {
 		txnames[strings.ToLower(metatx.NameOf(example))] = example
 	}
 	// add common abbreviations
-	txnames["rfe"] = ndau.TxIDs[3]        // releasefromendowment
-	txnames["claim"] = ndau.TxIDs[10]     // claimaccount
-	txnames["nnr"] = ndau.TxIDs[13]       // nominatenodereward
-	txnames["cvc"] = ndau.TxIDs[16]       // commandvalidatorchange
-	txnames["sidechain"] = ndau.TxIDs[17] // sidechaintx
+	txnames["rfe"] = ndau.TxIDs[3]          // releasefromendowment
+	txnames["claim"] = ndau.TxIDs[10]       // claimaccount
+	txnames["claim-child"] = ndau.TxIDs[21] // claimchildaccount
+	txnames["nnr"] = ndau.TxIDs[13]         // nominatenodereward
+	txnames["cvc"] = ndau.TxIDs[16]         // commandvalidatorchange
+	txnames["sidechain"] = ndau.TxIDs[17]   // sidechaintx
 }
 
 func knownNames() []string {

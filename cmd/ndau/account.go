@@ -25,6 +25,12 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
+			"claim-child",
+			"claim this child account on the blockchain",
+			getAccountClaimChild(verbose, keys, emitJSON, compact),
+		)
+
+		cmd.Command(
 			"destroy",
 			"remove all local knowledge of this account",
 			getAccountDestroy(verbose),
