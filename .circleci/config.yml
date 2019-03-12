@@ -298,7 +298,7 @@ jobs:
           command: |
             # Redeploy devnet
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation -b josh/119-fix-restarts
             ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # get bash environments manually
@@ -357,7 +357,7 @@ jobs:
             echo SHA=$SHA
 
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation  -b josh/119-fix-restarts
             ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
@@ -417,7 +417,7 @@ jobs:
             echo -e "$kube_config_main" > /root/kubeconfig
 
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation  -b josh/119-fix-restarts
             ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
