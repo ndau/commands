@@ -524,7 +524,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "eas-ndau-253"
   digest = "1:c070d3cd0a2917ea98dd72ff6e470a5f6c44c222d8edfd671687cd2edf57c6a7"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -545,7 +544,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "05eaa4c8f7b8470762fc756bc6b2fc9d7a69988a"
+  revision = "351b77e8d2a675034fcf9aeaeae1e3e786fb4937"
+  version = "v1.3.6"
 
 [[projects]]
   digest = "1:bed12f5160b9026d9b121fd2c1ed0eafc9838c035001f4ea217195dc4903b572"
@@ -591,7 +591,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  branch = "eas-ndau-253"
   digest = "1:a0a39d2b66bddabdca0dfc467651a5a7bffed2f06bc04d454bb5e5a9045157ed"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -599,7 +598,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "63d1a3bbda314d355a9710846be25f650cd09b2b"
+  revision = "a801c0c908911bfc81c02006cef4d0302595a17a"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
