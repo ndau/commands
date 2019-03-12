@@ -592,14 +592,14 @@
 
 [[projects]]
   branch = "eas-ndau-253"
-  digest = "1:02bf2f0b895ef53f26eec310e2f8b27a17c416b280ff63538aa39f5aede16bab"
+  digest = "1:a0a39d2b66bddabdca0dfc467651a5a7bffed2f06bc04d454bb5e5a9045157ed"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/svi",
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "d2bda8df4c437119a30aa88dc9e7a5ec06164a99"
+  revision = "63d1a3bbda314d355a9710846be25f650cd09b2b"
 
 [[projects]]
   branch = "master"
