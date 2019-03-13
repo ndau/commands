@@ -9,6 +9,8 @@ import (
 
 func TestToBytes(t *testing.T) {
 	bcheck(t, vm.ToBytes(1), "0100000000000000")
+	bcheck(t, vm.ToBytes(255), "FF00000000000000")
+	bcheck(t, vm.ToBytes(1000000000000), "0010A5D4E8000000")
 	bcheck(t, vm.ToBytes(-1), "FFFFFFFFFFFFFFFF")
 	bcheck(t, vm.ToBytes(0x1122334455667788), "8877665544332211")
 }
@@ -47,11 +49,13 @@ func TestPushLobyte(t *testing.T) {
 	bcheck(t, b, "2111")
 }
 
-func TestPushHibyte(t *testing.T) {
+func TestPushHibyteZero(t *testing.T) {
+	// a value in the range from 128 to 255 should express as a push2 rather than
+	// a push1, because we don't want it to be sign-extended.
 	op, err := newPushOpcode("192")
 	assert.Nil(t, err)
 	b := op.bytes()
-	bcheck(t, b, "21C0")
+	bcheck(t, b, "22C000")
 }
 
 func TestPushNeg2(t *testing.T) {
@@ -62,10 +66,12 @@ func TestPushNeg2(t *testing.T) {
 }
 
 func TestPushNeg200(t *testing.T) {
+	// a value in the range from -128 to -255 should also express as a push2 with an FF
+	// for sign extension
 	op, err := newPushOpcode("-207")
 	assert.Nil(t, err)
 	b := op.bytes()
-	bcheck(t, b, "2131")
+	bcheck(t, b, "2231FF")
 }
 
 func TestPush2Bytes(t *testing.T) {
@@ -94,6 +100,16 @@ func TestPush5Bytes(t *testing.T) {
 	assert.Nil(t, err)
 	b := op.bytes()
 	bcheck(t, b, "250A78563412")
+}
+
+func TestPush6BytesHighBit(t *testing.T) {
+	// this tests that a value with the high bit set gets encoded with 1 extra byte
+	// this positive value is 5 non-zero bytes but needs to be a push6 opcode because
+	// the high bit is set
+	op, err := newPushOpcode("1000000000000")
+	assert.Nil(t, err)
+	b := op.bytes()
+	bcheck(t, b, "260010A5D4E800")
 }
 
 func TestPush6Bytes(t *testing.T) {

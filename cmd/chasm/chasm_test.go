@@ -47,7 +47,7 @@ func TestNumberFormats(t *testing.T) {
 			push 127
 		}
 `
-	checkParse(t, "NumberFormats", code, "800001 22cdab 22ff03 2255aa 211d 23abdcba 217f 88")
+	checkParse(t, "NumberFormats", code, "800001 23cdab00 22ff03 2355aa00 211d 24abdcba00 217f 88")
 }
 
 func TestPushB(t *testing.T) {
@@ -120,7 +120,7 @@ func TestConstants(t *testing.T) {
 			push K
 		}
 `
-	checkParse(t, "Constants", code, "800001 22FFFF 88")
+	checkParse(t, "Constants", code, "800001 23FFFF00 88")
 }
 
 func TestUnitaryOpcodes1(t *testing.T) {
