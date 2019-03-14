@@ -308,15 +308,15 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:a6939903479f3cd0bf5776852e3260b657c657d1d35ab5c2d63b8eb8c9f03616"
+  digest = "1:aa993aebfefc13f5778bbca3d6f9dcfb9fda86591c2aec7619cfe64e6c8e1e87"
   name = "github.com/honeycombio/libhoney-go"
   packages = [
     ".",
     "transmission",
   ]
   pruneopts = ""
-  revision = "11193dafefabffbbd6cb2cbb36e8553a0db1a01c"
-  version = "v1.9.3"
+  revision = "cb215381a8fd6f8cc78a23d5dc7c1bb3946732cb"
+  version = "v1.9.4"
 
 [[projects]]
   digest = "1:d557c549fb8422ece9f4878b4ea2b22f3fc36a46e195472f70bffc03a7b012c9"
@@ -524,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:c070d3cd0a2917ea98dd72ff6e470a5f6c44c222d8edfd671687cd2edf57c6a7"
+  digest = "1:31ea63f685122b06d96243f90381f82d7ec44a72ed921b522f6cfe75653c9fd3"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,11 +544,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "351b77e8d2a675034fcf9aeaeae1e3e786fb4937"
-  version = "v1.3.6"
+  revision = "e7a317370c8cbc58f143ab958fd9714761421c7e"
+  version = "v1.3.7"
 
 [[projects]]
-  digest = "1:bed12f5160b9026d9b121fd2c1ed0eafc9838c035001f4ea217195dc4903b572"
+  digest = "1:3bc3dd30d50be5f3d7c88735bec2c054cb0bcd61d5cfbf579a5f4b14a92b0677"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -571,8 +571,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "50099dbf1070c739fc07d9a1a4e2e79426b60928"
-  version = "v1.0.3"
+  revision = "9adbbbab73220c1c2b1da7676fbfa1f6cda9490a"
+  version = "v1.0.4"
 
 [[projects]]
   branch = "master"
