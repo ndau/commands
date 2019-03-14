@@ -347,6 +347,9 @@ jobs:
     <<: *testnet_config
     steps:
       - setup
+      - mark_honeycomb:
+          dataset: $HONEYCOMB_DATASET
+          msg: Start deploy for build $CIRCLE_BUILD_NUM
       - run:
           name: run the deploy script
           command: |
@@ -399,6 +402,9 @@ jobs:
     <<: *mainnet_config
     steps:
       - setup
+      - mark_honeycomb:
+          dataset: $HONEYCOMB_DATASET
+          msg: Start deploy for build $CIRCLE_BUILD_NUM
       - run:
           name: run the deploy script
           command: |

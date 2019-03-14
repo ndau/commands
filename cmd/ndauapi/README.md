@@ -72,7 +72,7 @@ Each of these, in turn, has several endpoints within it.
 
 * [AccountsFromList](#accountsfromlist)
 
-* [AccountEAIRate](#accounteairate)
+* [DEPRECATEDAccountEAIRate](#deprecatedaccounteairate)
 
 * [AccountHistory](#accounthistory)
 
@@ -130,6 +130,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [SystemAll](#systemall)
 
+* [AccountEAIRate](#accounteairate)
+
 * [SystemHistoryKey](#systemhistorykey)
 
 * [TransactionByHash](#transactionbyhash)
@@ -183,7 +185,9 @@ _**Writes:**_
             "changesAt": null,
             "next": null
           },
-          "currencySeatDate": null
+          "currencySeatDate": null,
+          "parent": null,
+          "progenitor": null
         }
 ```
 
@@ -246,7 +250,9 @@ _**Writes:**_
               "changesAt": null,
               "next": null
             },
-            "currencySeatDate": null
+            "currencySeatDate": null,
+            "parent": null,
+            "progenitor": null
           }
         }
 ```
@@ -254,25 +260,13 @@ _**Writes:**_
 
 
 ---
-## AccountEAIRate
+## DEPRECATEDAccountEAIRate
 
 ### `POST /account/eai/rate`
 
-_Returns eai rates for a collection of account information._
-
-Accepts an array of rate requests that includes an address
-field; this field may be any string (the account information is not
-checked). It returns an array of rate responses, which includes
-the address passed so that responses may be correctly correlated
-to the input.
+_This call is deprecated -- please use /system/eai/rate._
 
 
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- body | Body |  | []routes.EAIRateRequest
 
 
 
@@ -282,17 +276,7 @@ _**Consumes:**_ `[application/json]`
 
 _**Reads:**_
 ```json
-        [
-          {
-            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
-            "weightedAverageAge": "3m",
-            "lock": {
-              "noticePeriod": "6m",
-              "unlocksOn": null,
-              "bonus": 20000000000
-            }
-          }
-        ]
+        null
 ```
 
 
@@ -301,12 +285,7 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```json
-        [
-          {
-            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
-            "eairate": 6000000
-          }
-        ]
+        null
 ```
 
 
@@ -1620,6 +1599,72 @@ _**Writes:**_
 
 
 ---
+## AccountEAIRate
+
+### `POST /system/eai/rate`
+
+_Returns eai rates for a collection of account information._
+
+Accepts an array of rate requests that includes an address
+field; this field may be any string (the account information is not
+checked). It returns an array of rate responses, which includes
+the address passed so that responses may be correctly correlated
+to the input.
+
+It accepts a timestamp, which will be used to adjust WAA in the
+event the account is locked and has a non-nil "unlocksOn" value.
+If the timestamp field is omitted, the current time is used.
+
+EAIRate in the response is an integer equal to the fractional EAI
+rate times 10^12.
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ body | Body |  | []routes.EAIRateRequest
+
+
+
+
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        [
+          {
+            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+            "weightedAverageAge": "3m",
+            "lock": {
+              "noticePeriod": "6m",
+              "unlocksOn": null,
+              "bonus": 20000000000
+            },
+            "at": "2018-07-10T20:01:02Z"
+          }
+        ]
+```
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        [
+          {
+            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+            "eairate": 60000000000
+          }
+        ]
+```
+
+
+
+---
 ## SystemHistoryKey
 
 ### `GET /system/history/:key`
@@ -1733,7 +1778,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
 
 
 _**Parameters:**_
