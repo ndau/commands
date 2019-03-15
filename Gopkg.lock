@@ -486,12 +486,12 @@
   version = "v0.1.3"
 
 [[projects]]
-  branch = "eas-chaos-62"
-  digest = "1:0754820281a764539afc842bb4e7671be7df947ca19350b05fcac3b2798b162b"
+  digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
   name = "github.com/oneiro-ndev/json2msgp"
   packages = ["."]
   pruneopts = ""
-  revision = "cd0b680c4987cdd21294514181e3296871c1541b"
+  revision = "715e97525b6d5bfcaf83127e1de6680a6a030b6d"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:7baf65d8249fbce003c055415b57659864d729aba33ed84765edfa702502abd7"
