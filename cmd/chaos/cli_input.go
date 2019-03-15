@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -30,12 +31,13 @@ func inOpt(hyphens bool, name, option string) string {
 
 func getInputSpec(name string) string {
 	return fmt.Sprintf(
-		"[%s|%s|%s] (%s | %s=<PATH>)",
+		"[%s|%s|%s] (%s | %s=<PATH>) [%s=<JSON>]",
 		inOpt(true, name, "base64"),
 		inOpt(true, name, "json"),
 		inOpt(true, name, "hex"),
 		strings.ToUpper(name),
 		inOpt(true, name, "file"),
+		inOpt(true, name, "json-types"),
 	)
 }
 
@@ -46,6 +48,7 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 		hexIn     = cmd.BoolOpt(inOpt(false, name, "hex"), false, "if set, interpret input as hex-encoded")
 		input     = cmd.StringArg(strings.ToUpper(name), "", fmt.Sprintf("%s input", name))
 		inputFile = cmd.StringOpt(inOpt(false, name, "file"), "", "read input from this file instead of the CLI")
+		typesIn   = cmd.StringOpt(inOpt(false, name, "json-types"), "", "use these type hints with json2msgp")
 	)
 
 	return func() []byte {
@@ -98,7 +101,15 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 			}
 			inbuf := bytes.NewBuffer(data)
 			outbuf := &bytes.Buffer{}
-			err = json2msgp.ConvertStream(inbuf, outbuf)
+			typeHints := make(map[string][]string)
+			if typesIn != nil && len(*typesIn) > 0 {
+				if *verbose {
+					fmt.Println(name, "json type hints: ", *typesIn)
+				}
+				err = json.Unmarshal([]byte(*typesIn), &typeHints)
+				orQuit(err)
+			}
+			err = json2msgp.ConvertStream(inbuf, outbuf, typeHints)
 			orQuit(err)
 			out := outbuf.Bytes()
 			if *verbose {
