@@ -27,6 +27,9 @@ FROM alpine:3.8
 # Add the ca certs so that we can do outbound connections to https sites (honeycomb)
 RUN apk add --no-cache  ca-certificates
 
+# add these tools for kubernetes deployments
+RUN apk add --no-cache bash openssl curl perl
+
 # only copy the binary artifacts we produced earlier
 COPY --from=build /bin/chaosnode /bin/
 
