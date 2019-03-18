@@ -8,7 +8,8 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/chaos_genesis"
-version = "~v0.1"
+# version = "~v0.1"
+branch = "prgn-sib"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
@@ -24,11 +25,13 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.3"
+# version = "~v1.3"
+branch = "prgn-sib-incoming"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.0"
+# version = "~v1.0"
+branch = "prgn-deterministic-pricecurve"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
@@ -36,7 +39,8 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-version = "~v1.0"
+# version = "~v1.0"
+branch = "prgn-sib-chaincode"
 
 [[override]]
 name = "github.com/attic-labs/graphql"

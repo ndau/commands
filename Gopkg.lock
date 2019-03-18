@@ -462,15 +462,15 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:95a51bb8cadefabc0414e37a6fdf4b5140b8fb204e410017e038dd62431d5b3f"
+  branch = "prgn-sib"
+  digest = "1:365ebeec81ad3091b58c0062f4abe37ede1c1952b141935131851230d90e0b2d"
   name = "github.com/oneiro-ndev/chaos_genesis"
   packages = [
     "pkg/genesis",
     "pkg/genesis.generator",
   ]
   pruneopts = ""
-  revision = "32b0a4e290d98f06070f35acbd3792757f4fcfc2"
-  version = "v0.1.4"
+  revision = "51a993edd526e76d749b7bf1001dece538d1ce70"
 
 [[projects]]
   digest = "1:76a8a86819b9efcb178f1de2c81e60ce8b4e70115f93a25485f994b68c6d9a65"
@@ -524,7 +524,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:31ea63f685122b06d96243f90381f82d7ec44a72ed921b522f6cfe75653c9fd3"
+  branch = "prgn-sib-incoming"
+  digest = "1:cc029d95477f0691a764a75816fb6f29cd20a28259b0a5cd1d74f8cc2d47f3d6"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -540,15 +541,14 @@
     "pkg/query",
     "pkg/tool",
     "pkg/tool.config",
-    "pkg/txmobile/generator",
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "e7a317370c8cbc58f143ab958fd9714761421c7e"
-  version = "v1.3.7"
+  revision = "7ea09ff085c6cf135e769c660f2957b28d6cd608"
 
 [[projects]]
-  digest = "1:3bc3dd30d50be5f3d7c88735bec2c054cb0bcd61d5cfbf579a5f4b14a92b0677"
+  branch = "prgn-deterministic-pricecurve"
+  digest = "1:be78bdaca733a48ed0b585a1a874692ef4e42c5614c5dd46b50d38ee0e61dc08"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -558,7 +558,6 @@
     "pkg/constants",
     "pkg/eai",
     "pkg/key",
-    "pkg/keyaddr",
     "pkg/ndauerr",
     "pkg/pricecurve",
     "pkg/signature",
@@ -571,8 +570,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "9adbbbab73220c1c2b1da7676fbfa1f6cda9490a"
-  version = "v1.0.4"
+  revision = "6e7988844a760628c8386d0bff3b6dde926d5f02"
 
 [[projects]]
   branch = "master"
@@ -591,15 +589,15 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:a0a39d2b66bddabdca0dfc467651a5a7bffed2f06bc04d454bb5e5a9045157ed"
+  branch = "prgn-sib-chaincode"
+  digest = "1:ec567f743c115d3c35875416259c74b7ce3509081d9321d2af5824c36da54d0d"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/svi",
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "a801c0c908911bfc81c02006cef4d0302595a17a"
-  version = "v1.0.0"
+  revision = "56db78b4622a73f0444ba90fb6d9ec272a227c5a"
 
 [[projects]]
   branch = "master"
@@ -922,14 +920,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:83ed254aebb44a16d8d8caf5cd2a658a7618507fa7dcba05565c3183281b62d9"
-  name = "golang.org/x/tools"
-  packages = ["go/ast/astutil"]
-  pruneopts = ""
-  revision = "589c23e65e65055d47b9ad4a99723bc389136265"
-
-[[projects]]
-  branch = "master"
   digest = "1:bedc60c52eb064eca6d7ce3321602522c5f50b6635aa7bc93c5624f1e65f9eda"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
@@ -1021,7 +1011,6 @@
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
     "github.com/oneiro-ndev/ndau/pkg/tool",
     "github.com/oneiro-ndev/ndau/pkg/tool.config",
-    "github.com/oneiro-ndev/ndau/pkg/txmobile/generator",
     "github.com/oneiro-ndev/ndau/pkg/version",
     "github.com/oneiro-ndev/ndaumath/pkg/address",
     "github.com/oneiro-ndev/ndaumath/pkg/constants",
