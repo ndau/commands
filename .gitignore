@@ -23,6 +23,9 @@ DashData*
 **/machine_user_key
 **/gomu
 
+# docker
+docker/genesis.toml
+
 # osx chaff
 .DS_Store
 

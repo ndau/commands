@@ -10,5 +10,5 @@ docker image rm ndauimage 2>/dev/null
 echo done
 
 echo Building ndauimage...
-docker build "$SCRIPT_DIR"/image --tag=ndauimage
+docker build "$SCRIPT_DIR"/../image --tag=ndauimage
 echo done
