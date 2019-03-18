@@ -2,18 +2,27 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-GENESIS_FILE=$1
+GENESIS_TOML=$1
 
-if [ -z "$GENESIS_FILE" ]; then
+if [ -z "$GENESIS_TOML" ]; then
     echo Usage:
-    echo "  ./buildimage.sh PATH_TO_GENESIS_TOML"
+    echo "  ./buildimage.sh GENESIS_TOML"
     exit 1
 fi
 
-if [ ! -e "$GENESIS_FILE" ]; then
-    echo "Cannot find genesis.toml file $GENESIS_FILE"
+if [ ! -e "$GENESIS_TOML" ]; then
+    echo "Cannot find genesis.toml file $GENESIS_TOML"
     exit 1
 fi
+
+DOCKER_DIR="$SCRIPT_DIR/.."
+SSH_PRIVATE_KEY_FILE="$DOCKER_DIR"/machine_user_key
+if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
+    # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
+    echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private oneiro-ndev repositories"
+    exit 1
+fi
+SSH_PRIVATE_KEY=$(cat "$SSH_PRIVATE_KEY_FILE")
 
 # Remove the container if it exists.  We don't want it around since it's based of an old image.
 "$SCRIPT_DIR"/removecontainer.sh "$CONTAINER"
@@ -22,6 +31,17 @@ echo Removing ndauimage...
 docker image rm ndauimage 2>/dev/null
 echo done
 
+echo Preparing image directory...
+IMAGE_DIR="$DOCKER_DIR"/image
+COMMANDS_DIR="$DOCKER_DIR/.."
+PATCH_DIR="$COMMANDS_DIR"/deploy/tendermint
+git clean -fx "$IMAGE_DIR"
+cp "$PATCH_DIR"/*.patch "$IMAGE_DIR"
+
 echo Building ndauimage...
-docker build "$SCRIPT_DIR"/../image --tag=ndauimage
+docker build \
+       --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
+       --squash \
+       "$DOCKER_DIR"/image \
+       --tag=ndauimage
 echo done
