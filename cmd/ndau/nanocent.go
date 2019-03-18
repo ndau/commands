@@ -18,10 +18,11 @@ func init() {
 }
 
 func parseDollars(dollars string) (pricecurve.Nanocent, error) {
+	dollars = strings.TrimSpace(dollars)
 	// allow for separation by just eliminating spacing chars
 	// there isn't a great way to do this within the regex itself
-	dollars = strings.ReplaceAll(dollars, ",", "")
-	dollars = strings.ReplaceAll(dollars, "_", "")
+	dollars = strings.Replace(dollars, ",", "", -1)
+	dollars = strings.Replace(dollars, "_", "", -1)
 
 	// perform regex matching
 	match := dollarsRE.FindStringSubmatch(dollars)
