@@ -2,9 +2,16 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-# Stop the container if it's running.  We can't remove it until it's stopped.
-"$SCRIPT_DIR"/stopcontainer.sh
+CONTAINER=$1
 
-echo Removing ndaucontainer...
-docker container rm ndaucontainer 2>/dev/null
+if [ -z "$CONTAINER" ]; then
+    CONTAINER=ndaucontainer
+    echo "No container specified; using default: $CONTAINER"
+fi
+
+# Stop the container if it's running.  We can't remove it until it's stopped.
+"$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
+
+echo "Removing $CONTAINER..."
+docker container rm "$CONTAINER" 2>/dev/null
 echo done
