@@ -2,7 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-GENESIS_TOML_FILE=$1
+GENESIS_TOML_FILE="$1"
 
 if [ -z "$GENESIS_TOML_FILE" ]; then
     echo Usage:

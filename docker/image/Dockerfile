@@ -36,12 +36,12 @@ COPY ./docker-env.sh /image
 COPY ./docker-run.sh /image
 
 # Install extra tools.
-RUN apk add --no-cache bash redis=4.0.11-r0
+RUN apk add --no-cache bash redis=4.0.11-r0 sed
 
 # We only need to expose Tendermint's ports.
 # The outside world will communicate with the container through the RPC ports.
 # Tendermint itself will communicate with other containers through the P2P ports.
 # All other processes in the container will communicate with each other through internal ports.
-EXPOSE 26660-26661 26670-26671
+EXPOSE 26660 26661 26670 26671
 
 CMD ["/bin/bash", "/image/docker-run.sh"]

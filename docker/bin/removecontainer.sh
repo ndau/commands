@@ -2,10 +2,10 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-CONTAINER=$1
+CONTAINER="$1"
 
 if [ -z "$CONTAINER" ]; then
-    CONTAINER=ndaucontainer
+    CONTAINER=demonet-0
     echo "No container specified; using default: $CONTAINER"
 fi
 

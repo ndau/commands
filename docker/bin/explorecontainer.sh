@@ -7,6 +7,5 @@ if [ -z "$CONTAINER" ]; then
     echo "No container specified; using default: $CONTAINER"
 fi
 
-echo Stopping "$CONTAINER"...
-docker container stop "$CONTAINER" 2>/dev/null
-echo done
+# This starts a shell inside the ndau image.
+docker exec -it "$CONTAINER" /bin/sh
