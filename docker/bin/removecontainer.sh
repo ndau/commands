@@ -3,10 +3,10 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 CONTAINER="$1"
-
 if [ -z "$CONTAINER" ]; then
-    CONTAINER=demonet-0
-    echo "No container specified; using default: $CONTAINER"
+    echo "Usage:"
+    echo "  ./removecontainer.sh CONTAINER"
+    exit 1
 fi
 
 # Stop the container if it's running.  We can't remove it until it's stopped.

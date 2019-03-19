@@ -73,4 +73,4 @@ go build ./cmd/ndauapi
 mv ndaunode "$BIN_DIR"
 mv ndauapi "$BIN_DIR"
 
-echo Setup step complete
+echo Setup complete

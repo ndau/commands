@@ -3,20 +3,23 @@ source "$SCRIPT_DIR"/docker-env.sh
 
 GENESIS_TOML="$SCRIPT_DIR/genesis.toml"
 
-mkdir -p "$NODE_DATA_DIR"
+mkdir "$DATA_DIR"
+mkdir "$NODE_DATA_DIR"
+mkdir "$REDIS_CHAOS_DATA_DIR"
+mkdir "$REDIS_NDAU_DATA_DIR"
 
 cd "$BIN_DIR" || exit 1
 
 echo Configuring tendermint...
-./tendermint init --home "$TENDERMINT_CHAOS_DATA_DIR"
-./tendermint init --home "$TENDERMINT_NDAU_DATA_DIR"
+./tendermint init --home "$TM_CHAOS_DATA_DIR"
+./tendermint init --home "$TM_NDAU_DATA_DIR"
 sed -i -E \
     -e 's/^(create_empty_blocks = .*)/# \1/' \
     -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
     -e 's/^(addr_book_strict =) (.*)/\1 false/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
-    "$TENDERMINT_CHAOS_DATA_DIR/config/config.toml" \
-    "$TENDERMINT_NDAU_DATA_DIR/config/config.toml"
+    "$TM_CHAOS_DATA_DIR/config/config.toml" \
+    "$TM_NDAU_DATA_DIR/config/config.toml"
 
 echo Configuring intra-nodegroup port references for chaosnode and ndaunode...
 ./chaosnode --set-ndaunode "http://localhost:$TM_NDAU_RPC_PORT"
@@ -35,4 +38,4 @@ sed -i \
     -e "/UseMock/d" \
     "$NODE_DATA_DIR/ndau/config.toml"
 
-echo Configuration step complete
+echo Configuration complete

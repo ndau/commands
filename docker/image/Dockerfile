@@ -42,6 +42,6 @@ RUN apk add --no-cache bash redis=4.0.11-r0 sed
 # The outside world will communicate with the container through the RPC ports.
 # Tendermint itself will communicate with other containers through the P2P ports.
 # All other processes in the container will communicate with each other through internal ports.
-EXPOSE 26660 26661 26670 26671
+EXPOSE 26660 26661 26670 26671 3030
 
 CMD ["/bin/bash", "/image/docker-run.sh"]

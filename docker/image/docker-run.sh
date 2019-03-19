@@ -7,8 +7,6 @@ NOMS_CHAOS_PORT=8000
 NOMS_NDAU_PORT=8001
 REDIS_CHAOS_PORT=6379
 REDIS_NDAU_PORT=6380
-REDIS_CHAOS_DATA_DIR="$DATA_DIR"/redis-chaos
-REDIS_NDAU_DATA_DIR="$DATA_DIR"/redis-ndau
 
 # This is needed because in the long term, noms eats more than 256 file descriptors
 ulimit -n 1024
@@ -27,67 +25,98 @@ wait_port() {
     done
 }
 
-chaos_redis() {
-    echo Running chaos redis...
+run_redis() {
+    chain="$1"
+    port="$2"
+    data_dir="$3"
+    echo "Running $chain redis..."
 
-    mkdir -p "$REDIS_CHAOS_DATA_DIR"
-    redis-server --dir "$REDIS_CHAOS_DATA_DIR" \
-                 --port "$REDIS_CHAOS_PORT" \
+    redis-server --dir "$data_dir" \
+                 --port "$port" \
                  --save 60 1 \
-                 >"$LOG_DIR/chaos_redis.log" 2>&1 &
-    wait_port "$REDIS_CHAOS_PORT"
+                 >"$LOG_DIR/${chain}_redis.log" 2>&1 &
+    wait_port "$port"
 
     # Redis isn't really ready when it's port is open, wait for a ping to work.
-    until [[ $(redis-cli -p "$REDIS_CHAOS_PORT" ping) == "PONG" ]]
+    until [[ $(redis-cli -p "$port" ping) == "PONG" ]]
     do
         :
     done
 }
 
-chaos_noms() {
-    echo Running chaos noms...
+run_noms() {
+    chain="$1"
+    port="$2"
+    data_dir="$3"
+    echo "Running $chain noms..."
 
-    ./noms serve --port="$NOMS_CHAOS_PORT" "$NOMS_CHAOS_DATA_DIR" \
-           >"$LOG_DIR/chaos_noms.log" 2>&1 &
-    wait_port "$NOMS_CHAOS_PORT"
+    ./noms serve --port="$port" "$data_dir" \
+           >"$LOG_DIR/${chain}_noms.log" 2>&1 &
+    wait_port "$port"
 }
 
-chaos_node() {
-    echo Running chaos node...
+run_node() {
+    chain="$1"
+    port="$2"
+    redis_port="$3"
+    noms_port="$4"
+    tm_data_dir="$5"
+    echo "Running $chain node..."
 
-    echo "  getting chaosnode app hash"
-    chaos_hash=$(./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" -echo-hash 2>/dev/null)
-    # Set the app hash if it's not already set.
+    chainnode="${chain}node"
+    echo "  getting $chainnode app hash"
+    app_hash=$(./"$chainnode" -spec http://localhost:"$noms_port" -echo-hash 2>/dev/null)
+    # Set the genesis app hash on first run.  This is a no-op if it's already set.
     sed -i -E \
-        -e 's/"app_hash": ""/"app_hash": "'$chaos_hash'"/' \
-        "$TENDERMINT_CHAOS_DATA_DIR/config/genesis.json"
+        -e 's/"app_hash": ""/"app_hash": "'$app_hash'"/' \
+        "$tm_data_dir/config/genesis.json"
 
-    echo "  launching chaosnode"
-    ./chaosnode -spec http://localhost:"$NOMS_CHAOS_PORT" \
-                -index localhost:"$REDIS_CHAOS_PORT" \
-                -addr 0.0.0.0:"$NODE_CHAOS_PORT" \
-                >"$LOG_DIR/chaos_node.log" 2>&1 &
-    wait_port "$NODE_CHAOS_PORT"
+    echo "  launching $chainnode"
+    ./"$chainnode" -spec http://localhost:"$noms_port" \
+                   -index localhost:"$redis_port" \
+                   -addr 0.0.0.0:"$port" \
+                   >"$LOG_DIR/${chain}_node.log" 2>&1 &
+    wait_port "$port"
 }
 
-chaos_tm() {
-    echo Running chaos tendermint...
+run_tm() {
+    chain="$1"
+    p2p_port="$2"
+    rpc_port="$3"
+    node_port="$4"
+    data_dir="$5"
+    echo "Running $chain tendermint..."
 
-    CHAIN=chaos \
-    ./tendermint node --home "$TENDERMINT_CHAOS_DATA_DIR" \
-                      --proxy_app tcp://localhost:"$NODE_CHAOS_PORT" \
-                      --p2p.laddr tcp://0.0.0.0:"$TM_CHAOS_P2P_PORT" \
-                      --rpc.laddr tcp://0.0.0.0:"$TM_CHAOS_RPC_PORT" \
+    CHAIN="$chain" \
+    ./tendermint node --home "$data_dir" \
+                      --proxy_app tcp://localhost:"$node_port" \
+                      --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
+                      --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
                       --log_level="*:debug" \
-                      >"$LOG_DIR/chaos_tm.log" 2>&1 &
-    wait_port "$TM_CHAOS_RPC_PORT"
-    wait_port "$TM_CHAOS_P2P_PORT"
+                      >"$LOG_DIR/${chain}_tm.log" 2>&1 &
+    wait_port "$p2p_port"
+    wait_port "$rpc_port"
 }
 
-chaos_redis
-chaos_noms
-chaos_node
-chaos_tm
+run_ndauapi() {
+    echo Running ndauapi...
+
+    NDAUAPI_CHAOS_RPC_URL=http://localhost:"$TM_CHAOS_RPC_PORT" \
+    NDAUAPI_NDAU_RPC_URL=http://localhost:"$TM_NDAU_RPC_PORT" \
+    ./ndauapi >"$LOG_DIR/ndauapi.log" 2>&1 &
+}
+
+run_redis chaos "$REDIS_CHAOS_PORT" "$REDIS_CHAOS_DATA_DIR"
+run_noms chaos "$NOMS_CHAOS_PORT" "$NOMS_CHAOS_DATA_DIR"
+run_node chaos "$NODE_CHAOS_PORT" "$REDIS_CHAOS_PORT" "$NOMS_CHAOS_PORT" "$TM_CHAOS_DATA_DIR"
+run_tm chaos "$TM_CHAOS_P2P_PORT" "$TM_CHAOS_RPC_PORT" "$NODE_CHAOS_PORT" "$TM_CHAOS_DATA_DIR"
+
+run_redis ndau "$REDIS_NDAU_PORT" "$REDIS_NDAU_DATA_DIR"
+run_noms ndau "$NOMS_NDAU_PORT" "$NOMS_NDAU_DATA_DIR"
+run_node ndau "$NODE_NDAU_PORT" "$REDIS_NDAU_PORT" "$NOMS_NDAU_PORT" "$TM_NDAU_DATA_DIR"
+run_tm ndau "$TM_NDAU_P2P_PORT" "$TM_NDAU_RPC_PORT" "$NODE_NDAU_PORT" "$TM_NDAU_DATA_DIR"
+
+run_ndauapi
 
 echo "$NODE_ID" is now running
 

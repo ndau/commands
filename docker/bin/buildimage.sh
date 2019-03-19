@@ -24,8 +24,11 @@ if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
 fi
 SSH_PRIVATE_KEY=$(cat "$SSH_PRIVATE_KEY_FILE")
 
-# Remove the container if it exists.  We don't want it around since it's based of an old image.
-"$SCRIPT_DIR"/removecontainer.sh "$CONTAINER"
+if [ ! -z "$(docker container ls -a -q -f ancestor=ndauimage)" ]; then
+    echo "-------"
+    echo "WARNING: containers exist based on an old ndauimage; they should be removed"
+    echo "-------"
+fi
 
 echo Removing ndauimage...
 docker image rm ndauimage 2>/dev/null
