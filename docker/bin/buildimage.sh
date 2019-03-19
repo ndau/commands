@@ -2,18 +2,18 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-GENESIS_TOML=$1
+GENESIS_TOML_FILE=$1
 
-if [ -z "$GENESIS_TOML" ]; then
+if [ -z "$GENESIS_TOML_FILE" ]; then
     echo Usage:
-    echo "  ./buildimage.sh GENESIS_TOML"
+    echo "  ./buildimage.sh GENESIS_TOML_FILE"
     exit 1
 fi
-
-if [ ! -e "$GENESIS_TOML" ]; then
-    echo "Cannot find genesis.toml file $GENESIS_TOML"
+if [ ! -e "$GENESIS_TOML_FILE" ]; then
+    echo "Cannot find genesis toml file $GENESIS_TOML_FILE"
     exit 1
 fi
+GENESIS_TOML=$(cat "$GENESIS_TOML_FILE")
 
 DOCKER_DIR="$SCRIPT_DIR/.."
 SSH_PRIVATE_KEY_FILE="$DOCKER_DIR"/machine_user_key
@@ -40,6 +40,7 @@ cp "$PATCH_DIR"/*.patch "$IMAGE_DIR"
 
 echo Building ndauimage...
 docker build \
+       --build-arg GENESIS_TOML="$GENESIS_TOML" \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --squash \
        "$DOCKER_DIR"/image \

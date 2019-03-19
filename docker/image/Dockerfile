@@ -3,10 +3,13 @@
 FROM golang:1.11-alpine3.8 AS intermediate
 
 # Install extra tools.
-RUN apk add --no-cache bash git openssh
+RUN apk add --no-cache bash git openssh sed
+
+# Arguments passed via --build-arg.
+ARG SSH_PRIVATE_KEY
+ARG GENESIS_TOML
 
 # Add credentials on build.
-ARG SSH_PRIVATE_KEY
 RUN mkdir /root/.ssh/
 RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
@@ -16,20 +19,22 @@ RUN touch /root/.ssh/known_hosts
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Perform custom setup steps from inside the intermediate image.
-RUN mkdir /image
-COPY ./*.patch /image/
-COPY ./docker-setup.sh /image
+COPY . /image
+RUN echo "${GENESIS_TOML}" > /image/genesis.toml
 RUN /bin/bash /image/docker-setup.sh
+RUN /bin/bash /image/docker-conf.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM golang:1.11-alpine3.8 AS build
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /go /go
+COPY --from=intermediate /image/bin /image/bin
+COPY --from=intermediate /image/data /image/data
 
 # Copy image support files needed for running the node group inside the container.
-RUN mkdir /image
-COPY ./docker-run.sh /image/docker-run.sh
+COPY ./docker-env.sh /image
+COPY ./docker-run.sh /image
 
 # We only need to expose Tendermint's ports.
 # The outside world will communicate with the container through the RPC ports.

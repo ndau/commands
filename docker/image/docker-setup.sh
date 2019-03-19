@@ -1,11 +1,14 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+source "$SCRIPT_DIR"/docker-env.sh
 
 TENDERMINT_VER=v0.30.1
 
 ATTICLABS_DIR="$GOPATH"/src/github.com/attic-labs
 NDEV_SUBDIR=github.com/oneiro-ndev
-NDEV_DIR="$GOPATH"/src/"$NDEV_SUBDIR"
+NDEV_DIR="$GOPATH/src/$NDEV_SUBDIR"
 TM_DIR="$GOPATH"/src/github.com/tendermint
+
+mkdir "$BIN_DIR"
 
 echo Getting noms...
 mkdir -p "$ATTICLABS_DIR"
@@ -46,23 +49,28 @@ cd "$NDEV_DIR"/commands || exit 1
 echo Building noms...
 cd "$ATTICLABS_DIR"/noms || exit 1
 go build ./cmd/noms
+mv noms "$BIN_DIR"
 
 echo Building tendermint...
 cd "$TM_DIR"/tendermint || exit 1
 go build ./cmd/tendermint
+mv tendermint "$BIN_DIR"
 
 echo Building chaos...
 cd "$NDEV_DIR"/commands || exit 1
-go build ./cmd/chaos
 go build ./cmd/chaosnode
+go build ./cmd/genesis
+mv chaosnode "$BIN_DIR"
+mv genesis "$BIN_DIR"
 
 echo Building ndau...
 cd "$NDEV_DIR"/ndau || exit 1
 VERSION=$(git describe --long --tags --match="v*")
 VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
 cd "$NDEV_DIR"/commands || exit 1
-go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndau
 go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndaunode
 go build ./cmd/ndauapi
+mv ndaunode "$BIN_DIR"
+mv ndauapi "$BIN_DIR"
 
-echo Setup complete
+echo Setup step complete
