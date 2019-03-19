@@ -525,7 +525,7 @@
 
 [[projects]]
   branch = "prgn-sib-incoming"
-  digest = "1:72d775348243169c6289ebb763c77bdd462cf1ec9de3061af999fa5c7691090e"
+  digest = "1:fd1eb6ee0c2548049d1656a967ba2bf63e3ba13225667b2ad6b00626078771bc"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,7 +544,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "b47cdfd3b0651cf19bb05f495f995c3129dc201d"
+  revision = "6bb55949c416c9cd75b6c126af6d35d507ce5db2"
 
 [[projects]]
   branch = "prgn-deterministic-pricecurve"
@@ -1015,6 +1015,7 @@
     "github.com/oneiro-ndev/ndaumath/pkg/address",
     "github.com/oneiro-ndev/ndaumath/pkg/constants",
     "github.com/oneiro-ndev/ndaumath/pkg/key",
+    "github.com/oneiro-ndev/ndaumath/pkg/pricecurve",
     "github.com/oneiro-ndev/ndaumath/pkg/signature",
     "github.com/oneiro-ndev/ndaumath/pkg/types",
     "github.com/oneiro-ndev/ndaumath/pkg/words",
