@@ -462,7 +462,6 @@
   version = "v1.0.1"
 
 [[projects]]
-  branch = "prgn-sib"
   digest = "1:365ebeec81ad3091b58c0062f4abe37ede1c1952b141935131851230d90e0b2d"
   name = "github.com/oneiro-ndev/chaos_genesis"
   packages = [
@@ -470,7 +469,8 @@
     "pkg/genesis.generator",
   ]
   pruneopts = ""
-  revision = "51a993edd526e76d749b7bf1001dece538d1ce70"
+  revision = "15e68c6bf595839086e649f39149558676a31585"
+  version = "v0.1.5"
 
 [[projects]]
   digest = "1:76a8a86819b9efcb178f1de2c81e60ce8b4e70115f93a25485f994b68c6d9a65"
@@ -524,8 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-sib-incoming"
-  digest = "1:80ab9e2136309ee3c7e853a98b502a0a67d13090490011a34a9f83af0790edc2"
+  digest = "1:f252a6e584746a3663e03323f052337633e3b773a316eb5a787df327fdd265d2"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,11 +543,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "1f8f96bf25c661ae34a040e6080cab26ce68bb3d"
+  revision = "33b35b7eb123744a865d847885af74d6a9aa5976"
+  version = "v1.4.0"
 
 [[projects]]
-  branch = "prgn-deterministic-pricecurve"
-  digest = "1:be78bdaca733a48ed0b585a1a874692ef4e42c5614c5dd46b50d38ee0e61dc08"
+  digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -570,7 +569,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "6e7988844a760628c8386d0bff3b6dde926d5f02"
+  revision = "93bc4c443f9d0e097ff833750b6aac7c2b02559b"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -589,7 +589,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  branch = "prgn-sib-chaincode"
   digest = "1:ec567f743c115d3c35875416259c74b7ce3509081d9321d2af5824c36da54d0d"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -597,7 +596,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "56db78b4622a73f0444ba90fb6d9ec272a227c5a"
+  revision = "9e8b6c978a1cb200d6f360d45a9b9e4bbe2096b9"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"

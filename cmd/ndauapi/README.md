@@ -1429,11 +1429,10 @@ _**Writes:**_
         {
           "marketPrice": 0,
           "targetPrice": 0,
-          "floorPrice": 0,
           "totalIssued": 0,
           "totalNdau": 0,
-          "sib": 0,
-          "priceUnit": ""
+          "totalSIB": 0,
+          "sib": 0
         }
 ```
 
@@ -1468,11 +1467,10 @@ _**Writes:**_
         {
           "marketPrice": 0,
           "targetPrice": 0,
-          "floorPrice": 0,
           "totalIssued": 0,
           "totalNdau": 0,
-          "sib": 0,
-          "priceUnit": ""
+          "totalSIB": 0,
+          "sib": 0
         }
 ```
 
@@ -1519,12 +1517,13 @@ _**Writes:**_
 
 _Returns current order chain data for key parameters._
 
-Returns current order chain information for 5 parameters:
+Returns current order chain information:
 * Market price
 * Target price
-* Floor price
-* Total ndau sold from the endowment
+* Total ndau issued from the endowment
 * Total ndau in circulation
+* Total SIB burned
+* Current SIB in effect
 
 
 
@@ -1538,13 +1537,12 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "marketPrice": 16.85,
-          "targetPrice": 17,
-          "floorPrice": 2.57,
+          "marketPrice": 1234000000000,
+          "targetPrice": 5678000000000,
           "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
-          "sib": 0,
-          "priceUnit": "USD"
+          "totalSIB": 12300000000,
+          "sib": 9876543210
         }
 ```
 
@@ -1778,7 +1776,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RecordPrice, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
 
 
 _**Parameters:**_
