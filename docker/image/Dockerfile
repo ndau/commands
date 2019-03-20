@@ -3,11 +3,10 @@
 FROM golang:1.11-alpine3.8 AS intermediate
 
 # Install extra tools.
-RUN apk add --no-cache bash git openssh sed
+RUN apk add --no-cache bash git openssh
 
 # Arguments passed via --build-arg.
 ARG SSH_PRIVATE_KEY
-ARG GENESIS_TOML
 
 # Add credentials on build.
 RUN mkdir /root/.ssh/ && \
@@ -20,26 +19,24 @@ RUN touch /root/.ssh/known_hosts && \
 
 # Perform custom setup steps from inside the intermediate image.
 COPY . /image
-RUN echo "${GENESIS_TOML}" > /image/genesis.toml && \
-    /bin/bash /image/docker-setup.sh && \
-    /bin/bash /image/docker-conf.sh
+RUN /bin/bash /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM alpine:3.8 AS build
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
-COPY --from=intermediate /image/data /image/data
 
 # Copy image support files needed for running the node group inside the container.
+COPY ./docker-conf.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-run.sh /image
 
 # Install extra tools.
 RUN apk add --no-cache bash redis=4.0.11-r0 sed
 
-# We only need to expose Tendermint's ports.
-# The outside world will communicate with the container through the RPC ports.
+# We only need to expose Tendermint and ndauapi ports.
+# The outside world will communicate with the container through the TM RPC ports and ndauapi.
 # Tendermint itself will communicate with other containers through the P2P ports.
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26661 26670 26671 3030

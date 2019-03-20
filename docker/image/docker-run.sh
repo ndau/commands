@@ -1,12 +1,16 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
-NODE_CHAOS_PORT=26650
-NODE_NDAU_PORT=26651
-NOMS_CHAOS_PORT=8000
-NOMS_NDAU_PORT=8001
-REDIS_CHAOS_PORT=6379
-REDIS_NDAU_PORT=6380
+echo "Running $NODE_ID node group..."
+
+# If the svi namespace file exists, it means we're starting from scratch.
+SVI_NAMESPACE_FILE="$SCRIPT_DIR/svi-namespace"
+if [ -e "$SVI_NAMESPACE_FILE" ]; then
+    echo "Configuring node group..."
+    export SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
+    /bin/bash "$SCRIPT_DIR"/docker-conf.sh
+    rm -f "$SVI_NAMESPACE_FILE"
+fi
 
 # This is needed because in the long term, noms eats more than 256 file descriptors
 ulimit -n 1024
@@ -60,17 +64,9 @@ run_node() {
     port="$2"
     redis_port="$3"
     noms_port="$4"
-    tm_data_dir="$5"
     echo "Running $chain node..."
 
     chainnode="${chain}node"
-    echo "  getting $chainnode app hash"
-    app_hash=$(./"$chainnode" -spec http://localhost:"$noms_port" -echo-hash 2>/dev/null)
-    # Set the genesis app hash on first run.  This is a no-op if it's already set.
-    sed -i -E \
-        -e 's/"app_hash": ""/"app_hash": "'$app_hash'"/' \
-        "$tm_data_dir/config/genesis.json"
-
     echo "  launching $chainnode"
     ./"$chainnode" -spec http://localhost:"$noms_port" \
                    -index localhost:"$redis_port" \
@@ -89,6 +85,7 @@ run_tm() {
 
     CHAIN="$chain" \
     ./tendermint node --home "$data_dir" \
+                      --moniker "$NODE_ID" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
@@ -108,12 +105,12 @@ run_ndauapi() {
 
 run_redis chaos "$REDIS_CHAOS_PORT" "$REDIS_CHAOS_DATA_DIR"
 run_noms chaos "$NOMS_CHAOS_PORT" "$NOMS_CHAOS_DATA_DIR"
-run_node chaos "$NODE_CHAOS_PORT" "$REDIS_CHAOS_PORT" "$NOMS_CHAOS_PORT" "$TM_CHAOS_DATA_DIR"
+run_node chaos "$NODE_CHAOS_PORT" "$REDIS_CHAOS_PORT" "$NOMS_CHAOS_PORT"
 run_tm chaos "$TM_CHAOS_P2P_PORT" "$TM_CHAOS_RPC_PORT" "$NODE_CHAOS_PORT" "$TM_CHAOS_DATA_DIR"
 
 run_redis ndau "$REDIS_NDAU_PORT" "$REDIS_NDAU_DATA_DIR"
 run_noms ndau "$NOMS_NDAU_PORT" "$NOMS_NDAU_DATA_DIR"
-run_node ndau "$NODE_NDAU_PORT" "$REDIS_NDAU_PORT" "$NOMS_NDAU_PORT" "$TM_NDAU_DATA_DIR"
+run_node ndau "$NODE_NDAU_PORT" "$REDIS_NDAU_PORT" "$NOMS_NDAU_PORT"
 run_tm ndau "$TM_NDAU_P2P_PORT" "$TM_NDAU_RPC_PORT" "$NODE_NDAU_PORT" "$TM_NDAU_DATA_DIR"
 
 run_ndauapi

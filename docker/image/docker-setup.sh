@@ -1,5 +1,4 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-source "$SCRIPT_DIR"/docker-env.sh
 
 TENDERMINT_VER=v0.30.1
 
@@ -8,6 +7,7 @@ NDEV_SUBDIR=github.com/oneiro-ndev
 NDEV_DIR="$GOPATH/src/$NDEV_SUBDIR"
 TM_DIR="$GOPATH"/src/github.com/tendermint
 
+BIN_DIR="$SCRIPT_DIR"/bin
 mkdir "$BIN_DIR"
 
 echo Getting noms...
@@ -59,9 +59,7 @@ mv tendermint "$BIN_DIR"
 echo Building chaos...
 cd "$NDEV_DIR"/commands || exit 1
 go build ./cmd/chaosnode
-go build ./cmd/genesis
 mv chaosnode "$BIN_DIR"
-mv genesis "$BIN_DIR"
 
 echo Building ndau...
 cd "$NDEV_DIR"/ndau || exit 1
