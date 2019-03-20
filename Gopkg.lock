@@ -525,7 +525,7 @@
 
 [[projects]]
   branch = "prgn-sib-incoming"
-  digest = "1:fd1eb6ee0c2548049d1656a967ba2bf63e3ba13225667b2ad6b00626078771bc"
+  digest = "1:80ab9e2136309ee3c7e853a98b502a0a67d13090490011a34a9f83af0790edc2"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,7 +544,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6bb55949c416c9cd75b6c126af6d35d507ce5db2"
+  revision = "1f8f96bf25c661ae34a040e6080cab26ce68bb3d"
 
 [[projects]]
   branch = "prgn-deterministic-pricecurve"
