@@ -24,11 +24,11 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.3"
+version = "~v1.4"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.0"
+version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
@@ -36,7 +36,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-version = "~v1.0"
+version = "~v1.1"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
