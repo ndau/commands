@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/attic-labs/noms/go/spec"
@@ -32,14 +34,15 @@ func bail(err string) {
 
 func main() {
 	app := cli.App("nomscompare", "compare two noms datasets")
-	app.LongDesc = `
-Recursively compares data.
+	app.LongDesc = strings.TrimSpace(`
+Recursively compares noms datasets.
 
 For help specifying your datasets, see
-https://github.com/attic-labs/noms/blob/master/doc/spelling.md`
+https://github.com/attic-labs/noms/blob/master/doc/spelling.md
+`)
 
-	ds1 := app.StringArg("DATASET1", "", "first dataset")
-	ds2 := app.StringArg("DATASET2", "", "second dataset")
+	dsa := app.StringArg("DATASET_A", "", "first dataset")
+	dsb := app.StringArg("DATASET_B", "", "second dataset")
 	verbose := app.BoolOpt("v verbose", false, "emit additional output")
 
 	app.Action = func() {
@@ -47,46 +50,46 @@ https://github.com/attic-labs/noms/blob/master/doc/spelling.md`
 		if *verbose {
 			log.SetLevel(log.DebugLevel)
 		}
-		compareDS(*ds1, *ds2)
+		compareDS(*dsa, *dsb)
 		log.Info("done")
 	}
 	app.Run(os.Args)
 }
 
-func validateInput(ds1, ds2 string) {
+func validateInput(dsa, dsb string) {
 	var errs []string
-	if ds1 == "" {
-		errs = append(errs, "DATASET1 must be set")
+	if dsa == "" {
+		errs = append(errs, "DATASET_A must be set")
 	}
-	if ds2 == "" {
-		errs = append(errs, "DATASET2 must be set")
+	if dsb == "" {
+		errs = append(errs, "DATASET_B must be set")
 	}
-	if ds1 == ds2 {
-		errs = append(errs, "There are never any diffs when DATASET1 == DATASET2")
+	if dsa == dsb {
+		errs = append(errs, "There are never any diffs when DATASET_A == DATASET_B")
 	}
 	if len(errs) > 0 {
 		bail(strings.Join(errs, "\n"))
 	}
 }
 
-func compareDS(ds1, ds2 string) {
-	validateInput(ds1, ds2)
-
-	spec1, err := spec.ForDataset(ds1)
-	checkc(err, ds1)
-	defer spec1.Close()
-	spec2, err := spec.ForDataset(ds2)
-	checkc(err, ds2)
-	defer spec2.Close()
-
-	headref1, ok1 := spec1.GetDataset().MaybeHeadRef()
-	headref2, ok2 := spec2.GetDataset().MaybeHeadRef()
+func compareDS(dsa, dsb string) {
+	validateInput(dsa, dsb)
 
 	log.SetFormatter(new(log.JSONFormatter))
 	logger := log.WithFields(log.Fields{
-		"dataset a": ds1,
-		"dataset b": ds2,
+		"dataset a": dsa,
+		"dataset b": dsb,
 	})
+
+	speca, err := spec.ForDataset(dsa)
+	checkc(err, dsa)
+	defer speca.Close()
+	specb, err := spec.ForDataset(dsb)
+	checkc(err, dsb)
+	defer specb.Close()
+
+	headrefa, ok1 := speca.GetDataset().MaybeHeadRef()
+	headrefb, ok2 := specb.GetDataset().MaybeHeadRef()
 
 	if !(ok1 && ok2) {
 		logger.WithFields(log.Fields{
@@ -95,20 +98,34 @@ func compareDS(ds1, ds2 string) {
 		}).Fatal("not both datasets have heads")
 	}
 
-	if headref1.Height() != headref2.Height() {
+	if headrefa.Height() != headrefb.Height() {
 		logger.WithFields(log.Fields{
-			"a height": headref1.Height(),
-			"b height": headref2.Height(),
+			"a height": headrefa.Height(),
+			"b height": headrefb.Height(),
 		}).Fatal("heights do not match")
 	}
 
-	val1 := spec1.GetDataset().HeadValue()
-	val2 := spec2.GetDataset().HeadValue()
-	compare(val1, val2, ".", logger)
+	vala := speca.GetDataset().HeadValue()
+	valb := specb.GetDataset().HeadValue()
+	compare(vala, valb, ".", logger)
 }
 
-func compare(a, b nt.Value, path string, logger log.FieldLogger) {
-	logger = logger.WithField("path", path)
+func compare(a, b nt.Value, path string, rlogger log.FieldLogger) {
+	// logger is the logger within this function; it has fields appropriate
+	// to this node, but not to child nodes.
+	// rlogger is the logger passed to recursive child calls.
+	logger := rlogger.WithField("path", path)
+
+	at := reflect.TypeOf(a)
+	bt := reflect.TypeOf(b)
+	if at != bt {
+		logger.WithFields(log.Fields{
+			"a type": at,
+			"b type": bt,
+		}).Info("type mismatch")
+		return
+	}
+	logger = logger.WithField("type", at)
 	logger.Debug("comparing")
 
 	errs := func(erra, errb error, context string) bool {
@@ -122,15 +139,38 @@ func compare(a, b nt.Value, path string, logger log.FieldLogger) {
 		return anerr
 	}
 
-	at := reflect.TypeOf(a)
-	bt := reflect.TypeOf(b)
-	if at != bt {
-		logger = logger.WithFields(log.Fields{
-			"a type": at,
-			"b type": bt,
-		})
-		logger.Info("type mismatch")
-		return
+	// now walk the keys lists, comparing items with equal keys,
+	// making note of items present in only one list
+	walkcompare := func(
+		akeys, bkeys []string,
+		a, b nt.Value,
+		itemtype string,
+		getsubitem func(value nt.Value, key string) nt.Value,
+		subpath func(key string) string,
+	) {
+		ai := 0
+		bi := 0
+		for ai < len(akeys) || bi < len(bkeys) {
+			switch {
+			case ai >= len(akeys) || bkeys[bi] < akeys[ai]:
+				logger.WithField(itemtype, bkeys[bi]).Info(itemtype + " present in b and not a")
+				bi++
+			case bi >= len(bkeys) || akeys[ai] < bkeys[bi]:
+				logger.WithField(itemtype, akeys[ai]).Info(itemtype + " present in a and not b")
+				ai++
+			default:
+				if getsubitem != nil && subpath != nil {
+					compare(
+						getsubitem(a, akeys[ai]),
+						getsubitem(b, bkeys[bi]),
+						subpath(akeys[ai]),
+						rlogger,
+					)
+				}
+				ai++
+				bi++
+			}
+		}
 	}
 
 	// because we know the types are equal, we can get away with a type-switch
@@ -145,8 +185,8 @@ func compare(a, b nt.Value, path string, logger log.FieldLogger) {
 		}
 		if !bytes.Equal(aby, bby) {
 			logger.WithFields(log.Fields{
-				"a value": aby,
-				"b value": bby,
+				"a value": base64.StdEncoding.EncodeToString(aby),
+				"b value": base64.StdEncoding.EncodeToString(bby),
 			}).Info("mismatch")
 		}
 
@@ -173,12 +213,145 @@ func compare(a, b nt.Value, path string, logger log.FieldLogger) {
 		}
 
 		for idx := uint64(0); idx < alen; idx++ {
-			compare(av.Get(idx), bv.Get(idx), fmt.Sprintf("%s[%d]", path, idx), logger)
+			compare(av.Get(idx), bv.Get(idx), fmt.Sprintf("%s[%d]", path, idx), rlogger)
 		}
 
-	// TODO: all the rest of the types
+	case nt.Map:
+		bv := b.(nt.Map)
+
+		akeys, erra := mapKeys(av)
+		bkeys, errb := mapKeys(bv)
+		if errs(erra, errb, "converting map keys to strings") {
+			return
+		}
+
+		if len(akeys) != len(bkeys) {
+			logger.WithFields(log.Fields{
+				"len(a)": len(akeys),
+				"len(b)": len(bkeys),
+			}).Info("mismatch")
+		}
+
+		walkcompare(
+			akeys, bkeys,
+			a, b,
+			"key",
+			func(v nt.Value, k string) nt.Value {
+				return v.(nt.Map).Get(nt.String(k))
+			},
+			func(k string) string {
+				return fmt.Sprintf("%s[\"%s\"]", path, k)
+			},
+		)
+
+	case nt.Number:
+		bv := b.(nt.Number)
+
+		if float64(av) != float64(bv) {
+			logger.WithFields(log.Fields{
+				"a value": float64(av),
+				"b value": float64(bv),
+			}).Info("mismatch")
+		}
+
+	case nt.Set:
+		bv := b.(nt.Set)
+
+		aitems, erra := setItems(av)
+		bitems, errb := setItems(bv)
+		if errs(erra, errb, "getting items from set") {
+			return
+		}
+
+		if len(aitems) != len(bitems) {
+			logger.WithFields(log.Fields{
+				"len(a)": len(aitems),
+				"len(b)": len(bitems),
+			}).Info("mismatch")
+		}
+
+		walkcompare(aitems, bitems, a, b, "item", nil, nil)
+
+	case nt.String:
+		bv := b.(nt.String)
+
+		if string(av) != string(bv) {
+			logger.WithFields(log.Fields{
+				"a value": string(av),
+				"b value": string(bv),
+			}).Info("mismatch")
+		}
+
+	case nt.Struct:
+		bv := b.(nt.Struct)
+
+		afields := structFields(av)
+		bfields := structFields(bv)
+
+		if len(afields) != len(bfields) {
+			logger.WithFields(log.Fields{
+				"len(a)": len(afields),
+				"len(b)": len(bfields),
+			}).Info("mismatch")
+		}
+
+		walkcompare(
+			afields, bfields,
+			a, b,
+			"field",
+			func(v nt.Value, k string) nt.Value {
+				return v.(nt.Struct).Get(k)
+			},
+			func(s string) string {
+				return fmt.Sprintf("%s.%s", path, s)
+			},
+		)
 
 	default:
 		log.WithField("type", at).Error("unknown type")
 	}
+}
+
+func mapKeys(m nt.Map) (keys []string, err error) {
+	m.Iter(func(k, v nt.Value) (stop bool) {
+		ks, ok := k.(nt.String)
+		if !ok {
+			stop = true
+			err = fmt.Errorf(
+				"found non-string key type '%s' in map",
+				reflect.TypeOf(k),
+			)
+			return
+		}
+		keys = append(keys, string(ks))
+		return
+	})
+	sort.Strings(keys)
+	return
+}
+
+func setItems(s nt.Set) (items []string, err error) {
+	s.Iter(func(i nt.Value) (stop bool) {
+		is, ok := i.(nt.String)
+		if !ok {
+			stop = true
+			err = fmt.Errorf(
+				"found non-string item type '%s' in set",
+				reflect.TypeOf(i),
+			)
+			return
+		}
+		items = append(items, string(is))
+		return
+	})
+	sort.Strings(items)
+	return
+}
+
+func structFields(s nt.Struct) (fields []string) {
+	s.IterFields(func(name string, v nt.Value) {
+		fields = append(fields, name)
+	})
+	sort.Strings(fields)
+	return
 }
