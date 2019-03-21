@@ -38,13 +38,17 @@ https://github.com/attic-labs/noms/blob/master/doc/spelling.md
 	dsb := app.StringArg("DATASET_B", "", "second dataset")
 	verbose := app.BoolOpt("v verbose", false, "emit additional output")
 	height := app.IntOpt("h height", -1, "compare at a given noms height")
+	nodeHeight := app.IntOpt("H node-height", -1, "compare at a given node height")
+
+	// set the spec to prevent both height and node height being set
+	app.Spec = "[-v][-h|-H] DATASET_A DATASET_B"
 
 	app.Action = func() {
 		log.SetLevel(log.InfoLevel)
 		if *verbose {
 			log.SetLevel(log.DebugLevel)
 		}
-		compareDS(*dsa, *dsb, *height)
+		compareDS(*dsa, *dsb, *height, *nodeHeight)
 		log.Debug("done")
 	}
 	app.Run(os.Args)

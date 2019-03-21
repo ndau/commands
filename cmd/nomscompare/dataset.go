@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 
 	"github.com/attic-labs/noms/go/datas"
@@ -25,10 +26,11 @@ func validateInput(dsa, dsb string) {
 	}
 }
 
-func compareDS(dsa, dsb string, height int) {
+func compareDS(dsa, dsb string, height int, nodeHeight int) {
 	validateInput(dsa, dsb)
 
 	log.SetFormatter(new(log.JSONFormatter))
+	log.SetOutput(os.Stdout)
 	logger := log.WithFields(log.Fields{
 		"a dataset": dsa,
 		"b dataset": dsb,
@@ -77,7 +79,28 @@ func compareDS(dsa, dsb string, height int) {
 		)
 	}
 
-	if refa.Height() != refb.Height() {
+	if nodeHeight >= 0 {
+		refa = seekHeight(
+			uint64(nodeHeight),
+			dba, refa,
+			metanodeheight,
+			logger.WithFields(log.Fields{
+				"dataset": "a",
+				"seek":    "node",
+			}),
+		)
+		refb = seekHeight(
+			uint64(nodeHeight),
+			dbb, refb,
+			metanodeheight,
+			logger.WithFields(log.Fields{
+				"dataset": "b",
+				"seek":    "node",
+			}),
+		)
+	}
+
+	if height < 0 && nodeHeight < 0 && refa.Height() != refb.Height() {
 		logger.WithFields(log.Fields{
 			"a height": refa.Height(),
 			"b height": refb.Height(),
