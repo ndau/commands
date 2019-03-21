@@ -3,6 +3,7 @@
 FROM golang:1.11-alpine3.8 AS intermediate
 
 # Install extra tools.
+# TODO: Consider combining/caching this with the above FROM to make the intermediate image.
 RUN apk add --no-cache bash git openssh
 
 # Arguments passed via --build-arg.
@@ -18,11 +19,17 @@ RUN touch /root/.ssh/known_hosts && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Perform custom setup steps from inside the intermediate image.
+# TODO: Consider caching the setup results (binary executables) in a separate image.
 COPY . /image
 RUN /bin/bash /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM alpine:3.8 AS build
+
+# Install extra tools.
+# TODO: Consider combining/caching this with the above FROM to make the build image.
+RUN apk add --no-cache bash ca-certificates redis=4.0.11-r0 sed && \
+    update-ca-certificates 2>/dev/null
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
@@ -31,9 +38,6 @@ COPY --from=intermediate /image/bin /image/bin
 COPY ./docker-conf.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-run.sh /image
-
-# Install extra tools.
-RUN apk add --no-cache bash redis=4.0.11-r0 sed
 
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
