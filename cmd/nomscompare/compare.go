@@ -214,7 +214,7 @@ func compare(a, b nt.Value, path string, rlogger log.FieldLogger) {
 		)
 
 	default:
-		log.WithField("type", at).Error("unknown type")
+		logger.Error("unknown type")
 	}
 }
 

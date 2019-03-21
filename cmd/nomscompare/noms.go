@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/hex"
+
 	"github.com/attic-labs/noms/go/datas"
+	"github.com/attic-labs/noms/go/hash"
 	nt "github.com/attic-labs/noms/go/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -56,4 +59,9 @@ func seekHeight(
 
 func valueAt(db datas.Database, ref nt.Ref) nt.Value {
 	return ref.TargetValue(db).(nt.Struct).Get(datas.ValueField)
+}
+
+func apphash(ref nt.Ref) string {
+	h := [hash.ByteLen]byte(ref.Hash())
+	return hex.EncodeToString(h[:])
 }

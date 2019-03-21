@@ -107,6 +107,17 @@ func compareDS(dsa, dsb string, height int, nodeHeight int) {
 		}).Fatal("heights do not match")
 	}
 
+	hasha := apphash(refa)
+	hashb := apphash(refb)
+	if hasha != hashb {
+		logger.WithFields(log.Fields{
+			"a apphash": hasha,
+			"b apphash": hashb,
+		}).Warn("apphashes differ")
+	} else {
+		logger.WithField("apphash", hasha).Debug("apphashes agree")
+	}
+
 	vala := valueAt(dba, refa)
 	valb := valueAt(dbb, refb)
 	compare(vala, valb, "", logger)
