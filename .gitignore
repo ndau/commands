@@ -69,3 +69,9 @@ update_genesis_json
 !*/update_genesis_json
 vmtest
 !*/vmtest
+nomscompare
+!*/nomscompare
+nomsinfo
+!*/nomsinfo
+verify
+!*/verify
