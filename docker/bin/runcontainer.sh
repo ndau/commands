@@ -10,32 +10,39 @@ INTERNAL_NDAUAPI=3030
 
 if [ -z "$1" ]||[ -z "$2" ]||[ -z "$3" ]||[ -z "$4" ]||[ -z "$5" ]||[ -z "$6" ]||[ -z "$7" ]; then
     echo "Usage:"
-    echo "  ./runcontainer.sh CONTAINER SNAPSHOT CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI"
+    echo "  ./runcontainer.sh CONTAINER CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI SNAPSHOT"
     echo
     echo "Arguments:"
     echo "  CONTAINER   Name to give to the container to run"
-    echo "  SNAPSHOT    Path to snapshot data with which to start the node group"
     echo "  CHAOS_P2P   External port to map to the internal P2P port for the chaos chain"
     echo "  CHAOS_RPC   External port to map to the internal RPC port for the chaos chain"
     echo "  NDAU_P2P    External port to map to the internal P2P port for the ndau chain"
     echo "  NDAU_RPC    External port to map to the internal RPC port for the ndau chain"
     echo "  NDAUAPI     External port to map to the internal ndauapi port"
+    echo "  SNAPSHOT    Path to snapshot data with which to start the node group"
     exit 1
 fi
 CONTAINER="$1"
-SNAPSHOT="$2"
-CHAOS_P2P="$3"
-CHAOS_RPC="$4"
-NDAU_P2P="$5"
-NDAU_RPC="$6"
-NDAUAPI="$7"
+CHAOS_P2P="$2"
+CHAOS_RPC="$3"
+NDAU_P2P="$4"
+NDAU_RPC="$5"
+NDAUAPI="$6"
+SNAPSHOT="$7"
+
+echo "Container: $CONTAINER"
 
 if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     echo "Container already exists: $CONTAINER"
     echo "Use restartcontainer.sh to restart it, or use removecontainer.sh to remove it first"
     exit 1
 fi    
-echo "Container: $CONTAINER"
+
+echo "chaos P2P port: $CHAOS_P2P"
+echo "chaos RPC port: $CHAOS_RPC"
+echo "ndau P2P port: $NDAU_P2P"
+echo "ndau RPC port: $NDAU_RPC"
+echo "ndauapi port: $NDAUAPI"
 
 if [ ! -d "$SNAPSHOT" ]; then
     echo "Could not find snapshot directory: $SNAPSHOT"
@@ -49,12 +56,6 @@ if [ ! -f "$SVI_NAMESPACE_FILE" ]; then
 fi
 SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
 echo "SVI Namespace: $SVI_NAMESPACE"
-
-echo "chaos P2P port: $CHAOS_P2P"
-echo "chaos RPC port: $CHAOS_RPC"
-echo "ndau P2P port: $NDAU_P2P"
-echo "ndau RPC port: $NDAU_RPC"
-echo "ndauapi port: $NDAUAPI"
 
 DATA_DIR="$SNAPSHOT/data"
 if [ ! -d "$DATA_DIR" ]; then

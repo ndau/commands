@@ -1,4 +1,4 @@
-# Single docker container nodes
+# Single Docker container nodes
 
 ## Overview
 

@@ -24,14 +24,15 @@ sed -i \
     "$NODE_DATA_DIR/ndau/config.toml"
 
 echo Configuring tendermint...
-#./tendermint init --home "$TM_CHAOS_DATA_DIR"
-#./tendermint init --home "$TM_NDAU_DATA_DIR"
-#sed -i -E \
-#    -e 's/^(create_empty_blocks = .*)/# \1/' \
-#    -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
-#    -e 's/^(addr_book_strict =) (.*)/\1 false/' \
-#    -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
-#    "$TM_CHAOS_DATA_DIR/config/config.toml" \
-#    "$TM_NDAU_DATA_DIR/config/config.toml"
+# This will init all the config for the current container, leaving genesis.json alone.
+./tendermint init --home "$TM_CHAOS_DATA_DIR"
+./tendermint init --home "$TM_NDAU_DATA_DIR"
+sed -i -E \
+    -e 's/^(create_empty_blocks = .*)/# \1/' \
+    -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
+    -e 's/^(addr_book_strict =) (.*)/\1 false/' \
+    -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
+    "$TM_CHAOS_DATA_DIR/config/config.toml" \
+    "$TM_NDAU_DATA_DIR/config/config.toml"
 
 echo Configuration complete

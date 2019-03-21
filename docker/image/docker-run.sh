@@ -5,7 +5,7 @@ echo "Running $NODE_ID node group..."
 
 # If the svi namespace file exists, it means we're starting from scratch.
 SVI_NAMESPACE_FILE="$SCRIPT_DIR/svi-namespace"
-if [ -e "$SVI_NAMESPACE_FILE" ]; then
+if [ -f "$SVI_NAMESPACE_FILE" ]; then
     echo "Configuring node group..."
     export SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
     /bin/bash "$SCRIPT_DIR"/docker-conf.sh
@@ -67,7 +67,6 @@ run_node() {
     echo "Running $chain node..."
 
     chainnode="${chain}node"
-    echo "  launching $chainnode"
     ./"$chainnode" -spec http://localhost:"$noms_port" \
                    -index localhost:"$redis_port" \
                    -addr 0.0.0.0:"$port" \
@@ -115,7 +114,7 @@ run_tm ndau "$TM_NDAU_P2P_PORT" "$TM_NDAU_RPC_PORT" "$NODE_NDAU_PORT" "$TM_NDAU_
 
 run_ndauapi
 
-echo "$NODE_ID" is now running
+echo "Node group $NODE_ID is now running"
 
 # Wait forever to keep the container alive.
 while true; do sleep 86400; done
