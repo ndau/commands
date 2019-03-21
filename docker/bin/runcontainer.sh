@@ -8,9 +8,12 @@ INTERNAL_NDAU_P2P=26661
 INTERNAL_NDAU_RPC=26671
 INTERNAL_NDAUAPI=3030
 
-if [ -z "$1" ]||[ -z "$2" ]||[ -z "$3" ]||[ -z "$4" ]||[ -z "$5" ]||[ -z "$6" ]||[ -z "$7" ]; then
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ] || [ -z "$5" ] || [ -z "$6" ] || \
+       [ -z "$7" ] || [ -z "$8" ] || [ -z "$9" ]
+then
     echo "Usage:"
-    echo "  ./runcontainer.sh CONTAINER CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI SNAPSHOT"
+    echo "  ./runcontainer.sh" \
+         "CONTAINER CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI PEER_IP PEER_RPC SNAPSHOT"
     echo
     echo "Arguments:"
     echo "  CONTAINER   Name to give to the container to run"
@@ -19,6 +22,8 @@ if [ -z "$1" ]||[ -z "$2" ]||[ -z "$3" ]||[ -z "$4" ]||[ -z "$5" ]||[ -z "$6" ]|
     echo "  NDAU_P2P    External port to map to the internal P2P port for the ndau chain"
     echo "  NDAU_RPC    External port to map to the internal RPC port for the ndau chain"
     echo "  NDAUAPI     External port to map to the internal ndauapi port"
+    echo "  PEER_IP     IP of an ndau chain peer on the network to join"
+    echo "  PEER_RPC    RPC port of the ndau chain peer"
     echo "  SNAPSHOT    Path to snapshot data with which to start the node group"
     exit 1
 fi
@@ -28,7 +33,9 @@ CHAOS_RPC="$3"
 NDAU_P2P="$4"
 NDAU_RPC="$5"
 NDAUAPI="$6"
-SNAPSHOT="$7"
+PEER_IP="$7"
+PEER_RPC="$8"
+SNAPSHOT="$9"
 
 echo "Container: $CONTAINER"
 
@@ -43,6 +50,53 @@ echo "chaos RPC port: $CHAOS_RPC"
 echo "ndau P2P port: $NDAU_P2P"
 echo "ndau RPC port: $NDAU_RPC"
 echo "ndauapi port: $NDAUAPI"
+
+test_port() {
+    ip="$1"
+    port="$2"
+
+    $(nc -G 1 -z "$ip" "$port" 2>/dev/null)
+    if [ "$?" = 0 ]; then
+        echo "Port at $ip:$port is already in use"
+        exit 1
+    fi
+}
+
+test_port localhost "$CHAOS_P2P"
+test_port localhost "$CHAOS_RPC"
+test_port localhost "$NDAU_P2P"
+test_port localhost "$NDAU_RPC"
+test_port localhost "$NDAUAPI"
+
+test_peer() {
+    chain="$1"
+    ip="$2"
+    port="$3"
+
+    echo "Getting $chain peer info..."
+    PEER_ID=$(curl -s --connect-timeout 5 "http://$ip:$port/status" | jq -r .result.node_info.id)
+    if [ -z "$PEER_ID" ]; then
+        echo "Could not get $chain peer id"
+        exit 1
+    fi
+    echo "$chain peer id: $PEER_ID"
+
+    PEER_P2P=$((port - 1))
+    echo "Testing connection to $chain peer..."
+    $(nc -G 5 -z "$ip" "$PEER_P2P")
+    if [ "$?" != 0 ]; then
+        echo "Could not reach $chain peer"
+        exit 1
+    fi
+}
+
+test_peer ndau "$PEER_IP" "$PEER_RPC"
+NDAU_PEER_ID="$PEER_ID"
+NDAU_PEER_P2P="$PEER_P2P"
+
+test_peer chaos "$PEER_IP" $((PEER_RPC - 2))
+CHAOS_PEER_ID="$PEER_ID"
+CHAOS_PEER_P2P="$PEER_P2P"
 
 if [ ! -d "$SNAPSHOT" ]; then
     echo "Could not find snapshot directory: $SNAPSHOT"
@@ -141,6 +195,8 @@ docker create \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
        -e "NODE_ID=$CONTAINER" \
+       -e "CHAOS_PEER=$CHAOS_PEER_ID@$PEER_IP:$CHAOS_PEER_P2P" \
+       -e "NDAU_PEER=$NDAU_PEER_ID@$PEER_IP:$NDAU_PEER_P2P" \
        --sysctl net.core.somaxconn=511 \
        ndauimage 
 

@@ -32,7 +32,14 @@ sed -i -E \
     -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
     -e 's/^(addr_book_strict =) (.*)/\1 false/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
+    -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     "$TM_CHAOS_DATA_DIR/config/config.toml" \
+    "$TM_NDAU_DATA_DIR/config/config.toml"
+sed -i -E \
+    -e 's/^(persistent_peers =) (.*)/\1 "'"$CHAOS_PEER"'"/' \
+    "$TM_CHAOS_DATA_DIR/config/config.toml"
+sed -i -E \
+    -e 's/^(persistent_peers =) (.*)/\1 "'"$NDAU_PEER"'"/' \
     "$TM_NDAU_DATA_DIR/config/config.toml"
 
 echo Configuration complete
