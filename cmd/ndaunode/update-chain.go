@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	generator "github.com/oneiro-ndev/chaos_genesis/pkg/genesis.generator"
+	generator "github.com/oneiro-ndev/system_vars/pkg/genesis.generator"
 	metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"

@@ -7,8 +7,8 @@ import (
 	"path"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/chaos/pkg/genesisfile"
-	generator "github.com/oneiro-ndev/chaos_genesis/pkg/genesis.generator"
+	generator "github.com/oneiro-ndev/system_vars/pkg/genesis.generator"
+	"github.com/oneiro-ndev/system_vars/pkg/genesisfile"
 )
 
 func ndauhome() string {
@@ -68,13 +68,13 @@ func main() {
 			var err error
 			if outpath != nil && len(*outpath) > 0 {
 				var gfilepath, asscpath string
-				bpc, gfilepath, asscpath, err = generator.GenerateIn(*outpath)
+				gfilepath, asscpath, err = generator.GenerateIn(*outpath)
 				if *verbose {
 					fmt.Printf("%25s: %s\n", "genesisfile path", gfilepath)
 					fmt.Printf("%25s: %s\n", "associatedfile path", asscpath)
 				}
 			} else {
-				bpc, err = generator.Generate(*gfpath, *afpath)
+				err = generator.Generate(*gfpath, *afpath)
 			}
 
 			if bpc != nil {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	cli "github.com/jawher/mow.cli"
-	generator "github.com/oneiro-ndev/chaos_genesis/pkg/genesis.generator"
+	generator "github.com/oneiro-ndev/system_vars/pkg/genesis.generator"
 	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/pkg/errors"
 )
