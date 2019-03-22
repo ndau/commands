@@ -7,10 +7,6 @@ name = "github.com/oneiro-ndev/genesis"
 version = "~v0.1"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/json2msgp"
-version = "~v1.0"
-
-[[constraint]]
 name = "github.com/oneiro-ndev/metanode"
 version = "~v1.2"
 
@@ -47,7 +43,7 @@ version = "~v3.2"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
-version = "~v0.30.1"
+version = "~v0.31.0"
 
 [[override]]
 name = "github.com/tinylabs/msgp"
