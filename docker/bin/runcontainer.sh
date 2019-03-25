@@ -2,6 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 INTERNAL_CHAOS_P2P=26660
 INTERNAL_CHAOS_RPC=26670
 INTERNAL_NDAU_P2P=26661
@@ -24,7 +25,7 @@ then
     echo "  NDAUAPI     External port to map to the internal ndauapi port"
     echo "  PEER_IP     IP of an ndau chain peer on the network to join"
     echo "  PEER_RPC    RPC port of the ndau chain peer"
-    echo "  SNAPSHOT    Path to snapshot data with which to start the node group"
+    echo "  SNAPSHOT    Name of the snapshot to use as a starting point for the node group"
     exit 1
 fi
 CONTAINER="$1"
@@ -98,80 +99,6 @@ test_peer chaos "$PEER_IP" $((PEER_RPC - 2))
 CHAOS_PEER_ID="$PEER_ID"
 CHAOS_PEER_P2P="$PEER_P2P"
 
-if [ ! -d "$SNAPSHOT" ]; then
-    echo "Could not find snapshot directory: $SNAPSHOT"
-    exit 1
-fi
-
-SVI_NAMESPACE_FILE="$SNAPSHOT/svi-namespace"
-if [ ! -f "$SVI_NAMESPACE_FILE" ]; then
-    echo "Could not find svi namespace file: $SVI_NAMESPACE_FILE"
-    exit 1
-fi
-SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
-echo "SVI Namespace: $SVI_NAMESPACE"
-
-DATA_DIR="$SNAPSHOT/data"
-if [ ! -d "$DATA_DIR" ]; then
-    echo "Could not find data directory: $DATA_DIR"
-    exit 1
-fi
-
-# Check for the existence of required data files in the snapshot.
-# TODO: Add support for starting fresh with a genesis snapshot, which doesn't include everything.
-#       We will have to set genesis.json app_hash inside docker-run.sh when to support this.
-#       Currently we rely on it already being there, and can only connect to existing networks.
-CHAOS_DATA_DIR="$DATA_DIR/chaos"
-if [ ! -d "$CHAOS_DATA_DIR" ]; then
-    echo "Could not find chaos data directory: $CHAOS_DATA_DIR"
-    exit 1
-fi
-CHAOS_NOMS_DATA_DIR="$CHAOS_DATA_DIR/noms"
-if [ ! -d "$CHAOS_NOMS_DATA_DIR" ]; then
-    echo "Could not find chaos noms data directory: $CHAOS_NOMS_DATA_DIR"
-    exit 1
-fi
-CHAOS_REDIS_DATA_DIR="$CHAOS_DATA_DIR/redis"
-if [ ! -d "$CHAOS_REDIS_DATA_DIR" ]; then
-    echo "Could not find chaos redis data directory: $CHAOS_REDIS_DATA_DIR"
-    exit 1
-fi
-CHAOS_TENDERMINT_DATA_DIR="$CHAOS_DATA_DIR/tendermint"
-if [ ! -d "$CHAOS_TENDERMINT_DATA_DIR" ]; then
-    echo "Could not find chaos tendermint data directory: $CHAOS_TENDERMINT_DATA_DIR"
-    exit 1
-fi
-CHAOS_TENDERMINT_GENESIS_FILE="$CHAOS_TENDERMINT_DATA_DIR/config/genesis.json"
-if [ ! -f "$CHAOS_TENDERMINT_GENESIS_FILE" ]; then
-    echo "Could not find chaos tendermint genesis file: $CHAOS_TENDERMINT_GENESIS_FILE"
-    exit 1
-fi
-NDAU_DATA_DIR="$DATA_DIR/ndau"
-if [ ! -d "$NDAU_DATA_DIR" ]; then
-    echo "Could not find ndau data directory: $NDAU_DATA_DIR"
-    exit 1
-fi
-NDAU_NOMS_DATA_DIR="$NDAU_DATA_DIR/noms"
-if [ ! -d "$NDAU_NOMS_DATA_DIR" ]; then
-    echo "Could not find ndau noms data directory: $NDAU_NOMS_DATA_DIR"
-    exit 1
-fi
-NDAU_REDIS_DATA_DIR="$NDAU_DATA_DIR/redis"
-if [ ! -d "$NDAU_REDIS_DATA_DIR" ]; then
-    echo "Could not find ndau redis data directory: $NDAU_REDIS_DATA_DIR"
-    exit 1
-fi
-NDAU_TENDERMINT_DATA_DIR="$NDAU_DATA_DIR/tendermint"
-if [ ! -d "$NDAU_TENDERMINT_DATA_DIR" ]; then
-    echo "Could not find ndau tendermint data directory: $NDAU_TENDERMINT_DATA_DIR"
-    exit 1
-fi
-NDAU_TENDERMINT_GENESIS_FILE="$NDAU_TENDERMINT_DATA_DIR/config/genesis.json"
-if [ ! -f "$NDAU_TENDERMINT_GENESIS_FILE" ]; then
-    echo "Could not find ndau tendermint genesis file: $NDAU_TENDERMINT_GENESIS_FILE"
-    exit 1
-fi
-
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
@@ -185,7 +112,7 @@ echo "Creating container..."
 # Some notes about the params to the run command:
 # - Using --sysctl silences a warning about TCP backlog when redis runs.
 # - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
-docker create \
+docker run -d \
        -p "$CHAOS_P2P":"$INTERNAL_CHAOS_P2P" \
        -p "$CHAOS_RPC":"$INTERNAL_CHAOS_RPC" \
        -p "$NDAU_P2P":"$INTERNAL_NDAU_P2P" \
@@ -197,13 +124,8 @@ docker create \
        -e "NODE_ID=$CONTAINER" \
        -e "CHAOS_PEER=$CHAOS_PEER_ID@$PEER_IP:$CHAOS_PEER_P2P" \
        -e "NDAU_PEER=$NDAU_PEER_ID@$PEER_IP:$NDAU_PEER_P2P" \
+       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
        ndauimage 
-
-echo "Copying snapshot to container..."
-docker cp "$SNAPSHOT/." "$CONTAINER":/image/
-
-echo "Starting container..."
-docker start "$CONTAINER"
 
 echo done

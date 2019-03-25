@@ -1,7 +1,94 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
-mkdir "$NODE_DATA_DIR"
+SNAPSHOT_DIR="$SCRIPT_DIR/snapshot"
+mkdir -p "$SNAPSHOT_DIR"
+SNAPSHOT_FILE="${SNAPSHOT_URL##*/}"
+
+echo "Fetching $SNAPSHOT_FILE..."
+wget -O "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL"
+
+echo "Extracting $SNAPSHOT_FILE..."
+cd "$SNAPSHOT_DIR" || exit 1
+tar -xf "$SNAPSHOT_FILE"
+
+echo "Validating $SNAPSHOT_DIR..."
+if [ ! -d "$SNAPSHOT_DIR" ]; then
+    echo "Could not find snapshot directory: $SNAPSHOT_DIR"
+    exit 1
+fi
+
+SVI_NAMESPACE_FILE="$SNAPSHOT_DIR/svi-namespace"
+if [ ! -f "$SVI_NAMESPACE_FILE" ]; then
+    echo "Could not find svi namespace file: $SVI_NAMESPACE_FILE"
+    exit 1
+fi
+SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
+echo "SVI Namespace: $SVI_NAMESPACE"
+
+SNAPSHOT_DATA_DIR="$SNAPSHOT_DIR/data"
+if [ ! -d "$SNAPSHOT_DATA_DIR" ]; then
+    echo "Could not find data directory: $SNAPSHOT_DATA_DIR"
+    exit 1
+fi
+
+CHAOS_DATA_DIR="$SNAPSHOT_DATA_DIR/chaos"
+if [ ! -d "$CHAOS_DATA_DIR" ]; then
+    echo "Could not find chaos data directory: $CHAOS_DATA_DIR"
+    exit 1
+fi
+CHAOS_NOMS_DATA_DIR="$CHAOS_DATA_DIR/noms"
+if [ ! -d "$CHAOS_NOMS_DATA_DIR" ]; then
+    echo "Could not find chaos noms data directory: $CHAOS_NOMS_DATA_DIR"
+    exit 1
+fi
+CHAOS_REDIS_DATA_DIR="$CHAOS_DATA_DIR/redis"
+if [ ! -d "$CHAOS_REDIS_DATA_DIR" ]; then
+    echo "Could not find chaos redis data directory: $CHAOS_REDIS_DATA_DIR"
+    exit 1
+fi
+CHAOS_TENDERMINT_DATA_DIR="$CHAOS_DATA_DIR/tendermint"
+if [ ! -d "$CHAOS_TENDERMINT_DATA_DIR" ]; then
+    echo "Could not find chaos tendermint data directory: $CHAOS_TENDERMINT_DATA_DIR"
+    exit 1
+fi
+CHAOS_TENDERMINT_GENESIS_FILE="$CHAOS_TENDERMINT_DATA_DIR/config/genesis.json"
+if [ ! -f "$CHAOS_TENDERMINT_GENESIS_FILE" ]; then
+    echo "Could not find chaos tendermint genesis file: $CHAOS_TENDERMINT_GENESIS_FILE"
+    exit 1
+fi
+NDAU_DATA_DIR="$SNAPSHOT_DATA_DIR/ndau"
+if [ ! -d "$NDAU_DATA_DIR" ]; then
+    echo "Could not find ndau data directory: $NDAU_DATA_DIR"
+    exit 1
+fi
+NDAU_NOMS_DATA_DIR="$NDAU_DATA_DIR/noms"
+if [ ! -d "$NDAU_NOMS_DATA_DIR" ]; then
+    echo "Could not find ndau noms data directory: $NDAU_NOMS_DATA_DIR"
+    exit 1
+fi
+NDAU_REDIS_DATA_DIR="$NDAU_DATA_DIR/redis"
+if [ ! -d "$NDAU_REDIS_DATA_DIR" ]; then
+    echo "Could not find ndau redis data directory: $NDAU_REDIS_DATA_DIR"
+    exit 1
+fi
+NDAU_TENDERMINT_DATA_DIR="$NDAU_DATA_DIR/tendermint"
+if [ ! -d "$NDAU_TENDERMINT_DATA_DIR" ]; then
+    echo "Could not find ndau tendermint data directory: $NDAU_TENDERMINT_DATA_DIR"
+    exit 1
+fi
+NDAU_TENDERMINT_GENESIS_FILE="$NDAU_TENDERMINT_DATA_DIR/config/genesis.json"
+if [ ! -f "$NDAU_TENDERMINT_GENESIS_FILE" ]; then
+    echo "Could not find ndau tendermint genesis file: $NDAU_TENDERMINT_GENESIS_FILE"
+    exit 1
+fi
+
+# Copy the snapshot data where the applications expect it, then remove the temp snapshot dir.
+mv "$SNAPSHOT_DATA_DIR" "$DATA_DIR"
+rm -rf $SNAPSHOT_DIR
+
+# Make data directories that don't get created elsewhere.
+mkdir -p "$NODE_DATA_DIR"
 
 cd "$BIN_DIR" || exit 1
 

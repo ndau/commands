@@ -3,13 +3,10 @@ source "$SCRIPT_DIR"/docker-env.sh
 
 echo "Running $NODE_ID node group..."
 
-# If the svi namespace file exists, it means we're starting from scratch.
-SVI_NAMESPACE_FILE="$SCRIPT_DIR/svi-namespace"
-if [ -f "$SVI_NAMESPACE_FILE" ]; then
+# If there's no data directory yet, it means we're starting from scratch.
+if [ ! -d "$DATA_DIR" ]; then
     echo "Configuring node group..."
-    export SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
     /bin/bash "$SCRIPT_DIR"/docker-conf.sh
-    rm -f "$SVI_NAMESPACE_FILE"
 fi
 
 # This is needed because in the long term, noms eats more than 256 file descriptors
