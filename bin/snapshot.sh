@@ -29,11 +29,11 @@ for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
     echo "Bundling private-chaos-$node_num..."
     cd "$TENDERMINT_CHAOS_DATA_DIR-$node_num/config" || exit 1
-    tar -cvzf "$NDAU_SNAPSHOTS_DIR/private-chaos-$node_num.tgz" *_key.json 2>/dev/null
+    tar -czf "$NDAU_SNAPSHOTS_DIR/private-chaos-$node_num.tgz" *_key.json
 
     echo "Bundling private-ndau-$node_num..."
     cd "$TENDERMINT_NDAU_DATA_DIR-$node_num/config" || exit 1
-    tar -cvzf "$NDAU_SNAPSHOTS_DIR/private-ndau-$node_num.tgz" *_key.json 2>/dev/null
+    tar -czf "$NDAU_SNAPSHOTS_DIR/private-ndau-$node_num.tgz" *_key.json
 done
 
 # Make a temp dir for copying data files into for tar'ing up later in this script.
@@ -74,7 +74,7 @@ SNAPSHOT_FILE="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR/$SNAPSHOT_NAME.tgz"
 # Make the tarball and remove the temp dir.
 echo "Bundling $SNAPSHOT_NAME..."
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
-tar -cvzf "$SNAPSHOT_FILE" svi-namespace data 2>/dev/null
+tar -czf "$SNAPSHOT_FILE" svi-namespace data
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
 # These can be used for uploading the snapshot to S3.
