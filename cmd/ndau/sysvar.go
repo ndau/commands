@@ -6,7 +6,9 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
+	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
+	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/pkg/errors"
 	"github.com/tinylib/msgp/msgp"
 )
@@ -17,6 +19,12 @@ func getSysvar(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd)
 			"get",
 			"get system variables",
 			getSysvarGet(verbose),
+		)
+
+		cmd.Command(
+			"set",
+			"set system variables",
+			getSysvarSet(verbose, keys, emitJSON, compact),
 		)
 	}
 }
@@ -61,6 +69,38 @@ func getSysvarGet(verbose *bool) func(*cli.Cmd) {
 			fmt.Println(string(jsout))
 
 			finish(*verbose, resp, err, "sysvar get")
+		}
+	}
+}
+
+func getSysvarSet(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
+	return func(cmd *cli.Cmd) {
+		cmd.Spec = fmt.Sprintf(
+			"NAME %s",
+			getInputSpec("VALUE", true),
+		)
+
+		var (
+			name     = cmd.StringArg("NAME", "", "name of sysvar to set")
+			getValue = getInputClosure(cmd, "VALUE", true, verbose)
+		)
+
+		cmd.Action = func() {
+			conf := getConfig()
+
+			if conf.SetSysvar == nil {
+				orQuit(errors.New("SetSysvar not configured"))
+			}
+
+			ssv := ndau.NewSetSysvar(
+				*name,
+				getValue(),
+				sequence(conf, conf.SetSysvar.Address),
+				config.FilterK(conf.SetSysvar.Keys, *keys)...,
+			)
+
+			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), ssv)
+			finish(*verbose, result, err, "sysvar set")
 		}
 	}
 }

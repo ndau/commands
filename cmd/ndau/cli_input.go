@@ -58,11 +58,11 @@ func getInputClosure(cmd *cli.Cmd, name string, singleton bool, verbose *bool) f
 		oname = ""
 	}
 	var (
-		base64In  = cmd.BoolOpt(inOpt(false, oname, "base64"), false, "if set, interpret input as base64-encoded")
-		jsonIn    = cmd.BoolOpt(inOpt(false, oname, "json"), false, "if set, interpret input as JSON and convert to MSGP format")
-		hexIn     = cmd.BoolOpt(inOpt(false, oname, "hex"), false, "if set, interpret input as hex-encoded")
-		input     = cmd.StringArg(strings.ToUpper(name), "", fmt.Sprintf("%s input", name))
-		inputFile = cmd.StringOpt(inOpt(false, oname, "file"), "", "read input from this file instead of the CLI")
+		base64In  = cmd.BoolOpt(inOpt(false, oname, "base64"), false, fmt.Sprintf("if set, interpret %s as base64-encoded", name))
+		jsonIn    = cmd.BoolOpt(inOpt(false, oname, "json"), false, fmt.Sprintf("if set, interpret %s as JSON and convert to MSGP format", name))
+		hexIn     = cmd.BoolOpt(inOpt(false, oname, "hex"), false, fmt.Sprintf("if set, interpret %s as hex-encoded", name))
+		input     = cmd.StringArg(strings.ToUpper(name), "", "")
+		inputFile = cmd.StringOpt(inOpt(false, oname, "file"), "", fmt.Sprintf("read %s from this file instead of the CLI", name))
 		typesIn   = cmd.StringOpt(inOpt(false, oname, "json-types"), "", "use these type hints with json2msgp")
 	)
 
