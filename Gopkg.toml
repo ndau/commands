@@ -8,6 +8,10 @@ name = "github.com/oneiro-ndev/genesis"
 branch = "reverse-thermo"
 
 [[constraint]]
+name = "github.com/oneiro-ndev/json2msgp"
+version = "~v1.0"
+
+[[constraint]]
 name = "github.com/oneiro-ndev/metanode"
 version = "~v1.2"
 
