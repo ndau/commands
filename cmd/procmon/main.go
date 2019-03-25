@@ -62,10 +62,12 @@ func main() {
 
 	donech := make(chan struct{})
 	defer close(donech)
-	m1 := NewSimpleHTTPMonitor(t1, "http://localhost:9999/health", 3*time.Second)
-	m2 := NewSimpleHTTPMonitor(t2, "http://localhost:9998/health", 3*time.Second)
-	go m1.Listen(failch, donech)
-	go m2.Listen(failch, donech)
+
+	m1 := NewMonitor(t1, 3*time.Second, failch, HTTPPinger("http://localhost:9999/health", 2*time.Second))
+	m2 := NewMonitor(t1, 1*time.Second, failch, HTTPPinger("http://localhost:9998/health", 1*time.Second))
+	rm2 := NewRetryMonitor(m2, 3)
+	go m1.Listen(donech)
+	go rm2.Listen(donech)
 
 	ignores := TaskSet{}
 	for {
