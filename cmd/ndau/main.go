@@ -30,7 +30,6 @@ func main() {
 	app.Command("info", "get information about node's current status", getInfo(verbose))
 	app.Command("cvc", "send a command validator change", getCVC(verbose, keys, emitJSON, compact))
 	app.Command("record-price", "record the current market price of ndau", getRecordPrice(verbose, keys, emitJSON, compact))
-	app.Command("server", "create server for API endpoint calls", server)
 	app.Command("summary", "emit summary information about the ndau chain", getSummary(verbose))
 	app.Command("show-delegates", "emit information about the chain's delegates", getDelegates(verbose))
 	app.Command("version", "emit version information and quit", getVersion(verbose))
