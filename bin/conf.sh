@@ -170,6 +170,7 @@ if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
     ./ndau conf "$ndau_rpc_addr"
+    ./ndau conf update-from "$ASSC_TOML"
 fi
 
 # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
@@ -178,16 +179,6 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
     for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
         ndau_home="$NODE_DATA_DIR-$node_num"
-
-        # Generate noms data for chaos node 0, copy from node 0 otherwise.
-        data_dir="$NOMS_CHAOS_DATA_DIR-$node_num"
-        if [ "$node_num" = 0 ]; then
-            echo "Updating chaos noms using $GENESIS_TOML"
-            ./genesis -g "$GENESIS_TOML" -n "$data_dir"
-        else
-            echo "Copying chaos noms from node 0 to node $node_num"
-            cp -r "$NOMS_CHAOS_DATA_DIR-0" "$data_dir"
-        fi
 
         NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
 
@@ -199,8 +190,7 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
         # Generate noms data for ndau node 0, copy from node 0 otherwise.
         data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
         if [ "$node_num" = 0 ]; then
-            echo "  updating ndau noms using $ASSC_TOML"
-            NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -update-chain-from "$ASSC_TOML"
+            NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -genesisfile "$GENESIS_TOML" -asscfile "$ASSC_TOML"
             mv "$ndau_home/ndau/noms" "$data_dir"
             # set var below if ETL step is to be run
             # this needs to be here because ETL needs to push data direct to noms dir, and before noms starts

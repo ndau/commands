@@ -479,7 +479,7 @@
 
 [[projects]]
   branch = "chaos-integration"
-  digest = "1:0bde83e2a801fd78a9dd1e7e9c80374b86519a761b82bfc7bd7c7ad6bf329ca8"
+  digest = "1:825d0bfc148bd9a30b371cf9ce3013f2c14193d69a020d717d7edb145c88b51f"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -497,7 +497,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "98c5d26c6479d2287ee1c00a74d87fc6a309c472"
+  revision = "635df9750b447600decb58f192d1e858d1fbc587"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
