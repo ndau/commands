@@ -7,5 +7,5 @@ if [ -z "$CONTAINER" ]; then
     exit 1
 fi
 
-# This starts a shell inside the ndau image.
+# This starts a shell inside the container.
 docker exec -it "$CONTAINER" /bin/sh
