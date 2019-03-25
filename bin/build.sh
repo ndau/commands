@@ -20,22 +20,11 @@ ensure_no_test_link() {
 }
 
 ensure_no_test_links() {
-    ensure_no_test_link chaos
     ensure_no_test_link ndau
 }
 
 escape_newlines() {
     echo "$1" | sed -e ':a' -e 'N' -e '$!ba' -e's/\n/\\n/g'
-}
-
-build_chaos() {
-    echo building chaos
-    cd "$COMMANDS_DIR"
-
-    ensure_no_test_links
-
-    go build ./"$CHAOS_CMD"
-    go build ./"$CHAOSNODE_CMD"
 }
 
 build_ndau() {
@@ -64,13 +53,6 @@ build_ndau() {
     echo -e "$readme" > "$NDAUAPI_CMD/README.md"
 }
 
-build_chaos_genesis() {
-    echo building chaos_genesis
-    cd "$COMMANDS_DIR"
-
-    go build ./"$GENESIS_CMD"
-}
-
 build_etl() {
     echo building etl
     cd "$COMMANDS_DIR"
@@ -94,9 +76,7 @@ build_all() {
     initialize
     build_noms
     build_tm
-    build_chaos
     build_ndau
-    build_chaos_genesis
     build_etl
 }
 

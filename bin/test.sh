@@ -20,20 +20,6 @@ initialize() {
     done
 }
 
-test_chaos() {
-    cd "$CHAOS_DIR" || exit 1
-    link_vendor_for_test chaos
-
-    if [ "$RUN_INTEGRATION" == 0 ]; then
-        echo
-        echo testing chaos
-        go test ./...
-        echo
-    fi
-
-    unlink_vendor_for_test chaos
-}
-
 test_ndau() {
     cd "$NDAU_DIR" || exit 1
     link_vendor_for_test ndau
@@ -54,12 +40,10 @@ test_ndau() {
         echo testing ndau integration
 
         # We use the ports of the 0'th node, even in a multi-node localnet.
-        chaos_rpc_port="$TM_RPC_PORT"
         ndau_rpc_port=$((TM_RPC_PORT + 1))
 
-        chaos_rpc=http://localhost:"$chaos_rpc_port"
         ndau_rpc=http://localhost:"$ndau_rpc_port"
-        go test ./pkg/ndauapi/routes/... -integration -ndaurpc="$ndau_rpc" -chaosrpc="$chaos_rpc"
+        go test ./pkg/ndauapi/routes/... -integration -ndaurpc="$ndau_rpc"
 
         echo
 
@@ -72,7 +56,6 @@ test_ndau() {
 
 test_all() {
     initialize
-    test_chaos
     test_ndau
 }
 
