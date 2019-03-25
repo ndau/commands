@@ -10,23 +10,7 @@ import (
 	arg "github.com/alexflint/go-arg"
 )
 
-type TaskSet map[*Task]struct{}
-
-func (t *TaskSet) Add(tasks ...*Task) {
-	for _, task := range tasks {
-		(*t)[task] = struct{}{}
-	}
-}
-
-func (t *TaskSet) Has(task *Task) bool {
-	_, ok := (*t)[task]
-	return ok
-}
-
-func (t *TaskSet) Delete(task *Task) {
-	delete(*t, task)
-}
-
+// WatchSignals can set up functions to call on various operating system signals.
 func WatchSignals(fhup, fint, fterm func()) {
 	go func() {
 		sigchan := make(chan os.Signal, 1)
@@ -93,7 +77,8 @@ func main() {
 				continue
 			}
 			fmt.Printf("Task %s failed, restarting.\n", t.Name)
-			ignores.Add(t.KillDependents()...)
+			// kill the task and all its dependents in reverse order
+			ignores.Add(t.Kill()...)
 			t.Start(failch)
 		}
 		fmt.Println("Looping")

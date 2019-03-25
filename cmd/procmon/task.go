@@ -38,8 +38,11 @@ func NewTask(name string, path string, args ...string) *Task {
 func (t *Task) Kill() []*Task {
 	killed := t.KillDependents()
 	fmt.Printf("Killing %s\n", t.Name)
-	t.cancel()
-	return append(killed, t)
+	if !t.Exited() {
+		t.cancel()
+		killed = append(killed, t)
+	}
+	return killed
 }
 
 // KillDependents ends the dependents of a running task
