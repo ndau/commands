@@ -15,7 +15,7 @@ FROM golang:1.11-alpine3.8 AS build
 LABEL org.opencontainers.image.version 0.30.1-a
 
 # This is the release of tendermint to git pull.
-ARG TM_REPO_TAG=v0.30.1
+ARG TM_REPO_TAG=v0.31.0
 
 RUN apk add --no-cache git openssh-client bash
 

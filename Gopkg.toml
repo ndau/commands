@@ -44,7 +44,7 @@ version = "~v3.2"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
-version = "~v0.31.0"
+version = "~v0.31"
 
 [[override]]
 name = "github.com/tinylabs/msgp"
