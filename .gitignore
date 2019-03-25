@@ -9,6 +9,7 @@ vendor/
 # transient files
 *.log
 *.pid
+*.tgz
 
 # Python chaff
 **/__pycache__/
