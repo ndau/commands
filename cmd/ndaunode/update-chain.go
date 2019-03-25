@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	generator "github.com/oneiro-ndev/system_vars/pkg/genesis.generator"
 	metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
@@ -13,24 +12,15 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	generator "github.com/oneiro-ndev/system_vars/pkg/genesis.generator"
 	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
 	"github.com/pkg/errors"
 )
 
 func updateChain(asscpath string, conf *config.Config) {
-	asscFile := make(generator.AssociatedFile)
-	_, err := toml.DecodeFile(asscpath, &asscFile)
+	assc := make(generator.Associated)
+	_, err := toml.DecodeFile(asscpath, &assc)
 	check(err)
-
-	if len(asscFile) != 1 {
-		check(errors.New("assc datafile must have exactly one key"))
-	}
-
-	var assc generator.Associated
-	// because we know the length is 1, we can get the only entry
-	for _, v := range asscFile {
-		assc = v
-	}
 
 	app, err := ndau.NewAppSilent(getDbSpec(), "", -1, *conf)
 	check(err)
@@ -38,7 +28,13 @@ func updateChain(asscpath string, conf *config.Config) {
 	check(app.UpdateStateImmediately(func(stI metast.State) (metast.State, error) {
 		st := stI.(*backing.State)
 
-		for _, sa := range []sv.SysAcct{sv.CommandValidatorChange, sv.NominateNodeReward, sv.ReleaseFromEndowment} {
+		for _, sa := range []sv.SysAcct{
+			sv.CommandValidatorChange,
+			sv.NominateNodeReward,
+			sv.ReleaseFromEndowment,
+			sv.RecordPrice,
+			sv.SetSysvar,
+		} {
 			addrV, addrok := assc[sa.Address]
 			valkeyV, valkeyok := assc[sa.Validation.Public]
 			if !(addrok && valkeyok) {

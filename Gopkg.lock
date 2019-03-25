@@ -435,7 +435,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:ba611468c952c28b312f20ef2ca3b7cbd275e8a0d56901837f520726947ae6e8"
+  branch = "reverse-thermo"
+  digest = "1:42fcb03204370fc7bf3246ff2fe68b64bea6000624e31713f3acd559eba11c5b"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -444,8 +445,7 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "7e2b537878f483e014d38904c50a9a1eba72a459"
-  version = "v0.1.4"
+  revision = "4efb79e9ad364dd7868309dde9461675740695bb"
 
 [[projects]]
   digest = "1:7baf65d8249fbce003c055415b57659864d729aba33ed84765edfa702502abd7"
@@ -927,7 +927,6 @@
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
     "github.com/jawher/mow.cli",
-    "github.com/kentquirk/boneful",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
@@ -968,6 +967,7 @@
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",
+    "github.com/tinylib/msgp/msgp",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
