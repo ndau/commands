@@ -78,6 +78,13 @@ build_etl() {
     go build ./"$ETL_CMD"
 }
 
+build_keytool() {
+    echo building keytool
+    cd "$COMMANDS_DIR"
+
+    go build ./"$KEYTOOL_CMD"
+}
+
 build_tm() {
     echo building tendermint
     cd "$TENDERMINT_DIR"
@@ -98,6 +105,7 @@ build_all() {
     build_ndau
     build_chaos_genesis
     build_etl
+    build_keytool
 }
 
 build_all
