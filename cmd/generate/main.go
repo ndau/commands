@@ -31,7 +31,7 @@ func check(err error) {
 }
 
 func main() {
-	app := cli.App("chaos.generate", "generate chaos mockfile and associated data")
+	app := cli.App("generate", "generate sysvar genesis file and associated data")
 
 	var (
 		verbose = app.BoolOpt("v verbose", false, "emit more detailed information")

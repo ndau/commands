@@ -20,7 +20,7 @@ Testing depends on a test net to be available and as such are not very pure unit
 
 ```shell
 ./build.sh
-NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 NDAUAPI_CHAOS_RPC_URL=http://127.0.0.1:31005 ./ndauapi
+NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 ./ndauapi
 ```
 
 # Basic Usage
@@ -36,8 +36,7 @@ Please include this in your VSCode config to run individual tests. Replace the I
 
 ```json
     "go.testEnvVars": {
-        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001",
-        "NDAUAPI_CHAOS_RPC_URL": "http://127.0.0.1:31005"
+        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001"
     },
 ```
 

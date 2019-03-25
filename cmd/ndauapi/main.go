@@ -32,9 +32,6 @@ Environment variables
 	ndau node address.
 	NDAUAPI_NDAU_RPC_URL=<http://ndau_tendermint_ip:rpc_port>
 
-	chaos node address.
-	NDAUAPI_CHAOS_RPC_URL=<http://chaos_tendermint_ip:rpc_port>
-
 Flags
 
 	-docs Generates boneful API documentation in markdown.
@@ -42,7 +39,6 @@ Flags
 Example
 
 	NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:26658 \
-	NDAUAPI_CHAOS_RPC_URL=http://127.0.0.1:26665 \
 	  ./ndauapi [-docs]
 
 `)
