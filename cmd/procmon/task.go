@@ -10,73 +10,188 @@ import (
 )
 
 // Task is a restartable program; it can be monitored and
-// restarted if a monitor fails
+// restarted.
+// By default, a task is monitored simply as a running process. If the
+// process terminates for any reason, the task's status channel
+// is notified.
+// The task can also be given a set of monitors that can also
+// watch the task for incorrect performance; they also communicate
+// on the status channel.
+// If the status channel receives a termination notice, the task is
+// shut down if it was not already stopped.
+// When a task stops, its child tasks are also shut down.
+// During shutdown, the tasks that are being deliberately terminated
+// will not be automatically restarted.
+// Once a task and all of its children have been shut down, the task is
+// restarted (which will cause all of its children also to restart).
 type Task struct {
 	Name        string
 	Path        string
 	Args        []string
 	MaxShutdown time.Duration
+	Status      chan Eventer
+	Ready       func() Eventer
 
 	mutex      sync.Mutex
+	Stopping   bool
 	Dependents []*Task
+	// Monitors   []Monitor
 
 	cmd    *exec.Cmd
 	cancel context.CancelFunc
 }
 
 // NewTask creates a Task (but does not start it)
+// The default Ready() function simply returns true
 func NewTask(name string, path string, args ...string) *Task {
 	return &Task{
 		Name:        name,
 		Path:        path,
 		Args:        args,
 		MaxShutdown: 5 * time.Second,
+		Status:      make(chan Eventer),
+		Ready:       func() Eventer { return OK },
 	}
 }
 
-// Kill ends a running task
-func (t *Task) Kill() []*Task {
-	killed := t.KillDependents()
-	fmt.Printf("Killing %s\n", t.Name)
-	if !t.Exited() {
-		t.cancel()
-		killed = append(killed, t)
+// Listen implements Listener, and should be called as a goroutine.
+func (t *Task) Listen(done chan struct{}) {
+	for {
+		select {
+		case e := <-t.Status:
+			if IsFailed(e) {
+				if t.Stopping {
+					fmt.Printf("Ignoring deliberate shutdown of %s\n", t.Name)
+					continue
+				}
+				fmt.Printf("Task %s failed, restarting.\n", t.Name)
+				// make sure the task and its children are gone
+				t.Kill()
+				// and then start it again
+				t.Start(done)
+				// start created a new Listener so this one can go away
+				return
+			}
+			fmt.Println("Looping")
+		}
 	}
-	return killed
-}
-
-// KillDependents ends the dependents of a running task
-// but doesn't touch the task itself.
-func (t *Task) KillDependents() []*Task {
-	t.mutex.Lock()
-	for _, ch := range t.Dependents {
-		ch.Kill()
-	}
-	t.mutex.Unlock()
-	return t.Dependents
 }
 
 // Start begins a new version of the task.
-// It completes only when the task exits; before doing so it
-// sends the task back on the terminated channel.
-func (t *Task) Start(terminated chan *Task) {
+func (t *Task) Start(done chan struct{}) {
 	fmt.Printf("Starting %s\n", t.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	t.cmd = exec.CommandContext(ctx, t.Path, t.Args...)
 	t.cancel = cancel
-	t.cmd.Start()
 
-	// now start any dependent children
+	// clear the stopping flag
+	fmt.Printf("Clearing demo flag %s\n", t.Name)
 	t.mutex.Lock()
-	for _, ch := range t.Dependents {
-		go ch.Start(terminated)
-	}
+	t.Stopping = false
 	t.mutex.Unlock()
+	fmt.Printf("Finished clearing demo flag %s\n", t.Name)
 
-	// and then hang here
-	t.cmd.Wait()
-	terminated <- t
+	// start the task and wait for it to be ready
+	fmt.Printf("Running process for %s\n", t.Name)
+
+	t.cmd.Start()
+	for !IsOK(t.Ready()) {
+		select {
+		case <-time.After(50 * time.Millisecond):
+			// go check again
+		case <-time.After(30 * time.Second):
+			fmt.Printf("%s took too long to start up.\n", t.Name)
+			return
+		}
+	}
+
+	// now we can start any dependent children
+	// we want the unlock to happen before the Wait() so this is in a func
+	func() {
+		fmt.Printf("Starting children %s\n", t.Name)
+		t.mutex.Lock()
+		defer t.mutex.Unlock()
+
+		// we're going to start all the children in parallel and wait until
+		// the slowest of them gets going
+		wg := sync.WaitGroup{}
+		for _, ch := range t.Dependents {
+			// copy ch
+			ch := ch
+			wg.Add(1)
+			go func() {
+				ch.Start(done)
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	}()
+	fmt.Printf("Done with children %s\n", t.Name)
+
+	// and then spin off a goroutine that will tell us if it dies
+	go func() {
+		t.cmd.Wait()
+		t.Status <- Failed
+	}()
+
+	// now we need to monitor for that death
+	go t.Listen(done)
+}
+
+// Kill ends a running task and all of its children
+func (t *Task) Kill() {
+	// record that we're stopping so we don't try to start things up again
+	fmt.Printf("Starting to kill %s\n", t.Name)
+	func() {
+		fmt.Printf("Setting stopping flag for %s\n", t.Name)
+		t.mutex.Lock()
+		defer t.mutex.Unlock()
+		t.Stopping = true
+	}()
+	fmt.Printf("Finished setting stopping flag for %s\n", t.Name)
+
+	t.killDependents()
+	if !t.Exited() {
+		fmt.Printf("Shutting down %s\n", t.Name)
+		t.cmd.Process.Signal(syscall.SIGTERM)
+		for !t.Exited() {
+			select {
+			case <-time.After(t.MaxShutdown / 100):
+				// go check again
+			case <-time.After(t.MaxShutdown):
+				fmt.Printf("%s did not shut down -- killing it.\n", t.Name)
+				t.cancel()
+			}
+		}
+	}
+	fmt.Printf("Done Killing %s\n", t.Name)
+	return
+}
+
+// killDependents ends the dependents of a running task
+// but doesn't touch the task itself.
+// The tasks are killed in parallel and this function only returns when
+// they have all died.
+func (t *Task) killDependents() {
+	if len(t.Dependents) == 0 {
+		return
+	}
+	fmt.Printf("Killing dependents of %s", t.Name)
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	wg := sync.WaitGroup{}
+	for _, ch := range t.Dependents {
+		ch := ch
+		wg.Add(1)
+		go func() {
+			ch.Kill()
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	fmt.Printf("Done killing dependents of %s", t.Name)
+	return
 }
 
 // Exited tells if a task has terminated for any reason
@@ -105,6 +220,13 @@ func (t *Task) Exited() bool {
 // is alive, its children will also be started.
 func (t *Task) AddDependent(ch *Task) {
 	t.mutex.Lock()
+	defer t.mutex.Unlock()
 	t.Dependents = append(t.Dependents, ch)
-	t.mutex.Unlock()
 }
+
+// AddMonitor adds a monitor to the task's monitor list
+// func (t *Task) AddMonitor(m Monitor) {
+// 	t.mutex.Lock()
+// 	defer t.mutex.Unlock()
+// 	t.Monitors = append(t.Monitors, m)
+// }

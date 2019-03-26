@@ -2,21 +2,19 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 )
 
-// Monitor defines a listener that is watching a task by calling a Test function
-// periodically. If the Test function fails, the Monitor will
-// send the task on the failed channel.
+// Monitor defines a listener that is calling a Test function
+// periodically. The test function returns an Event and that event is sent
+// on the Status channel.
 // It is expected that the Listen function is called as a goroutine.
 // If the done channel is closed, the Monitor terminates.
 // Monitors are designed to be easily aggregated and wrapped like middleware.
 type Monitor struct {
-	T      *Task
 	D      time.Duration
-	Failed chan *Task
-	Test   func() bool
+	Status chan Eventer
+	Test   func() Eventer
 }
 
 // Listener is the interface for the Listen method. It expects to be called as a goroutine.
@@ -28,11 +26,10 @@ type Listener interface {
 var _ Listener = (*Monitor)(nil)
 
 // NewMonitor returns a new monitor object
-func NewMonitor(t *Task, d time.Duration, failed chan *Task, test func() bool) *Monitor {
+func NewMonitor(status chan Eventer, d time.Duration, test func() Eventer) *Monitor {
 	return &Monitor{
-		T:      t,
 		D:      d,
-		Failed: failed,
+		Status: status,
 		Test:   test,
 	}
 }
@@ -44,32 +41,8 @@ func (m *Monitor) Listen(done chan struct{}) {
 		case <-done:
 			return
 		case <-time.After(m.D):
-			if !m.Test() {
-				x := m.T
-				m.Failed <- x
-			}
+			m.Status <- m.Test()
 		}
-	}
-}
-
-// HTTPPinger returns a function compatible with the Monitor's Test
-// parameter that pings an HTTP address with a timeout.
-func HTTPPinger(u string, timeout time.Duration) func() bool {
-	client := http.Client{Timeout: time.Duration(timeout)}
-	req, err := http.NewRequest("GET", u, nil)
-	if err != nil {
-		panic(err)
-	}
-	return func() bool {
-		resp, err := client.Do(req)
-		if err != nil {
-			return false
-		}
-		resp.Body.Close()
-		if resp.StatusCode > 299 || resp.StatusCode < 200 {
-			return false
-		}
-		return true
 	}
 }
 
@@ -80,9 +53,9 @@ func HTTPPinger(u string, timeout time.Duration) func() bool {
 type RetryMonitor struct {
 	M           *Monitor
 	Retries     int
-	test        func() bool
-	failed      chan *Task
-	childFailed chan *Task
+	test        func() Eventer
+	status      chan Eventer
+	childStatus chan Eventer
 	failCount   int
 }
 
@@ -94,20 +67,20 @@ func NewRetryMonitor(m *Monitor, retries int) *RetryMonitor {
 	rm := &RetryMonitor{
 		M:           m,
 		Retries:     retries,
-		failed:      m.Failed,
-		childFailed: make(chan *Task),
+		status:      m.Status,
+		childStatus: make(chan Eventer),
 		test:        m.Test,
 	}
 	// wrap the test function with a closure that resets failCount if
 	// the system worked
-	m.Test = func() bool {
-		t := rm.test()
-		if !t {
+	m.Test = func() Eventer {
+		e := rm.test()
+		if IsOK(e) {
 			rm.failCount = 0
 		}
-		return t
+		return e
 	}
-	m.Failed = rm.childFailed
+	m.Status = rm.childStatus
 	return rm
 }
 
@@ -118,11 +91,17 @@ func (m *RetryMonitor) Listen(done chan struct{}) {
 		select {
 		case <-done:
 			return
-		case t := <-m.childFailed:
-			m.failCount++
-			fmt.Printf("retry monitor failcount = %d\n", m.failCount)
-			if m.failCount > m.Retries {
-				m.failed <- t
+		case e := <-m.childStatus:
+			if IsFailed(e) {
+				m.failCount++
+				fmt.Printf("retry monitor failcount = %d\n", m.failCount)
+				if m.failCount > m.Retries {
+					m.status <- e
+				} else {
+					m.status <- Failing
+				}
+			} else {
+				m.status <- e
 			}
 		}
 	}
