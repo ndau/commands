@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"sync"
 	"syscall"
 	"time"
 )
 
-// Task is a restartable program; it can be monitored and
+// Task is a restartable process; it can be monitored and
 // restarted.
 // By default, a task is monitored simply as a running process. If the
 // process terminates for any reason, the task's status channel
@@ -23,7 +24,7 @@ import (
 // During shutdown, the tasks that are being deliberately terminated
 // will not be automatically restarted.
 // Once a task and all of its children have been shut down, the task is
-// restarted (which will cause all of its children also to restart).
+// then restarted (which will cause all of its children also to restart).
 type Task struct {
 	Name        string
 	Path        string
@@ -31,11 +32,12 @@ type Task struct {
 	MaxShutdown time.Duration
 	Status      chan Eventer
 	Ready       func() Eventer
+	Stdout      io.WriteCloser
+	Stderr      io.WriteCloser
 
 	mutex      sync.Mutex
 	Stopping   bool
 	Dependents []*Task
-	// Monitors   []Monitor
 
 	cmd    *exec.Cmd
 	cancel context.CancelFunc
@@ -77,12 +79,38 @@ func (t *Task) Listen(done chan struct{}) {
 	}
 }
 
+// streamCopy is meant to be run as a goroutine and it simply runs, copying
+// src to dst until src is closed.
+func streamCopy(dst io.WriteCloser, src io.ReadCloser) {
+	// we want a small buffer so it keeps the output current with the input
+	buf := make([]byte, 100)
+	// copy until we got nothing left
+	io.CopyBuffer(dst, src, buf)
+}
+
 // Start begins a new version of the task.
 func (t *Task) Start(done chan struct{}) {
 	fmt.Printf("Starting %s\n", t.Name)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	t.cmd = exec.CommandContext(ctx, t.Path, t.Args...)
+
+	if t.Stdout != nil {
+		pipe, err := t.cmd.StdoutPipe()
+		if err != nil {
+			panic(err) // replace with log
+		}
+		go streamCopy(t.Stdout, pipe)
+	}
+
+	if t.Stderr != nil {
+		pipe, err := t.cmd.StderrPipe()
+		if err != nil {
+			panic(err) // replace with log
+		}
+		go streamCopy(t.Stderr, pipe)
+	}
+
 	t.cancel = cancel
 
 	// clear the stopping flag
@@ -94,7 +122,6 @@ func (t *Task) Start(done chan struct{}) {
 
 	// start the task and wait for it to be ready
 	fmt.Printf("Running process for %s\n", t.Name)
-
 	t.cmd.Start()
 	for !IsOK(t.Ready()) {
 		select {
@@ -223,10 +250,3 @@ func (t *Task) AddDependent(ch *Task) {
 	defer t.mutex.Unlock()
 	t.Dependents = append(t.Dependents, ch)
 }
-
-// AddMonitor adds a monitor to the task's monitor list
-// func (t *Task) AddMonitor(m Monitor) {
-// 	t.mutex.Lock()
-// 	defer t.mutex.Unlock()
-// 	t.Monitors = append(t.Monitors, m)
-// }
