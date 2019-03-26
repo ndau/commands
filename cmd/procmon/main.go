@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -42,8 +41,6 @@ func main() {
 	}
 	arg.MustParse(&args)
 
-	failch := make(chan *Task)
-
 	t1 := NewTask("demo parent",
 		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
 		"--port=9999",
@@ -53,36 +50,24 @@ func main() {
 		"--port=9998",
 	)
 	t1.AddDependent(t2)
-	go t1.Start(failch)
+	m1 := NewMonitor(t1.Status, 3*time.Second, HTTPPinger("http://localhost:9999/health", 2*time.Second))
+	m2 := NewMonitor(t2.Status, 1*time.Second, HTTPPinger("http://localhost:9998/health", 1*time.Second))
+	rm2 := NewRetryMonitor(m2, 3)
+
+	donech := make(chan struct{})
+	defer close(donech)
+
+	go m1.Listen(donech)
+	go rm2.Listen(donech)
+
 	killall := func() {
 		t1.Kill()
 		os.Exit(0)
 	}
 	WatchSignals(nil, killall, killall)
 
-	donech := make(chan struct{})
-	defer close(donech)
-
-	m1 := NewMonitor(t1, 3*time.Second, failch, HTTPPinger("http://localhost:9999/health", 2*time.Second))
-	m2 := NewMonitor(t1, 1*time.Second, failch, HTTPPinger("http://localhost:9998/health", 1*time.Second))
-	rm2 := NewRetryMonitor(m2, 3)
-	go m1.Listen(donech)
-	go rm2.Listen(donech)
-
-	ignores := TaskSet{}
-	for {
-		select {
-		case t := <-failch:
-			if ignores.Has(t) {
-				fmt.Printf("Ignoring deliberate shutdown of %s\n", t.Name)
-				ignores.Delete(t)
-				continue
-			}
-			fmt.Printf("Task %s failed, restarting.\n", t.Name)
-			// kill the task and all its dependents in reverse order
-			ignores.Add(t.Kill()...)
-			t.Start(failch)
-		}
-		fmt.Println("Looping")
+	t1.Start(donech)
+	select {
+	case <-donech:
 	}
 }
