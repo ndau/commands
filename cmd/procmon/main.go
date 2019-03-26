@@ -41,33 +41,58 @@ func main() {
 	}
 	arg.MustParse(&args)
 
+	// set up the main task
 	t1 := NewTask("demo parent",
 		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
 		"--port=9999",
 	)
+	// give it a way to tell if it's ready
+	t1.Ready = HTTPPinger("http://localhost:9999/health", 100*time.Millisecond)
+	// and send its logs to a file
+	f, _ := os.Create("t1.log")
+	t1.Stdout = f
+	t1.Stderr = f
+	// do the same for the child task
 	t2 := NewTask("demo child",
 		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
 		"--port=9998",
 	)
+	// and here's how it gets ready
+	t1.Ready = HTTPPinger("http://localhost:9999/health", 100*time.Millisecond)
+	// and set the parent/child relationship
 	t1.AddDependent(t2)
+
+	// Now we have a health check monitor for the main task
 	m1 := NewMonitor(t1.Status, 3*time.Second, HTTPPinger("http://localhost:9999/health", 2*time.Second))
+	// and health check for the child with a shorter timeout
 	m2 := NewMonitor(t2.Status, 1*time.Second, HTTPPinger("http://localhost:9998/health", 1*time.Second))
+	// but some tolerance for occasional failure
 	rm2 := NewRetryMonitor(m2, 3)
 
+	// this is the channel we can use to shut everything down
 	donech := make(chan struct{})
-	defer close(donech)
+	// defer close(donech)
 
+	// start the listeners for the monitors
 	go m1.Listen(donech)
 	go rm2.Listen(donech)
 
+	// when we get SIGINT or SIGTERM, kill everything
+	// SIGHUP is currently ignored
 	killall := func() {
 		t1.Kill()
 		os.Exit(0)
 	}
-	WatchSignals(nil, killall, killall)
+	shutdown := func() {
+		close(donech)
+	}
+	WatchSignals(shutdown, killall, killall)
 
+	// start the main task, which will start everything else
 	t1.Start(donech)
+	// and run almost forever
 	select {
 	case <-donech:
+		t1.Kill()
 	}
 }
