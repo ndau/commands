@@ -37,7 +37,7 @@ then
     echo "Optionsl:"
     echo "  IDENTITY   node-identity.tgz file from a previous snaphot or initial container run"
     echo "             If present, the node will use it to configure itself when [re]starting"
-    echo "             If missing, the node will generate one; keep it secret; keep it safe"
+    echo "             If missing, the node will generate a new identity for itself"
     exit 1
 fi
 CONTAINER="$1"
@@ -100,6 +100,11 @@ get_peer_id() {
     ip="$2"
     p2p="$3"
     rpc="$4"
+
+    if [ -z "$ip" ] || [ -z "$p2p" ] || [ -z "$rpc" ]; then
+        echo "Missing ip or p2p or rpc: ip=($ip) p2p=($p2p) rpc=($rpc)"
+        exit 1
+    fi
 
     echo "Testing connection to $chain peer $ip:$p2p..."
     $(nc -G 5 -z "$ip" "$p2p")
@@ -183,12 +188,26 @@ docker create \
        --sysctl net.core.somaxconn=511 \
        ndauimage 
 
+IDENTITY_FILE=node-identity.tgz
 if [ ! -z "$IDENTITY" ]; then
     echo "Copying node identity file to container..."
-    docker cp "$IDENTITY" "$CONTAINER":/image/node-identity.tgz
+    docker cp "$IDENTITY" "$CONTAINER":/image/$IDENTITY_FILE
 fi
 
 echo "Starting container..."
 docker start "$CONTAINER"
 
 echo done
+
+# In the case no node identity was passed in, give further instructions for how to get it.
+# It's important that node operators keep the node-identity.tgz file secure.
+if [ -z "$IDENTITY" ]; then
+    echo
+    echo "Once the container fully spins up, you can get $IDENTITY_FILE by running the following:"
+    echo "  docker cp $CONTAINER:/image/$IDENTITY_FILE $IDENTITY_FILE"
+    echo "You can see if it's ready by running the following and looking for a similar message:"
+    echo "  docker container logs $CONTAINER"
+    echo "It can be used to restart this container with the same identity it has now"
+    echo "Keep it secret; keep it safe"
+    echo
+fi

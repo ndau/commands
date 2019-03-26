@@ -110,6 +110,23 @@ run_tm ndau "$TM_NDAU_P2P_PORT" "$TM_NDAU_RPC_PORT" "$NODE_NDAU_PORT" "$TM_NDAU_
 
 run_ndauapi
 
+IDENTITY_FILE=node-identity.tgz
+if [ ! -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
+    echo "Generating identity file..."
+
+    cd "$DATA_DIR" || exit 1
+    tar -czf "$SCRIPT_DIR/$IDENTITY_FILE" \
+        chaos/tendermint/config/node_key.json \
+        chaos/tendermint/config/priv_validator_key.json \
+        chaos/tendermint/data/priv_validator_state.json \
+        ndau/tendermint/config/node_key.json \
+        ndau/tendermint/config/priv_validator_key.json \
+        ndau/tendermint/data/priv_validator_state.json
+
+    echo "Done; run the following command to get it:"
+    echo "  docker cp $NODE_ID:$SCRIPT_DIR/$IDENTITY_FILE $IDENTITY_FILE"
+fi
+
 echo "Node group $NODE_ID is now running"
 
 # Wait forever to keep the container alive.

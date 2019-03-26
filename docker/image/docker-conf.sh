@@ -89,12 +89,18 @@ rm -rf $SNAPSHOT_DIR
 
 # If we have a node identity file, extract its contents to the data dir.
 # It'll blend with other files already there from the snapshot.
-cd "$SCRIPT_DIR" || exit 1
 IDENTITY_FILE=node-identity.tgz
-if [ -f "$IDENTITY_FILE" ]; then
-    mv "$IDENTITY_FILE" "$DATA_DIR"
+if [ -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
+    echo "Using existing node identity..."
+    # Copy, don't move, in case the node operator wants to copy it out again later.
+    # Its presence also prevents us from generating it later.
+    cp "$SCRIPT_DIR/$IDENTITY_FILE" "$DATA_DIR"
     cd "$DATA_DIR" || exit 1
     tar -xf "$IDENTITY_FILE"
+else
+    # When we start without a node identity, we generate one so the node operator can restart
+    # this node later, having the same identity every time.
+    echo "No node identity found; a new node identity will be generated"
 fi
 
 # Make data directories that don't get created elsewhere.
