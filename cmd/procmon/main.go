@@ -6,6 +6,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
+	"github.com/sirupsen/logrus"
+
 	arg "github.com/alexflint/go-arg"
 )
 
@@ -41,6 +44,12 @@ func main() {
 	}
 	arg.MustParse(&args)
 
+	logger := honeycomb.Setup(&logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Level:     logrus.InfoLevel,
+	})
+
 	// set up the main task
 	t1 := NewTask("demo parent",
 		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
@@ -52,11 +61,17 @@ func main() {
 	f, _ := os.Create("t1.log")
 	t1.Stdout = f
 	t1.Stderr = f
+	t1.Logger = logger.WithField("task", t1.Name)
+	t1.Logger.Println("Starting task")
+
 	// do the same for the child task
 	t2 := NewTask("demo child",
 		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
 		"--port=9998",
 	)
+	t2.Logger = logger.WithField("task", t2.Name)
+	t2.Logger.Println("Starting task")
+
 	// and here's how it gets ready
 	t1.Ready = HTTPPinger("http://localhost:9999/health", 100*time.Millisecond)
 	// and set the parent/child relationship
