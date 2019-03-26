@@ -50,6 +50,12 @@ PEERS="$7"
 SNAPSHOT="$8"
 IDENTITY="$9"
 
+if [[ "$CONTAINER" == *"/"* ]]; then
+    # This is because we use a sed command inside the container and slashes confuse it.
+    echo "Container name $CONTAINER cannot contain slashes"
+    exit 1
+fi
+
 echo "Container: $CONTAINER"
 
 if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
@@ -131,13 +137,13 @@ for peer in "${peers[@]}"; do
     peer_rpc=${peer_pieces[2]}
     PEER_ID=""
     get_peer_id chaos "$peer_ip" "$peer_p2p" "$peer_rpc"
-    CHAOS_PEERS+=("$PEER_ID@$peer_ip:$peer_p2p")
+    CHAOS_PEERS+=("tcp://$PEER_ID@$peer_ip:$peer_p2p")
 
     peer_p2p=${peer_pieces[3]}
     peer_rpc=${peer_pieces[4]}
     PEER_ID=""
     get_peer_id ndau "$peer_ip" "$peer_p2p" "$peer_rpc"
-    NDAU_PEERS+=("$PEER_ID@$peer_ip:$peer_p2p")
+    NDAU_PEERS+=("tcp://$PEER_ID@$peer_ip:$peer_p2p")
 done
 
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
