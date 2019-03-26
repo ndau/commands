@@ -123,10 +123,10 @@ sed -i -E \
     "$TM_CHAOS_DATA_DIR/config/config.toml" \
     "$TM_NDAU_DATA_DIR/config/config.toml"
 sed -i -E \
-    -e 's/^(persistent_peers =) (.*)/\1 "'"$CHAOS_PEER"'"/' \
+    -e 's/^(persistent_peers =) (.*)/\1 "'"$CHAOS_PERSISTENT_PEERS"'"/' \
     "$TM_CHAOS_DATA_DIR/config/config.toml"
 sed -i -E \
-    -e 's/^(persistent_peers =) (.*)/\1 "'"$NDAU_PEER"'"/' \
+    -e 's/^(persistent_peers =) (.*)/\1 "'"$NDAU_PERSISTENT_PEERS"'"/' \
     "$TM_NDAU_DATA_DIR/config/config.toml"
 
 echo Configuration complete

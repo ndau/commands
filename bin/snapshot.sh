@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Halt on any error.
+set -e
+
 # Load our environment variables.
 CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
@@ -15,23 +18,32 @@ if [ -z "$NETWORK" ]; then
     exit 1
 fi
 
+# Check a common case: not having run localnet at least once.  The redis directory 
+if [ ! -d "$REDIS_NDAU_DATA_DIR-0" ]; then
+    echo "Must ./run.sh localnet at least once before generating a snapshot"
+    exit 1
+fi
+
 # Kill everything gracefully first, so that all data files are dumped by node group processes.
+echo "Ensuring localnet is not running..."
 "$CMDBIN_DIR"/kill.sh 1>/dev/null
 
 # Prepare the output directory for the snapshot.
+echo "Removing any old snapshots..."
 NDAU_SNAPSHOTS_SUBDIR=ndau-snapshots
 NDAU_SNAPSHOTS_DIR="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR"
 rm -rf "$NDAU_SNAPSHOTS_DIR"
 mkdir -p "$NDAU_SNAPSHOTS_DIR"
 
 # Make the private config tarball(s).
+echo "Building new snapshot..."
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
-    echo "Bundling private-chaos-$node_num..."
+    echo "  bundling private-chaos-$node_num..."
     cd "$TENDERMINT_CHAOS_DATA_DIR-$node_num/config" || exit 1
     tar -czf "$NDAU_SNAPSHOTS_DIR/private-chaos-$node_num.tgz" *_key.json
 
-    echo "Bundling private-ndau-$node_num..."
+    echo "  bundling private-ndau-$node_num..."
     cd "$TENDERMINT_NDAU_DATA_DIR-$node_num/config" || exit 1
     tar -czf "$NDAU_SNAPSHOTS_DIR/private-ndau-$node_num.tgz" *_key.json
 done
@@ -72,7 +84,7 @@ SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
 SNAPSHOT_FILE="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR/$SNAPSHOT_NAME.tgz"
 
 # Make the tarball and remove the temp dir.
-echo "Bundling $SNAPSHOT_NAME..."
+echo "  bundling $SNAPSHOT_NAME..."
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
 tar -czf "$SNAPSHOT_FILE" svi-namespace data
 rm -rf "$SNAPSHOT_TEMP_DIR"
@@ -84,7 +96,10 @@ UPLOAD_CMD="aws s3 cp $SNAPSHOT_FILE $S3URI"
 echo
 echo "SNAPSHOT CREATED: $SNAPSHOT_FILE"
 echo "PRIVATE FILES CREATED: $NDAU_SNAPSHOTS_DIR/private-*.tgz"
+echo
 echo "Next steps:"
-echo "  1. Upload the snapshot to S3 using: $UPLOAD_CMD"
+echo "  1. Upload the snapshot to S3 using:"
+echo "       $UPLOAD_CMD"
 echo "  2. Make its name \"$SNAPSHOT_NAME\" known to people wanting to run a node with this snapshot on $NETWORK"
-echo "  3. Back up the private-*.tgz file(s) and keep them secure; use them to start the first $NODE_COUNT nodes on $NETWORK"
+echo "  3. Back up the private-*.tgz file(s) and keep them secure; use them to start (and restart any of) the first $NODE_COUNT nodes on $NETWORK"
+echo
