@@ -15,11 +15,13 @@ if [ -z "$1" ] || \
    [ -z "$4" ] || \
    [ -z "$5" ] || \
    [ -z "$6" ] || \
+   # $7 can be empty
    [ -z "$8" ]
+   # $9 is optional
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI PEERS SNAPSHOT PRIVATE"
+         "CONTAINER CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI PEERS SNAPSHOT IDENTITY"
     echo
     echo "Arguments:"
     echo "  CONTAINER  Name to give to the container to run"
@@ -33,7 +35,7 @@ then
     echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optionsl:"
-    echo "  PRIVATE    private.tgz file from a previous snaphot run or initial container run"
+    echo "  IDENTITY   node-identity.tgz file from a previous snaphot or initial container run"
     echo "             If present, the node will use it to configure itself when [re]starting"
     echo "             If missing, the node will generate one; keep it secret; keep it safe"
     exit 1
@@ -46,8 +48,7 @@ NDAU_RPC="$5"
 NDAUAPI="$6"
 PEERS="$7"
 SNAPSHOT="$8"
-PRIVATE_CHAOS="$9"
-PRIVATE_NDAU="$10"
+IDENTITY="$9"
 
 echo "Container: $CONTAINER"
 
@@ -56,6 +57,11 @@ if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     echo "Use restartcontainer.sh to restart it, or use removecontainer.sh to remove it first"
     exit 1
 fi    
+
+if [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ] ; then
+    echo "Cannot find node identity file: $IDENTITY"
+    exit 1
+fi
 
 echo "chaos P2P port: $CHAOS_P2P"
 echo "chaos RPC port: $CHAOS_RPC"
@@ -155,7 +161,7 @@ echo "Creating container..."
 # Some notes about the params to the run command:
 # - Using --sysctl silences a warning about TCP backlog when redis runs.
 # - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
-docker run -d \
+docker create \
        -p "$CHAOS_P2P":"$INTERNAL_CHAOS_P2P" \
        -p "$CHAOS_RPC":"$INTERNAL_CHAOS_RPC" \
        -p "$NDAU_P2P":"$INTERNAL_NDAU_P2P" \
@@ -170,5 +176,13 @@ docker run -d \
        -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
        ndauimage 
+
+if [ ! -z "$IDENTITY" ]; then
+    echo "Copying node identity file to container..."
+    docker cp "$IDENTITY" "$CONTAINER":/image/node-identity.tgz
+fi
+
+echo "Starting container..."
+docker start "$CONTAINER"
 
 echo done

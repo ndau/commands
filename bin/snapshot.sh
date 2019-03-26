@@ -35,19 +35,6 @@ NDAU_SNAPSHOTS_DIR="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR"
 rm -rf "$NDAU_SNAPSHOTS_DIR"
 mkdir -p "$NDAU_SNAPSHOTS_DIR"
 
-# Make the private config tarball(s).
-echo "Building new snapshot..."
-for node_num in $(seq 0 "$HIGH_NODE_NUM");
-do
-    echo "  bundling private-chaos-$node_num..."
-    cd "$TENDERMINT_CHAOS_DATA_DIR-$node_num/config" || exit 1
-    tar -czf "$NDAU_SNAPSHOTS_DIR/private-chaos-$node_num.tgz" *_key.json
-
-    echo "  bundling private-ndau-$node_num..."
-    cd "$TENDERMINT_NDAU_DATA_DIR-$node_num/config" || exit 1
-    tar -czf "$NDAU_SNAPSHOTS_DIR/private-ndau-$node_num.tgz" *_key.json
-done
-
 # Make a temp dir for copying data files into for tar'ing up later in this script.
 SNAPSHOT_TEMP_DIR="$CMDBIN_DIR"/snapshot-temp
 rm -rf "$SNAPSHOT_TEMP_DIR"
@@ -62,7 +49,36 @@ mkdir -p "$TM_CHAOS_TEMP/data"
 mkdir -p "$TM_NDAU_TEMP/config"
 mkdir -p "$TM_NDAU_TEMP/data"
 
+# Make the node identity tarball(s) first.
+echo "Building node identity files..."
+for node_num in $(seq 0 "$HIGH_NODE_NUM");
+do
+    name="node-identity-$node_num"
+
+    echo "  bundling $name..."
+
+    cd "$TENDERMINT_CHAOS_DATA_DIR-$node_num" || exit 1
+    cp config/node_key.json "$TM_CHAOS_TEMP/config"
+    cp config/priv_validator_key.json "$TM_CHAOS_TEMP/config"
+    cp data/priv_validator_state.json "$TM_CHAOS_TEMP/data"
+
+    cd "$TENDERMINT_NDAU_DATA_DIR-$node_num" || exit 1
+    cp config/node_key.json "$TM_NDAU_TEMP/config"
+    cp config/priv_validator_key.json "$TM_NDAU_TEMP/config"
+    cp data/priv_validator_state.json "$TM_NDAU_TEMP/data"
+
+    cd "$SNAPSHOT_DATA_DIR"
+    tar -czf "$NDAU_SNAPSHOTS_DIR/$name.tgz" chaos ndau
+
+    # Get rid of these files so they're not part of the snapshot.
+    rm -rf "$TM_CHAOS_TEMP"/config/*
+    rm -rf "$TM_CHAOS_TEMP"/data/*
+    rm -rf "$TM_NDAU_TEMP"/config/*
+    rm -rf "$TM_NDAU_TEMP"/data/*
+done
+
 # Get the SVI Namespace from the ndau config.toml file.
+echo "Building new snapshot..."
 SVI_NAMESPACE=$(awk '/^  Namespace/{print $NF}' "$NODE_DATA_DIR-0"/ndau/config.toml | tr -d '"')
 echo "$SVI_NAMESPACE" > "$SNAPSHOT_TEMP_DIR/svi-namespace"
 
@@ -77,6 +93,14 @@ cp -r "$TENDERMINT_CHAOS_DATA_DIR-0/data/state.db" "$TM_CHAOS_TEMP/data"
 cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$TM_NDAU_TEMP/config"
 cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/blockstore.db" "$TM_NDAU_TEMP/data"
 cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_NDAU_TEMP/data"
+
+# Use something better than "test-chain-..." for the chain_id.
+genesis_file="$TM_CHAOS_TEMP/config/genesis.json"
+jq ".chain_id=\"$NETWORK\"" "$genesis_file" > "$genesis_file.temp"
+mv "$genesis_file.temp" "$genesis_file"
+genesis_file="$TM_NDAU_TEMP/config/genesis.json"
+jq ".chain_id=\"$NETWORK\"" "$genesis_file" > "$genesis_file.temp"
+mv "$genesis_file.temp" "$genesis_file"
 
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$NOMS_DIR"/noms show "$NOMS_NDAU_DATA_DIR-0"::ndau.value.Height | tr -d '"')))
@@ -95,11 +119,11 @@ UPLOAD_CMD="aws s3 cp $SNAPSHOT_FILE $S3URI"
 
 echo
 echo "SNAPSHOT CREATED: $SNAPSHOT_FILE"
-echo "PRIVATE FILES CREATED: $NDAU_SNAPSHOTS_DIR/private-*.tgz"
+echo "NODE IDENTITY FILES CREATED: $NDAU_SNAPSHOTS_DIR/node-identity-*.tgz"
 echo
 echo "Next steps:"
 echo "  1. Upload the snapshot to S3 using:"
 echo "       $UPLOAD_CMD"
 echo "  2. Make its name \"$SNAPSHOT_NAME\" known to people wanting to run a node with this snapshot on $NETWORK"
-echo "  3. Back up the private-*.tgz file(s) and keep them secure; use them to start (and restart any of) the first $NODE_COUNT nodes on $NETWORK"
+echo "  3. Back up the node-identity-*.tgz file(s) and keep them secure; use them to start (and restart any of) the first $NODE_COUNT nodes on $NETWORK"
 echo

@@ -83,9 +83,19 @@ if [ ! -f "$NDAU_TENDERMINT_GENESIS_FILE" ]; then
     exit 1
 fi
 
-# Copy the snapshot data where the applications expect it, then remove the temp snapshot dir.
+# Move the snapshot data dir where the applications expect it, then remove the temp snapshot dir.
 mv "$SNAPSHOT_DATA_DIR" "$DATA_DIR"
 rm -rf $SNAPSHOT_DIR
+
+# If we have a node identity file, extract its contents to the data dir.
+# It'll blend with other files already there from the snapshot.
+cd "$SCRIPT_DIR" || exit 1
+IDENTITY_FILE=node-identity.tgz
+if [ -f "$IDENTITY_FILE" ]; then
+    mv "$IDENTITY_FILE" "$DATA_DIR"
+    cd "$DATA_DIR" || exit 1
+    tar -xf "$IDENTITY_FILE"
+fi
 
 # Make data directories that don't get created elsewhere.
 mkdir -p "$NODE_DATA_DIR"
