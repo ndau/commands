@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os/exec"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Task is a restartable process; it can be monitored and
@@ -34,6 +35,7 @@ type Task struct {
 	Ready       func() Eventer
 	Stdout      io.WriteCloser
 	Stderr      io.WriteCloser
+	Logger      logrus.FieldLogger
 
 	mutex      sync.Mutex
 	Stopping   bool
@@ -63,10 +65,10 @@ func (t *Task) Listen(done chan struct{}) {
 		case e := <-t.Status:
 			if IsFailed(e) {
 				if t.Stopping {
-					fmt.Printf("Ignoring deliberate shutdown of %s\n", t.Name)
+					t.Logger.Info("ignoring deliberate shutdown")
 					continue
 				}
-				fmt.Printf("Task %s failed, restarting.\n", t.Name)
+				t.Logger.Warn("task failed, restarting")
 				// make sure the task and its children are gone
 				t.Kill()
 				// and then start it again
@@ -74,7 +76,7 @@ func (t *Task) Listen(done chan struct{}) {
 				// start created a new Listener so this one can go away
 				return
 			}
-			fmt.Println("Looping")
+			t.Logger.Debug("looping")
 		}
 	}
 }
@@ -90,7 +92,7 @@ func streamCopy(dst io.WriteCloser, src io.ReadCloser) {
 
 // Start begins a new version of the task.
 func (t *Task) Start(done chan struct{}) {
-	fmt.Printf("Starting %s\n", t.Name)
+	t.Logger.Info("Starting")
 	ctx, cancel := context.WithCancel(context.Background())
 
 	t.cmd = exec.CommandContext(ctx, t.Path, t.Args...)
@@ -98,37 +100,37 @@ func (t *Task) Start(done chan struct{}) {
 	if t.Stdout != nil {
 		pipe, err := t.cmd.StdoutPipe()
 		if err != nil {
-			panic(err) // replace with log
+			t.Logger.WithError(err).Error("could not construct stdout pipe")
+		} else {
+			go streamCopy(t.Stdout, pipe)
 		}
-		go streamCopy(t.Stdout, pipe)
 	}
 
 	if t.Stderr != nil {
 		pipe, err := t.cmd.StderrPipe()
 		if err != nil {
-			panic(err) // replace with log
+			t.Logger.WithError(err).Error("could not construct stderr pipe")
+		} else {
+			go streamCopy(t.Stderr, pipe)
 		}
-		go streamCopy(t.Stderr, pipe)
 	}
 
 	t.cancel = cancel
 
 	// clear the stopping flag
-	fmt.Printf("Clearing demo flag %s\n", t.Name)
 	t.mutex.Lock()
 	t.Stopping = false
 	t.mutex.Unlock()
-	fmt.Printf("Finished clearing demo flag %s\n", t.Name)
 
 	// start the task and wait for it to be ready
-	fmt.Printf("Running process for %s\n", t.Name)
+	t.Logger.Info("Running process")
 	t.cmd.Start()
 	for !IsOK(t.Ready()) {
 		select {
 		case <-time.After(50 * time.Millisecond):
 			// go check again
 		case <-time.After(30 * time.Second):
-			fmt.Printf("%s took too long to start up.\n", t.Name)
+			t.Logger.Error("took too long to start up")
 			return
 		}
 	}
@@ -136,7 +138,7 @@ func (t *Task) Start(done chan struct{}) {
 	// now we can start any dependent children
 	// we want the unlock to happen before the Wait() so this is in a func
 	func() {
-		fmt.Printf("Starting children %s\n", t.Name)
+		t.Logger.Info("starting children")
 		t.mutex.Lock()
 		defer t.mutex.Unlock()
 
@@ -154,7 +156,7 @@ func (t *Task) Start(done chan struct{}) {
 		}
 		wg.Wait()
 	}()
-	fmt.Printf("Done with children %s\n", t.Name)
+	t.Logger.Info("done with children")
 
 	// and then spin off a goroutine that will tell us if it dies
 	go func() {
@@ -169,30 +171,28 @@ func (t *Task) Start(done chan struct{}) {
 // Kill ends a running task and all of its children
 func (t *Task) Kill() {
 	// record that we're stopping so we don't try to start things up again
-	fmt.Printf("Starting to kill %s\n", t.Name)
+	t.Logger.Warn("starting to kill process descendants")
 	func() {
-		fmt.Printf("Setting stopping flag for %s\n", t.Name)
 		t.mutex.Lock()
 		defer t.mutex.Unlock()
 		t.Stopping = true
 	}()
-	fmt.Printf("Finished setting stopping flag for %s\n", t.Name)
 
 	t.killDependents()
 	if !t.Exited() {
-		fmt.Printf("Shutting down %s\n", t.Name)
+		t.Logger.Info("shutting down")
 		t.cmd.Process.Signal(syscall.SIGTERM)
 		for !t.Exited() {
 			select {
 			case <-time.After(t.MaxShutdown / 100):
 				// go check again
 			case <-time.After(t.MaxShutdown):
-				fmt.Printf("%s did not shut down -- killing it.\n", t.Name)
+				t.Logger.Error("did not shut down after SIGTERM -- killing it with SIGKILL")
 				t.cancel()
 			}
 		}
 	}
-	fmt.Printf("Done Killing %s\n", t.Name)
+	t.Logger.Debug("done killing")
 	return
 }
 
@@ -204,7 +204,7 @@ func (t *Task) killDependents() {
 	if len(t.Dependents) == 0 {
 		return
 	}
-	fmt.Printf("Killing dependents of %s", t.Name)
+	t.Logger.Info("Killing dependents")
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	wg := sync.WaitGroup{}
@@ -217,27 +217,26 @@ func (t *Task) killDependents() {
 		}()
 	}
 	wg.Wait()
-	fmt.Printf("Done killing dependents of %s", t.Name)
+	t.Logger.Info("Done killing dependents")
 	return
 }
 
 // Exited tells if a task has terminated for any reason
 func (t *Task) Exited() bool {
-	// fmt.Printf("Checking exit for %s: %#v\n", t.Name, t.cmd)
 	if t.cmd.ProcessState == nil {
 		if t.cmd.Process == nil {
-			fmt.Printf("Process %s was nil\n", t.Name)
+			t.Logger.Error("process was nil")
 			return true
 		}
 		if err := t.cmd.Process.Signal(syscall.Signal(0)); err != nil {
-			fmt.Printf("Process %s did not respond\n", t.Name)
+			t.Logger.Error("process did not respond")
 			return true
 		}
 		return false
 	}
 	b := t.cmd.ProcessState.Exited()
 	if b {
-		fmt.Printf("Process %s exited\n", t.Name)
+		t.Logger.Warn("process exited")
 	}
 	return b
 }

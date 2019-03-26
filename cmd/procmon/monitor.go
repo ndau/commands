@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -94,7 +93,6 @@ func (m *RetryMonitor) Listen(done chan struct{}) {
 		case e := <-m.childStatus:
 			if IsFailed(e) {
 				m.failCount++
-				fmt.Printf("retry monitor failcount = %d\n", m.failCount)
 				if m.failCount > m.Retries {
 					m.status <- e
 				} else {
