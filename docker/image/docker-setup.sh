@@ -1,7 +1,5 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-TENDERMINT_VER=v0.31.0
-
 ATTICLABS_DIR="$GOPATH"/src/github.com/attic-labs
 NDEV_SUBDIR=github.com/oneiro-ndev
 NDEV_DIR="$GOPATH/src/$NDEV_SUBDIR"
@@ -32,7 +30,7 @@ patch -i "$SCRIPT_DIR"/root.go.patch cmd/tendermint/commands/root.go
 echo Getting ndev repositories...
 mkdir -p "$NDEV_DIR"
 cd "$NDEV_DIR" || exit 1
-git clone git@github.com:oneiro-ndev/commands.git
+git clone git@github.com:oneiro-ndev/commands.git --branch "$COMMANDS_BRANCH"
 
 echo Installing dep...
 go get -u github.com/golang/dep/...
