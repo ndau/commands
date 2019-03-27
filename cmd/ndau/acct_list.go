@@ -8,6 +8,16 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 )
 
+func getAccountAddr(verbose *bool) func(*cli.Cmd) {
+	return func(cmd *cli.Cmd) {
+		cmd.Spec = getAddressSpec("")
+		getAddress := getAddressClosure(cmd, "")
+		cmd.Action = func() {
+			fmt.Println(getAddress().String())
+		}
+	}
+}
+
 func getAccountList(verbose *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Command("remote", "list accounts known to the ndau chain", getAccountListRemote(verbose))
