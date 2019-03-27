@@ -529,7 +529,8 @@ jobs:
             apk add sed
 
             # clone integration tests and ndev dep repos
-            git clone git@github.com:oneiro-ndev/integration-tests.git
+	    # TODO: Remove the "--branch reverse-thermo" part when we land this all to master.
+            git clone git@github.com:oneiro-ndev/integration-tests.git --branch reverse-thermo
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
             git clone git@github.com:oneiro-ndev/chaos.git
