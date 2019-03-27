@@ -33,13 +33,14 @@ These steps only need to be performed once:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git ~/go/src/github.com/oneiro-ndev/commands
     ```
-1. Set up genesis files:
+1. Set up genesis files: (Optional)
+    - Using custom genesis files is useful if running a localnet for mainnet-specific tasks; they are generated automatically if not supplied
     - Get a copy of `genesis_files.tar` from Oneiro's 1password account
     - Create the directory `~/.localnet`
     - Extract `genesis_files.tar` within `~/.localnet`
     - You should now see the following items in your `~/.localnet/genesis_files/` directory:
-        - `associated.toml`
-        - `genesis.toml`
+        - `system_accounts.toml`
+        - `system_vars.toml`
         - (any other files or subdirectories in here are not needed and can be removed if desired)
 1. Run `./bin/setup.sh N` where `N` is the number of nodes you'd like to run
 

@@ -53,11 +53,12 @@ build_ndau() {
     echo -e "$readme" > "$NDAUAPI_CMD/README.md"
 }
 
-build_etl() {
-    echo building etl
+build_tools() {
+    echo building tools
     cd "$COMMANDS_DIR"
 
     go build ./"$ETL_CMD"
+    go build ./"$GENERATE_CMD"
 }
 
 build_tm() {
@@ -77,7 +78,7 @@ build_all() {
     build_noms
     build_tm
     build_ndau
-    build_etl
+    build_tools
 }
 
 build_all

@@ -53,8 +53,8 @@ export TENDERMINT_DIR="$TM_DIR"/tendermint
 export LOCALNET_DIR=~/.localnet
 export ROOT_DATA_DIR="$LOCALNET_DIR"/data
 export GENESIS_FILES_DIR="$LOCALNET_DIR"/genesis_files
-export GENESIS_TOML="$GENESIS_FILES_DIR/genesis.toml"
-export ASSC_TOML="$GENESIS_FILES_DIR/associated.toml"
+export SYSTEM_VARS_TOML="$GENESIS_FILES_DIR/system_vars.toml"
+export SYSTEM_ACCOUNTS_TOML="$GENESIS_FILES_DIR/system_accounts.toml"
 
 # Data directories.  These get "-$node_num" appended to them when they are used.
 export NODE_DATA_DIR="$ROOT_DATA_DIR"/ndau
@@ -63,7 +63,7 @@ export REDIS_NDAU_DATA_DIR="$ROOT_DATA_DIR"/redis-ndau
 export TENDERMINT_NDAU_DATA_DIR="$ROOT_DATA_DIR"/tendermint-ndau
 
 # Command source subdirectories.  We build all tools in their respective repo roots, though.
-export GENESIS_CMD=cmd/genesis
+export GENERATE_CMD=cmd/generate
 export NDAU_CMD=cmd/ndau
 export NDAUAPI_CMD=cmd/ndauapi
 export NDAUNODE_CMD=cmd/ndaunode
