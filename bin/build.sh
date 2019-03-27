@@ -29,7 +29,7 @@ escape_newlines() {
 
 build_ndau() {
     echo building ndau
-    cd "$NDAU_DIR"
+    cd "$COMMANDS_DIR"
 
     ensure_no_test_links
 
@@ -39,7 +39,6 @@ build_ndau() {
     echo "  VERSION=$VERSION"
     VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
 
-    cd "$COMMANDS_DIR"
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAU_CMD"
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAUNODE_CMD"
     go build ./"$NDAUAPI_CMD"

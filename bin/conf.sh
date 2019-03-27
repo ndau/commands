@@ -65,7 +65,7 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         tm_ndau_priv="$tm_ndau_home/config/priv_validator_key.json"
 
         peer_id=$(./tendermint show_node_id --home "$tm_ndau_home")
-        peer_port=$((TM_P2P_PORT + 2 * node_num + 1))
+        peer_port=$((TM_P2P_PORT + node_num))
         peer="$peer_id@127.0.0.1:$peer_port"
         ndau_peers+=("$peer")
 
@@ -116,8 +116,7 @@ cd "$COMMANDS_DIR" || exit 1
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
     ndau_home="$NODE_DATA_DIR-$node_num"
-    port_offset=$((2 * node_num))
-    ndau_rpc_port=$((TM_RPC_PORT + port_offset + 1))
+    ndau_rpc_port=$((TM_RPC_PORT + node_num))
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
@@ -131,8 +130,7 @@ fi
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     node_num=0
-    port_offset=$((2 * node_num))
-    ndau_rpc_port=$((TM_RPC_PORT + port_offset + 1))
+    ndau_rpc_port=$((TM_RPC_PORT + node_num))
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
     ./ndau conf "$ndau_rpc_addr"

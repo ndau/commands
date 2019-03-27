@@ -1,6 +1,6 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-TENDERMINT_VER=v0.30.1
+TENDERMINT_VER=v0.31.0
 
 ATTICLABS_DIR="$GOPATH"/src/github.com/attic-labs
 NDEV_SUBDIR=github.com/oneiro-ndev
@@ -33,7 +33,6 @@ echo Getting ndev repositories...
 mkdir -p "$NDEV_DIR"
 cd "$NDEV_DIR" || exit 1
 git clone git@github.com:oneiro-ndev/commands.git
-git clone git@github.com:oneiro-ndev/ndau.git
 
 echo Installing dep...
 go get -u github.com/golang/dep/...
@@ -56,18 +55,12 @@ cd "$TM_DIR"/tendermint || exit 1
 go build ./cmd/tendermint
 mv tendermint "$BIN_DIR"
 
-echo Building chaos...
-cd "$NDEV_DIR"/commands || exit 1
-go build ./cmd/chaosnode
-mv chaosnode "$BIN_DIR"
-
 echo Building ndau...
-cd "$NDEV_DIR"/ndau || exit 1
+cd "$NDEV_DIR"/commands || exit 1
 VERSION=$(git describe --long --tags --match="v*")
 VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
-cd "$NDEV_DIR"/commands || exit 1
 go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndaunode
-go build ./cmd/ndauapi
+go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndauapi
 mv ndaunode "$BIN_DIR"
 mv ndauapi "$BIN_DIR"
 
