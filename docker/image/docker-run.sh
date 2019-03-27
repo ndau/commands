@@ -3,13 +3,10 @@ source "$SCRIPT_DIR"/docker-env.sh
 
 echo "Running $NODE_ID node group..."
 
-# If the svi namespace file exists, it means we're starting from scratch.
-SVI_NAMESPACE_FILE="$SCRIPT_DIR/svi-namespace"
-if [ -f "$SVI_NAMESPACE_FILE" ]; then
+# If there's no data directory yet, it means we're starting from scratch.
+if [ ! -d "$DATA_DIR" ]; then
     echo "Configuring node group..."
-    export SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
     /bin/bash "$SCRIPT_DIR"/docker-conf.sh
-    rm -f "$SVI_NAMESPACE_FILE"
 fi
 
 # This is needed because in the long term, noms eats more than 256 file descriptors
@@ -112,6 +109,23 @@ run_node ndau "$NODE_NDAU_PORT" "$REDIS_NDAU_PORT" "$NOMS_NDAU_PORT"
 run_tm ndau "$TM_NDAU_P2P_PORT" "$TM_NDAU_RPC_PORT" "$NODE_NDAU_PORT" "$TM_NDAU_DATA_DIR"
 
 run_ndauapi
+
+IDENTITY_FILE=node-identity.tgz
+if [ ! -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
+    echo "Generating identity file..."
+
+    cd "$DATA_DIR" || exit 1
+    tar -czf "$SCRIPT_DIR/$IDENTITY_FILE" \
+        chaos/tendermint/config/node_key.json \
+        chaos/tendermint/config/priv_validator_key.json \
+        chaos/tendermint/data/priv_validator_state.json \
+        ndau/tendermint/config/node_key.json \
+        ndau/tendermint/config/priv_validator_key.json \
+        ndau/tendermint/data/priv_validator_state.json
+
+    echo "Done; run the following command to get it:"
+    echo "  docker cp $NODE_ID:$SCRIPT_DIR/$IDENTITY_FILE $IDENTITY_FILE"
+fi
 
 echo "Node group $NODE_ID is now running"
 
