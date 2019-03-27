@@ -61,9 +61,9 @@ do
 
     cd "$SNAPSHOT_DATA_DIR"
     tar -czf "$NDAU_SNAPSHOTS_DIR/$name.tgz" \
-         "tendermint/config/node_key.json" \
-         "tendermint/config/priv_validator_key.json" \
-         "tendermint/data/priv_validator_state.json"
+        tendermint/config/node_key.json \
+        tendermint/config/priv_validator_key.json \
+        tendermint/data/priv_validator_state.json
 
     # Get rid of these files so they're not part of the snapshot.
     rm -rf "$TM_TEMP"/config/*
