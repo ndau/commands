@@ -436,7 +436,7 @@
 
 [[projects]]
   branch = "reverse-thermo"
-  digest = "1:42fcb03204370fc7bf3246ff2fe68b64bea6000624e31713f3acd559eba11c5b"
+  digest = "1:f0a5d897edf8d7b7e6e66739524b4cadf321114f2ed08a1a3bfd4e18f41f4fbf"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -445,7 +445,7 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "4efb79e9ad364dd7868309dde9461675740695bb"
+  revision = "74c708ee1387803ce196b0222e9cf95622c5175e"
 
 [[projects]]
   digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
