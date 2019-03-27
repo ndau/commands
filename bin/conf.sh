@@ -123,6 +123,12 @@ do
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
 done
 
+# Make sure the genesif files exist, since steps after this require them.
+if [ ! -f "$SYSTEM_VARS_TOML" ] || [ ! -f "$SYSTEM_ACCOUNTS_TOML" ]; then
+    mkdir -p "$GENESIS_FILES_DIR"
+    ./generate -v -g "$SYSTEM_VARS_TOML" -a "$SYSTEM_ACCOUNTS_TOML"
+fi
+
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     node_num=0
     port_offset=$((2 * node_num))
@@ -130,7 +136,7 @@ if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
     ./ndau conf "$ndau_rpc_addr"
-    ./ndau conf update-from "$ASSC_TOML"
+    ./ndau conf update-from "$SYSTEM_ACCOUNTS_TOML"
 fi
 
 # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
@@ -140,7 +146,7 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
     do
         ndau_home="$NODE_DATA_DIR-$node_num"
 
-        NDAUHOME="$ndau_home" ./ndau conf update-from "$ASSC_TOML"
+        NDAUHOME="$ndau_home" ./ndau conf update-from "$SYSTEM_ACCOUNTS_TOML"
 
         # For deterministic bpc account address/keys, we recover a special account with 12 eyes.
         # Since this is only for localnet/devnet/testnet (i.e. not mainnet), this is safe.
@@ -150,10 +156,14 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
         # Generate noms data for ndau node 0, copy from node 0 otherwise.
         data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
         if [ "$node_num" = 0 ]; then
-            NDAUHOME="$ndau_home" ./ndaunode -use-ndauhome -genesisfile "$GENESIS_TOML" -asscfile "$ASSC_TOML"
+            NDAUHOME="$ndau_home" \
+            ./ndaunode -use-ndauhome \
+                       -genesisfile "$SYSTEM_VARS_TOML" \
+                       -asscfile "$SYSTEM_ACCOUNTS_TOML"
             mv "$ndau_home/ndau/noms" "$data_dir"
-            # set var below if ETL step is to be run
-            # this needs to be here because ETL needs to push data direct to noms dir, and before noms starts
+
+            # set var below if ETL step is to be run. this needs to be here because ETL needs to
+            # push data direct to noms dir and before noms starts
             if [ "$RUN_ETL" = "1" ]; then
                 "$CMDBIN_DIR"/etl.sh $node_num
             fi
@@ -169,5 +179,5 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
 fi
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
-    ./ndau conf update-from "$ASSC_TOML"
+    ./ndau conf update-from "$SYSTEM_ACCOUNTS_TOML"
 fi
