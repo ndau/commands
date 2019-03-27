@@ -26,7 +26,7 @@ ndau_redis() {
     echo running redis for "ndau-$node_num"
 
     data_dir="$REDIS_NDAU_DATA_DIR-$node_num"
-    redis_port=$((REDIS_PORT + 2 * node_num + 1))
+    redis_port=$((REDIS_PORT + node_num))
     output_name="$CMDBIN_DIR/ndau_redis-$node_num"
 
     mkdir -p "$data_dir"
@@ -50,7 +50,7 @@ ndau_noms() {
     echo running noms for "ndau-$node_num"
 
     data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
-    noms_port=$((NOMS_PORT + 2 * node_num + 1))
+    noms_port=$((NOMS_PORT + node_num))
     output_name="$CMDBIN_DIR/ndau_noms-$node_num"
 
     cd "$NOMS_DIR" || exit 1
@@ -67,10 +67,9 @@ ndau_node() {
     echo running node for "ndau-$node_num"
 
     ndau_home="$NODE_DATA_DIR-$node_num"
-    port_offset=$((2 * node_num + 1))
-    noms_port=$((NOMS_PORT + port_offset))
-    redis_port=$((REDIS_PORT + port_offset))
-    node_port=$((NODE_PORT + port_offset))
+    noms_port=$((NOMS_PORT + node_num))
+    redis_port=$((REDIS_PORT + node_num))
+    node_port=$((NODE_PORT + node_num))
     genesis_config="$TENDERMINT_NDAU_DATA_DIR-$node_num/config/genesis"
     output_name="$CMDBIN_DIR/ndau_node-$node_num"
 
@@ -102,10 +101,9 @@ ndau_tm() {
     echo running tendermint for "ndau-$node_num"
 
     data_dir="$TENDERMINT_NDAU_DATA_DIR-$node_num"
-    port_offset=$((2 * node_num + 1))
-    node_port=$((NODE_PORT + port_offset))
-    p2p_port=$((TM_P2P_PORT + port_offset))
-    rpc_port=$((TM_RPC_PORT + port_offset))
+    node_port=$((NODE_PORT + node_num))
+    p2p_port=$((TM_P2P_PORT + node_num))
+    rpc_port=$((TM_RPC_PORT + node_num))
     output_name="$CMDBIN_DIR/ndau_tm-$node_num"
 
     cd "$TENDERMINT_DIR" || exit 1

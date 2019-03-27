@@ -40,7 +40,7 @@ test_ndau() {
         echo testing ndau integration
 
         # We use the ports of the 0'th node, even in a multi-node localnet.
-        ndau_rpc_port=$((TM_RPC_PORT + 1))
+        ndau_rpc_port="$TM_RPC_PORT"
 
         ndau_rpc=http://localhost:"$ndau_rpc_port"
         go test ./pkg/ndauapi/routes/... -integration -ndaurpc="$ndau_rpc"

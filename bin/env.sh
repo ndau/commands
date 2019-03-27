@@ -6,17 +6,14 @@ export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
 export TENDERMINT_VER=v0.31.0
 
 # For multi-node support.
-export MAX_NODE_COUNT=5
+export MAX_NODE_COUNT=10
 
 # Port numbers.
 # For example, here are the noms ports for each node:
-#   node 0:
-#     ndau : 8001
-#   node 1:
-#     ndau : 8003
-#   node N:
-#     ndau : NOMS_PORT + 2 * N + 1
-# Therefore, we must leave room for 2 x MAX_NODE_COUNT values in each port number space.
+#   node 0: 8000
+#   node 1: 8001
+#   node N: 8000 + N
+# Therefore, we must leave room for MAX_NODE_COUNT values in each port number space.
 export NODE_PORT=26650
 export NOMS_PORT=8000
 export REDIS_PORT=6379
