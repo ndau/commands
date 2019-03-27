@@ -201,6 +201,7 @@ general_config: &general_config
         # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
         ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
+        NDAUHOME: /root/.ndau
         S3_DEPLOY_ARCHIVE: devnet.tgz
         HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
@@ -521,11 +522,16 @@ jobs:
             fi
 
             # ensure go path location
-            mkdir -p /go/src/github.com/oneiro-ndev
-            cd /go/src/github.com/oneiro-ndev
             export GOPATH=/go
             mkdir -p $GOPATH/bin
+            ndev_dir=$GOPATH/src/github.com/oneiro-ndev
+            mkdir -p $ndev_dir
+            cd $ndev_dir
+
+            # install dep
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+            # install sed?
             apk add sed
 
             # clone integration tests and ndev dep repos
@@ -533,14 +539,17 @@ jobs:
             git clone git@github.com:oneiro-ndev/integration-tests.git --branch reverse-thermo
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            git clone git@github.com:oneiro-ndev/chaos.git
-            ( cd chaos && echo "chaos repo at $(git rev-parse --short HEAD)" )
-
+            source $BASH_ENV
+            # clone the commands repo and build the ndau tool
             git clone git@github.com:oneiro-ndev/commands.git
-            ( cd commands && echo "commands repo at $(git rev-parse --short HEAD)" )
-
-            git clone git@github.com:oneiro-ndev/ndau.git
-            ( cd ndau && echo "ndau repo at $(git rev-parse --short HEAD)" )
+            (
+              cd commands
+              git checkout $SHA # checkout sha of this commit
+              echo "commands repo at $(git rev-parse --short HEAD)" # for logs
+              dep ensure
+              cd cmd/ndau
+              go build .
+            )
 
             cd integration-tests
 
