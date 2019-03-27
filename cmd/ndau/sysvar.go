@@ -56,7 +56,12 @@ func getSysvarGet(verbose *bool) func(*cli.Cmd) {
 					orQuit(errors.Wrap(err, "unmarshaling "+name))
 				}
 				var val interface{}
-				err = json.Unmarshal(buf.Bytes(), &val)
+				bbytes := buf.Bytes()
+				if len(bbytes) == 0 {
+					jsvs[name] = ""
+					continue
+				}
+				err = json.Unmarshal(bbytes, &val)
 				if err != nil {
 					orQuit(errors.Wrap(err, fmt.Sprintf("converting %s to json", name)))
 				}
