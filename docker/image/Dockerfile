@@ -45,6 +45,6 @@ COPY ./docker-run.sh /image
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
 # Tendermint itself will communicate with other containers through the P2P ports.
 # All other processes in the container will communicate with each other through internal ports.
-EXPOSE 26660 26661 26670 26671 3030
+EXPOSE 26660 26670 3030
 
 CMD ["/bin/bash", "/image/docker-run.sh"]
