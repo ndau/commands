@@ -26,9 +26,9 @@ fi
 # Users may want us to generate the genesis files, or they may want to use their own.
 # Checking this early on gives the user the chance to fix their mistake if they didn't want them
 # generated.  It'll only ask once, even on subsequent setup.sh commands.
+# Only check for for the system vars toml since the system accounts toml is optional.
 if [ ! -f "$SYSTEM_VARS_TOML" ]; then
-    echo "Cannot find the following genesis file:"
-    echo "  $SYSTEM_VARS_TOML"
+    echo "Cannot find genesis file: $SYSTEM_VARS_TOML"
 
     printf "Generate new? [y|n]: "
     read GENERATE
@@ -38,7 +38,8 @@ if [ ! -f "$SYSTEM_VARS_TOML" ]; then
         exit 1
     fi
 
-    # At this point, conf.sh will see that the genesis files are missing and will generate them.
+    # At this point, conf.sh will see that the genesis file (system vars toml) is missing and
+    # will generate it as well as generating a fresh system accounts toml.
 fi
 
 # Initialize global config for the localnet we're setting up.
