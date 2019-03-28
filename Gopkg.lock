@@ -435,7 +435,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "reverse-thermo"
   digest = "1:f0a5d897edf8d7b7e6e66739524b4cadf321114f2ed08a1a3bfd4e18f41f4fbf"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
@@ -445,7 +444,8 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "74c708ee1387803ce196b0222e9cf95622c5175e"
+  revision = "51043b47d47007874a16b79349eb34bef2f4ed67"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
@@ -486,7 +486,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "chaos-integration"
   digest = "1:55e9b9c19159c323555264cb15756c8ece109cedd7ee95e4a7df6aed987d635e"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "cc3d72655cb38169b2054437cc894446be625b6f"
+  revision = "28d292ffd1e3da8f98b1b8e8bc98d84bed8760ff"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -550,7 +550,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  branch = "prgn-gfile"
   digest = "1:939c7a816552e515321f531d73d14e44a88051bc4d270f0ffe27b4c3884e14e0"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -559,7 +558,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "3e08c7ffd7ac3e013d80f050987ebcfbfc855186"
+  revision = "50511a5d4950632e331501ed1963a277ee5a7c4b"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"

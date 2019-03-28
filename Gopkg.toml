@@ -4,8 +4,7 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-# version = "~v0.1"
-branch = "reverse-thermo"
+version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
@@ -17,8 +16,7 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.4"
-branch = "chaos-integration"
+version = "~v1.5"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -30,8 +28,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-# version = "~v1.1"
-branch = "prgn-gfile"
+version = "~v1.2"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
