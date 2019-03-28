@@ -299,7 +299,7 @@ jobs:
           command: |
             # Redeploy devnet
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git -b absolute-zero /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation
             ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # get bash environments manually
@@ -361,7 +361,7 @@ jobs:
             echo SHA=$SHA
 
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git -b absolute-zero /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation
             ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
@@ -424,7 +424,7 @@ jobs:
             echo -e "$kube_config_main" > /root/kubeconfig
 
             # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git -b absolute-zero /root/automation
+            git clone git@github.com:oneiro-ndev/automation.git /root/automation
             ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
 
             # copy and unzip installation scripts from aws
@@ -535,8 +535,7 @@ jobs:
             apk add sed
 
             # clone integration tests and ndev dep repos
-            # TODO: Remove the "--branch reverse-thermo" part when we land this all to master.
-            git clone git@github.com:oneiro-ndev/integration-tests.git --branch reverse-thermo
+            git clone git@github.com:oneiro-ndev/integration-tests.git
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
             # copy the commands repo and build the ndau tool
