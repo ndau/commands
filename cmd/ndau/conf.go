@@ -20,6 +20,7 @@ func getConf(verbose *bool) func(*cli.Cmd) {
 			if err != nil && os.IsNotExist(err) {
 				conf = config.NewConfig(*addr)
 			} else {
+				orQuit(errors.Wrap(err, "loading config"))
 				conf.Node = *addr
 			}
 			err = conf.Save()
