@@ -539,20 +539,23 @@ jobs:
             git clone git@github.com:oneiro-ndev/integration-tests.git --branch reverse-thermo
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            source $BASH_ENV
-            # clone the commands repo and build the ndau tool
-            git clone git@github.com:oneiro-ndev/commands.git
+            # copy the commands repo and build the ndau tool
+            cp -r /commands $ndev_dir
             (
               cd commands
-              git checkout $SHA # checkout sha of this commit
               echo "commands repo at $(git rev-parse --short HEAD)" # for logs
-              dep ensure
+              # TODO setup runs dep ensure. deps has it already and we should copy to speed up the integration test build in setup.sh
+              #    something like this: docker cp $(docker images deps -q):/go/src/github.com/oneiro-ndev/commands/vendor $ndev_dir/commands
+
               ./bin/setup.sh # run setup just for the sake of building
               ./bin/build.sh
             )
 
             # write the environment variable containing ndautool.toml to a file.
-            echo -e "$ndautool_toml" > /root/.ndau/ndau/ndautool.toml
+            mkdir -p $NDAUHOME/ndau
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp s3://ndau-deploy-secrets/$NETWORK_NAME-ndautool.toml $NDAUHOME/ndau/ndautool.toml
 
             cd integration-tests
 
