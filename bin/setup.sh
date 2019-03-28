@@ -26,12 +26,11 @@ fi
 # Users may want us to generate the genesis files, or they may want to use their own.
 # Checking this early on gives the user the chance to fix their mistake if they didn't want them
 # generated.  It'll only ask once, even on subsequent setup.sh commands.
-if [ ! -f "$SYSTEM_VARS_TOML" ] || [ ! -f "$SYSTEM_ACCOUNTS_TOML" ]; then
-    echo "Cannot find one or more of the following genesis files:"
+if [ ! -f "$SYSTEM_VARS_TOML" ]; then
+    echo "Cannot find the following genesis file:"
     echo "  $SYSTEM_VARS_TOML"
-    echo "  $SYSTEM_ACCOUNTS_TOML"
 
-    printf "Generate new ones? [y|n]: "
+    printf "Generate new? [y|n]: "
     read GENERATE
     if [ "$GENERATE" != "y" ]; then
         echo "Cannot set up a localnet without genesis files"
