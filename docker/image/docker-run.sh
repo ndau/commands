@@ -105,8 +105,7 @@ if [ ! -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
     cd "$DATA_DIR" || exit 1
     tar -czf "$SCRIPT_DIR/$IDENTITY_FILE" \
         tendermint/config/node_key.json \
-        tendermint/config/priv_validator_key.json \
-        tendermint/data/priv_validator_state.json
+        tendermint/config/priv_validator_key.json
 
     echo "Done; run the following command to get it:"
     echo "  docker cp $NODE_ID:$SCRIPT_DIR/$IDENTITY_FILE $IDENTITY_FILE"

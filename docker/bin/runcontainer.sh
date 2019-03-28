@@ -103,7 +103,7 @@ get_peer_id() {
         echo "Could not get peer id"
         exit 1
     fi
-    echo "peer id: $PEER_ID"
+    echo "Peer id: $PEER_ID"
 }
 
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
@@ -133,7 +133,9 @@ done
 join_by() { local IFS="$1"; shift; echo "$*"; }
 
 PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
-echo "persistent peers: '$PERSISTENT_PEERS'"
+echo "Persistent peers: '$PERSISTENT_PEERS'"
+
+echo "Snapshot: $SNAPSHOT"
 
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
