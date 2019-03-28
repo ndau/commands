@@ -7,7 +7,7 @@ This folder contains everything that needs to be built and put into ECR for depl
 
 ## Folders
 
-* `chaosnode`, `ndaunode` and `ndauapi` contain everything related to making those images.
+* `ndaunode` and `ndauapi` contain everything related to making those images.
 
 
 ## Other files
@@ -30,7 +30,7 @@ The third case is a commit to master, this will run all steps and deploy to devn
 
 These files are organized in a way that allows dependencies to be downloaded once, and then passed around for multiple builds.
 
-In the CircleCI environment, for example, this means you `go ensure deps` one time, and then build for chaosnode, ndaunode, and ndauapi.
+In the CircleCI environment, for example, this means you `go ensure deps` one time, and then build for ndaunode, and ndauapi.
 
 ## caveat
 

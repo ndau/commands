@@ -1,7 +1,14 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+cd "$SCRIPT_DIR" || exit 1
 
-IP=$("$SCRIPT_DIR"/get_ip.sh)
+IP=$(./get_ip.sh)
 
-"$SCRIPT_DIR"/../bin/runcontainer.sh easynet-4 26668 26678 26669 26679 3034 "$IP:26660:26670:26661:26671,$IP:26662:26672:26663:26673,$IP:26664:26674:26665:26675,$IP:26666:26676:26667:26677" snapshot-easynet-2
+SNAPSHOT=$(./get_snapshot.sh)
+
+../bin/runcontainer.sh \
+    localnet-4 26664 26674 3034 \
+    "$IP:26660:26670,$IP:26661:26671,$IP:26662:26672,$IP:26663:26673" \
+    $SNAPSHOT
+# This last node is not one of the initial validators, so there's no node-identity.tgz passed in.

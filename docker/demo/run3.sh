@@ -1,7 +1,14 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+cd "$SCRIPT_DIR" || exit 1
 
-IP=$("$SCRIPT_DIR"/get_ip.sh)
+IP=$(./get_ip.sh)
 
-"$SCRIPT_DIR"/../bin/runcontainer.sh easynet-3 26666 26676 26667 26677 3033 "$IP:26660:26670:26661:26671,$IP:26662:26672:26663:26673,$IP:26664:26674:26665:26675" snapshot-easynet-2 "$SCRIPT_DIR"/../../bin/ndau-snapshots/node-identity-3.tgz
+SNAPSHOT=$(./get_snapshot.sh)
+
+../bin/runcontainer.sh \
+    localnet-3 26663 26673 3033 \
+    "$IP:26660:26670,$IP:26661:26671,$IP:26662:26672" \
+    $SNAPSHOT \
+    ../../bin/ndau-snapshots/node-identity-3.tgz

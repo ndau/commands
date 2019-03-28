@@ -42,12 +42,9 @@ mkdir -p "$SNAPSHOT_TEMP_DIR"
 SNAPSHOT_DATA_DIR="$SNAPSHOT_TEMP_DIR/data"
 
 # Use the deep tendermint data directories to create all the parent subdirectories we need.
-TM_CHAOS_TEMP="$SNAPSHOT_DATA_DIR/chaos/tendermint"
-TM_NDAU_TEMP="$SNAPSHOT_DATA_DIR/ndau/tendermint"
-mkdir -p "$TM_CHAOS_TEMP/config"
-mkdir -p "$TM_CHAOS_TEMP/data"
-mkdir -p "$TM_NDAU_TEMP/config"
-mkdir -p "$TM_NDAU_TEMP/data"
+TM_TEMP="$SNAPSHOT_DATA_DIR/tendermint"
+mkdir -p "$TM_TEMP/config"
+mkdir -p "$TM_TEMP/data"
 
 # Make the node identity tarball(s) first.
 echo "Building node identity files..."
@@ -57,48 +54,29 @@ do
 
     echo "  bundling $name..."
 
-    cd "$TENDERMINT_CHAOS_DATA_DIR-$node_num" || exit 1
-    cp config/node_key.json "$TM_CHAOS_TEMP/config"
-    cp config/priv_validator_key.json "$TM_CHAOS_TEMP/config"
-    cp data/priv_validator_state.json "$TM_CHAOS_TEMP/data"
-
     cd "$TENDERMINT_NDAU_DATA_DIR-$node_num" || exit 1
-    cp config/node_key.json "$TM_NDAU_TEMP/config"
-    cp config/priv_validator_key.json "$TM_NDAU_TEMP/config"
-    cp data/priv_validator_state.json "$TM_NDAU_TEMP/data"
+    cp config/node_key.json "$TM_TEMP/config"
+    cp config/priv_validator_key.json "$TM_TEMP/config"
 
     cd "$SNAPSHOT_DATA_DIR"
-    tar -czf "$NDAU_SNAPSHOTS_DIR/$name.tgz" chaos ndau
+    tar -czf "$NDAU_SNAPSHOTS_DIR/$name.tgz" \
+        tendermint/config/node_key.json \
+        tendermint/config/priv_validator_key.json
 
     # Get rid of these files so they're not part of the snapshot.
-    rm -rf "$TM_CHAOS_TEMP"/config/*
-    rm -rf "$TM_CHAOS_TEMP"/data/*
-    rm -rf "$TM_NDAU_TEMP"/config/*
-    rm -rf "$TM_NDAU_TEMP"/data/*
+    rm -rf "$TM_TEMP"/config/*
+    rm -rf "$TM_TEMP"/data/*
 done
 
-# Get the SVI Namespace from the ndau config.toml file.
-echo "Building new snapshot..."
-SVI_NAMESPACE=$(awk '/^  Namespace/{print $NF}' "$NODE_DATA_DIR-0"/ndau/config.toml | tr -d '"')
-echo "$SVI_NAMESPACE" > "$SNAPSHOT_TEMP_DIR/svi-namespace"
-
 # Copy all the data files we want into the temp dir.
-cp -r "$NOMS_CHAOS_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/chaos/noms"
-cp -r "$NOMS_NDAU_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/ndau/noms"
-cp -r "$REDIS_CHAOS_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/chaos/redis"
-cp -r "$REDIS_NDAU_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/ndau/redis"
-cp "$TENDERMINT_CHAOS_DATA_DIR-0/config/genesis.json" "$TM_CHAOS_TEMP/config"
-cp -r "$TENDERMINT_CHAOS_DATA_DIR-0/data/blockstore.db" "$TM_CHAOS_TEMP/data"
-cp -r "$TENDERMINT_CHAOS_DATA_DIR-0/data/state.db" "$TM_CHAOS_TEMP/data"
-cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$TM_NDAU_TEMP/config"
-cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/blockstore.db" "$TM_NDAU_TEMP/data"
-cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_NDAU_TEMP/data"
+cp -r "$NOMS_NDAU_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/noms"
+cp -r "$REDIS_NDAU_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/redis"
+cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$TM_TEMP/config"
+cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/blockstore.db" "$TM_TEMP/data"
+cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_TEMP/data"
 
 # Use something better than "test-chain-..." for the chain_id.
-genesis_file="$TM_CHAOS_TEMP/config/genesis.json"
-jq ".chain_id=\"$NETWORK\"" "$genesis_file" > "$genesis_file.temp"
-mv "$genesis_file.temp" "$genesis_file"
-genesis_file="$TM_NDAU_TEMP/config/genesis.json"
+genesis_file="$TM_TEMP/config/genesis.json"
 jq ".chain_id=\"$NETWORK\"" "$genesis_file" > "$genesis_file.temp"
 mv "$genesis_file.temp" "$genesis_file"
 
@@ -110,7 +88,7 @@ SNAPSHOT_FILE="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR/$SNAPSHOT_NAME.tgz"
 # Make the tarball and remove the temp dir.
 echo "  bundling $SNAPSHOT_NAME..."
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
-tar -czf "$SNAPSHOT_FILE" svi-namespace data
+tar -czf "$SNAPSHOT_FILE" data
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
 # These can be used for uploading the snapshot to S3.

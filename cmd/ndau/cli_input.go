@@ -21,6 +21,13 @@ func inOpt(hyphens bool, name, option string) string {
 	if hyphens {
 		h = "--"
 	}
+	if name == "" {
+		return fmt.Sprintf(
+			"%s%s",
+			h,
+			option,
+		)
+	}
 	return fmt.Sprintf(
 		"%s%s-%s",
 		h,
@@ -29,26 +36,34 @@ func inOpt(hyphens bool, name, option string) string {
 	)
 }
 
-func getInputSpec(name string) string {
+func getInputSpec(name string, singleton bool) string {
+	oname := name
+	if singleton {
+		oname = ""
+	}
 	return fmt.Sprintf(
 		"[%s|%s|%s] (%s | %s=<PATH>) [%s=<JSON>]",
-		inOpt(true, name, "base64"),
-		inOpt(true, name, "json"),
-		inOpt(true, name, "hex"),
+		inOpt(true, oname, "base64"),
+		inOpt(true, oname, "json"),
+		inOpt(true, oname, "hex"),
 		strings.ToUpper(name),
-		inOpt(true, name, "file"),
-		inOpt(true, name, "json-types"),
+		inOpt(true, oname, "file"),
+		inOpt(true, oname, "json-types"),
 	)
 }
 
-func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
+func getInputClosure(cmd *cli.Cmd, name string, singleton bool, verbose *bool) func() []byte {
+	oname := name
+	if singleton {
+		oname = ""
+	}
 	var (
-		base64In  = cmd.BoolOpt(inOpt(false, name, "base64"), false, "if set, interpret input as base64-encoded")
-		jsonIn    = cmd.BoolOpt(inOpt(false, name, "json"), false, "if set, interpret input as JSON and convert to MSGP format")
-		hexIn     = cmd.BoolOpt(inOpt(false, name, "hex"), false, "if set, interpret input as hex-encoded")
-		input     = cmd.StringArg(strings.ToUpper(name), "", fmt.Sprintf("%s input", name))
-		inputFile = cmd.StringOpt(inOpt(false, name, "file"), "", "read input from this file instead of the CLI")
-		typesIn   = cmd.StringOpt(inOpt(false, name, "json-types"), "", "use these type hints with json2msgp")
+		base64In  = cmd.BoolOpt(inOpt(false, oname, "base64"), false, fmt.Sprintf("if set, interpret %s as base64-encoded", name))
+		jsonIn    = cmd.BoolOpt(inOpt(false, oname, "json"), false, fmt.Sprintf("if set, interpret %s as JSON and convert to MSGP format", name))
+		hexIn     = cmd.BoolOpt(inOpt(false, oname, "hex"), false, fmt.Sprintf("if set, interpret %s as hex-encoded", name))
+		input     = cmd.StringArg(strings.ToUpper(name), "", "")
+		inputFile = cmd.StringOpt(inOpt(false, oname, "file"), "", fmt.Sprintf("read %s from this file instead of the CLI", name))
+		typesIn   = cmd.StringOpt(inOpt(false, oname, "json-types"), "", "use these type hints with json2msgp")
 	)
 
 	return func() []byte {
@@ -124,28 +139,4 @@ func getInputClosure(cmd *cli.Cmd, name string, verbose *bool) func() []byte {
 			return data
 		}
 	}
-}
-
-// getKeySpec returns a portion of the specification string,
-// specifying key setting options
-func getKeySpec() string {
-	return getInputSpec("key")
-}
-
-// getKeyClosure sets the appropriate options for a command to get the key
-// using a variety of argument styles.
-func getKeyClosure(cmd *cli.Cmd, verbose *bool) func() []byte {
-	return getInputClosure(cmd, "key", verbose)
-}
-
-// getValueSpec returns a portion of the specification string,
-// specifying value setting options
-func getValueSpec() string {
-	return getInputSpec("value")
-}
-
-// getValueClosure sets the appropriate options for a command to get the value
-// using a variety of argument styles.
-func getValueClosure(cmd *cli.Cmd, verbose *bool) func() []byte {
-	return getInputClosure(cmd, "value", verbose)
 }
