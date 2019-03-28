@@ -62,6 +62,11 @@ if [ -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
     cp "$SCRIPT_DIR/$IDENTITY_FILE" "$DATA_DIR"
     cd "$DATA_DIR" || exit 1
     tar -xf "$IDENTITY_FILE"
+
+    # Tendermint complains if this file isn't here, but it can be empty json.
+    dir=tendermint/data
+    mkdir -p "$dir"
+    echo "{}" > "$dir/priv_validator_state.json"
 else
     # When we start without a node identity, we generate one so the node operator can restart
     # this node later, having the same identity every time.
