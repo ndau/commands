@@ -547,6 +547,7 @@ jobs:
               git checkout $SHA # checkout sha of this commit
               echo "commands repo at $(git rev-parse --short HEAD)" # for logs
               dep ensure
+              ./bin/setup.sh # run setup just for the sake of building
               ./bin/build.sh
             )
 
