@@ -547,9 +547,11 @@ jobs:
               git checkout $SHA # checkout sha of this commit
               echo "commands repo at $(git rev-parse --short HEAD)" # for logs
               dep ensure
-              cd cmd/ndau
-              go build .
+              ./bin/build.sh
             )
+
+            # write the environment variable containing ndautool.toml to a file.
+            echo -e "$ndautool_toml" > /root/.ndau/ndau/ndautool.toml
 
             cd integration-tests
 
