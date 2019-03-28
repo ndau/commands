@@ -547,6 +547,9 @@ jobs:
               # TODO setup runs dep ensure. deps has it already and we should copy to speed up the integration test build in setup.sh
               #    something like this: docker cp $(docker images deps -q):/go/src/github.com/oneiro-ndev/commands/vendor $ndev_dir/commands
 
+              # bypass ./setup.sh question about generating the system_vars.toml file
+              mkdir -p /root/.localnet/genesis_files
+              touch /root/.localnet/genesis_files/system_vars.toml
               ./bin/setup.sh # run setup just for the sake of building
               ./bin/build.sh
             )
