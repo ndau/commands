@@ -123,6 +123,7 @@ do
 done
 
 # Make sure the genesif files exist, since steps after this require them.
+# The system accounts toml is optional.
 if [ ! -f "$SYSTEM_VARS_TOML" ]; then
     mkdir -p "$GENESIS_FILES_DIR"
     ./generate -v -g "$SYSTEM_VARS_TOML" -a "$SYSTEM_ACCOUNTS_TOML"
