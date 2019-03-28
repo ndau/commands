@@ -22,7 +22,7 @@ RUN touch /root/.ssh/known_hosts && \
 # TODO: Consider caching the setup results (binary executables) in a separate image.
 COPY . /image
 ENV TENDERMINT_VER=v0.31.0
-ENV COMMANDS_BRANCH=reverse-thermo
+ENV COMMANDS_BRANCH=master
 RUN /bin/bash /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
