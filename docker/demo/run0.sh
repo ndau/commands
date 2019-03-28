@@ -8,5 +8,5 @@ cd "$SCRIPT_DIR" || exit 1
 ../bin/runcontainer.sh \
     localnet-0 26660 26670 3030 \
     "" \
-    snapshot-localnet-1 \
+    snapshot-localnet-2 \
     ../../bin/ndau-snapshots/node-identity-0.tgz
