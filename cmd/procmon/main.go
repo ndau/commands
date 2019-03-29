@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
-	"github.com/sirupsen/logrus"
 
 	arg "github.com/alexflint/go-arg"
 )
@@ -40,74 +39,102 @@ func WatchSignals(fhup, fint, fterm func()) {
 
 func main() {
 	var args struct {
-		Test string
+		Configfile string
 	}
 	arg.MustParse(&args)
 
-	logger := honeycomb.Setup(&logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: new(logrus.JSONFormatter),
-		Level:     logrus.InfoLevel,
-	})
+	var cfg Config
+	var err error
+	if args.Configfile != "" {
+		cfg, err = Load(args.Configfile)
+		if err != nil {
+			panic(err)
+		}
+		// apply config vars to the env
+		for k, v := range cfg.Env {
+			os.Setenv(k, v)
+		}
 
-	// set up the main task
-	t1 := NewTask("demo parent",
-		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
-		"--port=9999",
-	)
-	// give it a way to tell if it's ready
-	t1.Ready = HTTPPinger("http://localhost:9999/health", 100*time.Millisecond)
-	// and send its logs to a file
-	f, _ := os.Create("t1.log")
-	t1.Stdout = f
-	t1.Stderr = f
-	t1.Logger = logger.WithField("task", t1.Name)
-	t1.Logger.Println("Starting task")
+	}
 
-	// do the same for the child task
-	t2 := NewTask("demo child",
-		"/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo",
-		"--port=9998",
-	)
-	t2.Logger = logger.WithField("task", t2.Name)
-	t2.Logger.Println("Starting task")
+	logger := cfg.BuildLogger()
+	if os.Getenv("HONEYCOMB_KEY") != "" {
+		logger = honeycomb.Setup(logger)
+	}
 
-	// and here's how it gets ready
-	t1.Ready = HTTPPinger("http://localhost:9999/health", 100*time.Millisecond)
-	// and set the parent/child relationship
-	t1.AddDependent(t2)
-
-	// Now we have a health check monitor for the main task
-	m1 := NewMonitor(t1.Status, 3*time.Second, HTTPPinger("http://localhost:9999/health", 2*time.Second))
-	// and health check for the child with a shorter timeout
-	m2 := NewMonitor(t2.Status, 1*time.Second, HTTPPinger("http://localhost:9998/health", 1*time.Second))
-	// but some tolerance for occasional failure
-	rm2 := NewRetryMonitor(m2, 3)
+	rootTasks, err := cfg.BuildTasks(logger)
+	// if we can't read the tasks we shouldn't even continue
+	if err != nil {
+		logger.WithError(err).Error("aborting because task file was invalid")
+		panic(err)
+	}
 
 	// this is the channel we can use to shut everything down
 	donech := make(chan struct{})
-	// defer close(donech)
-
-	// start the listeners for the monitors
-	go m1.Listen(donech)
-	go rm2.Listen(donech)
-
-	// when we get SIGINT or SIGTERM, kill everything
-	// SIGHUP is currently ignored
+	// when we get SIGINT or SIGTERM, kill everything by telling
+	// the root tasks to kill themselves.
+	// SIGHUP does a shutdown by closing donech which
+	// should basically do the same thing. However, it's
+	// not entirely reliable; better to use SIGTERM if you can.
+	inKillall := false
 	killall := func() {
-		t1.Kill()
+		// if they hit ctl-C a second time they must mean it,
+		// just shut down now.
+		if !inKillall {
+			inKillall = true
+			for _, t := range rootTasks {
+				t.Logger.Println("shutting down on command")
+				t.Kill()
+			}
+		}
 		os.Exit(0)
 	}
 	shutdown := func() {
+		logger.Print("shutting down by closing done channel")
 		close(donech)
 	}
 	WatchSignals(shutdown, killall, killall)
 
-	// start the main task, which will start everything else
-	t1.Start(donech)
+	// start the main tasks, which will start everything else
+	for _, t := range rootTasks {
+		t.Logger.Print("starting root task " + t.Name)
+		t.Start(donech)
+	}
+
 	// and run almost forever
 	select {
 	case <-donech:
-		t1.Kill()
+		logger.Print("done channel was closed")
+		// if we see this, then we were told to shutdown,
+		// but we don't want to do it too early, so loop until
+		// there are no root tasks left that haven't exited.
+		looptime := 250 * time.Millisecond
+		looptimer := time.NewTimer(looptime)
+		longtime := 75 * time.Second
+		toolong := time.NewTimer(longtime)
+		for {
+			select {
+			case <-looptimer.C:
+				canExit := true
+				for _, t := range rootTasks {
+					if !t.Exited() {
+						canExit = false
+					}
+				}
+				if canExit {
+					os.Exit(0)
+				}
+				logger.Printf("waiting for all root tasks to die...")
+				looptime *= 2
+				looptimer.Reset(looptime)
+			case <-toolong.C:
+				logger.Error("requested shutdown did not complete within " + longtime.String())
+				for _, t := range rootTasks {
+					t.Destroy()
+				}
+				time.Sleep(1 * time.Second)
+				os.Exit(1)
+			}
+		}
 	}
 }

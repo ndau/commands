@@ -36,6 +36,8 @@ type Task struct {
 	Stdout      io.WriteCloser
 	Stderr      io.WriteCloser
 	Logger      logrus.FieldLogger
+	FailCount   int
+	Monitors    []*Monitor
 
 	mutex      sync.Mutex
 	Stopping   bool
@@ -55,6 +57,7 @@ func NewTask(name string, path string, args ...string) *Task {
 		MaxShutdown: 5 * time.Second,
 		Status:      make(chan Eventer),
 		Ready:       func() Eventer { return OK },
+		Monitors:    make([]*Monitor, 0),
 	}
 }
 
@@ -65,13 +68,23 @@ func (t *Task) Listen(done chan struct{}) {
 		case e := <-t.Status:
 			if IsFailed(e) {
 				if t.Stopping {
-					t.Logger.Info("ignoring deliberate shutdown")
+					t.Logger.Debug("ignoring deliberate shutdown")
 					continue
 				}
-				t.Logger.Warn("task failed, restarting")
+				t.FailCount++
+				logger := t.Logger.WithField("failcount", t.FailCount)
+				if err, ok := e.(ErrorEvent); ok {
+					logger.WithError(err).Warn("task failed with error")
+				} else {
+					logger.WithField("code", e.Code()).Warn("task failed")
+				}
 				// make sure the task and its children are gone
 				t.Kill()
+				// For every failure, wait a bit longer to restart
+				pause := time.Duration(t.FailCount+1) * time.Second
+				time.Sleep(pause)
 				// and then start it again
+				logger.Warn("restarting after failure")
 				t.Start(done)
 				// start created a new Listener so this one can go away
 				return
@@ -115,7 +128,15 @@ func (t *Task) Start(done chan struct{}) {
 		}
 	}
 
-	t.cancel = cancel
+	t.cancel = func() {
+		t.Logger.WithField("pid", t.cmd.Process.Pid).Print("cancelling task")
+		cancel()
+		state, err := t.cmd.Process.Wait()
+		if err != nil {
+			t.Logger.WithError(err).Error("cancel error")
+		}
+		t.Logger.WithField("processstate", state).Info("terminated")
+	}
 
 	// clear the stopping flag
 	t.mutex.Lock()
@@ -125,15 +146,25 @@ func (t *Task) Start(done chan struct{}) {
 	// start the task and wait for it to be ready
 	t.Logger.Info("Running process")
 	t.cmd.Start()
+	looptime := 50 * time.Millisecond
+	loopticker := time.NewTicker(looptime)
+	toolong := time.NewTimer(30 * time.Second)
 	for !IsOK(t.Ready()) {
 		select {
-		case <-time.After(50 * time.Millisecond):
+		case <-loopticker.C:
 			// go check again
-		case <-time.After(30 * time.Second):
+		case <-toolong.C:
 			t.Logger.Error("took too long to start up")
 			return
 		}
 	}
+	t.Logger.Debug("task started and is ready")
+
+	// the task is running so we can start its monitors
+	for _, m := range t.Monitors {
+		go m.Listen(done)
+	}
+	t.Logger.WithField("monitorcount", len(t.Monitors)).Debug("monitors started")
 
 	// now we can start any dependent children
 	// we want the unlock to happen before the Wait() so this is in a func
@@ -156,7 +187,7 @@ func (t *Task) Start(done chan struct{}) {
 		}
 		wg.Wait()
 	}()
-	t.Logger.Info("done with children")
+	t.Logger.Debug("done with children")
 
 	// and then spin off a goroutine that will tell us if it dies
 	go func() {
@@ -182,12 +213,17 @@ func (t *Task) Kill() {
 	if !t.Exited() {
 		t.Logger.Info("shutting down")
 		t.cmd.Process.Signal(syscall.SIGTERM)
+		looptime := t.MaxShutdown / 64
+		looptimer := time.NewTimer(looptime)
+		toolong := time.NewTimer(t.MaxShutdown)
 		for !t.Exited() {
 			select {
-			case <-time.After(t.MaxShutdown / 100):
+			case <-looptimer.C:
 				// go check again
-			case <-time.After(t.MaxShutdown):
-				t.Logger.Error("did not shut down after SIGTERM -- killing it with SIGKILL")
+				looptime *= 2
+				looptimer.Reset(looptime)
+			case <-toolong.C:
+				t.Logger.Error("did not shut down nicely, killing it")
 				t.cancel()
 			}
 		}
@@ -223,6 +259,9 @@ func (t *Task) killDependents() {
 
 // Exited tells if a task has terminated for any reason
 func (t *Task) Exited() bool {
+	if t.cmd == nil {
+		return true
+	}
 	if t.cmd.ProcessState == nil {
 		if t.cmd.Process == nil {
 			t.Logger.Error("process was nil")
@@ -248,4 +287,17 @@ func (t *Task) AddDependent(ch *Task) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	t.Dependents = append(t.Dependents, ch)
+}
+
+// Destroy does an os-level kill on a task
+// Use only as a last resort.
+func (t *Task) Destroy() {
+	for _, ch := range t.Dependents {
+		ch.Destroy()
+	}
+	pid := t.cmd.Process.Pid
+	t.Logger.WithField("pid", pid).Error("trying to force shut down")
+	t.cmd.Process.Kill()
+	state, err := t.cmd.Process.Wait()
+	t.Logger.Printf("shutdown state %v, err %v", state, err)
 }
