@@ -2,15 +2,15 @@
 
 NODE_NET=$1 # devnet or testnet
 NODE_NUM=$2 # 0-based node number
-CHAIN=$3    # ndau or chaos
+CHAIN="ndau"
 
 if [ -z "$CHAIN" ]; then
     echo nodeurl: Echo the URL for a tendermint node.
     echo Must have kubectl set up.  See integration-tests repo README.md for details.
     echo Usage:
-    echo "  ./nodeurl.sh NODE_NET NODE_NUM CHAIN"
+    echo "  ./nodeurl.sh NODE_NET NODE_NUM"
     echo Example:
-    echo "  ./nodeurl.sh devnet 0 ndau"
+    echo "  ./nodeurl.sh devnet 0"
     exit 1
 fi
 
