@@ -456,7 +456,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "prgn-log-apphash-on-commit"
   digest = "1:4a9f163c2170744e280820e9b85680bc41c571a208957e07dda161e5bff32261"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -467,7 +466,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "507047c0c8924a5cc49312758bbbee6e07fab460"
+  revision = "0f1c08ce1863f6950738932dc30ddaf8d8e66809"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
