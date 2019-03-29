@@ -17,3 +17,15 @@ fi
 
 echo "Restarting $Container..."
 docker restart "$CONTAINER"
+
+# Sleep a bit to give it a chance to remove the 'running' file as it starts up.
+# This prevents the wait loop below from exiting early if it sees an old copy of that file.
+sleep 1
+
+echo "Waiting for the node to fully spin up..."
+until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
+do
+    :
+done
+
+echo done
