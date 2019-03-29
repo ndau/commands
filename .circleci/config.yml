@@ -201,14 +201,15 @@ general_config: &general_config
         # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
         ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
+        NDAUHOME: /root/.ndau
         S3_DEPLOY_ARCHIVE: devnet.tgz
         HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_TM_TAG: v0.31.0
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1-a
+        NDAU_TM_TAG: v0.31.0
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -227,10 +228,10 @@ testnet_config: &testnet_config
         HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_TM_TAG: v0.31.0
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1-a
+        NDAU_TM_TAG: v0.31.0
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -249,10 +250,10 @@ mainnet_config: &mainnet_config
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.30.1-a
+        CHAOS_TM_TAG: v0.31.0
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.30.1-a
+        NDAU_TM_TAG: v0.31.0
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -521,25 +522,42 @@ jobs:
             fi
 
             # ensure go path location
-            mkdir -p /go/src/github.com/oneiro-ndev
-            cd /go/src/github.com/oneiro-ndev
             export GOPATH=/go
             mkdir -p $GOPATH/bin
+            ndev_dir=$GOPATH/src/github.com/oneiro-ndev
+            mkdir -p $ndev_dir
+            cd $ndev_dir
+
+            # install dep
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+            # install sed?
             apk add sed
 
             # clone integration tests and ndev dep repos
             git clone git@github.com:oneiro-ndev/integration-tests.git
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            git clone git@github.com:oneiro-ndev/chaos.git
-            ( cd chaos && echo "chaos repo at $(git rev-parse --short HEAD)" )
+            # copy the commands repo and build the ndau tool
+            cp -r /commands $ndev_dir
+            (
+              cd commands
+              echo "commands repo at $(git rev-parse --short HEAD)" # for logs
+              # TODO setup runs dep ensure. deps has it already and we should copy to speed up the integration test build in setup.sh
+              #    something like this: docker cp $(docker images deps -q):/go/src/github.com/oneiro-ndev/commands/vendor $ndev_dir/commands
 
-            git clone git@github.com:oneiro-ndev/commands.git
-            ( cd commands && echo "commands repo at $(git rev-parse --short HEAD)" )
+              # bypass ./setup.sh question about generating the system_vars.toml file
+              mkdir -p /root/.localnet/genesis_files
+              touch /root/.localnet/genesis_files/system_vars.toml
+              ./bin/setup.sh # run setup just for the sake of building
+              ./bin/build.sh
+            )
 
-            git clone git@github.com:oneiro-ndev/ndau.git
-            ( cd ndau && echo "ndau repo at $(git rev-parse --short HEAD)" )
+            # write the environment variable containing ndautool.toml to a file.
+            mkdir -p $NDAUHOME/ndau
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp s3://ndau-deploy-secrets/$NETWORK_NAME-ndautool.toml $NDAUHOME/ndau/ndautool.toml
 
             cd integration-tests
 

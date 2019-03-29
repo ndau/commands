@@ -9,6 +9,7 @@ vendor/
 # transient files
 *.log
 *.pid
+*.tgz
 
 # Python chaff
 **/__pycache__/
@@ -22,6 +23,9 @@ DashData*
 **/github_chaos_deploy
 **/machine_user_key
 **/gomu
+
+# docker
+docker/image/*.patch
 
 # osx chaff
 .DS_Store

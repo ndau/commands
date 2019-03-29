@@ -38,10 +38,6 @@ if [ -n "$1" ]; then
 else
     for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
-        checkstatus "chaos_redis-$node_num"
-        checkstatus "chaos_noms-$node_num"
-        checkstatus "chaos_node-$node_num"
-        checkstatus "chaos_tm-$node_num"
         checkstatus "ndau_redis-$node_num"
         checkstatus "ndau_noms-$node_num"
         checkstatus "ndau_node-$node_num"

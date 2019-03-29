@@ -23,10 +23,8 @@ var echoSpec = flag.Bool("echo-spec", false, "if set, echo the DB spec used and 
 var echoEmptyHash = flag.Bool("echo-empty-hash", false, "if set, echo the hash of the empty DB and then quit")
 var echoHash = flag.Bool("echo-hash", false, "if set, echo the current DB hash and then quit")
 var echoVersion = flag.Bool("version", false, "if set, echo the current version and exit")
-var updateConfFrom = flag.String("update-conf-from", "", "if set, update app configuration from the given genesisfile and exit")
-var updateChainFrom = flag.String("update-chain-from", "", "if set, update noms from the given associated data file and exit")
-var setChaosnode = flag.String("set-chaosnode", "", "set the configured chaos node address and quit")
-var unsetChaosnode = flag.Bool("unset-chaosnode", false, "unset chaos node in configuration and quit")
+var genesisfilePath = flag.String("genesisfile", "", "if set, update system variables from the genesisfle and exit")
+var asscfilePath = flag.String("asscfile", "", "if set, create special accounts from the given associated data file and exit")
 
 // Bump this any time we need to reset and reindex the ndau chain.  For example, if we change the
 // format of something in the index, say, needing to use unsorted sets instead of sorted sets; if
@@ -95,30 +93,19 @@ func main() {
 		version.Emit()
 	}
 
-	setChaosnodeF(setChaosnode)
-	unsetChaosnodeF(unsetChaosnode)
-
 	ndauhome := getNdauhome()
 	configPath := config.DefaultConfigPath(ndauhome)
 
 	conf, err := config.LoadDefault(configPath)
 	check(err)
 
-	if updateConfFrom != nil && len(*updateConfFrom) > 0 {
-		err = conf.UpdateFrom(*updateConfFrom)
-		check(err)
-		err = conf.Dump(configPath)
-		check(err)
-		os.Exit(0)
-	}
-
 	if *echoHash {
 		fmt.Println(getHash(conf))
 		os.Exit(0)
 	}
 
-	if updateChainFrom != nil && len(*updateChainFrom) > 0 {
-		updateChain(*updateChainFrom, conf)
+	if len(*asscfilePath) > 0 || len(*genesisfilePath) > 0 {
+		updateFromGenesis(*genesisfilePath, *asscfilePath, conf)
 		os.Exit(0)
 	}
 
@@ -133,7 +120,7 @@ func main() {
 		nodeID = fmt.Sprintf("node-pid-%d", os.Getpid())
 	}
 	logger = logger.WithFields(logrus.Fields{
-		"bin": "ndaunode",
+		"bin":     "ndaunode",
 		"node_id": nodeID,
 	})
 	app.SetLogger(logger)
