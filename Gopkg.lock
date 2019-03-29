@@ -76,7 +76,7 @@
   source = "github.com/oneiro-ndev/noms"
 
 [[projects]]
-  digest = "1:96fd8b51c1e88e5ecc517e4bc226661b52561475b22ae10a7c82b4e8d95bc078"
+  digest = "1:acc172a8e517023b4bea240af35e8396d55239f1d9684de83ea05e3316e1a062"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -119,8 +119,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "f2bb620afb315242706942e6ca4c7d26ee5ed627"
-  version = "v1.17.9"
+  revision = "bae168494294b48b3fc9d6722a711246a8543034"
+  version = "v1.19.2"
 
 [[projects]]
   branch = "master"
@@ -131,11 +131,12 @@
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
 
 [[projects]]
-  digest = "1:057aee12ac2f820c94b04da39a3ebcd865bee3bdda697ee0e6bbf75e00476b5f"
+  branch = "master"
+  digest = "1:59265ab3fb2be86e904cfe169d06eb42435f2722b6ba961a4fb1144c8ab2ab16"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
   pruneopts = ""
-  revision = "ed77733ec07dfc8a513741138419b8d9d3de9d2d"
+  revision = "aa6e0f35703c1438cc45860ddc0c3f6e6c633c93"
 
 [[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
@@ -165,14 +166,6 @@
   pruneopts = ""
   revision = "73749d4874d5d3efba704f6046eae0517f998f4e"
   version = "v3.3.1"
-
-[[projects]]
-  digest = "1:49b5451a4ce27b50393cc0d4c6fdd9cf7fa148ee4c0dd9c1d6c515b232427022"
-  name = "github.com/ethereum/go-ethereum"
-  packages = ["crypto/secp256k1"]
-  pruneopts = ""
-  revision = "c942700427557e3ff6de3aaf6b916e2f056c1ec2"
-  version = "v1.8.23"
 
 [[projects]]
   branch = "master"
@@ -263,7 +256,7 @@
   version = "v3.2.0"
 
 [[projects]]
-  digest = "1:6e73003ecd35f4487a5e88270d3ca0a81bc80dc88053ac7e4dcfec5fba30d918"
+  digest = "1:fd53b471edb4c28c7d297f617f4da0d33402755f58d6301e7ca1197ef0a90937"
   name = "github.com/gogo/protobuf"
   packages = [
     "gogoproto",
@@ -274,11 +267,11 @@
     "types",
   ]
   pruneopts = ""
-  revision = "636bf0302bc95575d69441b25a2603156ffdddf1"
-  version = "v1.1.1"
+  revision = "ba06b47c162d49f2af050fb4c75bcbc86a159d5c"
+  version = "v1.2.1"
 
 [[projects]]
-  digest = "1:f958a1c137db276e52f0b50efee41a1a389dcdded59a69711f3e872757dab34b"
+  digest = "1:529d738b7976c3848cae5cf3a8036440166835e389c1f617af701eeb12a0518d"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -288,8 +281,8 @@
     "ptypes/timestamp",
   ]
   pruneopts = ""
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:6a6322a15aa8e99bd156fbba0aae4e5d67b4bb05251d860b348a45dfdcba9cce"
@@ -308,15 +301,15 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:aa993aebfefc13f5778bbca3d6f9dcfb9fda86591c2aec7619cfe64e6c8e1e87"
+  digest = "1:cee6b991ec53a6514e489fbd59f8262f1bf62ca53af3eee275c2505e4487bc25"
   name = "github.com/honeycombio/libhoney-go"
   packages = [
     ".",
     "transmission",
   ]
   pruneopts = ""
-  revision = "cb215381a8fd6f8cc78a23d5dc7c1bb3946732cb"
-  version = "v1.9.4"
+  revision = "e492c96cda860be302142757e1296d06065b9552"
+  version = "v1.9.5"
 
 [[projects]]
   digest = "1:d557c549fb8422ece9f4878b4ea2b22f3fc36a46e195472f70bffc03a7b012c9"
@@ -442,38 +435,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:597b1f35740d8a69e50c4f6399f1bc9f6fc248f2ddee0d526590c49c28ea2f8f"
-  name = "github.com/oneiro-ndev/chaos"
-  packages = [
-    "pkg/chaos",
-    "pkg/chaos/backing",
-    "pkg/chaos/config",
-    "pkg/chaos/external.validation",
-    "pkg/chaos/ns",
-    "pkg/chaos/query",
-    "pkg/chaos/search",
-    "pkg/ev.ndau",
-    "pkg/genesisfile",
-    "pkg/tool",
-    "pkg/tool.write",
-  ]
-  pruneopts = ""
-  revision = "63d7d12957695d4e8ab14d4422d07496e3a29730"
-  version = "v1.0.1"
-
-[[projects]]
-  digest = "1:365ebeec81ad3091b58c0062f4abe37ede1c1952b141935131851230d90e0b2d"
-  name = "github.com/oneiro-ndev/chaos_genesis"
-  packages = [
-    "pkg/genesis",
-    "pkg/genesis.generator",
-  ]
-  pruneopts = ""
-  revision = "15e68c6bf595839086e649f39149558676a31585"
-  version = "v0.1.5"
-
-[[projects]]
-  digest = "1:76a8a86819b9efcb178f1de2c81e60ce8b4e70115f93a25485f994b68c6d9a65"
+  digest = "1:f0a5d897edf8d7b7e6e66739524b4cadf321114f2ed08a1a3bfd4e18f41f4fbf"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -482,8 +444,8 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "940e386eb244a42a6c5db2dbe4dcc1bc21514f71"
-  version = "v0.1.3"
+  revision = "51043b47d47007874a16b79349eb34bef2f4ed67"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
@@ -524,12 +486,11 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:f252a6e584746a3663e03323f052337633e3b773a316eb5a787df327fdd265d2"
+  digest = "1:55e9b9c19159c323555264cb15756c8ece109cedd7ee95e4a7df6aed987d635e"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
     "pkg/ndau/backing",
-    "pkg/ndau/cache",
     "pkg/ndau/config",
     "pkg/ndau/search",
     "pkg/ndauapi/cfg",
@@ -543,8 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "33b35b7eb123744a865d847885af74d6a9aa5976"
-  version = "v1.4.0"
+  revision = "28d292ffd1e3da8f98b1b8e8bc98d84bed8760ff"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -589,15 +550,16 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:ec567f743c115d3c35875416259c74b7ce3509081d9321d2af5824c36da54d0d"
+  digest = "1:939c7a816552e515321f531d73d14e44a88051bc4d270f0ffe27b4c3884e14e0"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
-    "pkg/svi",
+    "pkg/genesis.generator",
+    "pkg/genesisfile",
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "9e8b6c978a1cb200d6f360d45a9b9e4bbe2096b9"
-  version = "v1.1.0"
+  revision = "50511a5d4950632e331501ed1963a277ee5a7c4b"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -668,7 +630,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:77fcea0d2af2dc0020fe673c4f83cd78765b97cd04bc001dcd8193f58eaf367c"
+  digest = "1:5dff64a37ab1e65130c24f01d5fbda61226b73cc61b6f0c8af24373509a89b73"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -678,14 +640,15 @@
     "xfs",
   ]
   pruneopts = ""
-  revision = "bbced9601137e764853b2fad7ec3e2dc4c504e02"
+  revision = "55ae3d9d557340b5bc24cd8aa5f6fa2c2ab31352"
 
 [[projects]]
-  digest = "1:15bcdc717654ef21128e8af3a63eec39a6d08a830e297f93d65163f87c8eb523"
+  branch = "master"
+  digest = "1:bc5884d890d71ae56382665a93d792af3602dae40fa98778170e4795598a7264"
   name = "github.com/rcrowley/go-metrics"
   packages = ["."]
   pruneopts = ""
-  revision = "e2704e165165ec55d062f5919b4b29494e9fa790"
+  revision = "3113b8401b8a98917cde58f8bbd42a1b1c03b1fd"
 
 [[projects]]
   digest = "1:5f47c69f85311c4dc292be6cc995a0a3fe8337a6ce38ef4f71e5b7efd5ad42e0"
@@ -712,12 +675,12 @@
   revision = "f19e41f79f8f006116f682c1af454591bc278ad4"
 
 [[projects]]
-  digest = "1:9a3c631555e0351fdc4e696577bb63afd90c399d782a8462dba9d100d7021db3"
+  digest = "1:b73fe282e350b3ef2c71d8ff08e929e0b9670b1bb5b7fde1d3c1b4cd6e6dc8b1"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = ""
-  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
-  version = "v1.3.0"
+  revision = "dae0fa8d5b0c810a8ab733fbd5510c7cae84eca4"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
@@ -760,17 +723,6 @@
   version = "v1.0.3"
 
 [[projects]]
-  branch = "master"
-  digest = "1:12be8593db70e72fd05efb6d63f5bda3feddc69e2034296e6207d72b60776d21"
-  name = "github.com/tendermint/ed25519"
-  packages = [
-    ".",
-    "edwards25519",
-  ]
-  pruneopts = ""
-  revision = "d8387025d2b9d158cf4efb07e7ebf814bcce2057"
-
-[[projects]]
   digest = "1:ae41c0d9bd222a15ed08e854dbcf7c1ef8a511b937b7fb661762b3e91ff86b49"
   name = "github.com/tendermint/go-amino"
   packages = ["."]
@@ -779,7 +731,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:1a6f559b7a891df14f220568feb5560f68c8acb9111f8008a41c7d3022477739"
+  digest = "1:605618ebfacc5c1860db46f17cffb8936d3085b9dae6c34b55711e4b411fd790"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -799,6 +751,7 @@
     "crypto/multisig",
     "crypto/multisig/bitarray",
     "crypto/secp256k1",
+    "crypto/secp256k1/internal/secp256k1",
     "crypto/tmhash",
     "evidence",
     "libs/autofile",
@@ -834,8 +787,8 @@
     "version",
   ]
   pruneopts = ""
-  revision = "e0f8936455029a40287a69d5b0e7baa4d5864da1"
-  version = "v0.30.1"
+  revision = "0d985ede28bd6937fa9d3613618e42cab6fc871c"
+  version = "v0.31.0"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
@@ -847,7 +800,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7a77b79efe106f3304dcf50dc86836151758f246169b527722552a5eb2ae14fc"
+  digest = "1:36ef1d8645934b1744cc7d8726e00d3dd9d8d84c18617bf7367a3a6d532f3370"
   name = "golang.org/x/crypto"
   packages = [
     "chacha20poly1305",
@@ -865,10 +818,11 @@
     "ssh/terminal",
   ]
   pruneopts = ""
-  revision = "8dd112bcdc25174059e45e07517d9fc663123347"
+  revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
 
 [[projects]]
-  digest = "1:dfab7264a3c6473112bc0cc6fdf46f991b5fa2e3bf0107cad156271076a1451d"
+  branch = "master"
+  digest = "1:43bfad8e9461c3d7263ee81f7fee874aa0635555d5631af29be28707cb048c38"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -881,11 +835,11 @@
     "trace",
   ]
   pruneopts = ""
-  revision = "292b43bbf7cb8d35ddf40f8d5100ef3837cced3f"
+  revision = "710a502c58a2a4b2d7417a4e24ccb96d8dc13fa3"
 
 [[projects]]
   branch = "master"
-  digest = "1:d39075e87eb635fd96a33a40d3f3281a86858de8420ab599880b9cd4f32cd372"
+  digest = "1:919aaa36fe27d6fba3bea8067d0dea806269c45c8e5f329713eef4e2637dc2f4"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -893,7 +847,7 @@
     "windows",
   ]
   pruneopts = ""
-  revision = "c2f5717e611cf8e89a852a41081355194d80c943"
+  revision = "f49334f85ddcf0f08d7fb6dd7363e9e6d6b777eb"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -920,14 +874,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bedc60c52eb064eca6d7ce3321602522c5f50b6635aa7bc93c5624f1e65f9eda"
+  digest = "1:4b40c17c844ea1c6300acae1b151c9f4e30e74b489f9e59c961cae257aa5f448"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = ""
-  revision = "4f5b463f9597cbe0dd13a6a2cd4f85e788d27508"
+  revision = "d831d65fe17df2e52bcc4316d4a9f7a418701f43"
 
 [[projects]]
-  digest = "1:b6c17b0c657f047118ae59b358950b28515914512cf3de02388cc42e33a92520"
+  digest = "1:9e9c6b3804858b1a058ef81027270d307b74f4ddd727d2edff0ca002dd304adb"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -963,8 +917,8 @@
     "tap",
   ]
   pruneopts = ""
-  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
-  version = "v1.19.0"
+  revision = "3507fb8e1a5ad030303c106fef3a47c9fdad16ad"
+  version = "v1.19.1"
 
 [[projects]]
   digest = "1:73ebcbf8b130be886f04e5b928308604a36620e53343b833926a3aa4f2582abd"
@@ -981,20 +935,9 @@
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
     "github.com/jawher/mow.cli",
-    "github.com/kentquirk/boneful",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
-    "github.com/oneiro-ndev/chaos/pkg/chaos",
-    "github.com/oneiro-ndev/chaos/pkg/chaos/config",
-    "github.com/oneiro-ndev/chaos/pkg/chaos/ns",
-    "github.com/oneiro-ndev/chaos/pkg/chaos/query",
-    "github.com/oneiro-ndev/chaos/pkg/ev.ndau",
-    "github.com/oneiro-ndev/chaos/pkg/genesisfile",
-    "github.com/oneiro-ndev/chaos/pkg/tool",
-    "github.com/oneiro-ndev/chaos/pkg/tool.write",
-    "github.com/oneiro-ndev/chaos_genesis/pkg/genesis",
-    "github.com/oneiro-ndev/chaos_genesis/pkg/genesis.generator",
     "github.com/oneiro-ndev/genesis/pkg/cli.util",
     "github.com/oneiro-ndev/genesis/pkg/config",
     "github.com/oneiro-ndev/genesis/pkg/etl",
@@ -1020,6 +963,8 @@
     "github.com/oneiro-ndev/ndaumath/pkg/types",
     "github.com/oneiro-ndev/ndaumath/pkg/words",
     "github.com/oneiro-ndev/o11y/pkg/honeycomb",
+    "github.com/oneiro-ndev/system_vars/pkg/genesis.generator",
+    "github.com/oneiro-ndev/system_vars/pkg/genesisfile",
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",
     "github.com/pkg/errors",
     "github.com/rs/cors",

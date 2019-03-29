@@ -20,7 +20,7 @@ Testing depends on a test net to be available and as such are not very pure unit
 
 ```shell
 ./build.sh
-NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 NDAUAPI_CHAOS_RPC_URL=http://127.0.0.1:31005 ./ndauapi
+NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 ./ndauapi
 ```
 
 # Basic Usage
@@ -36,8 +36,7 @@ Please include this in your VSCode config to run individual tests. Replace the I
 
 ```json
     "go.testEnvVars": {
-        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001",
-        "NDAUAPI_CHAOS_RPC_URL": "http://127.0.0.1:31005"
+        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001"
     },
 ```
 
@@ -92,16 +91,6 @@ Each of these, in turn, has several endpoints within it.
 
 * [BlockDateRange](#blockdaterange)
 
-* [ChaosBlockRange](#chaosblockrange)
-
-* [ChaosBlockDateRange](#chaosblockdaterange)
-
-* [ChaosHistory](#chaoshistory)
-
-* [ChaosNamespaceAll](#chaosnamespaceall)
-
-* [ChaosNamespaceKey](#chaosnamespacekey)
-
 * [NodeStatus](#nodestatus)
 
 * [NodeHealth](#nodehealth)
@@ -131,8 +120,6 @@ Each of these, in turn, has several endpoints within it.
 * [SystemAll](#systemall)
 
 * [AccountEAIRate](#accounteairate)
-
-* [SystemHistoryKey](#systemhistorykey)
 
 * [TransactionByHash](#transactionbyhash)
 
@@ -902,260 +889,6 @@ _**Writes:**_
 
 
 ---
-## ChaosBlockRange
-
-### `GET /chaos/range/:first/:last`
-
-_Returns a sequence of block metadata starting at first and ending at last_
-
-
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- first | Path | Height at which to begin retrieval of blocks. | int
- last | Path | Height at which to end retrieval of blocks. | int
- noempty | Query | Set to nonblank value to exclude empty blocks | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "last_height": 12345,
-          "block_metas": [
-            {
-              "block_id": {
-                "hash": "",
-                "parts": {
-                  "total": 0,
-                  "hash": ""
-                }
-              },
-              "header": {
-                "version": {
-                  "block": 0,
-                  "app": 0
-                },
-                "chain_id": "",
-                "height": 0,
-                "time": "0001-01-01T00:00:00Z",
-                "num_txs": 0,
-                "total_txs": 0,
-                "last_block_id": {
-                  "hash": "",
-                  "parts": {
-                    "total": 0,
-                    "hash": ""
-                  }
-                },
-                "last_commit_hash": "",
-                "data_hash": "",
-                "validators_hash": "",
-                "next_validators_hash": "",
-                "consensus_hash": "",
-                "app_hash": "",
-                "last_results_hash": "",
-                "evidence_hash": "",
-                "proposer_address": ""
-              }
-            }
-          ]
-        }
-```
-
-
-
----
-## ChaosBlockDateRange
-
-### `GET /chaos/daterange/:first/:last`
-
-_Returns a sequence of block metadata starting at first date and ending at last date_
-
-
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- first | Path | Timestamp (ISO 3339) at which to begin (inclusive) retrieval of blocks. | string
- last | Path | Timestamp (ISO 3339) at which to end (exclusive) retrieval of blocks. | string
- noempty | Query | Set to nonblank value to exclude empty blocks | string
- pageindex | Query | The 0-based page index to get; default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "last_height": 12345,
-          "block_metas": [
-            {
-              "block_id": {
-                "hash": "",
-                "parts": {
-                  "total": 0,
-                  "hash": ""
-                }
-              },
-              "header": {
-                "version": {
-                  "block": 0,
-                  "app": 0
-                },
-                "chain_id": "",
-                "height": 0,
-                "time": "0001-01-01T00:00:00Z",
-                "num_txs": 0,
-                "total_txs": 0,
-                "last_block_id": {
-                  "hash": "",
-                  "parts": {
-                    "total": 0,
-                    "hash": ""
-                  }
-                },
-                "last_commit_hash": "",
-                "data_hash": "",
-                "validators_hash": "",
-                "next_validators_hash": "",
-                "consensus_hash": "",
-                "app_hash": "",
-                "last_results_hash": "",
-                "evidence_hash": "",
-                "proposer_address": ""
-              }
-            }
-          ]
-        }
-```
-
-
-
----
-## ChaosHistory
-
-### `GET /chaos/history/:namespace/:key`
-
-_Returns the history of changes to a value of a single chaos chain variable._
-
-The history includes the block height and the value of each change to the variable.
-The result is sorted chronologically.
-Namespace and key must be URL query-escaped
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
- key | Path | Base-64 (std) name of the variable. | string
- pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "History": [
-            {
-              "Height": 12345,
-              "Value": "dmFsdWU="
-            }
-          ]
-        }
-```
-
-
-
----
-## ChaosNamespaceAll
-
-### `GET /chaos/value/:namespace/all`
-
-_Returns the names and current values of all currently-defined variables in a given namespace on the chaos chain._
-
-Namespace must be URL query-escaped
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        ""
-```
-
-
-
----
-## ChaosNamespaceKey
-
-### `GET /chaos/value/:namespace/:key`
-
-_Returns the current value of a single namespaced variable from the chaos chain._
-
-Namespace and key must be URL query-escaped
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
- key | Path | Base-64 (std) name of the variable. | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        ""
-```
-
-
-
----
 ## NodeStatus
 
 ### `GET /node/status`
@@ -1663,41 +1396,6 @@ _**Writes:**_
 
 
 ---
-## SystemHistoryKey
-
-### `GET /system/history/:key`
-
-_Returns the history of changes to a value of a system variable._
-
-The history includes the timestamp, new value, and transaction ID of each change to the value.
-The result is reverse sorted chronologically from the current time, and supports paging by time.
-Key must be URL query-escaped.
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- key | Path | Name of the system variable. | string
- limit | Query | Maximum number of values to return; default=10. | string
- before | Query | Timestamp (ISO 8601) to start looking backwards; default=now. | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {}
-```
-
-
-
----
 ## TransactionByHash
 
 ### `GET /transaction/:txhash`
@@ -1776,7 +1474,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RecordPrice, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RecordPrice, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SetSysvar, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
 
 
 _**Parameters:**_

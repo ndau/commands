@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Wrapper for `go generate` for the repo specified.  Usage: ./generate.sh <repo>
-# Must have msgp installed.  See https://github.com/oneiro-ndev/chaos/README.md for details.
+# Must have msgp installed.
 
 # Load our environment variables.
 CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
@@ -12,7 +12,6 @@ REPO="$1"
 if [ -z "$REPO" ]; then
     echo Usage examples:
     echo "  ./generate.sh metanode"
-    echo "  ./generate.sh chaos"
     echo "  ./generate.sh ndau"
     exit 1
 fi

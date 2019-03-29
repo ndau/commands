@@ -2,40 +2,51 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-INTERNAL_CHAOS_P2P=26660
-INTERNAL_CHAOS_RPC=26670
-INTERNAL_NDAU_P2P=26661
-INTERNAL_NDAU_RPC=26671
-INTERNAL_NDAUAPI=3030
+SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
+INTERNAL_P2P_PORT=26660
+INTERNAL_RPC_PORT=26670
+INTERNAL_NDAUAPI_PORT=3030
 
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ] || [ -z "$5" ] || [ -z "$6" ] || \
-       [ -z "$7" ] || [ -z "$8" ] || [ -z "$9" ]
+if [ -z "$1" ] || \
+   [ -z "$2" ] || \
+   [ -z "$3" ] || \
+   [ -z "$4" ] || \
+   # $5 can be empty
+   [ -z "$6" ]
+   # $7 is optional
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER CHAOS_P2P CHAOS_RPC NDAU_P2P NDAU_RPC NDAUAPI PEER_IP PEER_RPC SNAPSHOT"
+         "CONTAINER P2P_PORT RPC_PORT NDAUAPI_PORT PEERS SNAPSHOT IDENTITY"
     echo
     echo "Arguments:"
-    echo "  CONTAINER   Name to give to the container to run"
-    echo "  CHAOS_P2P   External port to map to the internal P2P port for the chaos chain"
-    echo "  CHAOS_RPC   External port to map to the internal RPC port for the chaos chain"
-    echo "  NDAU_P2P    External port to map to the internal P2P port for the ndau chain"
-    echo "  NDAU_RPC    External port to map to the internal RPC port for the ndau chain"
-    echo "  NDAUAPI     External port to map to the internal ndauapi port"
-    echo "  PEER_IP     IP of an ndau chain peer on the network to join"
-    echo "  PEER_RPC    RPC port of the ndau chain peer"
-    echo "  SNAPSHOT    Path to snapshot data with which to start the node group"
+    echo "  CONTAINER     Name to give to the container to run"
+    echo "  P2P_PORT      External port to map to the internal P2P port for the blockchain"
+    echo "  RPC_PORT      External port to map to the internal RPC port for the blockchain"
+    echo "  NDAUAPI_PORT  External port to map to the internal ndauapi port"
+    echo "  PEERS         Comma-separated list of persistent peers on the network to join"
+    echo "                Each peer should be of the form IP:P2P:RPC"
+    echo "  SNAPSHOT      Name of the snapshot to use as a starting point for the node group"
+    echo
+    echo "Optionsl:"
+    echo "  IDENTITY      node-identity.tgz file from a previous snaphot or initial container run"
+    echo "                If present, the node will use it to configure itself when [re]starting"
+    echo "                If missing, the node will generate a new identity for itself"
     exit 1
 fi
 CONTAINER="$1"
-CHAOS_P2P="$2"
-CHAOS_RPC="$3"
-NDAU_P2P="$4"
-NDAU_RPC="$5"
-NDAUAPI="$6"
-PEER_IP="$7"
-PEER_RPC="$8"
-SNAPSHOT="$9"
+P2P_PORT="$2"
+RPC_PORT="$3"
+NDAUAPI_PORT="$4"
+PEERS="$5"
+SNAPSHOT="$6"
+IDENTITY="$7"
+
+if [[ "$CONTAINER" == *"/"* ]]; then
+    # This is because we use a sed command inside the container and slashes confuse it.
+    echo "Container name $CONTAINER cannot contain slashes"
+    exit 1
+fi
 
 echo "Container: $CONTAINER"
 
@@ -45,11 +56,14 @@ if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     exit 1
 fi    
 
-echo "chaos P2P port: $CHAOS_P2P"
-echo "chaos RPC port: $CHAOS_RPC"
-echo "ndau P2P port: $NDAU_P2P"
-echo "ndau RPC port: $NDAU_RPC"
-echo "ndauapi port: $NDAUAPI"
+if [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ] ; then
+    echo "Cannot find node identity file: $IDENTITY"
+    exit 1
+fi
+
+echo "P2P port: $P2P_PORT"
+echo "RPC port: $RPC_PORT"
+echo "ndauapi port: $NDAUAPI_PORT"
 
 test_port() {
     ip="$1"
@@ -62,115 +76,66 @@ test_port() {
     fi
 }
 
-test_port localhost "$CHAOS_P2P"
-test_port localhost "$CHAOS_RPC"
-test_port localhost "$NDAU_P2P"
-test_port localhost "$NDAU_RPC"
-test_port localhost "$NDAUAPI"
+test_port localhost "$P2P_PORT"
+test_port localhost "$RPC_PORT"
+test_port localhost "$NDAUAPI_PORT"
 
-test_peer() {
-    chain="$1"
-    ip="$2"
-    port="$3"
+get_peer_id() {
+    ip="$1"
+    p2p="$2"
+    rpc="$3"
 
-    echo "Getting $chain peer info..."
-    PEER_ID=$(curl -s --connect-timeout 5 "http://$ip:$port/status" | jq -r .result.node_info.id)
-    if [ -z "$PEER_ID" ]; then
-        echo "Could not get $chain peer id"
+    if [ -z "$ip" ] || [ -z "$p2p" ] || [ -z "$rpc" ]; then
+        echo "Missing ip or p2p or rpc: ip=($ip) p2p=($p2p) rpc=($rpc)"
         exit 1
     fi
-    echo "$chain peer id: $PEER_ID"
 
-    PEER_P2P=$((port - 1))
-    echo "Testing connection to $chain peer..."
-    $(nc -G 5 -z "$ip" "$PEER_P2P")
+    echo "Testing connection to peer $ip:$p2p..."
+    $(nc -G 5 -z "$ip" "$p2p")
     if [ "$?" != 0 ]; then
-        echo "Could not reach $chain peer"
+        echo "Could not reach peer"
         exit 1
     fi
+
+    echo "Getting peer info for $ip:$rpc..."
+    PEER_ID=$(curl -s --connect-timeout 5 "http://$ip:$rpc/status" | jq -r .result.node_info.id)
+    if [ -z "$PEER_ID" ]; then
+        echo "Could not get peer id"
+        exit 1
+    fi
+    echo "Peer id: $PEER_ID"
 }
 
-test_peer ndau "$PEER_IP" "$PEER_RPC"
-NDAU_PEER_ID="$PEER_ID"
-NDAU_PEER_P2P="$PEER_P2P"
+# Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
+persistent_peers=()
+peers=()
+IFS=',' read -ra PEER <<< "$PEERS"
+for i in "${PEER[@]}"; do
+    peers+=("$i")
+done
+for peer in "${peers[@]}"; do
+    peer_pieces=()
 
-test_peer chaos "$PEER_IP" $((PEER_RPC - 2))
-CHAOS_PEER_ID="$PEER_ID"
-CHAOS_PEER_P2P="$PEER_P2P"
+    IFS=':' read -ra pair <<< "$peer"
+    for i in "${pair[@]}"; do
+        peer_pieces+=("$i")
+    done
 
-if [ ! -d "$SNAPSHOT" ]; then
-    echo "Could not find snapshot directory: $SNAPSHOT"
-    exit 1
-fi
+    peer_ip=${peer_pieces[0]}
+    peer_p2p=${peer_pieces[1]}
+    peer_rpc=${peer_pieces[2]}
+    PEER_ID=""
+    get_peer_id "$peer_ip" "$peer_p2p" "$peer_rpc"
+    persistent_peers+=("tcp://$PEER_ID@$peer_ip:$peer_p2p")
+done
 
-SVI_NAMESPACE_FILE="$SNAPSHOT/svi-namespace"
-if [ ! -f "$SVI_NAMESPACE_FILE" ]; then
-    echo "Could not find svi namespace file: $SVI_NAMESPACE_FILE"
-    exit 1
-fi
-SVI_NAMESPACE=$(cat "$SVI_NAMESPACE_FILE")
-echo "SVI Namespace: $SVI_NAMESPACE"
+# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
+join_by() { local IFS="$1"; shift; echo "$*"; }
 
-DATA_DIR="$SNAPSHOT/data"
-if [ ! -d "$DATA_DIR" ]; then
-    echo "Could not find data directory: $DATA_DIR"
-    exit 1
-fi
+PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
+echo "Persistent peers: '$PERSISTENT_PEERS'"
 
-# Check for the existence of required data files in the snapshot.
-# TODO: Add support for starting fresh with a genesis snapshot, which doesn't include everything.
-#       We will have to set genesis.json app_hash inside docker-run.sh when to support this.
-#       Currently we rely on it already being there, and can only connect to existing networks.
-CHAOS_DATA_DIR="$DATA_DIR/chaos"
-if [ ! -d "$CHAOS_DATA_DIR" ]; then
-    echo "Could not find chaos data directory: $CHAOS_DATA_DIR"
-    exit 1
-fi
-CHAOS_NOMS_DATA_DIR="$CHAOS_DATA_DIR/noms"
-if [ ! -d "$CHAOS_NOMS_DATA_DIR" ]; then
-    echo "Could not find chaos noms data directory: $CHAOS_NOMS_DATA_DIR"
-    exit 1
-fi
-CHAOS_REDIS_DATA_DIR="$CHAOS_DATA_DIR/redis"
-if [ ! -d "$CHAOS_REDIS_DATA_DIR" ]; then
-    echo "Could not find chaos redis data directory: $CHAOS_REDIS_DATA_DIR"
-    exit 1
-fi
-CHAOS_TENDERMINT_DATA_DIR="$CHAOS_DATA_DIR/tendermint"
-if [ ! -d "$CHAOS_TENDERMINT_DATA_DIR" ]; then
-    echo "Could not find chaos tendermint data directory: $CHAOS_TENDERMINT_DATA_DIR"
-    exit 1
-fi
-CHAOS_TENDERMINT_GENESIS_FILE="$CHAOS_TENDERMINT_DATA_DIR/config/genesis.json"
-if [ ! -f "$CHAOS_TENDERMINT_GENESIS_FILE" ]; then
-    echo "Could not find chaos tendermint genesis file: $CHAOS_TENDERMINT_GENESIS_FILE"
-    exit 1
-fi
-NDAU_DATA_DIR="$DATA_DIR/ndau"
-if [ ! -d "$NDAU_DATA_DIR" ]; then
-    echo "Could not find ndau data directory: $NDAU_DATA_DIR"
-    exit 1
-fi
-NDAU_NOMS_DATA_DIR="$NDAU_DATA_DIR/noms"
-if [ ! -d "$NDAU_NOMS_DATA_DIR" ]; then
-    echo "Could not find ndau noms data directory: $NDAU_NOMS_DATA_DIR"
-    exit 1
-fi
-NDAU_REDIS_DATA_DIR="$NDAU_DATA_DIR/redis"
-if [ ! -d "$NDAU_REDIS_DATA_DIR" ]; then
-    echo "Could not find ndau redis data directory: $NDAU_REDIS_DATA_DIR"
-    exit 1
-fi
-NDAU_TENDERMINT_DATA_DIR="$NDAU_DATA_DIR/tendermint"
-if [ ! -d "$NDAU_TENDERMINT_DATA_DIR" ]; then
-    echo "Could not find ndau tendermint data directory: $NDAU_TENDERMINT_DATA_DIR"
-    exit 1
-fi
-NDAU_TENDERMINT_GENESIS_FILE="$NDAU_TENDERMINT_DATA_DIR/config/genesis.json"
-if [ ! -f "$NDAU_TENDERMINT_GENESIS_FILE" ]; then
-    echo "Could not find ndau tendermint genesis file: $NDAU_TENDERMINT_GENESIS_FILE"
-    exit 1
-fi
+echo "Snapshot: $SNAPSHOT"
 
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
@@ -186,24 +151,49 @@ echo "Creating container..."
 # - Using --sysctl silences a warning about TCP backlog when redis runs.
 # - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
 docker create \
-       -p "$CHAOS_P2P":"$INTERNAL_CHAOS_P2P" \
-       -p "$CHAOS_RPC":"$INTERNAL_CHAOS_RPC" \
-       -p "$NDAU_P2P":"$INTERNAL_NDAU_P2P" \
-       -p "$NDAU_RPC":"$INTERNAL_NDAU_RPC" \
-       -p "$NDAUAPI":"$INTERNAL_NDAUAPI" \
+       -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
+       -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
+       -p "$NDAUAPI_PORT":"$INTERNAL_NDAUAPI_PORT" \
        --name "$CONTAINER" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
        -e "NODE_ID=$CONTAINER" \
-       -e "CHAOS_PEER=$CHAOS_PEER_ID@$PEER_IP:$CHAOS_PEER_P2P" \
-       -e "NDAU_PEER=$NDAU_PEER_ID@$PEER_IP:$NDAU_PEER_P2P" \
+       -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
+       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
        ndauimage 
 
-echo "Copying snapshot to container..."
-docker cp "$SNAPSHOT/." "$CONTAINER":/image/
+IDENTITY_FILE=node-identity.tgz
+if [ ! -z "$IDENTITY" ]; then
+    echo "Copying node identity file to container..."
+    docker cp "$IDENTITY" "$CONTAINER:/image/$IDENTITY_FILE"
+fi
 
 echo "Starting container..."
 docker start "$CONTAINER"
+
+echo "Waiting for the node to fully spin up..."
+until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
+do
+    :
+done
+
+# In the case no node identity was passed in, wait for it to generate one then copy it out.
+# It's important that node operators keep the node-identity.tgz file secure.
+if [ -z "$IDENTITY" ]; then
+    # We can copy the file out now since we waited for the node to full spin up above.
+    OUT_FILE="$SCRIPT_DIR/node-identity-$CONTAINER.tgz"
+    docker cp "$CONTAINER:/image/$IDENTITY_FILE" "$OUT_FILE"
+
+    echo
+    echo "The node identity has been generated and copied out of the container here:"
+    echo "  $OUT_FILE"
+    echo
+    echo "You can always get it at a later time by running the following:"
+    echo "  docker cp $CONTAINER:/image/$IDENTITY_FILE $IDENTITY_FILE"
+    echo "It can be used to restart this container with the same identity it has now"
+    echo "Keep it secret; keep it safe"
+    echo
+fi
 
 echo done
