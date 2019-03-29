@@ -1,0 +1,66 @@
+[env]
+HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
+HONEYCOMB_DATASET = "kjqnet"
+
+[logger]
+output = "stderr"
+format = "json"
+level = "info"
+
+[[task]]
+    name = "parent"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    args = [
+        "--port=9999"
+    ]
+    # special values are:
+    # "SUPPRESS" (also "") meaning "discard this stream"
+    # "HONEYCOMB" sends the message to honeycomb
+    # Anything else is a named file
+    stdout = ""
+    stderr = "parent.log"
+    # durations are done as time.Duration
+    maxshutdown = "2s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:9999/health"
+        period = "2s"
+        timeout = "1s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:9999/health"
+        timeout = "100ms"
+
+    [[task.monitors]]
+        name = "something else"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:9999/count/1/5"
+        timeout = "3s"
+        period = "5s"
+
+[[task]]
+    name = "child"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    args = [ "--port=9998" ]
+    parent = "parent"
+
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        url = "http://localhost:9999/health"
+        timeout = "1s"
+        period =  "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        url = "http://localhost:9999/health"
+        timeout = "100ms"
+
