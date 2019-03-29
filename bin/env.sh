@@ -3,23 +3,17 @@
 # 3rd party repos and version to use.
 export NOMS_REPO=https://github.com/oneiro-ndev/noms.git
 export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
-export TENDERMINT_VER=v0.30.1
+export TENDERMINT_VER=v0.31.0
 
 # For multi-node support.
-export MAX_NODE_COUNT=5
+export MAX_NODE_COUNT=10
 
-# Port numbers.  They come in chaos-ndau pairs, one pair per node.
+# Port numbers.
 # For example, here are the noms ports for each node:
-#   node 0:
-#     chaos: 8000
-#     ndau : 8001
-#   node 1:
-#     chaos: 8002
-#     ndau : 8003
-#   node N:
-#     chaos: NOMS_PORT + 2 * N
-#     ndau : NOMS_PORT + 2 * N + 1
-# Therefore, we must leave room for 2 x MAX_NODE_COUNT values in each port number space.
+#   node 0: 8000
+#   node 1: 8001
+#   node N: 8000 + N
+# Therefore, we must leave room for MAX_NODE_COUNT values in each port number space.
 export NODE_PORT=26650
 export NOMS_PORT=8000
 export REDIS_PORT=6379
@@ -27,10 +21,7 @@ export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 
 # We programmatically create and claim the bpc account on localnet.  This is its name.
-# It's required in order to change system variables on the chaos chain.
 BPC_OPS_ACCT_NAME=bpc-operations
-# This is the chaos-side identity that will be associated with the BPC account.
-SYSVAR_ID=sysvar
 
 # Go source path.
 GO_DIR=$(go env GOPATH)
@@ -50,7 +41,6 @@ export NDEV_DIR="$GO_DIR/src/$NDEV_SUBDIR"
 export TM_DIR="$GO_DIR"/src/github.com/tendermint
 
 # Build locations.
-export CHAOS_DIR="$NDEV_DIR"/chaos
 export COMMANDS_DIR="$NDEV_DIR"/commands
 export NDAU_DIR="$NDEV_DIR"/ndau
 export NOMS_DIR="$ATTICLABS_DIR"/noms
@@ -60,22 +50,17 @@ export TENDERMINT_DIR="$TM_DIR"/tendermint
 export LOCALNET_DIR=~/.localnet
 export ROOT_DATA_DIR="$LOCALNET_DIR"/data
 export GENESIS_FILES_DIR="$LOCALNET_DIR"/genesis_files
-export GENESIS_TOML="$GENESIS_FILES_DIR/genesis.toml"
-export ASSC_TOML="$GENESIS_FILES_DIR/associated.toml"
+export SYSTEM_VARS_TOML="$GENESIS_FILES_DIR/system_vars.toml"
+export SYSTEM_ACCOUNTS_TOML="$GENESIS_FILES_DIR/system_accounts.toml"
 
 # Data directories.  These get "-$node_num" appended to them when they are used.
 export NODE_DATA_DIR="$ROOT_DATA_DIR"/ndau
-export NOMS_CHAOS_DATA_DIR="$ROOT_DATA_DIR"/noms-chaos
 export NOMS_NDAU_DATA_DIR="$ROOT_DATA_DIR"/noms-ndau
-export REDIS_CHAOS_DATA_DIR="$ROOT_DATA_DIR"/redis-chaos
 export REDIS_NDAU_DATA_DIR="$ROOT_DATA_DIR"/redis-ndau
-export TENDERMINT_CHAOS_DATA_DIR="$ROOT_DATA_DIR"/tendermint-chaos
 export TENDERMINT_NDAU_DATA_DIR="$ROOT_DATA_DIR"/tendermint-ndau
 
 # Command source subdirectories.  We build all tools in their respective repo roots, though.
-export CHAOS_CMD=cmd/chaos
-export CHAOSNODE_CMD=cmd/chaosnode
-export GENESIS_CMD=cmd/genesis
+export GENERATE_CMD=cmd/generate
 export NDAU_CMD=cmd/ndau
 export NDAUAPI_CMD=cmd/ndauapi
 export NDAUNODE_CMD=cmd/ndaunode

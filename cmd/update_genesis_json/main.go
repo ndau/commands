@@ -12,7 +12,7 @@ import (
 func main() {
 	app := cli.App("update_genesis_json", "update a chain's genesis.json file")
 
-	name := app.StringArg("NAME", "", "Name of chain ('chaos', 'order', 'ndau', etc.)")
+	name := app.StringArg("NAME", "", "Name of chain ('order', 'ndau', etc.)")
 	path := app.StringArg("PATH", "", "Path to genesis.json")
 
 	app.Action = func() {

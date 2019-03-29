@@ -19,6 +19,12 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
+			"addr",
+			"get the address of an account",
+			getAccountAddr(verbose),
+		)
+
+		cmd.Command(
 			"claim",
 			"claim this account on the blockchain",
 			getAccountClaim(verbose, emitJSON, compact),

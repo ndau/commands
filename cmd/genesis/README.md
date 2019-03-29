@@ -1,3 +1,0 @@
-# `genesis`
-
-Perform chaos genesis

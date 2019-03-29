@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document contains steps for getting set up to build and test ndev applications.  By the end you will be able to run `chaos` and `ndau` blockchains, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
+This document contains steps for getting set up to build and test ndev applications.  By the end you will be able to run the `ndau` blockchain, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
 
 The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](bin/README.md).
 
@@ -33,19 +33,16 @@ These steps only need to be performed once:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git ~/go/src/github.com/oneiro-ndev/commands
     ```
-1. Set up genesis files:
+1. Set up genesis files: (Optional)
+    - Using custom genesis files is useful if running a localnet for mainnet-specific tasks; they are generated automatically if not supplied
     - Get a copy of `genesis_files.tar` from Oneiro's 1password account
     - Create the directory `~/.localnet`
     - Extract `genesis_files.tar` within `~/.localnet`
     - You should now see the following items in your `~/.localnet/genesis_files/` directory:
-        - `associated.toml`
-        - `genesis.toml`
+        - `system_accounts.toml`
+        - `system_vars.toml`
         - (any other files or subdirectories in here are not needed and can be removed if desired)
 1. Run `./bin/setup.sh N` where `N` is the number of nodes you'd like to run
-
-### Demo mode
-
-[`demo.sh`](demo.sh) sets everything up, runs the node group, creates a `demo` ndau account, gives it some money, creates a `demo` chaos id associated with that ndau account, sends some transactions, and shows that the chaos transactions validated themselves on the ndau chain, before finally shutting everything down.
 
 ### Running
 
@@ -67,16 +64,12 @@ To run with fresh databases, run `./bin/reset.sh` before your next `./bin/run.sh
 
 Both `./bin/run.sh` and `./bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
 
-* chaos_redis
-* chaos_noms
-* chaos_node
-* chaos_tm
 * ndau_redis
 * ndau_noms
 * ndau_node
 * ndau_tm
 
-You can also specify the node number for each.  For example, if you ran `./bin/setup.sh` with a node count greater than 1, then you can `./bin/run.sh chaos_redis 1` to run chaos redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
+You can also specify the node number for each.  For example, if you ran `./bin/setup.sh` with a node count greater than 1, then you can `./bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
 
 ### Rebuild
 

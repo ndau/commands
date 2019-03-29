@@ -23,10 +23,23 @@ if [ "$node_count" -lt 1 ] || [ "$node_count" -gt "$MAX_NODE_COUNT" ]; then
     exit 1
 fi
 
-# Ensure the genesis files were installed.
-if [ ! -e "$GENESIS_TOML" ] || [ ! -e "$ASSC_TOML" ]; then
-    echo Cannot find "$GENESIS_FILES_DIR/*.toml" - See ../README.md for install instructions
-    exit 1
+# Users may want us to generate the genesis files, or they may want to use their own.
+# Checking this early on gives the user the chance to fix their mistake if they didn't want them
+# generated.  It'll only ask once, even on subsequent setup.sh commands.
+# Only check for for the system vars toml since the system accounts toml is optional.
+if [ ! -f "$SYSTEM_VARS_TOML" ]; then
+    echo "Cannot find genesis file: $SYSTEM_VARS_TOML"
+
+    printf "Generate new? [y|n]: "
+    read GENERATE
+    if [ "$GENERATE" != "y" ]; then
+        echo "Cannot set up a localnet without genesis files"
+        echo "See instructions in ../README.md if you would like to use specific genesis files"
+        exit 1
+    fi
+
+    # At this point, conf.sh will see that the genesis file (system vars toml) is missing and
+    # will generate it as well as generating a fresh system accounts toml.
 fi
 
 # Initialize global config for the localnet we're setting up.
@@ -113,9 +126,8 @@ update_repo() {
 
 mkdir -p "$NDEV_DIR"
 update_repo commands
-update_repo chaos
+# We need the ndau repo only for running its unit tests from test.sh.
 update_repo ndau
-update_repo genesis
 
 cd "$NDEV_DIR"/commands
 echo SETUP: Ensuring dependencies for commands...
