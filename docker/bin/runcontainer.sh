@@ -172,17 +172,28 @@ fi
 echo "Starting container..."
 docker start "$CONTAINER"
 
-echo done
+echo "Waiting for the node to fully spin up..."
+until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
+do
+    :
+done
 
-# In the case no node identity was passed in, give further instructions for how to get it.
+# In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.
 if [ -z "$IDENTITY" ]; then
+    # We can copy the file out now since we waited for the node to full spin up above.
+    OUT_FILE="$SCRIPT_DIR/node-identity-$CONTAINER.tgz"
+    docker cp "$CONTAINER:/image/$IDENTITY_FILE" "$OUT_FILE"
+
     echo
-    echo "Once the container fully spins up, you can get $IDENTITY_FILE by running the following:"
+    echo "The node identity has been generated and copied out of the container here:"
+    echo "  $OUT_FILE"
+    echo
+    echo "You can always get it at a later time by running the following:"
     echo "  docker cp $CONTAINER:/image/$IDENTITY_FILE $IDENTITY_FILE"
-    echo "You can see if it's ready by running the following and looking for a similar message:"
-    echo "  docker container logs $CONTAINER"
     echo "It can be used to restart this container with the same identity it has now"
     echo "Keep it secret; keep it safe"
     echo
 fi
+
+echo done

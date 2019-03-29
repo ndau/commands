@@ -356,9 +356,6 @@ jobs:
           command: |
             # Redeploy nodegroup testnet
             cd /commands
-            # set SHA to latest master update
-            export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
-            echo SHA=$SHA
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
@@ -390,8 +387,11 @@ jobs:
               fi
             done
 
+            # set SHA to what the logic in the checkout step has determined.
+            source $BASH_ENV
+            echo "SHA = $SHA"
+
             # brings nodes back up
-            # Use $SHA here instead of the automation's git ls-remote method.
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
             HELM_CHART_PATH=/root/automation/helm/nodegroup \

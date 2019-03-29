@@ -6,6 +6,7 @@ import (
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/key"
+	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 )
 
 func hdstr(k key.ExtendedKey) string {
@@ -81,5 +82,44 @@ func cmdHDAddr(cmd *cli.Cmd) {
 		addr, err := address.Generate(kind, key.PubKeyBytes())
 		check(err)
 		fmt.Println(addr)
+	}
+}
+
+func cmdHDRaw(cmd *cli.Cmd) {
+	cmd.Command("public", "transform a raw secp256k1 public key into ndau format", cmdHDRawPublic)
+	cmd.Command("signature", "transform a raw secp256k1 signature into ndau format", cmdHDRawSig)
+}
+
+func cmdHDRawPublic(cmd *cli.Cmd) {
+	cmd.Spec = getDataSpec(true)
+
+	getData := getDataClosure(cmd, true)
+
+	cmd.Action = func() {
+		data := getData()
+
+		key, err := signature.RawPublicKey(signature.Secp256k1, data, nil)
+		check(err)
+
+		data, err = key.MarshalText()
+		check(err)
+		fmt.Println(string(data))
+	}
+}
+
+func cmdHDRawSig(cmd *cli.Cmd) {
+	cmd.Spec = getDataSpec(true)
+
+	getData := getDataClosure(cmd, true)
+
+	cmd.Action = func() {
+		data := getData()
+
+		sig, err := signature.RawSignature(signature.Secp256k1, data)
+		check(err)
+
+		data, err = sig.MarshalText()
+		check(err)
+		fmt.Println(string(data))
 	}
 }

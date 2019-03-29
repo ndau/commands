@@ -3,6 +3,11 @@ source "$SCRIPT_DIR"/docker-env.sh
 
 echo "Running $NODE_ID node group..."
 
+# Remove this file while we're starting up.  Once it's written, it can be used as a flag
+# to the outside world as to whether the container's processes are all fully running.
+RUNNING_FILE="$SCRIPT_DIR/running"
+rm -f "$RUNNING_FILE"
+
 # If there's no data directory yet, it means we're starting from scratch.
 if [ ! -d "$DATA_DIR" ]; then
     echo "Configuring node group..."
@@ -20,7 +25,9 @@ mkdir -p "$LOG_DIR"
 
 wait_port() {
     # Block until the given port becomes open.
-    until nc -z localhost "$1" 2>/dev/null
+    port="$1"
+    echo "Waiting for port $port..."
+    until nc -z localhost "$port" 2>/dev/null
     do
         :
     done
@@ -38,6 +45,7 @@ run_redis() {
     wait_port "$port"
 
     # Redis isn't really ready when it's port is open, wait for a ping to work.
+    echo "Waiting for redis ping..."
     until [[ $(redis-cli -p "$port" ping) == "PONG" ]]
     do
         :
@@ -98,18 +106,18 @@ run_node "$NODE_PORT" "$REDIS_PORT" "$NOMS_PORT"
 run_tm "$TM_P2P_PORT" "$TM_RPC_PORT" "$NODE_PORT" "$TM_DATA_DIR"
 run_ndauapi
 
-IDENTITY_FILE=node-identity.tgz
-if [ ! -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
+IDENTITY_FILE="$SCRIPT_DIR"/node-identity.tgz
+if [ ! -f "$IDENTITY_FILE" ]; then
     echo "Generating identity file..."
 
     cd "$DATA_DIR" || exit 1
-    tar -czf "$SCRIPT_DIR/$IDENTITY_FILE" \
+    tar -czf "$IDENTITY_FILE" \
         tendermint/config/node_key.json \
         tendermint/config/priv_validator_key.json
-
-    echo "Done; run the following command to get it:"
-    echo "  docker cp $NODE_ID:$SCRIPT_DIR/$IDENTITY_FILE $IDENTITY_FILE"
 fi
+
+# Everything's up and running.  The outside world can poll for this file to know this.
+touch "$RUNNING_FILE"
 
 echo "Node group $NODE_ID is now running"
 
