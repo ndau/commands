@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os/exec"
 	"sync"
@@ -30,6 +31,7 @@ type Task struct {
 	Name        string
 	Path        string
 	Args        []string
+	Env         []string
 	MaxShutdown time.Duration
 	Status      chan Eventer
 	Ready       func() Eventer
@@ -145,6 +147,8 @@ func (t *Task) Start(done chan struct{}) {
 
 	// start the task and wait for it to be ready
 	t.Logger.Info("Running process")
+	fmt.Println(t.Env)
+	t.cmd.Env = t.Env
 	t.cmd.Start()
 	looptime := 50 * time.Millisecond
 	loopticker := time.NewTicker(looptime)

@@ -1,10 +1,11 @@
 [env]
 HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
 HONEYCOMB_DATASET = "kjqnet"
+FORMAT = "json"
 
 [logger]
 output = "stderr"
-format = "json"
+format = "$FORMAT"
 level = "info"
 
 [[task]]

@@ -50,11 +50,6 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		// apply config vars to the env
-		for k, v := range cfg.Env {
-			os.Setenv(k, v)
-		}
-
 	}
 
 	logger := cfg.BuildLogger()

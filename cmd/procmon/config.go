@@ -31,10 +31,43 @@ type ConfigTask struct {
 	Monitors    []map[string]string
 }
 
+func (ct *ConfigTask) interpolate(env map[string]string) {
+	ct.Name = interpolate(ct.Name, env)
+	ct.Path = interpolate(ct.Path, env)
+	ct.Stdout = interpolate(ct.Stdout, env)
+	ct.Stderr = interpolate(ct.Stderr, env)
+	ct.Parent = interpolate(ct.Parent, env)
+	ct.MaxShutdown = interpolate(ct.MaxShutdown, env)
+	ct.Args = interpolateAll(ct.Args, env).([]string)
+	for i := range ct.Monitors {
+		ct.Monitors[i] = interpolateAll(ct.Monitors[i], env).(map[string]string)
+	}
+}
+
 // Load does the toml load into a config object
 func Load(filename string) (Config, error) {
 	cfg := Config{}
 	_, err := toml.DecodeFile(filename, &cfg)
+
+	// now interpolate the config's environment variables
+	globalenv := envmap(os.Environ(), make(map[string]string))
+	for k, v := range cfg.Env {
+		cfg.Env[k] = interpolate(v, globalenv)
+	}
+	// Create the real env for the rest of what we do by
+	// updating the loaded env from config with the global
+	// environment, and then save that in the cfg.
+	fullenv := envmap(os.Environ(), cfg.Env)
+	cfg.Env = fullenv
+
+	// Now we can use that to interpolate the rest
+	// of the loaded configuration
+	cfg.Logger = interpolateAll(cfg.Logger, cfg.Env).(map[string]string)
+
+	for i := range cfg.Task {
+		cfg.Task[i].interpolate(cfg.Env)
+	}
+
 	return cfg, err
 }
 
@@ -83,6 +116,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 	tasks := make([]*Task, 0)
 	for _, ct := range c.Task {
 		t := NewTask(ct.Name, ct.Path, ct.Args...)
+		t.Env = c.Getenv()
 		// set up any monitors we need
 		for _, mon := range ct.Monitors {
 			m, err := BuildMonitor(mon)
@@ -189,4 +223,15 @@ func (c *Config) BuildLogger() *logrus.Logger {
 	logger.Formatter = formatter
 	logger.Level = level
 	return logger
+}
+
+// Getenv returns a composite environment with the
+// same interface as os.Getenv, but any env vars
+// in the config are also included
+func (c *Config) Getenv() []string {
+	env := make([]string, 0, len(c.Env))
+	for k, v := range c.Env {
+		env = append(env, k+"="+v)
+	}
+	return env
 }
