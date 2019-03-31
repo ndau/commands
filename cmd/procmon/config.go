@@ -76,6 +76,12 @@ func Load(filename string) (Config, error) {
 // Monitors map
 func BuildMonitor(mon map[string]string) (func() Eventer, error) {
 	switch mon["type"] {
+	case "openport":
+		if mon["port"] == "" {
+			return nil, errors.New("openport requires a port parm")
+		}
+		m := OpenPort(mon["port"])
+		return m, nil
 	case "redis":
 		if mon["addr"] == "" {
 			mon["addr"] = "localhost:6379"

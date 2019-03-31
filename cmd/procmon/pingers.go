@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -44,6 +46,26 @@ func RedisPinger(address string) func() Eventer {
 		}
 		if result != "PONG" {
 			return NewErrorEvent(Failed, fmt.Errorf("ping expected 'PONG', got '%s'", result))
+		}
+		return OK
+	}
+}
+
+// OpenPort returns an Eventer that tests to see if
+// a given port on the local machine is available for connections.
+// The port parameter may be a space-separated list of ports; this
+// will check all of them.
+func OpenPort(port string) func() Eventer {
+	ports := strings.Fields(port)
+	return func() Eventer {
+		for _, p := range ports {
+			ln, err := net.Listen("tcp", ":"+p)
+
+			if err != nil {
+				return NewErrorEvent(Failed, err)
+			}
+
+			_ = ln.Close()
 		}
 		return OK
 	}

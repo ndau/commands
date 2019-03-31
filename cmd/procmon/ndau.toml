@@ -7,7 +7,16 @@ FORMAT = "json"
 LOGLEVEL = "info"
 REDIS_DATA_DIR = "data"
 REDIS_PORT = "6379"
-
+NOMS_DATA_DIR = "data"
+NOMS_PORT = "8000"
+NODE_DATA_DIR = "data"
+NODE_PORT = "26650"
+TM_DATA_DIR = "data"
+TM_P2P_PORT = "26660"
+TM_RPC_PORT = "26670"
+NDAUHOME = "$NODE_DATA_DIR-$NODE_NUM"
+NODE_ID = "$MONIKER_PREFIX-$NODE_NUM"
+CHAIN = "ndau"
 
 [logger]
 output = "stderr"
@@ -48,4 +57,82 @@ level = "$LOGLEVEL"
         name = "ready"
         type = "redis"
         addr = "localhost:$REDIS_PORT"
+
+
+[[task]]
+    name = "noms"
+    parent = "redis"
+    path = "./noms"
+    args = [
+        "serve",
+        "--port=$NOMS_PORT",
+        "$NOMS_DATA_DIR-$NODE_NUM",
+    ]
+    stdout = "$LOGDIR/noms-$NODE_NUM"
+    stderr = "$LOGDIR/noms-$NODE_NUM"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "openport"
+        port = "$NOMS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "openport"
+        port = "$NOMS_PORT"
+
+[[task]]
+    name = "ndaunode"
+    parent = "noms"
+    path = "./ndau"
+    args = [
+        "-spec",
+        "http://localhost:$NOMS_PORT",
+        "-index" ,
+        "localhost:$REDIS_PORT",
+        "-addr",
+        "0.0.0.0:$NODE_PORT",
+    ]
+    stdout = "$LOGDIR/ndaunode-$NODE_NUM"
+    stderr = "$LOGDIR/ndaunode-$NODE_NUM"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "openport"
+        port = "$NODE_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "openport"
+        port = "$NODE_PORT"
+
+[[task]]
+    name = "ndau_tm"
+    parent = "ndaunode"
+    path = "./tendermint"
+    args = [
+        "node",
+        "--home", "$TM_DATA_DIR-$NODE_NUM",
+        "--proxy_app", "tcp://localhost:$NODE_PORT",
+        "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
+        "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
+    ]
+    stdout = "$LOGDIR/ndau_tm-$NODE_NUM"
+    stderr = "$LOGDIR/ndau_tm-$NODE_NUM"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "openport"
+        port = "$NODE_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "openport"
+        port = "$TM_P2P_PORT $TM_RPC_PORT"
 

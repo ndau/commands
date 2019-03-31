@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -178,7 +177,6 @@ func (t *Task) Start(done chan struct{}) {
 		WithField("args", t.Args).
 		WithField("failcount", t.FailCount).
 		Debug("task info")
-	fmt.Println(t.Env)
 	t.cmd.Env = t.Env
 	t.cmd.Start()
 	looptime := 50 * time.Millisecond
