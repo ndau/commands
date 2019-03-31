@@ -75,7 +75,7 @@ func interpolateAll(data interface{}, em map[string]string) interface{} {
 	case []string:
 		r := make([]string, len(d))
 		for i, v := range d {
-			r[i] = v
+			r[i] = interpolate(v, em)
 		}
 		return r
 	default:

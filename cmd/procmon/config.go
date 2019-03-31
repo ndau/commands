@@ -27,6 +27,7 @@ type ConfigTask struct {
 	Stdout      string
 	Stderr      string
 	Parent      string
+	MaxStartup  string
 	MaxShutdown string
 	Monitors    []map[string]string
 }
@@ -75,6 +76,12 @@ func Load(filename string) (Config, error) {
 // Monitors map
 func BuildMonitor(mon map[string]string) (func() Eventer, error) {
 	switch mon["type"] {
+	case "redis":
+		if mon["addr"] == "" {
+			mon["addr"] = "localhost:6379"
+		}
+		m := RedisPinger(mon["addr"])
+		return m, nil
 	case "http":
 		if mon["timeout"] == "" {
 			mon["timeout"] = "1s"
@@ -149,6 +156,15 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 			return nil, err
 		}
 		t.Stderr = stderr
+
+		// MaxStartup
+		if ct.MaxStartup != "" {
+			maxstartup, err := time.ParseDuration(ct.MaxStartup)
+			if err != nil {
+				return nil, err
+			}
+			t.MaxStartup = maxstartup
+		}
 
 		// MaxShutdown
 		if ct.MaxShutdown != "" {

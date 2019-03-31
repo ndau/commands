@@ -1,6 +1,6 @@
 [env]
 HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
-HONEYCOMB_DATASET = "kjqnet"
+HONEYCOMB_DATASET = "devnet"
 FORMAT = "json"
 
 [logger]

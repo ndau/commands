@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"path"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -33,6 +36,7 @@ type Task struct {
 	Args        []string
 	Env         []string
 	MaxShutdown time.Duration
+	MaxStartup  time.Duration
 	Status      chan Eventer
 	Ready       func() Eventer
 	Stdout      io.WriteCloser
@@ -54,13 +58,36 @@ type Task struct {
 func NewTask(name string, path string, args ...string) *Task {
 	return &Task{
 		Name:        name,
-		Path:        path,
+		Path:        locatePath(path),
 		Args:        args,
+		MaxStartup:  10 * time.Second,
 		MaxShutdown: 5 * time.Second,
 		Status:      make(chan Eventer),
 		Ready:       func() Eventer { return OK },
 		Monitors:    make([]*Monitor, 0),
 	}
+}
+
+// locatePath attempts to find an executable given its name
+// if a path is not specified (the filename has no / characters)
+// then it will search $PATH to try to locate it.
+func locatePath(fname string) string {
+	fname = path.Clean(fname)
+	// first just look at the path given
+	if _, err := os.Stat(fname); err == nil {
+		// if we found it, we're done
+		return fname
+	}
+	// if that didn't work, try searching the OS path
+	paths := strings.Split(os.Getenv("PATH"), string(os.PathListSeparator))
+	for _, p := range paths {
+		attempt := path.Clean(path.Join(p, fname))
+		if _, err := os.Stat(attempt); err == nil {
+			// if we found it, we're done
+			return attempt
+		}
+	}
+	return fname
 }
 
 // Listen implements Listener, and should be called as a goroutine.
@@ -147,12 +174,16 @@ func (t *Task) Start(done chan struct{}) {
 
 	// start the task and wait for it to be ready
 	t.Logger.Info("Running process")
+	t.Logger.WithField("path", t.Path).
+		WithField("args", t.Args).
+		WithField("failcount", t.FailCount).
+		Debug("task info")
 	fmt.Println(t.Env)
 	t.cmd.Env = t.Env
 	t.cmd.Start()
 	looptime := 50 * time.Millisecond
 	loopticker := time.NewTicker(looptime)
-	toolong := time.NewTimer(30 * time.Second)
+	toolong := time.NewTimer(t.MaxStartup)
 	for !IsOK(t.Ready()) {
 		select {
 		case <-loopticker.C:

@@ -10,6 +10,15 @@ the application, making sure that all the dependencies are satisfied.
 
 The key abstractions are Task and Monitor.
 
+A task specifies a name, a path to its executable, and arguments,
+and also provides the opportunity to specify various monitors
+and additional parameters like output redirection.
+
+The path may be an absolute path (the full location of the executable
+on disk, starting with a leading slash); a relative one (relative to
+the current directory when starting procmon); or an executable
+that is searched for on $PATH (containing no slashes).
+
 A Task has a couple of key operations:
 
 * Start

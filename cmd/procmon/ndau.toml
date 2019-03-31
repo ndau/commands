@@ -1,0 +1,51 @@
+[env]
+HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
+HONEYCOMB_DATASET = "kjqnet"
+LOGDIR = "logs"
+NODE_NUM = "1"
+FORMAT = "json"
+LOGLEVEL = "info"
+REDIS_DATA_DIR = "data"
+REDIS_PORT = "6379"
+
+
+[logger]
+output = "stderr"
+format = "$FORMAT"
+level = "$LOGLEVEL"
+
+# environment variables are expanded in all config values that are
+# strings
+[[task]]
+    name = "redis"
+    path = "redis-server"
+    args = [
+        "--dir",
+        "$REDIS_DATA_DIR-$NODE_NUM",
+        "--port",
+        "$REDIS_PORT",
+        "--save",
+        "60",
+        "1"
+    ]
+    # special values are:
+    # "SUPPRESS" (also "") meaning "discard this stream"
+    # stderr = "STDOUT" means "send stderr also to stdout's destination"
+    # "HONEYCOMB" sends the message to honeycomb
+    # Anything else is a named file
+    stdout = "$LOGDIR/redis-$NODE_NUM"
+    stderr = "$LOGDIR/redis-$NODE_NUM"
+    # durations are done as time.Duration
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+
