@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"sort"
 	"syscall"
 	"time"
 
@@ -103,38 +104,48 @@ func main() {
 	}
 
 	// and run almost forever
-	select {
-	case <-donech:
-		logger.Print("done channel was closed")
-		// if we see this, then we were told to shutdown,
-		// but we don't want to do it too early, so loop until
-		// there are no root tasks left that haven't exited.
-		looptime := 250 * time.Millisecond
-		looptimer := time.NewTimer(looptime)
-		longtime := 75 * time.Second
-		toolong := time.NewTimer(longtime)
-		for {
-			select {
-			case <-looptimer.C:
-				canExit := true
-				for _, t := range rootTasks {
-					if !t.Exited() {
-						canExit = false
+	logstatus := time.NewTicker(15 * time.Second)
+	for {
+		select {
+		case <-logstatus.C:
+			pids := []int{}
+			for _, t := range rootTasks {
+				pids = t.CollectPids(pids)
+			}
+			sort.Sort(sort.IntSlice(pids))
+			logger.WithField("pids", pids).WithField("npids", len(pids)).Print("pidinfo")
+		case <-donech:
+			logger.Print("done channel was closed")
+			// if we see this, then we were told to shutdown,
+			// but we don't want to do it too early, so loop until
+			// there are no root tasks left that haven't exited.
+			looptime := 250 * time.Millisecond
+			looptimer := time.NewTimer(looptime)
+			longtime := 75 * time.Second
+			toolong := time.NewTimer(longtime)
+			for {
+				select {
+				case <-looptimer.C:
+					canExit := true
+					for _, t := range rootTasks {
+						if !t.Exited() {
+							canExit = false
+						}
 					}
+					if canExit {
+						os.Exit(0)
+					}
+					logger.Printf("waiting for all root tasks to die...")
+					looptime *= 2
+					looptimer.Reset(looptime)
+				case <-toolong.C:
+					logger.Error("requested shutdown did not complete within " + longtime.String())
+					for _, t := range rootTasks {
+						t.Destroy()
+					}
+					time.Sleep(1 * time.Second)
+					os.Exit(1)
 				}
-				if canExit {
-					os.Exit(0)
-				}
-				logger.Printf("waiting for all root tasks to die...")
-				looptime *= 2
-				looptimer.Reset(looptime)
-			case <-toolong.C:
-				logger.Error("requested shutdown did not complete within " + longtime.String())
-				for _, t := range rootTasks {
-					t.Destroy()
-				}
-				time.Sleep(1 * time.Second)
-				os.Exit(1)
 			}
 		}
 	}

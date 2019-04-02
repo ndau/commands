@@ -61,8 +61,11 @@ func Load(filename string) (Config, error) {
 		cfg.Env[k] = interpolate(v, globalenv)
 	}
 	// and do it again only this time with the envvars we just interpolated
+	// we do it 5 times to deal with nested cases (the environment is a map,
+	// so there's no iteration order, and we need to be careful not to
+	// recurse forever in case someone tries something like A=$A).
 	cfg.Env = envmap(os.Environ(), cfg.Env)
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 5; i++ {
 		for k, v := range cfg.Env {
 			cfg.Env[k] = interpolate(v, cfg.Env)
 		}

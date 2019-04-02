@@ -346,3 +346,12 @@ func (t *Task) Destroy() {
 	state, err := t.cmd.Process.Wait()
 	t.Logger.Printf("shutdown state %v, err %v", state, err)
 }
+
+func (t *Task) CollectPids(pids []int) []int {
+	for _, ch := range t.Dependents {
+		pids = ch.CollectPids(pids)
+	}
+	pid := t.cmd.Process.Pid
+	pids = append(pids, pid)
+	return pids
+}
