@@ -24,6 +24,14 @@ if [ ! -d "$REDIS_NDAU_DATA_DIR-0" ]; then
     exit 1
 fi
 
+# Make sure you're running the right version of redis, to match what the container is using.
+REDIS_VERSION_EXPECTED=4.0.11
+REDIS_VERSION_ACTUAL=$(redis-server --version | sed -n -e 's/^Redis server v=\([^ ]*\) .*/\1/p')
+if [ "$REDIS_VERSION_ACTUAL" != "$REDIS_VERSION_EXPECTED" ]; then
+    echo "Must have Redis version $REDIS_VERSION_EXPECTED installed to generate a valid snapshot"
+    exit 1
+fi
+
 # Kill everything gracefully first, so that all data files are dumped by node group processes.
 echo "Ensuring localnet is not running..."
 "$CMDBIN_DIR"/kill.sh 1>/dev/null
