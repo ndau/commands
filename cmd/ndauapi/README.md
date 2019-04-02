@@ -119,6 +119,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [SystemAll](#systemall)
 
+* [SysvarHistory](#sysvarhistory)
+
 * [AccountEAIRate](#accounteairate)
 
 * [TransactionByHash](#transactionbyhash)
@@ -1325,6 +1327,47 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         ""
+```
+
+
+
+---
+## SysvarHistory
+
+### `GET /system/history/:sysvar`
+
+_Returns the value history of a system variable given its name._
+
+The history includes the height and value of each change to the system variable.
+The result is sorted chronologically.
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ sysvar | Path | The name of the system variable for which to return history | string
+ pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
+ pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "History": [
+            {
+              "Height": 12345,
+              "Value": "VmFsdWU="
+            }
+          ]
+        }
 ```
 
 
