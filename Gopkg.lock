@@ -486,7 +486,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-better-ndauhome-default"
   digest = "1:f9182fd67c77b6a904a73ed04e677fe5d1ec05720b6c2e7fbaa30e8e0dc49fc4"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "64ad3a5e9f6324ddbbef474ab87824805690f524"
+  revision = "e67d1ebb92645578525289fefaeb633d4ed73e15"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"

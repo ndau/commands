@@ -16,8 +16,7 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.5"
-branch = "prgn-better-ndauhome-default"
+version = "~v1.5"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
