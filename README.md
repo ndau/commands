@@ -1,14 +1,12 @@
 # Oneiro ndev Developer Setup
 
-## Overview
+### Overview
 
 This document contains steps for getting set up to build and test ndev applications.  By the end you will be able to run the `ndau` blockchain, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
 
 The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](bin/README.md).
 
-## Setup
-
-The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 18.10
+The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 18.10.
 
 ### Prerequisites
 
@@ -84,10 +82,10 @@ To run with fresh databases, run `./bin/reset.sh` before your next `./bin/run.sh
 
 Both `./bin/run.sh` and `./bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
 
-* ndau_redis
-* ndau_noms
-* ndau_node
-* ndau_tm
+* `ndau_redis`
+* `ndau_noms`
+* `ndau_node`
+* `ndau_tm`
 
 You can also specify the node number for each.  For example, if you ran `./bin/setup.sh` with a node count greater than 1, then you can `./bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
 
@@ -113,9 +111,8 @@ Chaincode is the scripting language ndau uses for validation rules, fee and rate
 
 ### Building the tools
 
-From the root of the commands repository, you can use `make`. It basically expects that you are working from within goroot and that the chaincode repo is at `../chaincode` and also expects `../chaincode_scripts` relative to this `commands` repo. These two repos are not included in the required set described above.
+From the root of the commands repository, you can use `make`. It basically expects that you are working from within goroot and that the chaincode repo is at `../chaincode` and also expects `../chaincode_scripts` relative to this `commands` repo. The `../chaincode_scripts` repo is not included in the required set described above.
 ```sh
-    git clone git@github.com:oneiro-ndev/chaincode.git ~/go/src/github.com/oneiro-ndev/chaincode
     git clone git@github.com:oneiro-ndev/chaincode_scripts.git ~/go/src/github.com/oneiro-ndev/chaincode_scripts
 ```
 
