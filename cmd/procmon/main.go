@@ -57,6 +57,12 @@ func main() {
 		logger = honeycomb.Setup(logger)
 	}
 
+	err = cfg.RunPrologue(logger)
+	if err != nil {
+		logger.WithError(err).Error("problems running prologue")
+		panic(err)
+	}
+
 	rootTasks, err := cfg.BuildTasks(logger)
 	// if we can't read the tasks we shouldn't even continue
 	if err != nil {

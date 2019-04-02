@@ -4,6 +4,8 @@ import (
 	"errors"
 	"io"
 	"os"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -14,9 +16,10 @@ import (
 // It looks like sample.toml.
 // These are the major sections
 type Config struct {
-	Env    map[string]string
-	Logger map[string]string
-	Task   []ConfigTask
+	Env      map[string]string
+	Logger   map[string]string
+	Prologue []map[string]string
+	Task     []ConfigTask
 }
 
 // The ConfigTask section is a map ("table") of tasks
@@ -24,12 +27,14 @@ type ConfigTask struct {
 	Name        string
 	Path        string
 	Args        []string
+	Onetime     bool
 	Stdout      string
 	Stderr      string
 	Parent      string
 	MaxStartup  string
 	MaxShutdown string
 	Monitors    []map[string]string
+	Prerun      []string
 }
 
 func (ct *ConfigTask) interpolate(env map[string]string) {
@@ -50,20 +55,34 @@ func Load(filename string) (Config, error) {
 	cfg := Config{}
 	_, err := toml.DecodeFile(filename, &cfg)
 
-	// now interpolate the config's environment variables
+	// now interpolate the config's environment variables with the global ones
 	globalenv := envmap(os.Environ(), make(map[string]string))
 	for k, v := range cfg.Env {
 		cfg.Env[k] = interpolate(v, globalenv)
 	}
+	// and do it again only this time with the envvars we just interpolated
+	cfg.Env = envmap(os.Environ(), cfg.Env)
+	for i := 0; i < 3; i++ {
+		for k, v := range cfg.Env {
+			cfg.Env[k] = interpolate(v, cfg.Env)
+		}
+	}
 	// Create the real env for the rest of what we do by
 	// updating the loaded env from config with the global
 	// environment, and then save that in the cfg.
-	fullenv := envmap(os.Environ(), cfg.Env)
-	cfg.Env = fullenv
+	for k, v := range cfg.Env {
+		if found, _ := regexp.MatchString(`\$\(?[A-Za-z0-9]+\)?`, v); found {
+			return cfg, errors.New("Unprocessed envvars still found in Env: " + k + ":" + v)
+		}
+	}
 
 	// Now we can use that to interpolate the rest
 	// of the loaded configuration
 	cfg.Logger = interpolateAll(cfg.Logger, cfg.Env).(map[string]string)
+
+	for i := range cfg.Prologue {
+		cfg.Prologue[i] = interpolateAll(cfg.Prologue[i], cfg.Env).(map[string]string)
+	}
 
 	for i := range cfg.Task {
 		cfg.Task[i].interpolate(cfg.Env)
@@ -72,15 +91,62 @@ func Load(filename string) (Config, error) {
 	return cfg, err
 }
 
+// RunPrologue creates and runs pingers in order to establish that everything is
+// ready to go.
+func (c *Config) RunPrologue(logger *logrus.Logger) error {
+	for _, p := range c.Prologue {
+		pinger, err := BuildMonitor(p, logger)
+		if err != nil {
+			return err
+		}
+		if status := pinger(); status != OK {
+			l := logger.WithField("status", status)
+			for k, v := range p {
+				l = l.WithField(k, v)
+			}
+			l.Error("did not return ok")
+			return errors.New("pinger failed: " + p["name"])
+		}
+	}
+	return nil
+}
+
 // BuildMonitor constructs a monitor from an element in the
 // Monitors map
-func BuildMonitor(mon map[string]string) (func() Eventer, error) {
+func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer, error) {
 	switch mon["type"] {
-	case "openport":
+	case "portavailable":
 		if mon["port"] == "" {
-			return nil, errors.New("openport requires a port parm")
+			return nil, errors.New("portavailable requires a port parm")
 		}
-		m := OpenPort(mon["port"])
+		m := PortAvailable(mon["port"])
+		return m, nil
+	case "portinuse":
+		if mon["port"] == "" {
+			return nil, errors.New("portinuse requires a port parm")
+		}
+		if mon["timeout"] == "" {
+			mon["timeout"] = "100ms"
+		}
+		timeout, err := time.ParseDuration(mon["timeout"])
+		if err != nil {
+			return nil, err
+		}
+		m := PortInUse(mon["port"], timeout, logger)
+		return m, nil
+	case "ensuredir":
+		if mon["path"] == "" {
+			return nil, errors.New("ensuredir requires a path parm")
+		}
+		if mon["perm"] == "" {
+			mon["perm"] = "0755"
+		}
+		// we always parse permissions in base 8
+		perm, err := strconv.ParseInt(mon["perm"], 8, 32)
+		if err != nil {
+			return nil, err
+		}
+		m := EnsureDir(mon["path"], os.FileMode(perm))
 		return m, nil
 	case "redis":
 		if mon["addr"] == "" {
@@ -130,9 +196,10 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 	for _, ct := range c.Task {
 		t := NewTask(ct.Name, ct.Path, ct.Args...)
 		t.Env = c.Getenv()
+		t.Onetime = ct.Onetime
 		// set up any monitors we need
 		for _, mon := range ct.Monitors {
-			m, err := BuildMonitor(mon)
+			m, err := BuildMonitor(mon, logger)
 			if err != nil {
 				return nil, err
 			}
@@ -183,6 +250,13 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 
 		// set up the logger
 		t.Logger = logger.WithField("task", t.Name).WithField("bin", "procmon")
+
+		for _, prerun := range ct.Prerun {
+			if _, ok := taskm[prerun]; !ok {
+				return nil, errors.New("did not find prerun task " + prerun)
+			}
+			t.Prerun = append(t.Prerun, taskm[prerun])
+		}
 
 		// if the task has a parent, assign it as a dependent
 		if ct.Parent != "" {

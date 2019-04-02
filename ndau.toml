@@ -1,0 +1,207 @@
+[env]
+HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
+HONEYCOMB_DATASET = "kjqnet"
+
+NDAU_DIR = "../ndau"
+NOMS_DIR = "../../attic-labs/noms"
+TENDERMINT_DIR = "../../tendermint/tendermint"
+
+HOME_DIR = "/Users/kentquirk/.localnet/data"
+
+
+NODE_DATA_DIR = "$HOME_DIR/ndau"
+NOMS_DATA_DIR = "$HOME_DIR/noms-ndau"
+REDIS_DATA_DIR = "$HOME_DIR/redis-ndau"
+TENDERMINT_DATA_DIR = "$HOME_DIR/tendermint-ndau"
+LOGDIR = "bin"
+NODE_NUM = "0"
+FORMAT = "text"
+LOGLEVEL = "info"
+REDIS_PORT = "6379"
+NOMS_PORT = "8000"
+NODE_PORT = "26650"
+TM_DATA_DIR = "data"
+TM_P2P_PORT = "26660"
+TM_RPC_PORT = "26670"
+NDAUAPI_NDAU_RPC_URL="http://localhost:26670"
+NDAUHOME = "$NODE_DATA_DIR-$NODE_NUM"
+MONIKER_PREFIX = "localnet"
+NODE_ID = "$MONIKER_PREFIX-$NODE_NUM"
+CHAIN = "ndau"
+
+[logger]
+output = "stderr"
+format = "$FORMAT"
+level = "$LOGLEVEL"
+
+[[prologue]]
+    name = "redisportclear"
+    type = "portavailable"
+    port = "$REDIS_PORT"
+
+[[prologue]]
+    name = "nomsportclear"
+    type = "portavailable"
+    port = "$NOMS_PORT"
+
+[[prologue]]
+    name = "nodeportclear"
+    type = "portavailable"
+    port = "$NODE_PORT"
+
+[[prologue]]
+    name = "tmportsclear"
+    type = "portavailable"
+    port = "$TM_P2P_PORT $TM_RPC_PORT"
+
+[[prologue]]
+    name = "datadir exists"
+    type = "ensuredir"
+    path = "$NODE_DATA_DIR"
+
+[[prologue]]
+    name = "datadir exists"
+    type = "ensuredir"
+    path = "$NOMS_DATA_DIR"
+
+[[prologue]]
+    name = "datadir exists"
+    type = "ensuredir"
+    path = "$REDIS_DATA_DIR"
+
+[[prologue]]
+    name = "datadir exists"
+    type = "ensuredir"
+    path = "$TENDERMINT_DATA_DIR"
+
+
+# environment variables are expanded in all config values that are
+# strings
+[[task]]
+    name = "redis"
+    path = "redis-server"
+    args = [
+        "--dir", "$REDIS_DATA_DIR-$NODE_NUM",
+        "--port", "$REDIS_PORT",
+        "--save", "60", "1"
+    ]
+    # special values are:
+    # "SUPPRESS" (also "") meaning "discard this stream"
+    # stderr = "STDOUT" means "send stderr also to stdout's destination"
+    # "HONEYCOMB" sends the message to honeycomb
+    # Anything else is a named file
+    stdout = "$LOGDIR/redis-$NODE_NUM.log"
+    stderr = "$LOGDIR/redis-$NODE_NUM.log"
+    # durations are done as time.Duration
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+
+
+[[task]]
+    name = "noms"
+    parent = "redis"
+    path = "$NOMS_DIR/noms"
+    args = [
+        "serve",
+        "--port=$NOMS_PORT",
+        "$NOMS_DATA_DIR-$NODE_NUM",
+    ]
+    stdout = "$LOGDIR/noms-$NODE_NUM.log"
+    stderr = "$LOGDIR/noms-$NODE_NUM.log"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NOMS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$NOMS_PORT"
+
+[[task]]
+    name = "ndaunode"
+    parent = "noms"
+    path = "./ndaunode"
+    # prerun = [ "ndau_apphash" ]
+    args = [
+        "-spec", "http://localhost:$NOMS_PORT",
+        "-index", "localhost:$REDIS_PORT",
+        "-addr", "0.0.0.0:$NODE_PORT",
+    ]
+    stdout = "$LOGDIR/ndaunode-$NODE_NUM.log"
+    stderr = "$LOGDIR/ndaunode-$NODE_NUM.log"
+    maxstartup = "15s"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NODE_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$NODE_PORT"
+
+[[task]]
+    name = "ndau_tm"
+    parent = "ndaunode"
+    path = "$TENDERMINT_DIR/tendermint"
+    args = [
+        "node",
+        "--home", "$TENDERMINT_DATA_DIR-$NODE_NUM",
+        "--proxy_app", "tcp://localhost:$NODE_PORT",
+        "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
+        "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
+        "--log_level=*:$LOGLEVEL",
+    ]
+    stdout = "$LOGDIR/ndau_tm-$NODE_NUM.log"
+    stderr = "$LOGDIR/ndau_tm-$NODE_NUM.log"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NODE_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$TM_P2P_PORT $TM_RPC_PORT"
+
+[[task]]
+    name = "ndau_api"
+    parent = "ndau_tm"
+    path = "./ndauapi"
+    stdout = "$LOGDIR/ndauapi-$NODE_NUM.log"
+    stderr = "$LOGDIR/ndauapi-$NODE_NUM.log"
+    maxstartup  = "5s"
+    maxshutdown = "2s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        url = "http://localhost:3030/node/health"
+        timeout = "1s"
+        period =  "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        url = "http://localhost:3030/node/health"
+        timeout = "300ms"

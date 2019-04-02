@@ -31,6 +31,7 @@ type Task struct {
 	Path        string
 	Args        []string
 	Env         []string
+	Onetime     bool
 	MaxShutdown time.Duration
 	MaxStartup  time.Duration
 	Status      chan Eventer
@@ -40,6 +41,7 @@ type Task struct {
 	Logger      logrus.FieldLogger
 	FailCount   int
 	Monitors    []*Monitor
+	Prerun      []*Task
 
 	mutex      sync.Mutex
 	Stopping   bool
@@ -71,7 +73,7 @@ func (t *Task) Listen(done chan struct{}) {
 		case e := <-t.Status:
 			if IsFailed(e) {
 				if t.Stopping {
-					t.Logger.Debug("ignoring deliberate shutdown")
+					t.Logger.Debug("ignoring automatic shutdown -- already stopping")
 					continue
 				}
 				t.FailCount++
@@ -108,6 +110,16 @@ func streamCopy(dst io.WriteCloser, src io.ReadCloser) {
 
 // Start begins a new version of the task.
 func (t *Task) Start(done chan struct{}) {
+	// run the prerun tasks first
+	for _, prerun := range t.Prerun {
+		prerun.Start(done)
+	}
+
+	// if the task's path is empty, it's just a placeholder for prerun and we're done
+	if t.Path == "" {
+		return
+	}
+
 	t.Logger.Info("Starting")
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -153,20 +165,45 @@ func (t *Task) Start(done chan struct{}) {
 		WithField("failcount", t.FailCount).
 		Debug("task info")
 	t.cmd.Env = t.Env
-	t.cmd.Start()
+	err := t.cmd.Start()
+	if err != nil {
+		t.Logger.WithError(err).Error("errored on startup")
+		return
+	}
+
+	// if it's a onetime task, just run it and be done
+	if t.Onetime {
+		t.Logger.Debug("running onetime task")
+		err := t.cmd.Wait()
+		if err != nil {
+			t.Logger.WithError(err).Error("onetime task failed")
+			panic(t.Name + " failed but mustsucceed was set")
+		} else {
+			t.Logger.Debug("onetime task succeeded")
+		}
+		return
+	}
+
+	if t.cmd != nil && t.cmd.Process != nil {
+		t.Logger.WithField("pid", t.cmd.Process.Pid).Info("waiting for ready")
+	}
 	looptime := 50 * time.Millisecond
 	loopticker := time.NewTicker(looptime)
 	toolong := time.NewTimer(t.MaxStartup)
 	for !IsOK(t.Ready()) {
 		select {
 		case <-loopticker.C:
+			if t.Exited() {
+				t.Logger.Error("task exited while starting up")
+				return
+			}
 			// go check again
 		case <-toolong.C:
 			t.Logger.Error("took too long to start up")
 			return
 		}
 	}
-	t.Logger.Debug("task started and is ready")
+	t.Logger.WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
 
 	// the task is running so we can start its monitors
 	for _, m := range t.Monitors {

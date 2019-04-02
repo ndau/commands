@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/go-redis/redis"
 )
@@ -51,11 +54,12 @@ func RedisPinger(address string) func() Eventer {
 	}
 }
 
-// OpenPort returns an Eventer that tests to see if
-// a given port on the local machine is available for connections.
+// PortAvailable returns an Eventer that tests to see if
+// a given port on the local machine is available to be claimed by
+// a process.
 // The port parameter may be a space-separated list of ports; this
 // will check all of them.
-func OpenPort(port string) func() Eventer {
+func PortAvailable(port string) func() Eventer {
 	ports := strings.Fields(port)
 	return func() Eventer {
 		for _, p := range ports {
@@ -66,6 +70,41 @@ func OpenPort(port string) func() Eventer {
 			}
 
 			_ = ln.Close()
+		}
+		return OK
+	}
+}
+
+// PortInUse returns an Eventer that tests to see if
+// a given port on the local machine is being serviced by a process.
+// The port parameter may be a space-separated list of ports; this
+// will check all of them.
+func PortInUse(port string, timeout time.Duration, logger *logrus.Logger) func() Eventer {
+	ports := strings.Fields(port)
+	return func() Eventer {
+		for _, p := range ports {
+			conn, err := net.DialTimeout("tcp", net.JoinHostPort("", p), timeout)
+			if err != nil {
+				logger.WithField("port", p).WithError(err).Debug("port is not being serviced")
+				return NewErrorEvent(Failed, err)
+			}
+			if conn != nil {
+				logger.WithField("port", p).Debug("port is being serviced")
+				conn.Close()
+			}
+		}
+		return OK
+	}
+}
+
+// EnsureDir ensures that a given path name exists as a directory
+// on the filesystem; if it already exists, nothing happens, but if it
+// doesn't exist, it tries to create it with the given permissions.
+func EnsureDir(name string, permissions os.FileMode) func() Eventer {
+	return func() Eventer {
+		err := os.MkdirAll(name, permissions)
+		if err != nil {
+			return NewErrorEvent(Failed, err)
 		}
 		return OK
 	}
