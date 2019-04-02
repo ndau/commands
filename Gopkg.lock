@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:55e9b9c19159c323555264cb15756c8ece109cedd7ee95e4a7df6aed987d635e"
+  branch = "prgn-better-ndauhome-default"
+  digest = "1:f9182fd67c77b6a904a73ed04e677fe5d1ec05720b6c2e7fbaa30e8e0dc49fc4"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "28d292ffd1e3da8f98b1b8e8bc98d84bed8760ff"
-  version = "v1.5.0"
+  revision = "64ad3a5e9f6324ddbbef474ab87824805690f524"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -971,10 +971,8 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/blockchain",
     "github.com/tendermint/tendermint/crypto/ed25519",
     "github.com/tendermint/tendermint/crypto/encoding/amino",
-    "github.com/tendermint/tendermint/libs/db",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",
