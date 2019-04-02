@@ -487,7 +487,7 @@
 
 [[projects]]
   branch = "prgn-fix-lock-data-clear"
-  digest = "1:74e90436c39333f38946cacaa848d020086fa79a03f22effe98dd669e1ffea60"
+  digest = "1:869952f74ff6f0b881c9ba21db2f5624d4485f7b97593d5d7e3c88e11d645441"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,7 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "02493f8822bcc6720a64f82394880be2e36025ec"
+  revision = "69751670655f662a726d850313604fed1644c1e8"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
