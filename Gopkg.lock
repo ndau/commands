@@ -456,7 +456,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:7baf65d8249fbce003c055415b57659864d729aba33ed84765edfa702502abd7"
+  branch = "prgn-blocktime-in-metanode"
+  digest = "1:4ad7259190bd94e0748bf6094eae97b27b42ffb27b4fde25023da02311f506de"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -466,8 +467,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "1ca81390e491afda6255ef657e0fc90cbb0635f4"
-  version = "v1.2.0"
+  revision = "be0250f2423e13b8a70d2b8744a56f233c98d1fa"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:55e9b9c19159c323555264cb15756c8ece109cedd7ee95e4a7df6aed987d635e"
+  branch = "prgn-fix-lock-data-clear"
+  digest = "1:74e90436c39333f38946cacaa848d020086fa79a03f22effe98dd669e1ffea60"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "28d292ffd1e3da8f98b1b8e8bc98d84bed8760ff"
-  version = "v1.5.0"
+  revision = "02493f8822bcc6720a64f82394880be2e36025ec"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -971,10 +971,8 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/blockchain",
     "github.com/tendermint/tendermint/crypto/ed25519",
     "github.com/tendermint/tendermint/crypto/encoding/amino",
-    "github.com/tendermint/tendermint/libs/db",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",

@@ -12,11 +12,13 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.2"
+# version = "~v1.2"
+branch = "prgn-blocktime-in-metanode"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.5"
+# version = "~v1.5"
+branch = "prgn-fix-lock-data-clear"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
