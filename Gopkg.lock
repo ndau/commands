@@ -457,7 +457,7 @@
 
 [[projects]]
   branch = "prgn-blocktime-in-metanode"
-  digest = "1:4ad7259190bd94e0748bf6094eae97b27b42ffb27b4fde25023da02311f506de"
+  digest = "1:48a00324923189f3292847efea7d46c8a7b015fbfe8af41f9d500d64e6736630"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -467,7 +467,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "be0250f2423e13b8a70d2b8744a56f233c98d1fa"
+  revision = "3a06cc9677bb55e072d44af2644786dca17518c2"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
