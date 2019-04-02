@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"sort"
@@ -40,16 +41,18 @@ func WatchSignals(fhup, fint, fterm func()) {
 
 func main() {
 	var args struct {
-		Configfile string
+		Configfile string `help:"the name of the .toml file to load"`
+		NoCheck    bool   `help:"set this to disable envvar checking"`
 	}
 	arg.MustParse(&args)
 
 	var cfg Config
 	var err error
 	if args.Configfile != "" {
-		cfg, err = Load(args.Configfile)
+		cfg, err = Load(args.Configfile, args.NoCheck)
 		if err != nil {
-			panic(err)
+			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
 	}
 
@@ -60,15 +63,13 @@ func main() {
 
 	err = cfg.RunPrologue(logger)
 	if err != nil {
-		logger.WithError(err).Error("problems running prologue")
-		panic(err)
+		logger.WithError(err).Fatal("problems running prologue")
 	}
 
 	rootTasks, err := cfg.BuildTasks(logger)
 	// if we can't read the tasks we shouldn't even continue
 	if err != nil {
-		logger.WithError(err).Error("aborting because task file was invalid")
-		panic(err)
+		logger.WithError(err).Fatal("aborting because task file was invalid")
 	}
 
 	// this is the channel we can use to shut everything down

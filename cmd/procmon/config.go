@@ -51,11 +51,11 @@ func (ct *ConfigTask) interpolate(env map[string]string) {
 }
 
 // Load does the toml load into a config object
-func Load(filename string) (Config, error) {
+func Load(filename string, nocheck bool) (Config, error) {
 	cfg := Config{}
 	_, err := toml.DecodeFile(filename, &cfg)
 
-	// now interpolate the config's environment variables with the global ones
+	// start by interpolating the config's environment variables with the global ones
 	globalenv := envmap(os.Environ(), make(map[string]string))
 	for k, v := range cfg.Env {
 		cfg.Env[k] = interpolate(v, globalenv)
@@ -70,12 +70,13 @@ func Load(filename string) (Config, error) {
 			cfg.Env[k] = interpolate(v, cfg.Env)
 		}
 	}
-	// Create the real env for the rest of what we do by
-	// updating the loaded env from config with the global
-	// environment, and then save that in the cfg.
-	for k, v := range cfg.Env {
-		if found, _ := regexp.MatchString(`\$\(?[A-Za-z0-9]+\)?`, v); found {
-			return cfg, errors.New("Unprocessed envvars still found in Env: " + k + ":" + v)
+	// unless they tell us not to, check to see if all the environment variables were
+	// processed by looking for leftover things that look like envvar expansions.
+	if !nocheck {
+		for k, v := range cfg.Env {
+			if found, _ := regexp.MatchString(`\$\(?[A-Za-z0-9]+\)?`, v); found {
+				return cfg, errors.New("Unprocessed envvars still found in Env: " + k + ":" + v)
+			}
 		}
 	}
 
