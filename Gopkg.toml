@@ -16,8 +16,7 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-#version = "~v1.5"
-branch = "eas-ndau-280"
+version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
