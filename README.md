@@ -16,23 +16,19 @@ Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/on
 
 The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package.
 1. Install the Xcode command-line tools: `xcode-select —install`
-2. Install [Brew](https://brew.sh/)
-3. Install `go`: `brew install go`
-4. Install `dep`: `brew install dep`
-5. Install `redis`: `brew install redis`
-6. Install `jq`: `brew install jq`
+1. Install [Brew](https://brew.sh/)
+1. Install `go`: `brew install go`
+1. Install `dep`: `brew install dep`
+1. Install `redis`: `brew install redis`
+1. Install `jq`: `brew install jq`
 
 #### Ubuntu:
 
 Install tooling: `sudo apt install golang go-dep redis jq git -y`
-2. Install `dep`: `sudo apt install go-dep -y`
-3. Install `redis`: `sudo apt install redis -y`
-4. Install `jq`: `sudo apt install jq -y`
-5. Install `git`: `sudo apt install git -y`
 
 ### ndau Tools
 
-1. Clone the ndau commands repo:
+1. Clone the ndau `commands` repo:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git "$GOPATH"/src/github.com/oneiro-ndev/commands
     ```
@@ -46,15 +42,15 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
 ### Custom genesis configuration
 
 To create a custom configuration (usually to replicate a testnet or mainnet configuration), do the following **before** running `./bin/run.sh` for the first time. If you're already running with the default pre-installed configuration, remove the `~/.localnet` directory first.
-
-1. Set up custom genesis files: (Optional)
     
-    - Create the directory `~/.localnet/genesis_files`
-    - Create the configuration files in your `~/.localnet/genesis_files/` directory:
+1. Create the directory `~/.localnet/genesis_files`
+2. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
     
     `go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
        -g ~/.localnet/genesis_files/system_vars.toml \
        -a ~/.localnet/genesis_files/system_accounts.toml`
+     
+3. Edit those files as desired for a custom configuration
 
 ### Running
 
