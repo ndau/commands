@@ -24,7 +24,7 @@ The Homebrew package manager is by far the easiest way to install these tools, b
 
 #### Ubuntu:
 
-1. Install `go`: `sudo apt install golang -y`
+Install tooling: `sudo apt install golang go-dep redis jq git -y`
 2. Install `dep`: `sudo apt install go-dep -y`
 3. Install `redis`: `sudo apt install redis -y`
 4. Install `jq`: `sudo apt install jq -y`
