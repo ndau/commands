@@ -1361,10 +1361,10 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "History": [
+          "history": [
             {
-              "Height": 12345,
-              "Value": "VmFsdWU="
+              "height": 12345,
+              "value": "VmFsdWU="
             }
           ]
         }
