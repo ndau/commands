@@ -41,6 +41,7 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
    $GOPATH/src/github.com/oneiro-ndev/commands
    ./bin/setup.sh 1
    ```
+   Replace `1` with the desired number of nodes for a larger localnet configuration.
 
 ### Custom genesis configuration
 
