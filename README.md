@@ -38,7 +38,7 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
     ```
 1. Build all tools, set up for a single-node localnet for testing:
    ```sh
-   ~/go/src/github.com/oneiro-ndev/commands
+   $GOPATH/src/github.com/oneiro-ndev/commands
    ./bin/setup.sh 1
    ```
 
