@@ -202,7 +202,7 @@ general_config: &general_config
         ELB_SUBDOMAIN: api.ndau.tech
         KUBECONFIG: /root/kubeconfig
         NDAUHOME: /root/.ndau
-        S3_DEPLOY_ARCHIVE: devnet.tgz
+        S3_NODE_ID_ARCHIVE: sc-nodes-devnet.tgz
         HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
@@ -285,7 +285,15 @@ jobs:
           name: run all sub project docker scripts
           command: |
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-            find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
+            # reload saved environment variables
+            source $BASH_ENV
+            # build single container node image
+            ./docker/bin/buildimage.sh
+            # retag built image
+            docker tag ndauimage 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
+            # push the image to ECR
+            docker push 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
+
 
   deploy:
     <<: *general_config
@@ -297,49 +305,28 @@ jobs:
       - run:
           name: run the deploy script
           command: |
-            # Redeploy devnet
-            # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
-            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
-
-            # get bash environments manually
-            source $BASH_ENV
-
-            # copy and unzip installation scripts from aws
-            mkdir -p /root/nodegroups
+            # Download node identities
+            node_id_dir=/root/node-identities
+            mkdir -p "$node_id_dir"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
+              aws s3 cp s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE $node_id_dir/$S3_NODE_ID_ARCHIVE
             (
-              cd /root/nodegroups
-              tar xvf $S3_DEPLOY_ARCHIVE
+              cd $node_id_dir
+              tar xvf $S3_NODE_ID_ARCHIVE
             )
 
-            # bring down nodes
-            /root/nodegroups/down.sh
+            # get bash environment variables from previous steps
+            source $BASH_ENV
 
-            # wait for stragglers to die. pvcs always go down last
-            # TODO add some smarter resource detection
-            while true; do
-              if
-                [ "$(kubectl get pvc -l release=devnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
-                  break
-              else
-                echo "waiting for devnet to die"
-                sleep 1
-              fi
-            done
+            # Deploy the container to fargate
+            APP_BASE_NAME=sc-node \
+            NODE_ID=sc-node-0 \
+            SNAPSHOT="snapshot-devnet-g" \
+            PERSISTENT_PEERS="ca195d91c051d91c451483b08bdea0059e39fd34@100.24.11.77:30051" \
+            NODE_IDENTITY=$(base64 $node_id_dir/sc-node-0.tgz) \
+              /commands/docker/bin/deploycontainer.sh
 
-            # brings nodes back up
-            # Use $SHA here instead of the automation's git ls-remote method.
-            CHAOSNODE_TAG=$SHA \
-            NDAUNODE_TAG=$SHA \
-            HELM_CHART_PATH=/root/automation/helm/nodegroup \
-              /root/nodegroups/up.sh
       - notify:
           msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
 

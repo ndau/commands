@@ -52,25 +52,48 @@ fi
 mv "$SNAPSHOT_DATA_DIR" "$DATA_DIR"
 rm -rf $SNAPSHOT_DIR
 
-# If we have a node identity file, extract its contents to the data dir.
-# It'll blend with other files already there from the snapshot.
-IDENTITY_FILE=node-identity.tgz
-if [ -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
-    echo "Using existing node identity..."
-    # Copy, don't move, in case the node operator wants to copy it out again later.
-    # Its presence also prevents us from generating it later.
-    cp "$SCRIPT_DIR/$IDENTITY_FILE" "$DATA_DIR"
-    cd "$DATA_DIR" || exit 1
-    tar -xf "$IDENTITY_FILE"
+check_identity_files() {
+  # check to make sure the identity files are where they shold be.
+  if [ ! -f "$DATA_DIR/tendermint/config/priv_validator_key.json" ] || \
+     [ ! -f "$DATA_DIR/tendermint/config/node_key.json" ]; then
+     echo "Identity files were not found in the expected location"
+     find "$DATA_DIR/tendermint/config"
+     exit 1
+  fi
+}
 
-    # Tendermint complains if this file isn't here, but it can be empty json.
-    dir=tendermint/data
-    mkdir -p "$dir"
-    echo "{}" > "$dir/priv_validator_state.json"
+# If we have an environment variable that defines identities, do not use an identity file.
+if [ ! -z "$BASE64_NODE_IDENTITY" ]; then
+  # echo the environment variable, decode the base64, and unzip into the files.
+  echo "Using node identity environment variables"
+  cd "$DATA_DIR" || exit 1
+  echo -n "$BASE64_NODE_IDENTITY" | base64 -d | tar xfvz -
+  check_identity_files
 else
-    # When we start without a node identity, we generate one so the node operator can restart
-    # this node later, having the same identity every time.
-    echo "No node identity found; a new node identity will be generated"
+  # If we have a node identity file, extract its contents to the data dir.
+  # It'll blend with other files already there from the snapshot.
+  IDENTITY_FILE=node-identity.tgz
+  if [ -f "$SCRIPT_DIR/$IDENTITY_FILE" ]; then
+      echo "Using existing node identity..."
+      # Copy, don't move, in case the node operator wants to copy it out again later.
+      # Its presence also prevents us from generating it later.
+      cp "$SCRIPT_DIR/$IDENTITY_FILE" "$DATA_DIR"
+      cd "$DATA_DIR" || exit 1
+      tar -xf "$IDENTITY_FILE"
+      check_identity_files
+  else
+      # When we start without a node identity, we generate one so the node operator can restart
+      # this node later, having the same identity every time.
+      echo "No node identity found; a new node identity will be generated"
+  fi
+fi
+
+# Tendermint complains if this file isn't here, but it can be empty json.
+pvs_dir="$DATA_DIR/tendermint/data"
+pvs_file="$pvs_dir/priv_validator_state.json"
+if [ ! -f "$pvs_file" ]; then
+  mkdir -p "$pvs_dir"
+  echo "{}" > "$pvs_file"
 fi
 
 # Make data directories that don't get created elsewhere.
