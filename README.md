@@ -34,7 +34,7 @@ The Homebrew package manager is by far the easiest way to install these tools, b
 
 1. Clone the ndau commands repo:
     ```sh
-    git clone git@github.com:oneiro-ndev/commands.git ~/go/src/github.com/oneiro-ndev/commands
+    git clone git@github.com:oneiro-ndev/commands.git "$GOPATH"/src/github.com/oneiro-ndev/commands
     ```
 1. Build all tools, set up for a single-node localnet for testing:
    ```sh
