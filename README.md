@@ -48,7 +48,7 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
 
 1. Set up custom genesis files: (Optional)
     
-    - Create the directory `~/.localnet`
+    - Create the directory `~/.localnet/genesis_files`
     - Create these configuration files in your `~/.localnet/genesis_files/` directory:
         - `system_accounts.toml`
         - `system_vars.toml`
