@@ -6,23 +6,22 @@ NDAU_DIR = "../ndau"
 NOMS_DIR = "../../attic-labs/noms"
 TENDERMINT_DIR = "../../tendermint/tendermint"
 
-HOME_DIR = "/Users/kentquirk/.localnet/data"
+LOCALNET = "$HOME/.localnet/data"
 
-
-NODE_DATA_DIR = "$HOME_DIR/ndau"
-NOMS_DATA_DIR = "$HOME_DIR/noms-ndau"
-REDIS_DATA_DIR = "$HOME_DIR/redis-ndau"
-TENDERMINT_DATA_DIR = "$HOME_DIR/tendermint-ndau"
+NODE_DATA_DIR = "$LOCALNET/ndau"
+NOMS_DATA_DIR = "$LOCALNET/noms-ndau"
+REDIS_DATA_DIR = "$LOCALNET/redis-ndau"
+TENDERMINT_DATA_DIR = "$LOCALNET/tendermint-ndau"
 LOGDIR = "bin"
 NODE_NUM = "0"
 FORMAT = "text"
 LOGLEVEL = "info"
-REDIS_PORT = "6379"
-NOMS_PORT = "8000"
-NODE_PORT = "26650"
+REDIS_PORT_NUM = "6379"
+NOMS_PORT_NUM = "8000"
+NODE_PORT_NUM = "26650"
 TM_DATA_DIR = "data"
-TM_P2P_PORT = "26660"
-TM_RPC_PORT = "26670"
+TM_P2P_PORT_NUM = "26660"
+TM_RPC_PORT_NUM = "26670"
 NDAUAPI_NDAU_RPC_URL="http://localhost:26670"
 NDAUHOME = "$NODE_DATA_DIR-$NODE_NUM"
 MONIKER_PREFIX = "localnet"
@@ -37,22 +36,22 @@ level = "$LOGLEVEL"
 [[prologue]]
     name = "redisportclear"
     type = "portavailable"
-    port = "$REDIS_PORT"
+    port = "$REDIS_PORT_NUM"
 
 [[prologue]]
     name = "nomsportclear"
     type = "portavailable"
-    port = "$NOMS_PORT"
+    port = "$NOMS_PORT_NUM"
 
 [[prologue]]
     name = "nodeportclear"
     type = "portavailable"
-    port = "$NODE_PORT"
+    port = "$NODE_PORT_NUM"
 
 [[prologue]]
     name = "tmportsclear"
     type = "portavailable"
-    port = "$TM_P2P_PORT $TM_RPC_PORT"
+    port = "$TM_P2P_PORT_NUM $TM_RPC_PORT_NUM"
 
 [[prologue]]
     name = "datadir exists"
@@ -82,7 +81,7 @@ level = "$LOGLEVEL"
     path = "redis-server"
     args = [
         "--dir", "$REDIS_DATA_DIR-$NODE_NUM",
-        "--port", "$REDIS_PORT",
+        "--port", "$REDIS_PORT_NUM",
         "--save", "60", "1"
     ]
     # special values are:
@@ -98,13 +97,13 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "redis"
-        addr = "localhost:$REDIS_PORT"
+        addr = "localhost:$REDIS_PORT_NUM"
         period = "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "redis"
-        addr = "localhost:$REDIS_PORT"
+        addr = "localhost:$REDIS_PORT_NUM"
 
 
 [[task]]
@@ -113,7 +112,7 @@ level = "$LOGLEVEL"
     path = "$NOMS_DIR/noms"
     args = [
         "serve",
-        "--port=$NOMS_PORT",
+        "--port=$NOMS_PORT_NUM",
         "$NOMS_DATA_DIR-$NODE_NUM",
     ]
     stdout = "$LOGDIR/noms-$NODE_NUM.log"
@@ -123,13 +122,13 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "portinuse"
-        port = "$NOMS_PORT"
+        port = "$NOMS_PORT_NUM"
         period = "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "portinuse"
-        port = "$NOMS_PORT"
+        port = "$NOMS_PORT_NUM"
 
 [[task]]
     name = "ndaunode"
@@ -137,9 +136,9 @@ level = "$LOGLEVEL"
     path = "./ndaunode"
     # prerun = [ "ndau_apphash" ]
     args = [
-        "-spec", "http://localhost:$NOMS_PORT",
-        "-index", "localhost:$REDIS_PORT",
-        "-addr", "0.0.0.0:$NODE_PORT",
+        "-spec", "http://localhost:$NOMS_PORT_NUM",
+        "-index", "localhost:$REDIS_PORT_NUM",
+        "-addr", "0.0.0.0:$NODE_PORT_NUM",
     ]
     stdout = "$LOGDIR/ndaunode-$NODE_NUM.log"
     stderr = "$LOGDIR/ndaunode-$NODE_NUM.log"
@@ -149,13 +148,13 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "portinuse"
-        port = "$NODE_PORT"
+        port = "$NODE_PORT_NUM"
         period = "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "portinuse"
-        port = "$NODE_PORT"
+        port = "$NODE_PORT_NUM"
 
 [[task]]
     name = "ndau_tm"
@@ -164,9 +163,9 @@ level = "$LOGLEVEL"
     args = [
         "node",
         "--home", "$TENDERMINT_DATA_DIR-$NODE_NUM",
-        "--proxy_app", "tcp://localhost:$NODE_PORT",
-        "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
-        "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
+        "--proxy_app", "tcp://localhost:$NODE_PORT_NUM",
+        "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT_NUM",
+        "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT_NUM",
         "--log_level=*:$LOGLEVEL",
     ]
     stdout = "$LOGDIR/ndau_tm-$NODE_NUM.log"
@@ -176,13 +175,13 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "portinuse"
-        port = "$NODE_PORT"
+        port = "$NODE_PORT_NUM"
         period = "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "portinuse"
-        port = "$TM_P2P_PORT $TM_RPC_PORT"
+        port = "$TM_P2P_PORT_NUM $TM_RPC_PORT_NUM"
 
 [[task]]
     name = "ndau_api"
