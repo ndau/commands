@@ -49,10 +49,11 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
 1. Set up custom genesis files: (Optional)
     
     - Create the directory `~/.localnet/genesis_files`
-    - Create these configuration files in your `~/.localnet/genesis_files/` directory:
-        - `system_accounts.toml`
-        - `system_vars.toml`
-    - Standard configuration files for ndau testnet and mainnet are available
+    - Create the configuration files in your `~/.localnet/genesis_files/` directory:
+    
+    `go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
+       -g ~/.localnet/genesis_files/system_vars.toml \
+       -a ~/.localnet/genesis_files/system_accounts.toml`
 
 ### Running
 
