@@ -26,6 +26,12 @@ func getSysvar(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd)
 			"set system variables",
 			getSysvarSet(verbose, keys, emitJSON, compact),
 		)
+
+		cmd.Command(
+			"history",
+			"get history of system variables",
+			getSysvarHistory(verbose),
+		)
 	}
 }
 
@@ -106,6 +112,33 @@ func getSysvarSet(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.C
 
 			result, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), ssv)
 			finish(*verbose, result, err, "sysvar set")
+		}
+	}
+}
+
+func getSysvarHistory(verbose *bool) func(*cli.Cmd) {
+	return func(cmd *cli.Cmd) {
+		name := cmd.StringArg("NAME", "", "Retrieve history for this system variable")
+		cmd.Spec = "NAME"
+
+		cmd.Action = func() {
+			if name == nil || *name == "" {
+				orQuit(errors.New("name missing"))
+			}
+
+			if verbose != nil && *verbose {
+				fmt.Println("fetching ", *name)
+			}
+
+			conf := getConfig()
+			hkr, resp, err := tool.SysvarHistory(tmnode(conf.Node, nil, nil), *name, 0, 0)
+			orQuit(errors.Wrap(err, "retrieving sysvar history from blockchain index"))
+
+			jout, err := json.MarshalIndent(hkr, "", "  ")
+			orQuit(errors.Wrap(err, "marshaling json"))
+			fmt.Println(string(jout))
+
+			finish(*verbose, resp, err, "sysvar history")
 		}
 	}
 }
