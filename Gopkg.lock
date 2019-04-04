@@ -487,7 +487,7 @@
 
 [[projects]]
   branch = "prgn-port-api-integration-tests"
-  digest = "1:4150671438e617ae09da2ffd14269fbdc94738236844768230d11e3b5cb63068"
+  digest = "1:11bbbbab81b57e450f865aa6fab0ba59ce8579ac1fc948d4e03012f8527a0517"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,7 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "f34a0a0e14d4422132147258fbb79054f12d11af"
+  revision = "e9950802465a1c97bba26068cd7535e5fd4542a9"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"

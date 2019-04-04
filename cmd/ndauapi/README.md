@@ -964,12 +964,7 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "Chaos": {
-            "Status": ""
-          },
-          "Ndau": {
-            "Status": ""
-          }
+          "Status": ""
         }
 ```
 
