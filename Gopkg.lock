@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:55e9b9c19159c323555264cb15756c8ece109cedd7ee95e4a7df6aed987d635e"
+  branch = "prgn-port-api-integration-tests"
+  digest = "1:4150671438e617ae09da2ffd14269fbdc94738236844768230d11e3b5cb63068"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "28d292ffd1e3da8f98b1b8e8bc98d84bed8760ff"
-  version = "v1.5.0"
+  revision = "f34a0a0e14d4422132147258fbb79054f12d11af"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -971,10 +971,8 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/blockchain",
     "github.com/tendermint/tendermint/crypto/ed25519",
     "github.com/tendermint/tendermint/crypto/encoding/amino",
-    "github.com/tendermint/tendermint/libs/db",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",
