@@ -107,13 +107,13 @@ Each of these, in turn, has several endpoints within it.
 
 * [NodeID](#nodeid)
 
-* [OrderHash](#orderhash)
+* [DEPRECATEDOrderCurrent](#deprecatedordercurrent)
 
 * [OrderHeight](#orderheight)
 
 * [OrderHistory](#orderhistory)
 
-* [OrderCurrent](#ordercurrent)
+* [PriceInfo](#priceinfo)
 
 * [StateDelegates](#statedelegates)
 
@@ -1134,20 +1134,13 @@ _**Produces:**_ `[application/json]`
 
 
 ---
-## OrderHash
+## DEPRECATEDOrderCurrent
 
-### `GET /order/hash/:ndauhash`
+### `GET /order/current`
 
-_Returns the collection of data from the order chain as of a specific ndau blockhash._
-
-
+_Please use /price/current instead_
 
 
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- ndauhash | Path | Hash from the ndau chain. | string
 
 
 
@@ -1159,14 +1152,7 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```
-        {
-          "marketPrice": 0,
-          "targetPrice": 0,
-          "totalIssued": 0,
-          "totalNdau": 0,
-          "totalSIB": 0,
-          "sib": 0
-        }
+        null
 ```
 
 
@@ -1174,9 +1160,9 @@ _**Writes:**_
 ---
 ## OrderHeight
 
-### `GET /order/height/:ndauheight`
+### `GET /price/height/:height`
 
-_Returns the collection of data from the order chain as of a specific ndau block height._
+_Returns the collection of price data as of a specific ndau block height._
 
 
 
@@ -1185,7 +1171,7 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- ndauheight | Path | Height from the ndau chain. | int
+ height | Path | Height from the ndau chain. | int
 
 
 
@@ -1212,7 +1198,7 @@ _**Writes:**_
 ---
 ## OrderHistory
 
-### `GET /order/history`
+### `GET /price/history`
 
 _Returns an array of data from the order chain at periodic intervals over time, sorted chronologically._
 
@@ -1244,13 +1230,13 @@ _**Writes:**_
 
 
 ---
-## OrderCurrent
+## PriceInfo
 
-### `GET /order/current`
+### `GET /price/current`
 
-_Returns current order chain data for key parameters._
+_Returns current price data for key parameters._
 
-Returns current order chain information:
+Returns current price information:
 * Market price
 * Target price
 * Total ndau issued from the endowment
