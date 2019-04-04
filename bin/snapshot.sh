@@ -85,11 +85,6 @@ cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/blockstore.db" "$TM_TEMP/data"
 cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_TEMP/data"
 
-# Use something better than "test-chain-..." for the chain_id.
-genesis_file="$TM_TEMP/config/genesis.json"
-jq ".chain_id=\"$NETWORK\"" "$genesis_file" > "$genesis_file.temp"
-mv "$genesis_file.temp" "$genesis_file"
-
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$NOMS_DIR"/noms show "$NOMS_NDAU_DATA_DIR-0"::ndau.value.Height | tr -d '"')))
 SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
