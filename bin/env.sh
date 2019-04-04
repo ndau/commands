@@ -72,11 +72,17 @@ export KEYTOOL_CMD=cmd/keytool
 # The localnet data directory is created by setup.sh and is not modified by any other script.
 # We use it for storing meta info about the local nodes we manage.
 export NODE_COUNT_FILE="$LOCALNET_DIR"/node_count
-if [ -e "$NODE_COUNT_FILE" ]; then
+if [ -f "$NODE_COUNT_FILE" ]; then
     # cat can't fail in this situation
     # shellcheck disable=SC2155
     export NODE_COUNT=$(cat "$NODE_COUNT_FILE")
     export HIGH_NODE_NUM=$((NODE_COUNT - 1))
+fi
+export CHAIN_ID_FILE="$LOCALNET_DIR"/chain_id
+if [ -f "$CHAIN_ID_FILE" ]; then
+    # cat can't fail in this situation
+    # shellcheck disable=SC2155
+    export CHAIN_ID=$(cat "$CHAIN_ID_FILE")
 fi
 
 # File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
