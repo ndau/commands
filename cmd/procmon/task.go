@@ -347,11 +347,15 @@ func (t *Task) Destroy() {
 	t.Logger.Printf("shutdown state %v, err %v", state, err)
 }
 
-func (t *Task) CollectPids(pids []int) []int {
+// CollectPIDs appends this task's PID plus those of all its dependents
+// to the slice passed in.
+func (t *Task) CollectPIDs(pids []int) []int {
 	for _, ch := range t.Dependents {
-		pids = ch.CollectPids(pids)
+		pids = ch.CollectPIDs(pids)
 	}
-	pid := t.cmd.Process.Pid
-	pids = append(pids, pid)
+	if t.cmd.Process != nil {
+		pid := t.cmd.Process.Pid
+		pids = append(pids, pid)
+	}
 	return pids
 }

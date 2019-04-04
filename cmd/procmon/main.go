@@ -111,7 +111,7 @@ func main() {
 		case <-logstatus.C:
 			pids := []int{}
 			for _, t := range rootTasks {
-				pids = t.CollectPids(pids)
+				pids = t.CollectPIDs(pids)
 			}
 			sort.Sort(sort.IntSlice(pids))
 			logger.WithField("pids", pids).WithField("npids", len(pids)).Print("pidinfo")
