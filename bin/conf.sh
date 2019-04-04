@@ -89,8 +89,11 @@ if [ "$NODE_COUNT" -gt 1 ]; then
         # Make every node's genesis file have all nodes set up as validators.
         if [ "$node_num" = 0 ]; then
             # Construct the validator list from scratch for node 0.
-            jq ".validators = []" \
-               "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
+            jq ".validators = []" "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
+                mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
+
+            # Use something better than "test-chain-..." for the chain_id.
+            jq ".chain_id=\"$CHAIN_ID\"" "$tm_ndau_genesis" > "$tm_ndau_genesis.new" && \
                 mv "$tm_ndau_genesis.new" "$tm_ndau_genesis"
 
             for peer_num in $(seq 0 "$HIGH_NODE_NUM");
