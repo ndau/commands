@@ -15,8 +15,9 @@ if [ ! -d "$REDIS_NDAU_DATA_DIR-0" ]; then
 fi
 
 # Make sure you're running the right version of redis, to match what the container is using.
-REDIS_VERSION_EXPECTED=4.0.11
-REDIS_VERSION_ACTUAL=$(redis-server --version | sed -n -e 's/^Redis server v=\([^ ]*\) .*/\1/p')
+REDIS_VERSION_EXPECTED=5.0
+REDIS_VERSION_ACTUAL=$(redis-server --version | \
+                           sed -n -e 's/^Redis server v=\([0-9]*\.[0-9]*\)\.[0-9]* .*/\1/p')
 if [ "$REDIS_VERSION_ACTUAL" != "$REDIS_VERSION_EXPECTED" ]; then
     echo "Must have Redis version $REDIS_VERSION_EXPECTED installed to generate a valid snapshot"
     exit 1
@@ -25,8 +26,8 @@ fi
 # Since the chain_id was specified at setup-time, we make sure the user really wants to use it
 # as the network name.  Otherwise they'll get the default snapshot for localnet.
 NETWORK="$CHAIN_ID"
-echo "Generating snapshot for the network named $NETWORK"
-printf "Is this the right network name? [y|n]: "
+echo "Generating snapshot for the network: $NETWORK"
+printf "Is this the right network? [y|n]: "
 read CONFIRM
 if [ "$CONFIRM" != "y" ]; then
     echo "You can change the network name by running setup.sh or reset.sh with a new name"

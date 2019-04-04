@@ -27,7 +27,10 @@ These steps only need to be performed once:
     ```
 1. Install [Brew](https://brew.sh/)
 1. Install `dep`: `brew install dep`
-1. Install Redis: `brew install redis`
+1. Install Redis:
+    - Run `which redis-server` to see if you've got redis currently installed on your machine
+    - If it's already installed, run `brew upgrade redis@5.0`
+    - Otherwise, run `brew install redis@5.0`
 1. Install `jq`: `brew install jq`
 1. Clone this repo:
     ```sh
