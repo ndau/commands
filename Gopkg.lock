@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:b74e0384df01ae9baf3890872d222c19eb0a324deb36e9a189b0d44201e2ed84"
+  branch = "prgn-rename-claims"
+  digest = "1:583a5ea8404971b818067b7bda97cb88d9bfca0245ded6a0f0def5c0ea1299eb"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "914092fd47ea79b72b1b73b52f5f05250664a0a8"
-  version = "v1.6.0"
+  revision = "b007e2892eb9474f5b3968e6a5b8146d057ff3bf"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"

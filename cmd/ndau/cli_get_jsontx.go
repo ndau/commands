@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+	"github.com/oneiro-ndev/ndau/pkg/ndau"
 )
 
 func getJSONTXSpec() string {
@@ -24,17 +24,15 @@ func getJSONTXClosure(cmd *cli.Cmd) func() metatx.Transactable {
 
 	return func() metatx.Transactable {
 		// prepare tx
-		example, ok := txnames[strings.ToLower(*txname)]
-		if !ok {
-			fmt.Fprintln(os.Stderr, "Unknown transaction: ", *txname)
-			fmt.Println("Known transactions:")
-			for _, tx := range knownNames() {
-				fmt.Println("  ", tx)
+		tx, err := ndau.TxFromName(*txname)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			for _, tx := range ndau.KnownTxNames() {
+				fmt.Fprintln(os.Stderr, "  ", tx)
 			}
 			os.Exit(1)
-		}
 
-		tx := metatx.Clone(example)
+		}
 
 		// prepare input
 		var reader *bufio.Reader

@@ -27,7 +27,7 @@ func getAccountClaim(verbose, emitJSON, compact *bool) func(*cli.Cmd) {
 			newKeys, err := acct.MakeTransferKey(nil)
 			orQuit(err)
 
-			ca := ndau.NewClaimAccount(
+			ca := ndau.NewSetValidation(
 				acct.Address,
 				acct.Ownership.Public,
 				[]signature.PublicKey{newKeys.Public},
