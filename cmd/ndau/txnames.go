@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 )
 
@@ -18,12 +18,17 @@ func init() {
 		txnames[strings.ToLower(metatx.NameOf(example))] = example
 	}
 	// add common abbreviations
-	txnames["rfe"] = ndau.TxIDs[3]          // releasefromendowment
-	txnames["claim"] = ndau.TxIDs[10]       // claimaccount
-	txnames["claim-child"] = ndau.TxIDs[21] // claimchildaccount
-	txnames["nnr"] = ndau.TxIDs[13]         // nominatenodereward
-	txnames["cvc"] = ndau.TxIDs[16]         // commandvalidatorchange
-	txnames["sidechain"] = ndau.TxIDs[17]   // sidechaintx
+	txnames["rfe"] = ndau.TxIDs[3]                   // releasefromendowment
+	txnames["claim"] = ndau.TxIDs[10]                // setvalidation
+	txnames["set-validation"] = ndau.TxIDs[10]       // setvalidation
+	txnames["setv"] = ndau.TxIDs[10]                 // setvalidation
+	txnames["nnr"] = ndau.TxIDs[13]                  // nominatenodereward
+	txnames["cvc"] = ndau.TxIDs[16]                  // commandvalidatorchange
+	txnames["claim-child"] = ndau.TxIDs[21]          // createchildaccount
+	txnames["create-child"] = ndau.TxIDs[21]         // createchildaccount
+	txnames["create-child-account"] = ndau.TxIDs[21] // createchildaccount
+	txnames["record-price"] = ndau.TxIDs[22]         // recordprice
+	txnames["ssv"] = ndau.TxIDs[23]                  // setsysvar
 }
 
 func knownNames() []string {
