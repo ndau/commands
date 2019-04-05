@@ -16,23 +16,23 @@ if [ ! -d "$DATA_DIR" ]; then
     "$SCRIPT_DIR"/docker-conf.sh
 fi
 
-# This is needed because in the long term, noms eats more than 256 file descriptors
+# This is needed because in the long term, noms eats more than 256 file descriptors.
 ulimit -n 1024
 
-# All commands are run out of the bin directory.
+# Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
-
 ./procmon --configfile "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
 echo "Started procmon as PID $!"
 
-# Block until the entire node group is running.  Do this by checking the last task: ndauapi.
+# Block until the entire node group is running.  Do this by checking the last task (ndauapi) port.
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
     :
 done
 
-# Generate the node-identity file if one wasn't passed in.
+# Now that we know all data files are in place and the node group is running,
+# we can generate the node-identity file if one wasn't passed in.
 IDENTITY_FILE="$SCRIPT_DIR"/node-identity.tgz
 if [ ! -f "$IDENTITY_FILE" ]; then
     echo "Generating identity file..."
