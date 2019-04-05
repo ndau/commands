@@ -80,7 +80,7 @@ level = "$LOGLEVEL"
     args = [
         "--dir", "$REDIS_DATA_DIR-$NODE_NUM",
         "--port", "$REDIS_PORT_NUM",
-        "--save", "60", "1"
+        "--save", "60", "1",
     ]
     # special values are:
     # "SUPPRESS" (also "") meaning "discard this stream"
@@ -191,7 +191,9 @@ level = "$LOGLEVEL"
     name = "ndau_api"
     parent = "ndau_tm"
     path = "./ndauapi"
-    args = "--port $NDAUAPI_PORT_NUM"
+    args = [
+        "--port", "$NDAUAPI_PORT_NUM",
+    ]
     stdout = "$LOGDIR/ndauapi-$NODE_NUM.log"
     stderr = "$LOGDIR/ndauapi-$NODE_NUM.log"
     maxstartup  = "5s"
