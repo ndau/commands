@@ -28,10 +28,20 @@ RUN /image/docker-setup.sh
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM alpine:3.8 AS build
 
+# Use a specific version of redis.
+COPY --from=redis:5.0.4-alpine [ \
+    "usr/local/bin/redis-server", \
+    "usr/local/bin/redis-sentinel", \
+    "usr/local/bin/redis-cli", \
+    "usr/local/bin/redis-benchmark", \
+    "usr/local/bin/redis-check-rdb", \
+    "usr/local/bin/redis-check-aof", \
+    "/usr/local/bin/" \
+]
+
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
-RUN apk add --no-cache bash ca-certificates redis=4.0.11-r0 sed && \
-    update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash ca-certificates sed && update-ca-certificates 2>/dev/null
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin

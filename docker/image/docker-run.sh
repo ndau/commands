@@ -71,9 +71,9 @@ run_node() {
     echo "Running ndaunode..."
 
     ./ndaunode -spec http://localhost:"$noms_port" \
-                   -index localhost:"$redis_port" \
-                   -addr 0.0.0.0:"$port" \
-                   >"$LOG_DIR/ndaunode.log" 2>&1 &
+               -index localhost:"$redis_port" \
+               -addr 0.0.0.0:"$port" \
+               >"$LOG_DIR/ndaunode.log" 2>&1 &
     wait_port "$port"
 }
 
