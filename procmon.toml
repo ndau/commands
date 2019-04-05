@@ -19,7 +19,7 @@ NODE_PORT_NUM = "26650"
 TM_DATA_DIR = "data"
 TM_P2P_PORT_NUM = "26660"
 TM_RPC_PORT_NUM = "26670"
-NDAUAPI_PORT_NUM = "3030"
+NDAUAPI_PORT = "3030"
 NDAUAPI_NDAU_RPC_URL="http://localhost:$TM_RPC_PORT_NUM"
 NDAUHOME = "$NODE_DATA_DIR-$NODE_NUM"
 MONIKER_PREFIX = "localnet"
@@ -52,22 +52,27 @@ level = "$LOGLEVEL"
     port = "$TM_P2P_PORT_NUM $TM_RPC_PORT_NUM"
 
 [[prologue]]
-    name = "datadir exists"
+    name = "ndauapiportclear"
+    type = "portavailable"
+    port = "$NDAUAPI_PORT"
+
+[[prologue]]
+    name = "node datadir exists"
     type = "ensuredir"
     path = "$NODE_DATA_DIR"
 
 [[prologue]]
-    name = "datadir exists"
+    name = "noms datadir exists"
     type = "ensuredir"
     path = "$NOMS_DATA_DIR"
 
 [[prologue]]
-    name = "datadir exists"
+    name = "redis datadir exists"
     type = "ensuredir"
     path = "$REDIS_DATA_DIR"
 
 [[prologue]]
-    name = "datadir exists"
+    name = "tm datadir exists"
     type = "ensuredir"
     path = "$TENDERMINT_DATA_DIR"
 
@@ -80,7 +85,7 @@ level = "$LOGLEVEL"
     args = [
         "--dir", "$REDIS_DATA_DIR-$NODE_NUM",
         "--port", "$REDIS_PORT_NUM",
-        "--save", "60", "1"
+        "--save", "60", "1",
     ]
     # special values are:
     # "SUPPRESS" (also "") meaning "discard this stream"
@@ -191,7 +196,7 @@ level = "$LOGLEVEL"
     name = "ndau_api"
     parent = "ndau_tm"
     path = "./ndauapi"
-    args = "--port $NDAUAPI_PORT_NUM"
+    args = []
     stdout = "$LOGDIR/ndauapi-$NODE_NUM.log"
     stderr = "$LOGDIR/ndauapi-$NODE_NUM.log"
     maxstartup  = "5s"
@@ -200,12 +205,12 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "http"
-        url = "http://localhost:$NDAUAPI_PORT_NUM/node/health"
+        url = "http://localhost:$NDAUAPI_PORT/node/health"
         timeout = "1s"
         period =  "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "http"
-        url = "http://localhost:$NDAUAPI_PORT_NUM/node/health"
+        url = "http://localhost:$NDAUAPI_PORT/node/health"
         timeout = "300ms"

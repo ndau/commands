@@ -23,7 +23,7 @@ RUN touch /root/.ssh/known_hosts && \
 COPY . /image
 ENV TENDERMINT_VER=v0.31.0
 ENV COMMANDS_BRANCH=master
-RUN /bin/bash /image/docker-setup.sh
+RUN /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM alpine:3.8 AS build
@@ -50,6 +50,7 @@ COPY --from=intermediate /image/bin /image/bin
 COPY ./docker-conf.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-run.sh /image
+COPY ./docker-procmon.toml /image
 
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
@@ -57,4 +58,4 @@ COPY ./docker-run.sh /image
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26670 3030
 
-CMD ["/bin/bash", "/image/docker-run.sh"]
+CMD ["/image/docker-run.sh"]

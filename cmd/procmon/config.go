@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -53,7 +54,10 @@ func (ct *ConfigTask) interpolate(env map[string]string) {
 // Load does the toml load into a config object
 func Load(filename string, nocheck bool) (Config, error) {
 	cfg := Config{}
-	_, err := toml.DecodeFile(filename, &cfg)
+	metadata, err := toml.DecodeFile(filename, &cfg)
+	if err != nil {
+		return cfg, errors.Wrap(err, fmt.Sprintf("metadata = %#v", metadata))
+	}
 
 	// start by interpolating the config's environment variables with the global ones
 	globalenv := envmap(os.Environ(), make(map[string]string))
