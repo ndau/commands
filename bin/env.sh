@@ -19,7 +19,7 @@ export NOMS_PORT=8000
 export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
-export API_PORT_BASE=3030
+export NDAUAPI_PORT=3030
 
 # We programmatically create and claim the bpc account on localnet.  This is its name.
 export BPC_OPS_ACCT_NAME=bpc-operations

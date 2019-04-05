@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
+	"sort"
 	"syscall"
 	"time"
 
@@ -39,22 +41,19 @@ func WatchSignals(fhup, fint, fterm func()) {
 
 func main() {
 	var args struct {
-		Configfile string
+		Configfile string `help:"the name of the .toml file to load"`
+		NoCheck    bool   `help:"set this to disable envvar checking"`
 	}
 	arg.MustParse(&args)
 
 	var cfg Config
 	var err error
 	if args.Configfile != "" {
-		cfg, err = Load(args.Configfile)
+		cfg, err = Load(args.Configfile, args.NoCheck)
 		if err != nil {
-			panic(err)
+			fmt.Printf("%s\n", err)
+			os.Exit(1)
 		}
-		// apply config vars to the env
-		for k, v := range cfg.Env {
-			os.Setenv(k, v)
-		}
-
 	}
 
 	logger := cfg.BuildLogger()
@@ -62,11 +61,15 @@ func main() {
 		logger = honeycomb.Setup(logger)
 	}
 
+	err = cfg.RunPrologue(logger)
+	if err != nil {
+		logger.WithError(err).Fatal("problems running prologue")
+	}
+
 	rootTasks, err := cfg.BuildTasks(logger)
 	// if we can't read the tasks we shouldn't even continue
 	if err != nil {
-		logger.WithError(err).Error("aborting because task file was invalid")
-		panic(err)
+		logger.WithError(err).Fatal("aborting because task file was invalid")
 	}
 
 	// this is the channel we can use to shut everything down
@@ -102,38 +105,48 @@ func main() {
 	}
 
 	// and run almost forever
-	select {
-	case <-donech:
-		logger.Print("done channel was closed")
-		// if we see this, then we were told to shutdown,
-		// but we don't want to do it too early, so loop until
-		// there are no root tasks left that haven't exited.
-		looptime := 250 * time.Millisecond
-		looptimer := time.NewTimer(looptime)
-		longtime := 75 * time.Second
-		toolong := time.NewTimer(longtime)
-		for {
-			select {
-			case <-looptimer.C:
-				canExit := true
-				for _, t := range rootTasks {
-					if !t.Exited() {
-						canExit = false
+	logstatus := time.NewTicker(15 * time.Second)
+	for {
+		select {
+		case <-logstatus.C:
+			pids := []int{}
+			for _, t := range rootTasks {
+				pids = t.CollectPIDs(pids)
+			}
+			sort.Sort(sort.IntSlice(pids))
+			logger.WithField("pids", pids).WithField("npids", len(pids)).Print("pidinfo")
+		case <-donech:
+			logger.Print("done channel was closed")
+			// if we see this, then we were told to shutdown,
+			// but we don't want to do it too early, so loop until
+			// there are no root tasks left that haven't exited.
+			looptime := 250 * time.Millisecond
+			looptimer := time.NewTimer(looptime)
+			longtime := 75 * time.Second
+			toolong := time.NewTimer(longtime)
+			for {
+				select {
+				case <-looptimer.C:
+					canExit := true
+					for _, t := range rootTasks {
+						if !t.Exited() {
+							canExit = false
+						}
 					}
+					if canExit {
+						os.Exit(0)
+					}
+					logger.Printf("waiting for all root tasks to die...")
+					looptime *= 2
+					looptimer.Reset(looptime)
+				case <-toolong.C:
+					logger.Error("requested shutdown did not complete within " + longtime.String())
+					for _, t := range rootTasks {
+						t.Destroy()
+					}
+					time.Sleep(1 * time.Second)
+					os.Exit(1)
 				}
-				if canExit {
-					os.Exit(0)
-				}
-				logger.Printf("waiting for all root tasks to die...")
-				looptime *= 2
-				looptimer.Reset(looptime)
-			case <-toolong.C:
-				logger.Error("requested shutdown did not complete within " + longtime.String())
-				for _, t := range rootTasks {
-					t.Destroy()
-				}
-				time.Sleep(1 * time.Second)
-				os.Exit(1)
 			}
 		}
 	}

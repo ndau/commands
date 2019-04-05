@@ -67,6 +67,8 @@ opcodes
 !*/opcodes
 peggofmt
 !*/peggofmt
+procmon
+!*/procmon
 txmobile
 !*/txmobile
 update_genesis_json
