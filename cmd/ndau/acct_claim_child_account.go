@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/metanode/pkg/meta/app/code"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
@@ -14,13 +16,17 @@ import (
 
 func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
-		cmd.Spec = "NAME CHILD_NAME [-p=<CHILD_SETTLEMENT_PERIOD>] [--hd]"
+		cmd.Spec = fmt.Sprintf(
+			"NAME CHILD_NAME [-p=<CHILD_SETTLEMENT_PERIOD>] %s [--hd]",
+			getAddressSpec("DELEGATION_NODE"),
+		)
 
 		var (
-			parentName = cmd.StringArg("NAME", "", "Name of parent account")
-			childName  = cmd.StringArg("CHILD_NAME", "", "Name of child account to claim")
-			period     = cmd.StringOpt("p period", "", "Initial settlement period for the child account (ndaumath types.ParseDuration format)")
-			hd         = cmd.BoolOpt("hd", false, "Generate an HD key for the child account")
+			parentName  = cmd.StringArg("NAME", "", "Name of parent account")
+			childName   = cmd.StringArg("CHILD_NAME", "", "Name of child account to claim")
+			period      = cmd.StringOpt("p period", "", "Initial settlement period for the child account (ndaumath types.ParseDuration format)")
+			hd          = cmd.BoolOpt("hd", false, "Generate an HD key for the child account")
+			getDelegate = getAddressClosure(cmd, "DELEGATION_NODE")
 		)
 
 		cmd.Action = func() {
@@ -71,7 +77,7 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 			newChildKeys, err := childAcct.MakeTransferKey(nil)
 			orQuit(err)
 
-			cca := ndau.NewClaimChildAccount(
+			cca := ndau.NewCreateChildAccount(
 				parentAcct.Address,
 				childAcct.Address,
 				childAcct.Ownership.Public,
@@ -79,6 +85,7 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 				childSettlementPeriod,
 				[]signature.PublicKey{newChildKeys.Public},
 				childAcct.ValidationScript,
+				getDelegate(),
 				sequence(conf, parentAcct.Address),
 				parentAcct.TransferPrivateK(*keys)...,
 			)

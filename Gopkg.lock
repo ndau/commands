@@ -486,7 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:f9182fd67c77b6a904a73ed04e677fe5d1ec05720b6c2e7fbaa30e8e0dc49fc4"
+  digest = "1:38e5eb0645a555ea27c40c97702c06a67877e01dafe3facb7450c1af8326af0a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "e67d1ebb92645578525289fefaeb633d4ed73e15"
-  version = "v1.5.1"
+  revision = "671bae65e584d18debdfe67791126808b1d4168e"
+  version = "v1.10.0"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -934,6 +934,7 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
+    "github.com/go-redis/redis",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
