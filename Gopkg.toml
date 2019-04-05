@@ -16,8 +16,7 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.6"
-branch = "prgn-rename-claims"
+version = "~v1.8"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
