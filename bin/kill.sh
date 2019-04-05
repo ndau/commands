@@ -53,7 +53,7 @@ check_killed() {
 initialize
 
 if [ -z "$1" ]; then
-    cmds=(ndau_tm ndau_node ndau_noms ndau_redis)
+    cmds=(ndauapi ndau_tm ndau_node ndau_noms ndau_redis)
     while IFS=$'\n' read -r line; do node_nums+=("$line"); done < <(seq "$HIGH_NODE_NUM" 0)
 else
     # We support killing a single process for a given node.
