@@ -173,9 +173,7 @@ level = "$LOG_LEVEL"
     name = "ndauapi"
     parent = "tendermint"
     path = "$BIN_DIR/ndauapi"
-    args = [
-        "--port", "$NDAUAPI_PORT",
-    ]
+    args = []
     stdout = "$LOG_DIR/ndauapi.log"
     stderr = "$LOG_DIR/ndauapi.log"
     maxstartup = "5s"
