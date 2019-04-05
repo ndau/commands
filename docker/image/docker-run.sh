@@ -22,7 +22,7 @@ ulimit -n 1024
 # All commands are run out of the bin directory.
 cd "$BIN_DIR" || exit 1
 
-./procmon --configfile "$SCRIPT_DIR/docker-ndau.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+./procmon --configfile "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
 echo "Started procmon as PID $!"
 
 # Block until the entire node group is running.  Do this by checking the last task: ndauapi.
