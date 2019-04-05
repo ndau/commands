@@ -71,7 +71,7 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 			newChildKeys, err := childAcct.MakeTransferKey(nil)
 			orQuit(err)
 
-			cca := ndau.NewClaimChildAccount(
+			cca := ndau.NewCreateChildAccount(
 				parentAcct.Address,
 				childAcct.Address,
 				childAcct.Ownership.Public,
