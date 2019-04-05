@@ -138,8 +138,6 @@ ndau_api() {
     node_num="$1"
     echo running ndauapi for "ndau-$node_num"
 
-    data_dir="$TENDERMINT_NDAU_DATA_DIR-$node_num"
-    rpc_port=$((TM_RPC_PORT + node_num))
     api_port=$((API_PORT_BASE + node_num))
     output_name="$CMDBIN_DIR/ndauapi-$node_num"
 
