@@ -68,6 +68,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error %s deriving child key %d\n", err.Error(), i)
 		}
 		a, err := address.Generate(address.KindUser, childkey.PubKeyBytes())
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error %s generating address for %d\n", err.Error(), i)
+		}
 		fmt.Println(childpath, a)
 	}
 	fmt.Fprintf(os.Stderr, "%d addresses generated.\n", args.Count)
