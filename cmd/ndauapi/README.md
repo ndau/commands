@@ -1500,7 +1500,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RecordPrice, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SetSysvar, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_

@@ -563,4 +563,4 @@ jobs:
 
             # run tests
             pipenv sync
-            pipenv run pytest -v --net=devnet --ndauapi=https://devnet-0.api.ndau.tech/
+            pipenv run pytest --net=devnet --ndauapi=https://devnet-0.api.ndau.tech
