@@ -1143,9 +1143,6 @@ _Please use /price/current instead_
 
 
 
-
-
-
 _**Produces:**_ `[application/json]`
 
 

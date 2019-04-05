@@ -1,7 +1,4 @@
 [env]
-HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
-HONEYCOMB_DATASET = "kjqnet"
-
 NDAU_DIR = "../ndau"
 NOMS_DIR = "../../attic-labs/noms"
 TENDERMINT_DIR = "../../tendermint/tendermint"
@@ -22,7 +19,8 @@ NODE_PORT_NUM = "26650"
 TM_DATA_DIR = "data"
 TM_P2P_PORT_NUM = "26660"
 TM_RPC_PORT_NUM = "26670"
-NDAUAPI_NDAU_RPC_URL="http://localhost:26670"
+NDAUAPI_PORT_NUM = "3030"
+NDAUAPI_NDAU_RPC_URL="http://localhost:$TM_RPC_PORT_NUM"
 NDAUHOME = "$NODE_DATA_DIR-$NODE_NUM"
 MONIKER_PREFIX = "localnet"
 NODE_ID = "$MONIKER_PREFIX-$NODE_NUM"
@@ -142,7 +140,7 @@ level = "$LOGLEVEL"
     ]
     stdout = "$LOGDIR/ndaunode-$NODE_NUM.log"
     stderr = "$LOGDIR/ndaunode-$NODE_NUM.log"
-    maxstartup = "15s"
+    maxstartup = "5s"
     maxshutdown = "5s"
 
     [[task.monitors]]
@@ -175,7 +173,13 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "portinuse"
-        port = "$NODE_PORT_NUM"
+        port = "$TM_P2P_PORT_NUM"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$TM_RPC_PORT_NUM"
         period = "2s"
 
     [[task.monitors]]
@@ -187,6 +191,7 @@ level = "$LOGLEVEL"
     name = "ndau_api"
     parent = "ndau_tm"
     path = "./ndauapi"
+    args = "--port $NDAUAPI_PORT_NUM"
     stdout = "$LOGDIR/ndauapi-$NODE_NUM.log"
     stderr = "$LOGDIR/ndauapi-$NODE_NUM.log"
     maxstartup  = "5s"
@@ -195,12 +200,12 @@ level = "$LOGLEVEL"
     [[task.monitors]]
         name = "health"
         type = "http"
-        url = "http://localhost:3030/node/health"
+        url = "http://localhost:$NDAUAPI_PORT_NUM/node/health"
         timeout = "1s"
         period =  "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "http"
-        url = "http://localhost:3030/node/health"
+        url = "http://localhost:$NDAUAPI_PORT_NUM/node/health"
         timeout = "300ms"

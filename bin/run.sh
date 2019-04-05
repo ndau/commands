@@ -138,7 +138,7 @@ ndau_api() {
     node_num="$1"
     echo running ndauapi for "ndau-$node_num"
 
-    api_port=$((API_PORT_BASE + node_num))
+    api_port=$((NDAUAPI_PORT + node_num))
     output_name="$CMDBIN_DIR/ndauapi-$node_num"
 
     cd "$COMMANDS_DIR" || exit 1
