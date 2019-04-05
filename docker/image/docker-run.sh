@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
@@ -12,7 +13,7 @@ rm -f "$RUNNING_FILE"
 # If there's no data directory yet, it means we're starting from scratch.
 if [ ! -d "$DATA_DIR" ]; then
     echo "Configuring node group..."
-    /bin/bash "$SCRIPT_DIR"/docker-conf.sh
+    "$SCRIPT_DIR"/docker-conf.sh
 fi
 
 # This is needed because in the long term, noms eats more than 256 file descriptors

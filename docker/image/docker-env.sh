@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export NODE_PORT=26650
 export NOMS_PORT=8000
 export REDIS_PORT=6379

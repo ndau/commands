@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 ATTICLABS_DIR="$GOPATH"/src/github.com/attic-labs

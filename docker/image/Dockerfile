@@ -23,7 +23,7 @@ RUN touch /root/.ssh/known_hosts && \
 COPY . /image
 ENV TENDERMINT_VER=v0.31.0
 ENV COMMANDS_BRANCH=master
-RUN /bin/bash /image/docker-setup.sh
+RUN /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM alpine:3.8 AS build
@@ -47,4 +47,4 @@ COPY ./docker-run.sh /image
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26670 3030
 
-CMD ["/bin/bash", "/image/docker-run.sh"]
+CMD ["/image/docker-run.sh"]
