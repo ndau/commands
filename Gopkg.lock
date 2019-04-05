@@ -934,6 +934,7 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
+    "github.com/go-redis/redis",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
