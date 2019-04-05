@@ -65,4 +65,8 @@ go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndauapi
 mv ndaunode "$BIN_DIR"
 mv ndauapi "$BIN_DIR"
 
+echo Building procmon...
+go build ./cmd/procmon
+mv procmon "$BIN_DIR"
+
 echo Setup complete
