@@ -16,7 +16,7 @@ for node_num in $(seq 0 "$HIGH_NODE_NUM"); do
     export TM_RPC_PORT_NUM=$((TM_RPC_PORT + node_num))
     export TM_RPC_PORT_NUM=$((TM_RPC_PORT + node_num))
     export NDAUAPI_PORT_NUM=$((NDAUAPI_PORT + node_num))
-    NODE_NUM=$node_num ./procmon --configfile ndau.toml >"$output_name.log" 2>&1 &
+    NODE_NUM=$node_num ./procmon --configfile procmon.toml >"$output_name.log" 2>&1 &
     echo starting procmon $node_num as PID $!
 done
 
