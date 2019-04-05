@@ -61,8 +61,8 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
-			"change-settlement-period",
-			"change the settlement period for outbound transfers from this account",
+			"change-recourse-period",
+			"change the recourse period for outbound transfers from this account",
 			getAccountChangeSettlement(verbose, keys, emitJSON, compact),
 		)
 
