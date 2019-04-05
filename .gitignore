@@ -75,3 +75,9 @@ update_genesis_json
 !*/update_genesis_json
 vmtest
 !*/vmtest
+ndauaddr
+!*/ndauaddr
+procmon
+!*/procmon
+verify
+!*/verify

@@ -119,6 +119,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [SystemAll](#systemall)
 
+* [SysvarHistory](#sysvarhistory)
+
 * [AccountEAIRate](#accounteairate)
 
 * [TransactionByHash](#transactionbyhash)
@@ -947,7 +949,7 @@ _**Writes:**_
 
 ### `GET /node/health`
 
-_Returns the health of the current ndau node and chaos node._
+_Returns the health of the current node by doing a simple test for connectivity and response._
 
 
 
@@ -962,9 +964,6 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "Chaos": {
-            "Status": ""
-          },
           "Ndau": {
             "Status": ""
           }
@@ -1144,9 +1143,6 @@ _Please use /price/current instead_
 
 
 
-
-
-
 _**Produces:**_ `[application/json]`
 
 
@@ -1316,6 +1312,47 @@ _**Writes:**_
 
 
 ---
+## SysvarHistory
+
+### `GET /system/history/:sysvar`
+
+_Returns the value history of a system variable given its name._
+
+The history includes the height and value of each change to the system variable.
+The result is sorted chronologically.
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ sysvar | Path | The name of the system variable for which to return history | string
+ pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
+ pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "history": [
+            {
+              "height": 12345,
+              "value": "VmFsdWU="
+            }
+          ]
+        }
+```
+
+
+
+---
 ## AccountEAIRate
 
 ### `POST /system/eai/rate`
@@ -1460,7 +1497,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimChildAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RecordPrice, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SetSysvar, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
