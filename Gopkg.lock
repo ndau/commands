@@ -486,7 +486,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-rename-change-settlement-period"
   digest = "1:38e5eb0645a555ea27c40c97702c06a67877e01dafe3facb7450c1af8326af0a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "5291a569e05d04a767137747f0cbbdc0540c75c6"
+  revision = "671bae65e584d18debdfe67791126808b1d4168e"
+  version = "v1.10.0"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
