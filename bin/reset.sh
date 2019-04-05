@@ -15,7 +15,7 @@ rm -f "$CMDBIN_DIR"/*.pid
 # Do this after the above commands, so they can use the old node count.
 # Do this before the steps after, so we don't possibly leave localnet in a half set up state.
 node_count="$1"
-if [[ ! -z "$node_count" ]]; then
+if [ ! -z "$node_count" ]; then
     if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
         echo Node count must be a positive integer
         exit 1
@@ -26,6 +26,10 @@ if [[ ! -z "$node_count" ]]; then
     fi
 
     echo "$node_count" > "$NODE_COUNT_FILE"
+fi
+chain_id="$2"
+if [ ! -z "$chain_id" ]; then
+    echo "$chain_id" > "$CHAIN_ID_FILE"
 fi
 
 # Reset all blockchain data.
