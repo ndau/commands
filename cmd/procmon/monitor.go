@@ -104,36 +104,3 @@ func (m *RetryMonitor) Listen(done chan struct{}) {
 		}
 	}
 }
-
-// type MultiMonitor struct {
-// 	Fail     chan<- *Task
-// 	Done     <-chan struct{}
-// 	Monitors []Monitor
-// }
-
-// func NewMultiMonitor(ms ...Monitor) Monitor {
-// 	return &MultiMonitor{
-// 		Fail:     fail,
-// 		Done:     done,
-// 		Monitors: ms,
-// 	}
-// }
-
-// // Listen implements Monitor.
-// // It should be called as a goroutine.
-// func (m *MultiMonitor) Listen(failed chan *Task, done chan struct{}) {
-// 	failch := make(chan<- *Task)
-// 	donech := make(<-chan struct{})
-// 	for _, mon := range m.Monitors {
-// 		go mon.Listen(t, failch, donech)
-// 	}
-// 	for {
-// 		select {
-// 		case <-done:
-// 			close(failch)
-// 			return
-// 		case t <- failch:
-// 			failed <- t
-// 		}
-// 	}
-// }

@@ -170,7 +170,7 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 		if err != nil {
 			return nil, err
 		}
-		m := HTTPPinger(mon["url"], timeout)
+		m := HTTPPinger(mon["url"], timeout, logger)
 		return m, nil
 	default:
 		return nil, errors.New("unknown monitor type " + mon["type"])

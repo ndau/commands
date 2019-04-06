@@ -1,25 +1,36 @@
 [env]
-HONEYCOMB_KEY = "b5d540e08c05885849ae13cd7886df04"
-HONEYCOMB_DATASET = "devnet"
-FORMAT = "json"
+FORMAT = "text"
+LOGLEVEL = "info"
+
+TASK_A = "A"
+TASK_B = "B"
+TASK_C = "C"
+TASK_D = "D"
+TASK_E = "E"
+
+PORT_A = "12341"
+PORT_B = "12342"
+PORT_C = "12343"
+PORT_D = "12344"
+PORT_E = "12345"
 
 [logger]
 output = "stderr"
 format = "$FORMAT"
-level = "info"
+level = "$LOGLEVEL"
 
 [[task]]
-    name = "parent"
+    name = "$TASK_A"
     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
-        "--port=9999"
+        "--port=$PORT_A"
     ]
     # special values are:
     # "SUPPRESS" (also "") meaning "discard this stream"
     # "HONEYCOMB" sends the message to honeycomb
     # Anything else is a named file
     stdout = ""
-    stderr = "parent.log"
+    stderr = "$TASK_A.log"
     # durations are done as time.Duration
     maxshutdown = "2s"
 
@@ -27,7 +38,7 @@ level = "info"
         name = "health"
         type = "http"
         verb = "GET"
-        url = "http://localhost:9999/health"
+        url = "http://localhost:$PORT_A/health"
         period = "2s"
         timeout = "1s"
 
@@ -35,33 +46,114 @@ level = "info"
         name = "ready"
         type = "http"
         verb = "GET"
-        url = "http://localhost:9999/health"
+        url = "http://localhost:$PORT_A/health"
         timeout = "100ms"
 
-    [[task.monitors]]
-        name = "something else"
-        type = "http"
-        verb = "GET"
-        url = "http://localhost:9999/count/1/5"
-        timeout = "3s"
-        period = "5s"
-
 [[task]]
-    name = "child"
+    name = "$TASK_B"
     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
-    args = [ "--port=9998" ]
-    parent = "parent"
+    args = [
+        "--port=$PORT_B"
+    ]
+    parent = "$TASK_A"
+    stdout = ""
+    stderr = "$TASK_B.log"
+    # durations are done as time.Duration
+    maxshutdown = "2s"
 
     [[task.monitors]]
         name = "health"
         type = "http"
-        url = "http://localhost:9999/health"
+        verb = "GET"
+        url = "http://localhost:$PORT_B/health"
+        period = "2s"
         timeout = "1s"
-        period =  "2s"
 
     [[task.monitors]]
         name = "ready"
         type = "http"
-        url = "http://localhost:9999/health"
+        verb = "GET"
+        url = "http://localhost:$PORT_B/health"
         timeout = "100ms"
+
+# [[task]]
+#     name = "$TASK_C"
+#     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+#     args = [
+#         "--port=$PORT_C"
+#     ]
+#     parent = "$TASK_B"
+#     stdout = ""
+#     stderr = "$TASK_C.log"
+#     # durations are done as time.Duration
+#     maxshutdown = "2s"
+
+#     [[task.monitors]]
+#         name = "health"
+#         type = "http"
+#         verb = "GET"
+#         url = "http://localhost:$PORT_C/health"
+#         period = "2s"
+#         timeout = "1s"
+
+#     [[task.monitors]]
+#         name = "ready"
+#         type = "http"
+#         verb = "GET"
+#         url = "http://localhost:$PORT_C/health"
+#         timeout = "100ms"
+
+# [[task]]
+#     name = "$TASK_D"
+#     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+#     args = [
+#         "--port=$PORT_D"
+#     ]
+#     parent = "$TASK_C"
+#     stdout = ""
+#     stderr = "$TASK_D.log"
+#     # durations are done as time.Duration
+#     maxshutdown = "2s"
+
+#     [[task.monitors]]
+#         name = "health"
+#         type = "http"
+#         verb = "GET"
+#         url = "http://localhost:$PORT_D/health"
+#         period = "2s"
+#         timeout = "1s"
+
+#     [[task.monitors]]
+#         name = "ready"
+#         type = "http"
+#         verb = "GET"
+#         url = "http://localhost:$PORT_D/health"
+#         timeout = "100ms"
+
+# [[task]]
+#     name = "$TASK_E"
+#     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+#     args = [
+#         "--port=$PORT_E"
+#     ]
+#     parent = "$TASK_D"
+#     stdout = ""
+#     stderr = "$TASK_E.log"
+#     # durations are done as time.Duration
+#     maxshutdown = "2s"
+
+#     [[task.monitors]]
+#         name = "health"
+#         type = "http"
+#         verb = "GET"
+#         url = "http://localhost:$PORT_E/health"
+#         period = "2s"
+#         timeout = "1s"
+
+#     [[task.monitors]]
+#         name = "ready"
+#         type = "http"
+#         verb = "GET"
+#         url = "http://localhost:$PORT_E/health"
+#         timeout = "100ms"
 

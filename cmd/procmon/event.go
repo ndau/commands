@@ -15,6 +15,7 @@ const (
 	Failing  Event = iota
 	Failed   Event = iota
 	Stopping Event = iota
+	Drain    Event = iota
 )
 
 // Eventer is an interface for an object that is carrying an event

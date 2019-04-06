@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"reflect"
 	"regexp"
 )
@@ -49,7 +48,6 @@ func bb(i interface{}) {
 	if k == reflect.Ptr {
 		i = reflect.ValueOf(i).Elem().Interface()
 	}
-	fmt.Printf("%v", i)
 }
 
 // func interpolateAll(data interface{}, em map[string]string) interface{} {

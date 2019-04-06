@@ -19,6 +19,9 @@ import (
 // The task can also be given a set of monitors that can also
 // watch the task for incorrect performance; they also communicate
 // on the status channel.
+// The task's monitors listen on a done channel for the task; when the
+// task is detected to have failed, that done channel is closed and the
+// monitors shut down (the status channel is drained to prevent leaks).
 // If the status channel receives a termination notice, the task is
 // shut down if it was not already stopped.
 // When a task stops, its child tasks are also shut down.
@@ -42,13 +45,11 @@ type Task struct {
 	FailCount   int
 	Monitors    []*Monitor
 	Prerun      []*Task
-
-	mutex      sync.Mutex
-	Stopping   bool
-	Dependents []*Task
+	Dependents  []*Task
 
 	cmd    *exec.Cmd
 	cancel context.CancelFunc
+	done   chan struct{}
 }
 
 // NewTask creates a Task (but does not start it)
@@ -60,7 +61,7 @@ func NewTask(name string, path string, args ...string) *Task {
 		Args:        args,
 		MaxStartup:  10 * time.Second,
 		MaxShutdown: 5 * time.Second,
-		Status:      make(chan Eventer),
+		Status:      make(chan Eventer, 1),
 		Ready:       func() Eventer { return OK },
 		Monitors:    make([]*Monitor, 0),
 	}
@@ -70,12 +71,17 @@ func NewTask(name string, path string, args ...string) *Task {
 func (t *Task) Listen(done chan struct{}) {
 	for {
 		select {
+		case <-done:
+			// we're being asked to quit
+			t.Logger.Info("done channel closed; listener shutting down")
+			return
 		case e := <-t.Status:
+			t.Logger.WithField("status", e).Info("listener")
 			if IsFailed(e) {
-				if t.Stopping {
-					t.Logger.Debug("ignoring automatic shutdown -- already stopping")
-					continue
-				}
+				t.Logger.Info("shutdown and restart")
+				// we need to shut down, so turn off all our monitors
+				t.StopMonitors()
+				// record the fact that we failed
 				t.FailCount++
 				logger := t.Logger.WithField("failcount", t.FailCount)
 				if err, ok := e.(ErrorEvent); ok {
@@ -86,6 +92,9 @@ func (t *Task) Listen(done chan struct{}) {
 				// make sure the task and its children are gone
 				t.Kill()
 				// For every failure, wait a bit longer to restart
+				// TODO: increment something on fail and decrement it
+				// on success so we don't wait a long time to restart tasks
+				// that don't fail often.
 				pause := time.Duration(t.FailCount+1) * time.Second
 				time.Sleep(pause)
 				// and then start it again
@@ -94,7 +103,6 @@ func (t *Task) Listen(done chan struct{}) {
 				// start created a new Listener so this one can go away
 				return
 			}
-			t.Logger.Debug("looping")
 		}
 	}
 }
@@ -121,9 +129,7 @@ func (t *Task) Start(done chan struct{}) {
 	}
 
 	t.Logger.Info("Starting")
-	ctx, cancel := context.WithCancel(context.Background())
-
-	t.cmd = exec.CommandContext(ctx, t.Path, t.Args...)
+	t.cmd = exec.Command(t.Path, t.Args...)
 
 	if t.Stdout != nil {
 		pipe, err := t.cmd.StdoutPipe()
@@ -145,18 +151,22 @@ func (t *Task) Start(done chan struct{}) {
 
 	t.cancel = func() {
 		t.Logger.WithField("pid", t.cmd.Process.Pid).Print("cancelling task")
-		cancel()
+		if t.cmd.Process == nil {
+			t.Logger.Info("process was already killed")
+			return
+		}
+		err := t.cmd.Process.Kill()
+		if err != nil {
+			t.Logger.WithError(err).Error("unable to kill process")
+			return
+		}
 		state, err := t.cmd.Process.Wait()
 		if err != nil {
 			t.Logger.WithError(err).Error("cancel error")
+			return
 		}
 		t.Logger.WithField("processstate", state).Info("terminated")
 	}
-
-	// clear the stopping flag
-	t.mutex.Lock()
-	t.Stopping = false
-	t.mutex.Unlock()
 
 	// start the task and wait for it to be ready
 	t.Logger.Info("Running process")
@@ -205,55 +215,82 @@ func (t *Task) Start(done chan struct{}) {
 	}
 	t.Logger.WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
 
-	// the task is running so we can start its monitors
-	for _, m := range t.Monitors {
-		go m.Listen(done)
-	}
-	t.Logger.WithField("monitorcount", len(t.Monitors)).Debug("monitors started")
+	// the task is running now, start monitoring it
+	// this creates t.done
+	t.StartMonitors()
 
 	// now we can start any dependent children
-	// we want the unlock to happen before the Wait() so this is in a func
-	func() {
-		t.Logger.Info("starting children")
-		t.mutex.Lock()
-		defer t.mutex.Unlock()
-
-		// we're going to start all the children in parallel and wait until
-		// the slowest of them gets going
-		wg := sync.WaitGroup{}
-		for _, ch := range t.Dependents {
-			// copy ch
-			ch := ch
-			wg.Add(1)
-			go func() {
-				ch.Start(done)
-				wg.Done()
-			}()
-		}
-		wg.Wait()
-	}()
-	t.Logger.Debug("done with children")
+	t.StartChildren(done)
 
 	// and then spin off a goroutine that will tell us if it dies
 	go func() {
-		t.cmd.Wait()
+		err := t.cmd.Wait()
+		if err != nil {
+			t.Logger.WithError(err).Error("task terminated")
+		}
+		t.Logger.Warn("terminated")
 		t.Status <- Failed
 	}()
 
-	// now we need to monitor for that death
-	go t.Listen(done)
+	// finally, we need to start a monitor to listen to the status channel
+	go t.Listen(t.done)
+}
+
+// StartChildren starts all of the task's children
+func (t *Task) StartChildren(done chan struct{}) {
+	t.Logger.Info("starting children")
+
+	// we're going to start all the children in parallel and wait until
+	// the slowest of them gets going
+	wg := sync.WaitGroup{}
+	for _, ch := range t.Dependents {
+		// copy ch
+		ch := ch
+		wg.Add(1)
+		go func() {
+			ch.Start(done)
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	t.Logger.Debug("done with children")
+}
+
+// StartMonitors creates the done channel for the task
+// and starts all the associated monitors with it
+func (t *Task) StartMonitors() {
+	t.done = make(chan struct{})
+	for _, m := range t.Monitors {
+		go m.Listen(t.done)
+	}
+	t.Logger.WithField("monitorcount", len(t.Monitors)).Debug("monitors started")
+}
+
+// StopMonitors stops all the monitors associated with this task and
+// drains the Status channel
+func (t *Task) StopMonitors() {
+	// close the done channel
+	close(t.done)
+	// sleep briefly to give other tasks a chance to run
+	time.Sleep(100 * time.Millisecond)
+	// post a semaphore to the Status channel
+	t.Status <- Drain
+	// now read until we get a Drain back; since
+	// we're the only one who will ever post a Drain, we know we have
+	// drained the channel when we get there.
+	for {
+		stat := <-t.Status
+		if stat == Drain {
+			break
+		}
+	}
+	t.Logger.Debug("monitors stopped")
 }
 
 // Kill ends a running task and all of its children
 func (t *Task) Kill() {
 	// record that we're stopping so we don't try to start things up again
 	t.Logger.Warn("starting to kill process descendants")
-	func() {
-		t.mutex.Lock()
-		defer t.mutex.Unlock()
-		t.Stopping = true
-	}()
-
 	t.killDependents()
 	if !t.Exited() {
 		t.Logger.Info("shutting down")
@@ -285,9 +322,6 @@ func (t *Task) killDependents() {
 	if len(t.Dependents) == 0 {
 		return
 	}
-	t.Logger.Info("Killing dependents")
-	t.mutex.Lock()
-	defer t.mutex.Unlock()
 	wg := sync.WaitGroup{}
 	for _, ch := range t.Dependents {
 		ch := ch
@@ -329,8 +363,6 @@ func (t *Task) Exited() bool {
 // will also be terminated. Similarly, when this task is started, after the task
 // is alive, its children will also be started.
 func (t *Task) AddDependent(ch *Task) {
-	t.mutex.Lock()
-	defer t.mutex.Unlock()
 	t.Dependents = append(t.Dependents, ch)
 }
 
