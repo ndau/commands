@@ -45,12 +45,49 @@ func (m *Monitor) Listen(done chan struct{}) {
 	}
 }
 
+// FailMonitor wraps a monitor and only sends Failure events; it sends one
+// when it receives one from its wrapped monitor.
+type FailMonitor struct {
+	Child  *Monitor
+	Status chan Eventer
+}
+
+// asserts that FailMonitor is in fact a Listener
+var _ Listener = (*FailMonitor)(nil)
+
+// NewFailMonitor creates a FailMonitor from a Monitor
+func NewFailMonitor(child *Monitor) *FailMonitor {
+	fm := FailMonitor{
+		Child:  child,
+		Status: child.Status,
+	}
+	child.Status = make(chan Eventer)
+	return &fm
+}
+
+// Listen implements listener, and should be called as a goroutine.
+// It returns Stop when its child monitor returns Failed or Stop,
+// otherwise it swallows the event.
+func (m *FailMonitor) Listen(done chan struct{}) {
+	go m.Child.Listen(done)
+	for {
+		select {
+		case <-done:
+			return
+		case stat := <-m.Child.Status:
+			if stat == Failed || stat == Stop {
+				m.Status <- Stop
+			}
+		}
+	}
+}
+
 // RetryMonitor wraps a monitor and will only fail after receiving a number of
 // successive failures that exceeds the Retries value.
 // Note that this won't reliably detect an intermittent problem. For that,
 // consider a LeakyBucketMonitor.
 type RetryMonitor struct {
-	M           *Monitor
+	Child       *Monitor
 	Retries     int
 	test        func() Eventer
 	status      chan Eventer
@@ -64,7 +101,7 @@ var _ Listener = (*RetryMonitor)(nil)
 // NewRetryMonitor wraps an existing monitor with retry logic.
 func NewRetryMonitor(m *Monitor, retries int) *RetryMonitor {
 	rm := &RetryMonitor{
-		M:           m,
+		Child:       m,
 		Retries:     retries,
 		status:      m.Status,
 		childStatus: make(chan Eventer),
@@ -74,7 +111,7 @@ func NewRetryMonitor(m *Monitor, retries int) *RetryMonitor {
 	// the system worked
 	m.Test = func() Eventer {
 		e := rm.test()
-		if IsOK(e) {
+		if e == OK {
 			rm.failCount = 0
 		}
 		return e
@@ -86,15 +123,16 @@ func NewRetryMonitor(m *Monitor, retries int) *RetryMonitor {
 // Listen implements Listener for RetryMonitor.
 // It should be called as a goroutine.
 func (m *RetryMonitor) Listen(done chan struct{}) {
+	go m.Child.Listen(done)
 	for {
 		select {
 		case <-done:
 			return
 		case e := <-m.childStatus:
-			if IsFailed(e) {
+			if e == Failed || e == Stop {
 				m.failCount++
 				if m.failCount > m.Retries {
-					m.status <- e
+					m.status <- Stop
 				} else {
 					m.status <- Failing
 				}

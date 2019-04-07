@@ -222,7 +222,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 				if err != nil {
 					return nil, err
 				}
-				nm := NewMonitor(t.Status, period, m)
+				nm := NewFailMonitor(NewMonitor(t.Status, period, m))
 				t.Monitors = append(t.Monitors, nm)
 			}
 		}

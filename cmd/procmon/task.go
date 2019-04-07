@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"io"
 	"os/exec"
 	"sync"
@@ -10,6 +9,64 @@ import (
 
 	"github.com/sirupsen/logrus"
 )
+
+// Each task publishes and listens to a Status channel. Any sender can
+// send a Stop event on that channel.
+// Other events are also permitted, and can be used to communicate
+// between tasks or between monitors and tasks. However, the Stop
+// event takes precedence and forces shutdown of the task.
+//
+// Each task also publishes a Stopped channel.
+// All of the task's monitors and dependents should listen on the
+// Stopped channel, and when that channel is closed,
+// they should also terminate themselves (and propagate that
+// information to their listeners in turn).
+//
+// It is safe for multiple monitors to send Stop events.
+//
+// Each task also listens to the Stopped channel of its dependents.
+// If any of a task's dependents stop without having been
+// stopped by the parent, then the dependent will be restarted.
+//
+// At the base level, tasks without a parent in the config are
+// actually children of a master task. If the master task is
+// shut down it will not be automatically restarted.
+//
+// Start (parentstop):
+//     run prefix tasks
+//     run task
+//     wait for task to start
+//     create stop channel
+//     run master monitor(parentstop, stop)
+//     run task exit monitor (stop)
+//     run all other monitors (stop)
+//     run children (stop)
+//     run
+
+// master monitor:
+//     if status gets Stop message
+//         close taskstop
+//         terminate
+//     if parentstop closed, close taskstop, terminate
+
+// stopMonitor:
+//     if t.Stopped is closed:
+//         kill task
+//         terminate
+
+// task exit monitor(status, stop):
+//     if task exits send stop on status
+
+// other monitors:
+//     if task fails send stop on status
+//     if stop closed terminate
+
+// child monitor:
+//     if child's stop is closed:
+//         record it
+//         wait for fallback time
+//         call child.Start() only if parent task is not Stopped
+// child
 
 // Task is a restartable process; it can be monitored and
 // restarted.
@@ -20,116 +77,153 @@ import (
 // watch the task for incorrect performance; they also communicate
 // on the status channel.
 // The task's monitors listen on a done channel for the task; when the
-// task is detected to have failed, that done channel is closed and the
+// Failed status gets sent to the status channel, the done channel is closed and the
 // monitors shut down (the status channel is drained to prevent leaks).
-// If the status channel receives a termination notice, the task is
-// shut down if it was not already stopped.
 // When a task stops, its child tasks are also shut down.
 // During shutdown, the tasks that are being deliberately terminated
 // will not be automatically restarted.
 // Once a task and all of its children have been shut down, the task is
 // then restarted (which will cause all of its children also to restart).
 type Task struct {
-	Name        string
-	Path        string
-	Args        []string
-	Env         []string
-	Onetime     bool
-	MaxShutdown time.Duration
-	MaxStartup  time.Duration
-	Status      chan Eventer
-	Ready       func() Eventer
-	Stdout      io.WriteCloser
-	Stderr      io.WriteCloser
-	Logger      logrus.FieldLogger
-	FailCount   int
-	Monitors    []*Monitor
-	Prerun      []*Task
-	Dependents  []*Task
+	Name         string
+	Path         string
+	Args         []string
+	Env          []string
+	Onetime      bool
+	MaxShutdown  time.Duration
+	MaxStartup   time.Duration
+	Status       chan Eventer
+	Stopped      chan struct{}
+	Ready        func() Eventer
+	Stdout       io.WriteCloser
+	Stderr       io.WriteCloser
+	Logger       logrus.FieldLogger
+	FailCount    int
+	RestartDelay time.Duration
+	Monitors     []*FailMonitor
+	Prerun       []*Task
+	Dependents   []*Task
 
-	cmd    *exec.Cmd
-	cancel context.CancelFunc
-	done   chan struct{}
+	cmd   *exec.Cmd
+	dying bool
 }
 
 // NewTask creates a Task (but does not start it)
 // The default Ready() function simply returns true
 func NewTask(name string, path string, args ...string) *Task {
 	return &Task{
-		Name:        name,
-		Path:        path,
-		Args:        args,
-		MaxStartup:  10 * time.Second,
-		MaxShutdown: 5 * time.Second,
-		Status:      make(chan Eventer, 1),
-		Ready:       func() Eventer { return OK },
-		Monitors:    make([]*Monitor, 0),
+		Name:         name,
+		Path:         path,
+		Args:         args,
+		MaxStartup:   10 * time.Second,
+		MaxShutdown:  5 * time.Second,
+		Ready:        func() Eventer { return OK },
+		Monitors:     make([]*FailMonitor, 0),
+		RestartDelay: time.Second,
 	}
 }
 
-// Listen implements Listener, and should be called as a goroutine.
-func (t *Task) Listen(done chan struct{}) {
+// The masterMonitor is listening to the task's
+// Status channel and if it receives a stop message,
+// is the only place the t.Stopped channel is closed.
+// If the parent task's Stopped channel is closed,
+// it closes this task's Stopped channel also.
+func (t *Task) masterMonitor(parentstop chan struct{}) {
 	for {
 		select {
-		case <-done:
-			// we're being asked to quit
-			t.Logger.Info("done channel closed; listener shutting down")
+		case <-parentstop:
+			t.Logger.Info("parent task stopped; shutting down")
+			close(t.Stopped)
+			time.Sleep(50 * time.Millisecond)
 			return
 		case e := <-t.Status:
-			t.Logger.WithField("status", e).Info("listener")
-			if IsFailed(e) {
-				t.Logger.Info("shutdown and restart")
-				// we need to shut down, so turn off all our monitors
-				t.StopMonitors()
-				// record the fact that we failed
-				t.FailCount++
-				logger := t.Logger.WithField("failcount", t.FailCount)
-				if err, ok := e.(ErrorEvent); ok {
-					logger.WithError(err).Warn("task failed with error")
-				} else {
-					logger.WithField("code", e.Code()).Warn("task failed")
-				}
-				// make sure the task and its children are gone
-				t.Kill()
-				// For every failure, wait a bit longer to restart
-				// TODO: increment something on fail and decrement it
-				// on success so we don't wait a long time to restart tasks
-				// that don't fail often.
-				pause := time.Duration(t.FailCount+1) * time.Second
-				time.Sleep(pause)
-				// and then start it again
-				logger.Warn("restarting after failure")
-				t.Start(done)
-				// start created a new Listener so this one can go away
+			t.Logger.WithField("status", e).Debug("event")
+			if e == Stop {
+				t.Logger.Warn("received Stop message; shutting down")
+				close(t.Stopped)
+				time.Sleep(50 * time.Millisecond)
 				return
 			}
 		}
 	}
 }
 
-// streamCopy is meant to be run as a goroutine and it simply runs, copying
-// src to dst until src is closed.
-func streamCopy(dst io.WriteCloser, src io.ReadCloser) {
-	// we want a small buffer so it keeps the output current with the input
-	buf := make([]byte, 100)
-	// copy until we got nothing left
-	io.CopyBuffer(dst, src, buf)
+// The exitMonitor waits for the task itself to exit
+// and then sends the Stop message on its Status channel.
+// It should be launched as a goroutine and will not
+// terminate until the task does.
+func (t *Task) exitMonitor() {
+	err := t.cmd.Wait()
+	if err != nil {
+		t.Logger.WithError(err).Error("task terminated")
+	} else {
+		t.Logger.Warn("terminated")
+	}
+	t.Status <- Stop
 }
 
-// Start begins a new version of the task.
-func (t *Task) Start(done chan struct{}) {
-	// run the prerun tasks first
-	for _, prerun := range t.Prerun {
-		prerun.Start(done)
+// The childMonitor is given a child task;
+// If the child task's Stopped channel is closed
+// before the current task, childMonitor:
+// * waits the child's startDelay amount of time
+// * increases the child's startDelay (to try to slow down
+//   a task that's flapping)
+// * call child.Start()
+// If the current task's Stopped channel is closed, this
+// monitor terminates
+// It also reduces restart time if a task is well-behaved after having failed.
+func (t *Task) childMonitor(child *Task) {
+	const defaultRestartDelay = 10 * time.Second
+	for {
+		select {
+		case <-time.After(t.RestartDelay):
+			// we double the RestartDelay every time the task restarts,
+			// and we reduce it asymptotically to the default value
+			// as the task lives longer without restarting
+			t.RestartDelay = defaultRestartDelay +
+				((t.RestartDelay-defaultRestartDelay)*9)/10
+		case <-t.Stopped:
+			return
+		case <-child.Stopped:
+			// we want to delay for the sleep time but
+			// we don't want to miss it if our task is stopped
+			// because we don't want to restart the child
+			// if its parent is restarting
+			select {
+			case <-time.After(child.RestartDelay):
+				child.FailCount++
+				child.RestartDelay *= 2
+				// this will replace the child's Stopped channel
+				child.Start(t.Stopped)
+			case <-t.Stopped:
+				return
+			}
+		}
 	}
+}
 
-	// if the task's path is empty, it's just a placeholder for prerun and we're done
-	if t.Path == "" {
-		return
+// stopMonitor is the one that listens to the Stopped channel
+// and shuts the task down when it's stopped
+func (t *Task) stopMonitor() {
+	for {
+		select {
+		case <-t.Stopped:
+			t.Logger.Info("Stopped channel closed; killing task")
+			t.Kill()
+			return
+		}
 	}
+}
 
-	t.Logger.Info("Starting")
-	t.cmd = exec.Command(t.Path, t.Args...)
+func (t *Task) setOutputStreams() {
+	// streamCopy is meant to be run as a goroutine and it simply runs, copying
+	// src to dst until src is closed. It's used for logging.
+	streamCopy := func(dst io.WriteCloser, src io.ReadCloser) {
+		// we want a small buffer so it keeps the output current with the input
+		buf := make([]byte, 100)
+		// copy until we got nothing left
+		io.CopyBuffer(dst, src, buf)
+	}
 
 	if t.Stdout != nil {
 		pipe, err := t.cmd.StdoutPipe()
@@ -148,25 +242,23 @@ func (t *Task) Start(done chan struct{}) {
 			go streamCopy(t.Stderr, pipe)
 		}
 	}
+}
 
-	t.cancel = func() {
-		t.Logger.WithField("pid", t.cmd.Process.Pid).Print("cancelling task")
-		if t.cmd.Process == nil {
-			t.Logger.Info("process was already killed")
-			return
-		}
-		err := t.cmd.Process.Kill()
-		if err != nil {
-			t.Logger.WithError(err).Error("unable to kill process")
-			return
-		}
-		state, err := t.cmd.Process.Wait()
-		if err != nil {
-			t.Logger.WithError(err).Error("cancel error")
-			return
-		}
-		t.Logger.WithField("processstate", state).Info("terminated")
+// Start begins a new version of the task.
+func (t *Task) Start(parentstop chan struct{}) {
+	// run the prerun tasks first
+	for _, prerun := range t.Prerun {
+		prerun.Start(parentstop)
 	}
+
+	// if the task's path is empty, it's just a placeholder for prerun and we're done
+	if t.Path == "" {
+		return
+	}
+
+	t.Logger.Info("Starting")
+	t.cmd = exec.Command(t.Path, t.Args...)
+	t.setOutputStreams()
 
 	// start the task and wait for it to be ready
 	t.Logger.Info("Running process")
@@ -200,7 +292,7 @@ func (t *Task) Start(done chan struct{}) {
 	looptime := 50 * time.Millisecond
 	loopticker := time.NewTicker(looptime)
 	toolong := time.NewTimer(t.MaxStartup)
-	for !IsOK(t.Ready()) {
+	for t.Ready() != OK {
 		select {
 		case <-loopticker.C:
 			if t.Exited() {
@@ -215,29 +307,25 @@ func (t *Task) Start(done chan struct{}) {
 	}
 	t.Logger.WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
 
-	// the task is running now, start monitoring it
-	// this creates t.done
-	t.StartMonitors()
+	// now we need the Status channel
+	t.Status = make(chan Eventer, 1)
+	// make a Stopped channel
+	t.Stopped = make(chan struct{})
 
-	// now we can start any dependent children
-	t.StartChildren(done)
-
-	// and then spin off a goroutine that will tell us if it dies
-	go func() {
-		err := t.cmd.Wait()
-		if err != nil {
-			t.Logger.WithError(err).Error("task terminated")
-		}
-		t.Logger.Warn("terminated")
-		t.Status <- Failed
-	}()
-
+	// run the masterMonitor
+	go t.masterMonitor(parentstop)
+	// spin off a goroutine that will tell us if it dies
+	go t.exitMonitor()
 	// finally, we need to start a monitor to listen to the status channel
-	go t.Listen(t.done)
+	go t.stopMonitor()
+	// the task is running now, start all the behavior monitors
+	t.startBehaviorMonitors()
+	// now we can start any dependent children
+	t.StartChildren()
 }
 
 // StartChildren starts all of the task's children
-func (t *Task) StartChildren(done chan struct{}) {
+func (t *Task) StartChildren() {
 	t.Logger.Info("starting children")
 
 	// we're going to start all the children in parallel and wait until
@@ -248,7 +336,9 @@ func (t *Task) StartChildren(done chan struct{}) {
 		ch := ch
 		wg.Add(1)
 		go func() {
-			ch.Start(done)
+			ch.Start(t.Stopped)
+			// start a child monitor to keep it running
+			go t.childMonitor(ch)
 			wg.Done()
 		}()
 	}
@@ -256,59 +346,53 @@ func (t *Task) StartChildren(done chan struct{}) {
 	t.Logger.Debug("done with children")
 }
 
-// StartMonitors creates the done channel for the task
-// and starts all the associated monitors with it
-func (t *Task) StartMonitors() {
-	t.done = make(chan struct{})
+// startBehaviorMonitors starts all the monitors
+// that watch the task's behavior for insanity
+func (t *Task) startBehaviorMonitors() {
 	for _, m := range t.Monitors {
-		go m.Listen(t.done)
+		go m.Listen(t.Stopped)
 	}
-	t.Logger.WithField("monitorcount", len(t.Monitors)).Debug("monitors started")
+	t.Logger.WithField("monitorcount", len(t.Monitors)).Debug("behavior monitors started")
 }
 
-// StopMonitors stops all the monitors associated with this task and
-// drains the Status channel
-func (t *Task) StopMonitors() {
-	// close the done channel
-	close(t.done)
-	// sleep briefly to give other tasks a chance to run
-	time.Sleep(100 * time.Millisecond)
-	// post a semaphore to the Status channel
-	t.Status <- Drain
-	// now read until we get a Drain back; since
-	// we're the only one who will ever post a Drain, we know we have
-	// drained the channel when we get there.
-	for {
-		stat := <-t.Status
-		if stat == Drain {
-			break
+// waitForShutdown assumes the task has already begun shutdown and
+// that we just have to wait for it.
+func (t *Task) waitForShutdown() {
+	looptime := t.MaxShutdown / 64
+	looptimer := time.NewTimer(looptime)
+	toolong := time.NewTimer(t.MaxShutdown)
+	for !t.Exited() {
+		select {
+		case <-looptimer.C:
+			// go check again
+			looptime *= 2
+			looptimer.Reset(looptime)
+		case <-toolong.C:
+			t.Logger.Error("did not shut down nicely, killing it")
+			t.Destroy()
 		}
 	}
-	t.Logger.Debug("monitors stopped")
 }
 
 // Kill ends a running task and all of its children
+// In a properly functioning system, child tasks should
+// have already been notified, but this will ensure
+// that they shut down and that we wait for it
 func (t *Task) Kill() {
-	// record that we're stopping so we don't try to start things up again
-	t.Logger.Warn("starting to kill process descendants")
+	// if we're already shutting down, just wait for it
+	if t.dying {
+		t.waitForShutdown()
+		return
+	}
+
+	// record that we're stopping
+	t.dying = true
+	t.Logger.Warn("starting to kill process")
 	t.killDependents()
 	if !t.Exited() {
 		t.Logger.Info("shutting down")
 		t.cmd.Process.Signal(syscall.SIGTERM)
-		looptime := t.MaxShutdown / 64
-		looptimer := time.NewTimer(looptime)
-		toolong := time.NewTimer(t.MaxShutdown)
-		for !t.Exited() {
-			select {
-			case <-looptimer.C:
-				// go check again
-				looptime *= 2
-				looptimer.Reset(looptime)
-			case <-toolong.C:
-				t.Logger.Error("did not shut down nicely, killing it")
-				t.cancel()
-			}
-		}
+		t.waitForShutdown()
 	}
 	t.Logger.Debug("done killing")
 	return
@@ -366,17 +450,30 @@ func (t *Task) AddDependent(ch *Task) {
 	t.Dependents = append(t.Dependents, ch)
 }
 
-// Destroy does an os-level kill on a task
+// Destroy does an os-level kill on a task and all its dependents
 // Use only as a last resort.
 func (t *Task) Destroy() {
 	for _, ch := range t.Dependents {
 		ch.Destroy()
 	}
-	pid := t.cmd.Process.Pid
-	t.Logger.WithField("pid", pid).Error("trying to force shut down")
-	t.cmd.Process.Kill()
+
+	if t.cmd == nil || t.cmd.Process == nil {
+		t.Logger.Error("destroy called with no process to kill")
+		return
+	}
+	t.Logger.WithField("pid", t.cmd.Process.Pid).Print("cancelling task")
+	err := t.cmd.Process.Kill()
+	if err != nil {
+		t.Logger.WithError(err).Error("unable to kill process")
+		return
+	}
 	state, err := t.cmd.Process.Wait()
-	t.Logger.Printf("shutdown state %v, err %v", state, err)
+	if err != nil {
+		t.Logger.WithError(err).Error("cancel error")
+		return
+	}
+	t.Logger.WithField("processstate", state).Info("terminated")
+
 }
 
 // CollectPIDs appends this task's PID plus those of all its dependents
@@ -385,7 +482,7 @@ func (t *Task) CollectPIDs(pids []int) []int {
 	for _, ch := range t.Dependents {
 		pids = ch.CollectPIDs(pids)
 	}
-	if t.cmd.Process != nil {
+	if t.cmd != nil && t.cmd.Process != nil {
 		pid := t.cmd.Process.Pid
 		pids = append(pids, pid)
 	}

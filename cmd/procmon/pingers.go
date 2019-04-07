@@ -25,10 +25,13 @@ func HTTPPinger(u string, timeout time.Duration, logger *logrus.Logger) func() E
 		logger.WithField("url", u).WithField("pinger", "HTTPPinger").Debug("pinging")
 		resp, err := client.Do(req)
 		if err != nil {
+			logger.WithField("url", u).WithField("pinger", "HTTPPinger").Debug("error from request")
 			return NewErrorEvent(Failed, err)
 		}
 		resp.Body.Close()
 		if resp.StatusCode > 299 || resp.StatusCode < 200 {
+			logger.WithField("url", u).WithField("pinger", "HTTPPinger").
+				WithField("status", resp.StatusCode).Debug("got bad status")
 			return NewErrorEvent(Failed, fmt.Errorf("Got status code %d (%s) from %s",
 				resp.StatusCode, resp.Status, u))
 		}

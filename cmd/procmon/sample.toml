@@ -76,84 +76,84 @@ level = "$LOGLEVEL"
         url = "http://localhost:$PORT_B/health"
         timeout = "100ms"
 
-# [[task]]
-#     name = "$TASK_C"
-#     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
-#     args = [
-#         "--port=$PORT_C"
-#     ]
-#     parent = "$TASK_B"
-#     stdout = ""
-#     stderr = "$TASK_C.log"
-#     # durations are done as time.Duration
-#     maxshutdown = "2s"
+[[task]]
+    name = "$TASK_C"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    args = [
+        "--port=$PORT_C"
+    ]
+    parent = "$TASK_B"
+    stdout = ""
+    stderr = "$TASK_C.log"
+    # durations are done as time.Duration
+    maxshutdown = "2s"
 
-#     [[task.monitors]]
-#         name = "health"
-#         type = "http"
-#         verb = "GET"
-#         url = "http://localhost:$PORT_C/health"
-#         period = "2s"
-#         timeout = "1s"
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:$PORT_C/health"
+        period = "2s"
+        timeout = "1s"
 
-#     [[task.monitors]]
-#         name = "ready"
-#         type = "http"
-#         verb = "GET"
-#         url = "http://localhost:$PORT_C/health"
-#         timeout = "100ms"
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:$PORT_C/health"
+        timeout = "100ms"
 
-# [[task]]
-#     name = "$TASK_D"
-#     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
-#     args = [
-#         "--port=$PORT_D"
-#     ]
-#     parent = "$TASK_C"
-#     stdout = ""
-#     stderr = "$TASK_D.log"
-#     # durations are done as time.Duration
-#     maxshutdown = "2s"
+[[task]]
+    name = "$TASK_D"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    args = [
+        "--port=$PORT_D"
+    ]
+    parent = "$TASK_C"
+    stdout = ""
+    stderr = "$TASK_D.log"
+    # durations are done as time.Duration
+    maxshutdown = "2s"
 
-#     [[task.monitors]]
-#         name = "health"
-#         type = "http"
-#         verb = "GET"
-#         url = "http://localhost:$PORT_D/health"
-#         period = "2s"
-#         timeout = "1s"
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:$PORT_D/health"
+        period = "2s"
+        timeout = "1s"
 
-#     [[task.monitors]]
-#         name = "ready"
-#         type = "http"
-#         verb = "GET"
-#         url = "http://localhost:$PORT_D/health"
-#         timeout = "100ms"
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:$PORT_D/health"
+        timeout = "100ms"
 
-# [[task]]
-#     name = "$TASK_E"
-#     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
-#     args = [
-#         "--port=$PORT_E"
-#     ]
-#     parent = "$TASK_D"
-#     stdout = ""
-#     stderr = "$TASK_E.log"
-#     # durations are done as time.Duration
-#     maxshutdown = "2s"
+[[task]]
+    name = "$TASK_E"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    args = [
+        "--port=$PORT_E"
+    ]
+    parent = "$TASK_D"
+    stdout = ""
+    stderr = "$TASK_E.log"
+    # durations are done as time.Duration
+    maxshutdown = "2s"
 
-#     [[task.monitors]]
-#         name = "health"
-#         type = "http"
-#         verb = "GET"
-#         url = "http://localhost:$PORT_E/health"
-#         period = "2s"
-#         timeout = "1s"
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:$PORT_E/health"
+        period = "2s"
+        timeout = "1s"
 
-#     [[task.monitors]]
-#         name = "ready"
-#         type = "http"
-#         verb = "GET"
-#         url = "http://localhost:$PORT_E/health"
-#         timeout = "100ms"
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        verb = "GET"
+        url = "http://localhost:$PORT_E/health"
+        timeout = "100ms"
 

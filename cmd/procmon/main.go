@@ -66,43 +66,35 @@ func main() {
 		logger.WithError(err).Fatal("problems running prologue")
 	}
 
-	rootTasks, err := cfg.BuildTasks(logger)
+	mainTasks, err := cfg.BuildTasks(logger)
 	// if we can't read the tasks we shouldn't even continue
 	if err != nil {
 		logger.WithError(err).Fatal("aborting because task file was invalid")
 	}
 
-	// this is the channel we can use to shut everything down
-	donech := make(chan struct{})
+	// now build a special task to act as the parent of the root tasks
+	root := NewTask("root", "")
+	root.Logger = logger
+	root.Stopped = make(chan struct{})
+	for i := range mainTasks {
+		root.AddDependent(mainTasks[i])
+	}
+	root.StartChildren()
+
 	// when we get SIGINT or SIGTERM, kill everything by telling
 	// the root tasks to kill themselves.
-	// SIGHUP does a shutdown by closing donech which
-	// should basically do the same thing. However, it's
-	// not entirely reliable; better to use SIGTERM if you can.
-	inKillall := false
 	killall := func() {
-		// if they hit ctl-C a second time they must mean it,
-		// just shut down now.
-		if !inKillall {
-			inKillall = true
-			for _, t := range rootTasks {
-				t.Logger.Println("shutting down on command")
-				t.Kill()
-			}
+		for _, t := range mainTasks {
+			t.Logger.Println("shutting down tasks by killing them")
+			t.Kill()
 		}
 		os.Exit(0)
 	}
 	shutdown := func() {
 		logger.Print("shutting down by closing done channel")
-		close(donech)
+		close(root.Stopped)
 	}
-	WatchSignals(shutdown, killall, killall)
-
-	// start the main tasks, which will start everything else
-	for _, t := range rootTasks {
-		t.Logger.Print("starting root task " + t.Name)
-		t.Start(donech)
-	}
+	WatchSignals(killall, shutdown, shutdown)
 
 	// and run almost forever
 	logstatus := time.NewTicker(15 * time.Second)
@@ -110,16 +102,14 @@ func main() {
 		select {
 		case <-logstatus.C:
 			pids := []int{}
-			for _, t := range rootTasks {
-				pids = t.CollectPIDs(pids)
-			}
+			pids = root.CollectPIDs(pids)
 			sort.Sort(sort.IntSlice(pids))
 			logger.WithField("pids", pids).WithField("npids", len(pids)).Print("pidinfo")
-		case <-donech:
+		case <-root.Stopped:
 			logger.Print("done channel was closed")
 			// if we see this, then we were told to shutdown,
 			// but we don't want to do it too early, so loop until
-			// there are no root tasks left that haven't exited.
+			// there are no main tasks left that haven't exited.
 			looptime := 250 * time.Millisecond
 			looptimer := time.NewTimer(looptime)
 			longtime := 75 * time.Second
@@ -128,7 +118,7 @@ func main() {
 				select {
 				case <-looptimer.C:
 					canExit := true
-					for _, t := range rootTasks {
+					for _, t := range mainTasks {
 						if !t.Exited() {
 							canExit = false
 						}
@@ -136,12 +126,12 @@ func main() {
 					if canExit {
 						os.Exit(0)
 					}
-					logger.Printf("waiting for all root tasks to die...")
+					logger.Printf("waiting for all main tasks to die...")
 					looptime *= 2
 					looptimer.Reset(looptime)
 				case <-toolong.C:
 					logger.Error("requested shutdown did not complete within " + longtime.String())
-					for _, t := range rootTasks {
+					for _, t := range mainTasks {
 						t.Destroy()
 					}
 					time.Sleep(1 * time.Second)
