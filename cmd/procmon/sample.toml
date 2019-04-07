@@ -21,6 +21,16 @@ format = "$FORMAT"
 level = "$LOGLEVEL"
 
 [[task]]
+    name = "HUPTASK"
+    path = "/bin/sh"
+    args = [
+        "-c",
+        "echo hello"
+    ]
+    onetime = true
+
+
+[[task]]
     name = "$TASK_A"
     path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [

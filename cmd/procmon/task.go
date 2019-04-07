@@ -270,22 +270,23 @@ func (t *Task) Start(parentstop chan struct{}) {
 		Debug("task info")
 	t.cmd.Env = t.Env
 	t.dying = false
-	err := t.cmd.Start()
-	if err != nil {
-		t.Logger.WithError(err).Error("errored on startup")
-		return
-	}
 
 	// if it's a onetime task, just run it and be done
 	if t.Onetime {
 		t.Logger.Debug("running onetime task")
-		err := t.cmd.Wait()
+		err := t.cmd.Run()
 		if err != nil {
 			t.Logger.WithError(err).Error("onetime task failed")
 			panic(t.Name + " failed but mustsucceed was set")
 		} else {
 			t.Logger.Debug("onetime task succeeded")
 		}
+		return
+	}
+
+	err := t.cmd.Start()
+	if err != nil {
+		t.Logger.WithError(err).Error("errored on startup")
 		return
 	}
 
