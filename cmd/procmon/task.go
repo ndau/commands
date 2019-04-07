@@ -11,9 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Task is a restartable process; it can be monitored and
+// restarted.
+//
 // Each task publishes and listens to a Status channel. Any sender can
 // send a Stop event on that channel.
-// Other events are also permitted, and can be used to communicate
+// Other events are also permitted, and could be used to communicate
 // between tasks or between monitors and tasks. However, the Stop
 // event takes precedence and forces shutdown of the task.
 //
@@ -33,6 +36,8 @@ import (
 // actually children of a master task. If the master task is
 // shut down it will not be automatically restarted.
 //
+// A bit of pseudocode:
+//
 // Start (parentstop):
 //     run prefix tasks
 //     run task
@@ -43,48 +48,30 @@ import (
 //     run all other monitors (stop)
 //     run children (stop)
 //     run
-
+//
 // master monitor:
 //     if status gets Stop message
 //         close taskstop
 //         terminate
 //     if parentstop closed, close taskstop, terminate
-
+//
 // stopMonitor:
 //     if t.Stopped is closed:
 //         kill task
 //         terminate
-
+//
 // task exit monitor(status, stop):
 //     if task exits send stop on status
-
-// other monitors:
+//
+// behavior monitors:
 //     if task fails send stop on status
 //     if stop closed terminate
-
+//
 // child monitor:
 //     if child's stop is closed:
 //         record it
 //         wait for fallback time
 //         call child.Start() only if parent task is not Stopped
-// child
-
-// Task is a restartable process; it can be monitored and
-// restarted.
-// By default, a task is monitored simply as a running process. If the
-// process terminates for any reason, the task's status channel
-// is notified.
-// The task can also be given a set of monitors that can also
-// watch the task for incorrect performance; they also communicate
-// on the status channel.
-// The task's monitors listen on a done channel for the task; when the
-// Failed status gets sent to the status channel, the done channel is closed and the
-// monitors shut down (the status channel is drained to prevent leaks).
-// When a task stops, its child tasks are also shut down.
-// During shutdown, the tasks that are being deliberately terminated
-// will not be automatically restarted.
-// Once a task and all of its children have been shut down, the task is
-// then restarted (which will cause all of its children also to restart).
 type Task struct {
 	Name         string
 	Path         string
@@ -205,8 +192,14 @@ func (t *Task) childMonitor(child *Task) {
 				child.FailCount++
 				child.RestartDelay *= 2
 				// this will replace the child's Stopped channel
+				t.Logger.WithField("child", child.Name).
+					WithField("delay", child.RestartDelay).
+					WithField("failcount", child.FailCount).
+					Debugf("childmonitor restarting child")
 				child.Start(t.Stopped)
 			case <-t.Stopped:
+				t.Logger.WithField("child", child.Name).
+					Debugf("childmonitor detected child stop but parent also stopped")
 				return
 			}
 		}
