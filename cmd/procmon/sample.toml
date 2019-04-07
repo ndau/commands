@@ -1,6 +1,7 @@
 [env]
 FORMAT = "text"
 LOGLEVEL = "info"
+DEFAULT_RESTART_DELAY = "1s"
 
 TASK_A = "A"
 TASK_B = "B"

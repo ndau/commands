@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"os"
 	"os/exec"
 	"sync"
 	"syscall"
@@ -153,13 +154,17 @@ func (t *Task) masterMonitor(parentstop chan struct{}) {
 // It should be launched as a goroutine and will not
 // terminate until the task does.
 func (t *Task) exitMonitor() {
+	// make a copy of the Status chan so
+	// if it gets recreated we don't send a message on
+	// the new one by mistake
+	status := t.Status
 	err := t.cmd.Wait()
 	if err != nil {
 		t.Logger.WithError(err).Error("task terminated")
 	} else {
 		t.Logger.Warn("terminated")
 	}
-	t.Status <- Stop
+	status <- Stop
 }
 
 // The childMonitor is given a child task;
@@ -173,7 +178,13 @@ func (t *Task) exitMonitor() {
 // monitor terminates
 // It also reduces restart time if a task is well-behaved after having failed.
 func (t *Task) childMonitor(child *Task) {
-	const defaultRestartDelay = 10 * time.Second
+	// allow the default restart delay to be overridden in the environment
+	var defaultRestartDelay = 10 * time.Second
+	if s := os.Getenv("DEFAULT_RESTART_DELAY"); s != "" {
+		if drd, err := time.ParseDuration(s); err == nil {
+			defaultRestartDelay = drd
+		}
+	}
 	for {
 		select {
 		case <-time.After(t.RestartDelay):
@@ -205,13 +216,11 @@ func (t *Task) childMonitor(child *Task) {
 // stopMonitor is the one that listens to the Stopped channel
 // and shuts the task down when it's stopped
 func (t *Task) stopMonitor() {
-	for {
-		select {
-		case <-t.Stopped:
-			t.Logger.Info("Stopped channel closed; killing task")
-			t.Kill()
-			return
-		}
+	select {
+	case <-t.Stopped:
+		t.Logger.Info("Stopped channel closed; killing task")
+		t.Kill()
+		return
 	}
 }
 
@@ -267,6 +276,7 @@ func (t *Task) Start(parentstop chan struct{}) {
 		WithField("failcount", t.FailCount).
 		Debug("task info")
 	t.cmd.Env = t.Env
+	t.dying = false
 	err := t.cmd.Start()
 	if err != nil {
 		t.Logger.WithError(err).Error("errored on startup")
@@ -347,7 +357,7 @@ func (t *Task) StartChildren() {
 }
 
 // startBehaviorMonitors starts all the monitors
-// that watch the task's behavior for insanity
+// that watch the task for bad behavior
 func (t *Task) startBehaviorMonitors() {
 	for _, m := range t.Monitors {
 		go m.Listen(t.Stopped)
@@ -372,6 +382,8 @@ func (t *Task) waitForShutdown() {
 			t.Destroy()
 		}
 	}
+	looptimer.Stop()
+	toolong.Stop()
 }
 
 // Kill ends a running task and all of its children
