@@ -3,7 +3,19 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
-# The outside world can look for a SNAPSHOT_RESULT starting with this to handle errors.
+# The name of the snapshot file (or an error message) will be written to this file
+# for the outside world to access.
+SNAPSHOT_RESULT="$SCRIPT_DIR/snapshot_result"
+
+# To start a snapshot, run `docker exec <container> docker-snapshot.sh` from the outside world.
+# Then procmon will pass in --generate as the flag to do the actual snapshot at the right time.
+if [ "$1" != "--generate" ]; then
+    rm -f "$SNAPSHOT_RESULT"
+    killall -HUP procmon
+    exit 0
+fi
+
+# The outside world can look for a snapshot result starting with this to handle errors.
 ERROR_PREFIX="ERROR:"
 
 # Get the network name from tendermint's chain_id.
@@ -11,17 +23,13 @@ GENESIS_JSON="$TM_DATA_DIR/config/genesis.json"
 NETWORK=$(sed -n -e 's/^  "chain_id": "\(.*\)",$/\1/p' "$GENESIS_JSON")
 if [ "$NETWORK" = "" ]; then
     ERROR_MSG="$ERROR_PREFIX Unable to deduce network name; cannot generate snapshot"
-    echo "$ERROR_MSG"
-    export SNAPSHOT_RESULT="$ERROR_MSG"
+    echo "$ERROR_MSG" > "$SNAPSHOT_RESULT"
     exit 1
 fi
 echo "Generating $NETWORK snapshot..."
 
-# Prepare the output directory for the snapshot.
-NDAU_SNAPSHOTS_SUBDIR=ndau-snapshots
-NDAU_SNAPSHOTS_DIR="$SCRIPT_DIR/$NDAU_SNAPSHOTS_SUBDIR"
-rm -rf "$NDAU_SNAPSHOTS_DIR"
-mkdir -p "$NDAU_SNAPSHOTS_DIR"
+# Remove any existing snapshot from the container.  The user should copy each one out every time.
+rm -rf "$SCRIPT_DIR/snapshot-*.tgz"
 
 # Make a temp dir for copying data files into for tar'ing up later in this script.
 SNAPSHOT_TEMP_DIR="$SCRIPT_DIR"/snapshot-temp
@@ -44,7 +52,7 @@ cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$BIN_DIR"/noms show "$NOMS_DATA_DIR"::ndau.value.Height | tr -d '"')))
 SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
-SNAPSHOT_FILE="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
+SNAPSHOT_FILE="$SCRIPT_DIR/$SNAPSHOT_NAME.tgz"
 
 # Make the tarball and remove the temp dir.
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
@@ -54,4 +62,4 @@ rm -rf "$SNAPSHOT_TEMP_DIR"
 echo "Snapshot created: $SNAPSHOT_FILE"
 
 # Flag the snapshot as ready to be copied out of the container.
-export SNAPSHOT_RESULT=$SNAPSHOT_FILE
+echo "$SNAPSHOT_NAME.tgz" > "$SNAPSHOT_RESULT"

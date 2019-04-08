@@ -196,7 +196,7 @@ level = "$LOG_LEVEL"
     name = "HUPTASK"
     path = "/bin/bash"
     args = [
-        "-c", "$ROOT_DIR/docker-snapshot.sh",
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate",
     ]
     stdout = "$LOG_DIR/snapshot.log"
     stderr = "$LOG_DIR/snapshot.log"
