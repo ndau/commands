@@ -50,6 +50,7 @@ COPY --from=intermediate /image/bin /image/bin
 COPY ./docker-conf.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-run.sh /image
+COPY ./docker-snapshot.sh /image
 COPY ./docker-procmon.toml /image
 
 # We only need to expose Tendermint and ndauapi ports.

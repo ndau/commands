@@ -173,7 +173,6 @@ level = "$LOG_LEVEL"
     name = "ndauapi"
     parent = "tendermint"
     path = "$BIN_DIR/ndauapi"
-    args = []
     stdout = "$LOG_DIR/ndauapi.log"
     stderr = "$LOG_DIR/ndauapi.log"
     maxstartup = "5s"
@@ -191,3 +190,14 @@ level = "$LOG_LEVEL"
         type = "http"
         url = "http://localhost:$NDAUAPI_PORT/node/health"
         timeout = "300ms"
+
+
+[[task]]
+    name = "HUPTASK"
+    path = "/bin/bash"
+    args = [
+        "-c", "$ROOT_DIR/docker-snapshot.sh",
+    ]
+    stdout = "$LOG_DIR/snapshot.log"
+    stderr = "$LOG_DIR/snapshot.log"
+    onetime = true

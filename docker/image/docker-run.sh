@@ -21,7 +21,7 @@ ulimit -n 1024
 
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
-./procmon --configfile "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
 echo "Started procmon as PID $!"
 
 # Block until the entire node group is running.  Do this by checking the last task (ndauapi) port.

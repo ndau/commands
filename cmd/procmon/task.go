@@ -277,7 +277,6 @@ func (t *Task) Start(parentstop chan struct{}) {
 		err := t.cmd.Run()
 		if err != nil {
 			t.Logger.WithError(err).Error("onetime task failed")
-			panic(t.Name + " failed but mustsucceed was set")
 		} else {
 			t.Logger.Debug("onetime task succeeded")
 		}

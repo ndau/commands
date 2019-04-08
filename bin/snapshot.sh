@@ -88,7 +88,7 @@ cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_TEMP/data"
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$NOMS_DIR"/noms show "$NOMS_NDAU_DATA_DIR-0"::ndau.value.Height | tr -d '"')))
 SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
-SNAPSHOT_FILE="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR/$SNAPSHOT_NAME.tgz"
+SNAPSHOT_FILE="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
 
 # Make the tarball and remove the temp dir.
 echo "  bundling $SNAPSHOT_NAME..."
