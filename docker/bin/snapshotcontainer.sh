@@ -29,7 +29,7 @@ done
 SNAPSHOT_RESULT=$(docker exec "$CONTAINER" cat /image/snapshot_result)
 
 if [[ "$SNAPSHOT_RESULT" == "ERROR:"* ]]; then
-    echo "SNAPSHOT_RESULT"
+    echo "$SNAPSHOT_RESULT"
     exit 1
 fi
 
