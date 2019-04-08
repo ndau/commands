@@ -34,6 +34,7 @@ cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
+    -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
