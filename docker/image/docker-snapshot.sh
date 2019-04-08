@@ -7,7 +7,7 @@ source "$SCRIPT_DIR"/docker-env.sh
 # for the outside world to access.
 SNAPSHOT_RESULT="$SCRIPT_DIR/snapshot_result"
 
-# To start a snapshot, run `docker exec <container> docker-snapshot.sh` from the outside world.
+# To start a snapshot, run `docker exec <container> /image/docker-snapshot.sh` from the outside.
 # Then procmon will pass in --generate as the flag to do the actual snapshot at the right time.
 if [ "$1" != "--generate" ]; then
     rm -f "$SNAPSHOT_RESULT"
