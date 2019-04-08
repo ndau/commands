@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
@@ -73,8 +75,9 @@ else
     echo "No node identity found; a new node identity will be generated"
 fi
 
-# Make data directories that don't get created elsewhere.
+# Make directories that don't get created elsewhere.
 mkdir -p "$NODE_DATA_DIR"
+mkdir -p "$LOG_DIR"
 
 cd "$BIN_DIR" || exit 1
 

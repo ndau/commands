@@ -1,0 +1,193 @@
+[env]
+LOG_FORMAT = "text"
+LOG_LEVEL = "info"
+NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
+CHAIN = "ndau"
+
+[logger]
+output = "stderr"
+format = "$LOG_FORMAT"
+level = "$LOG_LEVEL"
+
+[[prologue]]
+    name = "redisportclear"
+    type = "portavailable"
+    port = "$REDIS_PORT"
+
+[[prologue]]
+    name = "nomsportclear"
+    type = "portavailable"
+    port = "$NOMS_PORT"
+
+[[prologue]]
+    name = "nodeportclear"
+    type = "portavailable"
+    port = "$NODE_PORT"
+
+[[prologue]]
+    name = "tmportsclear"
+    type = "portavailable"
+    port = "$TM_P2P_PORT $TM_RPC_PORT"
+
+[[prologue]]
+    name = "ndauapiportclear"
+    type = "portavailable"
+    port = "$NDAUAPI_PORT"
+
+[[prologue]]
+    name = "redisdatadirexists"
+    type = "ensuredir"
+    path = "$REDIS_DATA_DIR"
+
+[[prologue]]
+    name = "nomsdatadirexists"
+    type = "ensuredir"
+    path = "$NOMS_DATA_DIR"
+
+[[prologue]]
+    name = "nodedatadirexists"
+    type = "ensuredir"
+    path = "$NODE_DATA_DIR"
+
+[[prologue]]
+    name = "tmdatadirexists"
+    type = "ensuredir"
+    path = "$TM_DATA_DIR"
+
+
+# environment variables are expanded in all config values that are
+# strings
+[[task]]
+    name = "redis"
+    path = "redis-server"
+    args = [
+        "--dir", "$REDIS_DATA_DIR",
+        "--port", "$REDIS_PORT",
+        "--save", "60", "1",
+    ]
+    # special values are:
+    # "SUPPRESS" (also "") meaning "discard this stream"
+    # stderr = "STDOUT" means "send stderr also to stdout's destination"
+    # "HONEYCOMB" sends the message to honeycomb
+    # Anything else is a named file
+    stdout = "$LOG_DIR/redis.log"
+    stderr = "$LOG_DIR/redis.log"
+    # durations are done as time.Duration
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+
+
+[[task]]
+    name = "noms"
+    parent = "redis"
+    path = "$BIN_DIR/noms"
+    args = [
+        "serve",
+        "--port=$NOMS_PORT",
+        "$NOMS_DATA_DIR",
+    ]
+    stdout = "$LOG_DIR/noms.log"
+    stderr = "$LOG_DIR/noms.log"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NOMS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$NOMS_PORT"
+
+[[task]]
+    name = "ndaunode"
+    parent = "noms"
+    path = "$BIN_DIR/ndaunode"
+    args = [
+        "-spec", "http://localhost:$NOMS_PORT",
+        "-index", "localhost:$REDIS_PORT",
+        "-addr", "0.0.0.0:$NODE_PORT",
+    ]
+    stdout = "$LOG_DIR/ndaunode.log"
+    stderr = "$LOG_DIR/ndaunode.log"
+    maxstartup = "5s"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NODE_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$NODE_PORT"
+
+[[task]]
+    name = "tendermint"
+    parent = "ndaunode"
+    path = "$BIN_DIR/tendermint"
+    args = [
+        "node",
+        "--home", "$TM_DATA_DIR",
+        "--proxy_app", "tcp://localhost:$NODE_PORT",
+        "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
+        "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
+        "--log_level=*:$LOG_LEVEL",
+    ]
+    stdout = "$LOG_DIR/tendermint.log"
+    stderr = "$LOG_DIR/tendermint.log"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$TM_P2P_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$TM_RPC_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$TM_P2P_PORT $TM_RPC_PORT"
+
+[[task]]
+    name = "ndauapi"
+    parent = "tendermint"
+    path = "$BIN_DIR/ndauapi"
+    args = []
+    stdout = "$LOG_DIR/ndauapi.log"
+    stderr = "$LOG_DIR/ndauapi.log"
+    maxstartup = "5s"
+    maxshutdown = "2s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        url = "http://localhost:$NDAUAPI_PORT/node/health"
+        timeout = "1s"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        url = "http://localhost:$NDAUAPI_PORT/node/health"
+        timeout = "300ms"

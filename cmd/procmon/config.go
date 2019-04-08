@@ -1,12 +1,15 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"os"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,9 +17,10 @@ import (
 // It looks like sample.toml.
 // These are the major sections
 type Config struct {
-	Env    map[string]string
-	Logger map[string]string
-	Task   []ConfigTask
+	Env      map[string]string
+	Logger   map[string]string
+	Prologue []map[string]string
+	Task     []ConfigTask
 }
 
 // The ConfigTask section is a map ("table") of tasks
@@ -24,24 +28,140 @@ type ConfigTask struct {
 	Name        string
 	Path        string
 	Args        []string
+	Onetime     bool
 	Stdout      string
 	Stderr      string
 	Parent      string
+	MaxStartup  string
 	MaxShutdown string
 	Monitors    []map[string]string
+	Prerun      []string
+}
+
+func (ct *ConfigTask) interpolate(env map[string]string) {
+	ct.Name = interpolate(ct.Name, env)
+	ct.Path = interpolate(ct.Path, env)
+	ct.Stdout = interpolate(ct.Stdout, env)
+	ct.Stderr = interpolate(ct.Stderr, env)
+	ct.Parent = interpolate(ct.Parent, env)
+	ct.MaxShutdown = interpolate(ct.MaxShutdown, env)
+	ct.Args = interpolateAll(ct.Args, env).([]string)
+	for i := range ct.Monitors {
+		ct.Monitors[i] = interpolateAll(ct.Monitors[i], env).(map[string]string)
+	}
 }
 
 // Load does the toml load into a config object
-func Load(filename string) (Config, error) {
+func Load(filename string, nocheck bool) (Config, error) {
 	cfg := Config{}
-	_, err := toml.DecodeFile(filename, &cfg)
+	metadata, err := toml.DecodeFile(filename, &cfg)
+	if err != nil {
+		return cfg, errors.Wrap(err, fmt.Sprintf("metadata = %#v", metadata))
+	}
+
+	// start by interpolating the config's environment variables with the global ones
+	globalenv := envmap(os.Environ(), make(map[string]string))
+	for k, v := range cfg.Env {
+		cfg.Env[k] = interpolate(v, globalenv)
+	}
+	// and do it again only this time with the envvars we just interpolated
+	// we do it 5 times to deal with nested cases (the environment is a map,
+	// so there's no iteration order, and we need to be careful not to
+	// recurse forever in case someone tries something like A=$A).
+	cfg.Env = envmap(os.Environ(), cfg.Env)
+	for i := 0; i < 5; i++ {
+		for k, v := range cfg.Env {
+			cfg.Env[k] = interpolate(v, cfg.Env)
+		}
+	}
+	// unless they tell us not to, check to see if all the environment variables were
+	// processed by looking for leftover things that look like envvar expansions.
+	if !nocheck {
+		for k, v := range cfg.Env {
+			if found, _ := regexp.MatchString(`\$\(?[A-Za-z0-9]+\)?`, v); found {
+				return cfg, errors.New("Unprocessed envvars still found in Env: " + k + ":" + v)
+			}
+		}
+	}
+
+	// Now we can use that to interpolate the rest
+	// of the loaded configuration
+	cfg.Logger = interpolateAll(cfg.Logger, cfg.Env).(map[string]string)
+
+	for i := range cfg.Prologue {
+		cfg.Prologue[i] = interpolateAll(cfg.Prologue[i], cfg.Env).(map[string]string)
+	}
+
+	for i := range cfg.Task {
+		cfg.Task[i].interpolate(cfg.Env)
+	}
+
 	return cfg, err
+}
+
+// RunPrologue creates and runs pingers in order to establish that everything is
+// ready to go.
+func (c *Config) RunPrologue(logger *logrus.Logger) error {
+	for _, p := range c.Prologue {
+		pinger, err := BuildMonitor(p, logger)
+		if err != nil {
+			return err
+		}
+		if status := pinger(); status != OK {
+			l := logger.WithField("status", status)
+			for k, v := range p {
+				l = l.WithField(k, v)
+			}
+			l.Error("did not return ok")
+			return errors.New("pinger failed: " + p["name"])
+		}
+	}
+	return nil
 }
 
 // BuildMonitor constructs a monitor from an element in the
 // Monitors map
-func BuildMonitor(mon map[string]string) (func() Eventer, error) {
+func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer, error) {
 	switch mon["type"] {
+	case "portavailable":
+		if mon["port"] == "" {
+			return nil, errors.New("portavailable requires a port parm")
+		}
+		m := PortAvailable(mon["port"])
+		return m, nil
+	case "portinuse":
+		if mon["port"] == "" {
+			return nil, errors.New("portinuse requires a port parm")
+		}
+		if mon["timeout"] == "" {
+			mon["timeout"] = "100ms"
+		}
+		timeout, err := time.ParseDuration(mon["timeout"])
+		if err != nil {
+			return nil, err
+		}
+		m := PortInUse(mon["port"], timeout, logger)
+		return m, nil
+	case "ensuredir":
+		if mon["path"] == "" {
+			return nil, errors.New("ensuredir requires a path parm")
+		}
+		if mon["perm"] == "" {
+			mon["perm"] = "0755"
+		}
+		// we always parse permissions in base 8
+		perm, err := strconv.ParseInt(mon["perm"], 8, 32)
+		if err != nil {
+			return nil, err
+		}
+		m := EnsureDir(mon["path"], os.FileMode(perm))
+		return m, nil
+	case "redis":
+		if mon["addr"] == "" {
+			mon["addr"] = "localhost:6379"
+		}
+		m := RedisPinger(mon["addr"])
+		return m, nil
 	case "http":
 		if mon["timeout"] == "" {
 			mon["timeout"] = "1s"
@@ -83,9 +203,11 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 	tasks := make([]*Task, 0)
 	for _, ct := range c.Task {
 		t := NewTask(ct.Name, ct.Path, ct.Args...)
+		t.Env = c.Getenv()
+		t.Onetime = ct.Onetime
 		// set up any monitors we need
 		for _, mon := range ct.Monitors {
-			m, err := BuildMonitor(mon)
+			m, err := BuildMonitor(mon, logger)
 			if err != nil {
 				return nil, err
 			}
@@ -116,6 +238,15 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 		}
 		t.Stderr = stderr
 
+		// MaxStartup
+		if ct.MaxStartup != "" {
+			maxstartup, err := time.ParseDuration(ct.MaxStartup)
+			if err != nil {
+				return nil, err
+			}
+			t.MaxStartup = maxstartup
+		}
+
 		// MaxShutdown
 		if ct.MaxShutdown != "" {
 			maxshutdown, err := time.ParseDuration(ct.MaxShutdown)
@@ -127,6 +258,13 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 
 		// set up the logger
 		t.Logger = logger.WithField("task", t.Name).WithField("bin", "procmon")
+
+		for _, prerun := range ct.Prerun {
+			if _, ok := taskm[prerun]; !ok {
+				return nil, errors.New("did not find prerun task " + prerun)
+			}
+			t.Prerun = append(t.Prerun, taskm[prerun])
+		}
 
 		// if the task has a parent, assign it as a dependent
 		if ct.Parent != "" {
@@ -189,4 +327,15 @@ func (c *Config) BuildLogger() *logrus.Logger {
 	logger.Formatter = formatter
 	logger.Level = level
 	return logger
+}
+
+// Getenv returns a composite environment with the
+// same interface as os.Getenv, but any env vars
+// in the config are also included
+func (c *Config) Getenv() []string {
+	env := make([]string, 0, len(c.Env))
+	for k, v := range c.Env {
+		env = append(env, k+"="+v)
+	}
+	return env
 }

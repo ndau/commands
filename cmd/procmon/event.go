@@ -54,7 +54,7 @@ func (e ErrorEvent) Code() Event {
 
 // Error() implements the error interface for ErrorEvent
 func (e ErrorEvent) Error() string {
-	return fmt.Sprintf("ErrorEvent %d - %s", e.Evt, e.Error())
+	return fmt.Sprintf("ErrorEvent %d - %s", e.Evt, e.Err.Error())
 }
 
 // IsFailed returns true if the event is a Failed event

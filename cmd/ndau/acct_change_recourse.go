@@ -31,7 +31,7 @@ func getAccountChangeSettlement(verbose *bool, keys *int, emitJSON, compact *boo
 				orQuit(errors.New("Address transfer key not set"))
 			}
 
-			cep := ndau.NewChangeSettlementPeriod(
+			cep := ndau.NewChangeRecoursePeriod(
 				ad.Address,
 				duration,
 				sequence(config, ad.Address),

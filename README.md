@@ -19,7 +19,10 @@ The Homebrew package manager is by far the easiest way to install these tools, b
 1. Install [Brew](https://brew.sh/)
 1. Install `go`: `brew install go`
 1. Install `dep`: `brew install dep`
-1. Install `redis`: `brew install redis`
+1. Install Redis:
+    - Run `which redis-server` to see if you've got redis currently installed on your machine
+    - If it's already installed, run `brew upgrade redis@5.0`
+    - Otherwise, run `brew install redis@5.0`
 1. Install `jq`: `brew install jq`
 
 #### Ubuntu:
@@ -70,33 +73,37 @@ This will run all the tasks in the proper sequence and create a set of appropria
 
 ### Shutting it down
 
-Use `./bin/kill.sh`.
+Use `bin/kill.sh`.
 
 This will shut down any running tasks in the reverse order from which they were run. If a task doesn't shut itself down nicely, it will be killed.
 
 ### Reset
 
-To run with fresh databases, run `./bin/reset.sh` before your next `./bin/run.sh`.
+To run with fresh databases, run `bin/reset.sh` before your next `bin/run.sh`.  You can also use `bin/reset.sh` to quickly change the number of nodes in your localnet by passing in the new node count.
 
 ### Individual commands
 
-Both `./bin/run.sh` and `./bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
+Both `bin/run.sh` and `bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
 
 * `ndau_redis`
 * `ndau_noms`
 * `ndau_node`
 * `ndau_tm`
 
-You can also specify the node number for each.  For example, if you ran `./bin/setup.sh` with a node count greater than 1, then you can `./bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
+You can also specify the node number for each.  For example, if you ran `bin/setup.sh` with a node count greater than 1, then you can `bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
 
 ### Rebuild
 
-Use `./bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
+Use `bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
 
 ### Test
 
-Use `./bin/test.sh` to run unit tests on the latest built tools.
-Use `./bin/test.sh -i` to run integration tests found in `/ndauapi/routes`.
+Use `bin/test.sh` to run unit tests on the latest built tools.
+Use `bin/test.sh -i` to run integration tests found in `/ndauapi/routes`.
+
+### Snapshot
+
+To generate a snapshot for use with an externally deployed network, run `bin/snapshot.sh`.  If you are doing ETL and post-genesis transactions for testnet or mainnet, you'll want to run `bin/setup.sh` or `bin/reset.sh` first with the name of the network you plan to use the snapshot with.  Then re-run `bin/snapshot.sh`.
 
 ## Running the ndau API
 
