@@ -130,9 +130,15 @@ func runhup(huptask, root *Task, mainTasks []*Task) func() {
 }
 
 func waitForTasksToDie(root *Task, mainTasks []*Task) int {
-	looptime := 250 * time.Millisecond
+	looptime, err := parseDuration(os.Getenv("SHUTDOWN_LOOPTIME"), 250*time.Millisecond)
+	if err != nil {
+		root.Logger.WithError(err).Info("SHUTDOWN_LOOPTIME could not be parsed")
+	}
 	looptimer := time.NewTimer(looptime)
-	longtime := 75 * time.Second
+	longtime, err := parseDuration(os.Getenv("SHUTDOWN_MAX"), 75*time.Second)
+	if err != nil {
+		root.Logger.WithError(err).Info("SHUTDOWN_MAX could not be parsed")
+	}
 	toolong := time.NewTimer(longtime)
 	for {
 		select {

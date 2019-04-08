@@ -38,6 +38,23 @@ type ConfigTask struct {
 	Prerun      []string
 }
 
+// parseDuration parses a duration string (usually from the environment) and
+// accepts a default value. Even when it returns an error, it also returns
+// the default, so that the error can be logged but let the system continue.
+func parseDuration(dur string, def time.Duration) (time.Duration, error) {
+	// if it's empty, there's no error, just return the default
+	if dur == "" {
+		return def, nil
+	}
+	// if it's not empty, and can't be parsed, return the error for logging
+	// as well as the default.
+	v, err := time.ParseDuration(dur)
+	if err != nil {
+		return def, err
+	}
+	return v, nil
+}
+
 func (ct *ConfigTask) interpolate(env map[string]string) {
 	ct.Name = interpolate(ct.Name, env)
 	ct.Path = interpolate(ct.Path, env)
@@ -133,10 +150,7 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 		if mon["port"] == "" {
 			return nil, errors.New("portinuse requires a port parm")
 		}
-		if mon["timeout"] == "" {
-			mon["timeout"] = "100ms"
-		}
-		timeout, err := time.ParseDuration(mon["timeout"])
+		timeout, err := parseDuration(mon["timeout"], 100*time.Millisecond)
 		if err != nil {
 			return nil, err
 		}
@@ -163,10 +177,7 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 		m := RedisPinger(mon["addr"])
 		return m, nil
 	case "http":
-		if mon["timeout"] == "" {
-			mon["timeout"] = "1s"
-		}
-		timeout, err := time.ParseDuration(mon["timeout"])
+		timeout, err := parseDuration(mon["timeout"], time.Second)
 		if err != nil {
 			return nil, err
 		}
@@ -215,10 +226,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 			case "ready":
 				t.Ready = m
 			default:
-				if mon["period"] == "" {
-					mon["period"] = "15s"
-				}
-				period, err := time.ParseDuration(mon["period"])
+				period, err := parseDuration(mon["period"], 15*time.Second)
 				if err != nil {
 					return nil, err
 				}
@@ -239,22 +247,18 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 		t.Stderr = stderr
 
 		// MaxStartup
-		if ct.MaxStartup != "" {
-			maxstartup, err := time.ParseDuration(ct.MaxStartup)
-			if err != nil {
-				return nil, err
-			}
-			t.MaxStartup = maxstartup
+		maxstartup, err := parseDuration(ct.MaxStartup, t.MaxStartup)
+		if err != nil {
+			return nil, err
 		}
+		t.MaxStartup = maxstartup
 
 		// MaxShutdown
-		if ct.MaxShutdown != "" {
-			maxshutdown, err := time.ParseDuration(ct.MaxShutdown)
-			if err != nil {
-				return nil, err
-			}
-			t.MaxShutdown = maxshutdown
+		maxshutdown, err := parseDuration(ct.MaxShutdown, t.MaxShutdown)
+		if err != nil {
+			return nil, err
 		}
+		t.MaxShutdown = maxshutdown
 
 		// set up the logger
 		t.Logger = logger.WithField("task", t.Name).WithField("bin", "procmon")

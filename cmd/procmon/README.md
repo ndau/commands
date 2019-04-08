@@ -4,8 +4,8 @@ Procmon is a process runner/monitor tool that can start and stop a set of tasks 
 they fail.
 
 What's unique about it compared to things like [supervisor](http://supervisord.org/) is that it
-lets you define processes dependencies, so that when a parent process dies, its child processes
-can be terminated and re-run after the parent has started.
+lets you define a dependency tree of processes, so that when a parent process dies, its children
+can be terminated and re-run after the parent has started again.
 
 It's designed to work when run inside a container.
 
