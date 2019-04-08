@@ -10,19 +10,44 @@ echo "Running $NODE_ID node group..."
 RUNNING_FILE="$SCRIPT_DIR/running"
 rm -f "$RUNNING_FILE"
 
+# This is needed because in the long term, noms eats more than 256 file descriptors.
+ulimit -n 1024
+
 # If there's no data directory yet, it means we're starting from scratch.
 if [ ! -d "$DATA_DIR" ]; then
     echo "Configuring node group..."
     "$SCRIPT_DIR"/docker-conf.sh
 fi
 
-# This is needed because in the long term, noms eats more than 256 file descriptors.
-ulimit -n 1024
-
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
 ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
-echo "Started procmon as PID $!"
+procmon_pid="$!"
+echo "Started procmon as PID $procmon_pid"
+
+# This will gracefully shut down all running processes through procmon when the container stops.
+on_sigterm() {
+    echo "Received SIGTERM; shutting down node group..."
+
+    # Gracefully exit all processes in the node group through procmon.
+    kill "$procmon_pid"
+    wait "$procmon_pid"
+
+    # Logs start over next time.  Save a copy of them all.  Having the "last run" might be useful.
+    lastrun_dir="$LOG_DIR/lastrun"
+    rm -rf "$lastrun_dir"
+    mkdir -p "$lastrun_dir"
+    mv "$LOG_DIR"/*.log "$lastrun_dir"
+
+    # For completeness, mark the container as not running.
+    rm -f "$RUNNING_FILE"
+
+    # SIGTERM = 128 + 15
+    exit 143;
+}
+
+# Kill the last background process (`tail -f /dev/null`) then execute the specified handler.
+trap 'kill ${!}; on_sigterm' SIGTERM
 
 # Block until the entire node group is running.  Do this by checking the last task (ndauapi) port.
 echo "Waiting for node group..."
@@ -49,4 +74,7 @@ touch "$RUNNING_FILE"
 echo "Node group $NODE_ID is now running"
 
 # Wait forever to keep the container alive.
-while true; do sleep 86400; done
+while true
+do
+    tail -f /dev/null & wait ${!}
+done

@@ -59,4 +59,4 @@ COPY ./docker-procmon.toml /image
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26670 3030
 
-CMD ["/image/docker-run.sh"]
+ENTRYPOINT ["/image/docker-run.sh"]
