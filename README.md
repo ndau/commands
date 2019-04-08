@@ -46,9 +46,11 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
 1. Create the directory `~/.localnet/genesis_files`
 2. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
     
-    `go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
+    ```sh
+    go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
        -g ~/.localnet/genesis_files/system_vars.toml \
-       -a ~/.localnet/genesis_files/system_accounts.toml`
+       -a ~/.localnet/genesis_files/system_accounts.toml
+    ```
      
 3. Edit those files as desired for a custom configuration
 
