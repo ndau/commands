@@ -33,8 +33,16 @@ if [[ "$SNAPSHOT_RESULT" == "ERROR:"* ]]; then
     exit 1
 fi
 
-OUT_FILE="$SCRIPT_DIR/$SNAPSHOT_RESULT"
-docker cp "$CONTAINER:/image/$SNAPSHOT_RESULT" "$OUT_FILE"
+SNAPSHOT_FILE="$SCRIPT_DIR/$SNAPSHOT_RESULT"
+docker cp "$CONTAINER:/image/$SNAPSHOT_RESULT" "$SNAPSHOT_FILE"
 
+# These can be used for uploading the snapshot to S3.
+S3URI="s3://ndau-snapshots/$SNAPSHOT_RESULT"
+UPLOAD_CMD="aws s3 cp $SNAPSHOT_FILE $S3URI"
+
+echo
 echo "The snapshot has been generated and copied out of the container here:"
-echo "  $OUT_FILE"
+echo "  $SNAPSHOT_FILE"
+echo "It can be uploaded to S3 using the following command:"
+echo "  $UPLOAD_CMD"
+echo
