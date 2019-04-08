@@ -3,11 +3,16 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
+# The outside world can look for a SNAPSHOT_RESULT starting with this to handle errors.
+ERROR_PREFIX="ERROR:"
+
 # Get the network name from tendermint's chain_id.
 GENESIS_JSON="$TM_DATA_DIR/config/genesis.json"
 NETWORK=$(sed -n -e 's/^  "chain_id": "\(.*\)",$/\1/p' "$GENESIS_JSON")
 if [ "$NETWORK" = "" ]; then
-    export SNAPSHOT_RESULT="ERROR: Unable to deduce network name; cannot generate snapshot"
+    ERROR_MSG="$ERROR_PREFIX Unable to deduce network name; cannot generate snapshot"
+    echo "$ERROR_MSG"
+    export SNAPSHOT_RESULT="$ERROR_MSG"
     exit 1
 fi
 echo "Generating $NETWORK snapshot..."
