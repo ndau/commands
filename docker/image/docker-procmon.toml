@@ -173,7 +173,6 @@ level = "$LOG_LEVEL"
     name = "ndauapi"
     parent = "tendermint"
     path = "$BIN_DIR/ndauapi"
-    args = []
     stdout = "$LOG_DIR/ndauapi.log"
     stderr = "$LOG_DIR/ndauapi.log"
     maxstartup = "5s"
@@ -191,3 +190,28 @@ level = "$LOG_LEVEL"
         type = "http"
         url = "http://localhost:$NDAUAPI_PORT/node/health"
         timeout = "300ms"
+
+
+[[task]]
+    name = "snapshot"
+    path = "/bin/bash"
+    args = [
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate",
+    ]
+    stdout = "$LOG_DIR/snapshot.log"
+    stderr = "$LOG_DIR/snapshot.log"
+    [task.specials]
+        onetime = true
+        shutdown = true
+        signal = "SIGHUP"
+        terminate = false
+
+
+[[task]]
+	# Restart periodically to combat memory leaks.
+    name = "restart"
+    [task.specials]
+        onetime = true
+        periodic = "24h"
+        shutdown = true
+        terminate = false

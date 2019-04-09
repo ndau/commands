@@ -54,7 +54,7 @@ if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     echo "Container already exists: $CONTAINER"
     echo "Use restartcontainer.sh to restart it, or use removecontainer.sh to remove it first"
     exit 1
-fi    
+fi
 
 if [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ] ; then
     echo "Cannot find node identity file: $IDENTITY"
