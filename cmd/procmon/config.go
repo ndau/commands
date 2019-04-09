@@ -356,7 +356,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 			}
 			tasks.All[ct.Parent].AddDependent(t)
 		case t.Periodic != 0:
-			tasks.Periodic[t.Periodic] = t
+			tasks.Periodic = append(tasks.Periodic, t)
 		case ct.Parent == "" && t.Onetime == false:
 			// if no parent and not a onetime task, then it's in the root set of tasks that have to
 			// be started directly

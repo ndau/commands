@@ -91,23 +91,23 @@ func shutdown(root *Task, mainTasks []*Task) func() {
 func runfunc(task, root *Task, mainTasks []*Task) func() {
 	return func() {
 		if task.Shutdown {
-			task.Logger.Warn("running shutdown task, temporarily stopping all tasks")
+			root.Logger.Warn("running shutdown task, temporarily stopping all tasks")
 			close(root.Stopped)
 			exitcode := waitForTasksToDie(root, mainTasks)
-			task.Logger.WithField("exitcode", exitcode).Warn("all tasks terminated")
+			root.Logger.WithField("exitcode", exitcode).Debug("all tasks terminated")
 		}
 		tempstop := make(chan struct{})
 		task.Start(tempstop)
 		close(tempstop)
-		task.Logger.Warn("finished")
+		root.Logger.Debug("finished running shutdown task")
 		if task.Terminate {
 			killall(mainTasks)()
 		}
 		if task.Shutdown {
-			task.Logger.Warn("restarting main tasks")
+			root.Logger.Debug("restarting main tasks")
 			root.Stopped = make(chan struct{})
 			root.StartChildren()
-			task.Logger.Warn("shutdown processing complete")
+			root.Logger.Warn("shutdown processing complete")
 		}
 	}
 }
@@ -149,6 +149,41 @@ func waitForTasksToDie(root *Task, mainTasks []*Task) int {
 	}
 }
 
+func setupSighandlers(root *Task, tasks Tasks) {
+	// define some default sighandlers; they can be overridden in the
+	// config file and additional ones can be defined
+	sighandlers := map[os.Signal]func(){
+		syscall.SIGTERM: killall(tasks.Main),
+		syscall.SIGINT:  shutdown(root, tasks.Main),
+	}
+	for sig, task := range tasks.Signals {
+		sighandlers[sig] = runfunc(task, root, tasks.Main)
+	}
+	WatchSignals(sighandlers)
+}
+
+func setupPeriodic(root *Task, tasks Tasks) {
+	// set up the execution of any periodic tasks
+	for _, t := range tasks.Periodic {
+		f := runfunc(t, root, tasks.Main)
+		dur := t.Periodic
+		logger := t.Logger
+		logger.WithField("period", dur).Info("setting up periodic task")
+		go func() {
+			ticker := time.NewTicker(dur)
+			for {
+				select {
+				case <-ticker.C:
+					logger.Info("periodic task running")
+					f()
+				case <-root.Stopped:
+					return
+				}
+			}
+		}()
+	}
+}
+
 func main() {
 	cfg := loadConfig()
 	logger := cfg.BuildLogger()
@@ -176,16 +211,8 @@ func main() {
 	}
 	root.StartChildren()
 
-	// define some default sighandlers; they can be overridden in the
-	// config file and additional ones can be defined
-	sighandlers := map[os.Signal]func(){
-		syscall.SIGTERM: killall(tasks.Main),
-		syscall.SIGINT:  shutdown(root, tasks.Main),
-	}
-	for sig, task := range tasks.Signals {
-		sighandlers[sig] = runfunc(task, root, tasks.Main)
-	}
-	WatchSignals(sighandlers)
+	setupSighandlers(root, tasks)
+	setupPeriodic(root, tasks)
 
 	// and run almost forever
 	logstatus := time.NewTicker(15 * time.Second)
