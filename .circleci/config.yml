@@ -77,20 +77,6 @@ commands:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
-      - run:
-          name: Turn environment variable secrets into files
-          command: |
-            # install helm certs
-            mkdir -p /root/.helm
-            echo -e "$helm_ca_pem" > /root/.helm/ca.pem
-            echo -e "$helm_cert_pem" > /root/.helm/cert.pem
-            echo -e "$helm_key_pem" > /root/.helm/key.pem
-
-            # install kube config certs
-            echo -e "$kube_config" > /root/kubeconfig
-
-            # AWS ECR Login
-            eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
       - run:
           name: Checkout code
@@ -109,7 +95,8 @@ commands:
 
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
-            echo -e "$machine_user_key" > /commands/machine_user_key
+            echo -e "$machine_user_key" > /commands/docker/machine_user_key
+
       - run:
           name: get git information
           command: |
@@ -258,6 +245,10 @@ jobs:
           name: run all sub project docker scripts
           command: |
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+
+            # AWS ECR Login
+            eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+
             # reload saved environment variables
             source $BASH_ENV
             # build single container node image
@@ -516,7 +507,7 @@ jobs:
               ./bin/build.sh
             )
 
-            # write the environment variable containing ndautool.toml to a file.
+            # write ndautool from bucket to a file.
             mkdir -p $NDAUHOME/ndau
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
