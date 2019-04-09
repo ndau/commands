@@ -205,3 +205,13 @@ level = "$LOG_LEVEL"
         shutdown = true
         signal = "SIGHUP"
         terminate = false
+
+
+[[task]]
+	# Restart periodically to combat memory leaks.
+    name = "restart"
+    [task.specials]
+        onetime = true
+        periodic = "24h"
+        shutdown = true
+        terminate = false
