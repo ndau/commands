@@ -3,7 +3,8 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 DOCKER_DIR="$SCRIPT_DIR/.."
-SSH_PRIVATE_KEY_FILE="$DOCKER_DIR"/machine_user_key
+COMMANDS_DIR="$DOCKER_DIR/.."
+SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
 if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
     # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
     echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private oneiro-ndev repositories"
@@ -23,7 +24,6 @@ echo done
 
 echo Preparing image directory...
 IMAGE_DIR="$DOCKER_DIR"/image
-COMMANDS_DIR="$DOCKER_DIR/.."
 PATCH_DIR="$COMMANDS_DIR"/deploy/tendermint
 git clean -fx "$IMAGE_DIR"
 cp "$PATCH_DIR"/*.patch "$IMAGE_DIR"

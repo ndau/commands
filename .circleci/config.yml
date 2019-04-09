@@ -95,7 +95,7 @@ commands:
 
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
-            echo -e "$machine_user_key" > /commands/docker/machine_user_key
+            echo -e "$machine_user_key" > /commands/machine_user_key
 
       - run:
           name: get git information
