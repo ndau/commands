@@ -107,7 +107,7 @@ run_tm "$TM_P2P_PORT" "$TM_RPC_PORT" "$NODE_PORT" "$TM_DATA_DIR"
 run_ndauapi
 
 IDENTITY_FILE="$SCRIPT_DIR"/node-identity.tgz
-if [ ! -f "$IDENTITY_FILE" ]; then
+if [ ! -f "$IDENTITY_FILE" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo "Generating identity file..."
 
     cd "$DATA_DIR" || exit 1

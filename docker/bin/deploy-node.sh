@@ -4,14 +4,14 @@
 # get the directory of this file
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-
 # args
 node_number=$1
+network_name=$2
 
 # consts
-TMP_FILE="$DIR/sc-node-docker-compose.yml"
-TEMPLATE_FILE="$DIR/sc-node-template.yml"
-IDENTITY_FILE="sc-node-${node_number}.tgz"
+TMP_FILE="$DIR/node-docker-compose.yml"
+TEMPLATE_FILE="$DIR/node-template.yml"
+IDENTITY_FILE="$DIR/node-identity-${node_number}.tgz"
 
 if [ -f "$TMP_FILE" ]; then
   >&2 echo "temp file already exists: $TMP_FILE"
@@ -30,20 +30,28 @@ if [ ! -f "$IDENTITY_FILE" ]; then
   exit 1
 fi
 
+port_offset=$PORT_OFFSET
+[ -z "$port_offset" ] && port_offset=0
+
+base_port=30000
+rpc_port=$((base_port + 100 + node_number + port_offset))
+p2p_port=$((base_port + 200 + node_number + port_offset))
+ndauapi_port=$((base_port + 300 + node_number + port_offset))
+
 cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
+    -e "s/{{RPC_PORT}}/${rpc_port}/g" \
+    -e "s/{{P2P_PORT}}/${p2p_port}/g" \
+    -e "s/{{NDAUAPI_PORT}}/${ndauapi_port}/g" \
+    -e "s/{{NETWORK_NAME}}/${network_name}/g" \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
 # Send it to AWS
-ecs-cli compose --verbose --project-name sc-node-${node_number} -f ${TMP_FILE} service up --create-log-groups --cluster-config sc-node
+ecs-cli compose --verbose --project-name ${network_name}-${node_number} -f ${TMP_FILE} service up --create-log-groups --cluster-config sc-node
 
 # clean up
 rm "$TMP_FILE"
-
-
-#ecs-cli compose --verbose  -f nginx-compose.yml service up --target-group-arn arn:aws:elasticloadbalancing:us-east-1:aws_account_id:targetgroup/ecs-cli-alb/9856106fcc5d4be8 --container-name nginx --container-port 80 --role ecsSeviceRole
-#aws elb create-load-balancer --load-balancer-name "$CLUSTER_NAME" --listeners Protocol="TCP,LoadBalancerPort=30000,InstanceProtocol=TCP,InstancePort=8080" --subnets "$SUBNET_ID" --security-groups "$ECS_SECURITY_GROUP" --scheme internal

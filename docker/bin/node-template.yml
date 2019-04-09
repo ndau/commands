@@ -1,21 +1,21 @@
 version: '3'
 services:
-  sc-node-0:
+  {{NETWORK_NAME}}-{{NODE_NUMBER}}:
     image: "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:6"
     ports:
-      - "3010{{NODE_NUMBER}}:26670"
-      - "3020{{NODE_NUMBER}}:26660"
-      - "3030{{NODE_NUMBER}}:3030"
+      - "{{RPC_PORT}}:26670"
+      - "{{P2P_PORT}}:26660"
+      - "{{NDAUAPI_PORT}}:3030"
     environment:
-      - HONEYCOMB_DATASET=sc-node-devnet
+      - HONEYCOMB_DATASET=sc-node-{{NETWORK_NAME}}
       - HONEYCOMB_KEY=b5d540e08c05885849ae13cd7886df04
-      - NODE_ID=sc-node-{{NODE_NUMBER}}
+      - NODE_ID={{NETWORK_NAME}}-{{NODE_NUMBER}}
       - PERSISTENT_PEERS={{PERSISTENT_PEERS}}
       - BASE64_NODE_IDENTITY={{BASE64_NODE_IDENTITY}}
       - SNAPSHOT_URL=http://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-46.tgz # e.g. https://....tgz
     logging:
       driver: awslogs
       options:
-        awslogs-group: sc-node-devnet
+        awslogs-group: sc-node-{{NETWORK_NAME}}
         awslogs-region: us-east-1
         awslogs-stream-prefix: sc-node-{{NODE_NUMBER}}
