@@ -10,11 +10,10 @@ var _ Eventer = (*Event)(nil)
 
 // These constants are used to indicate possible event types
 const (
-	Started  Event = iota
-	OK       Event = iota
-	Failing  Event = iota
-	Failed   Event = iota
-	Stopping Event = iota
+	OK      Event = iota
+	Stop    Event = iota
+	Failing Event = iota
+	Failed  Event = iota
 )
 
 // Eventer is an interface for an object that is carrying an event
@@ -54,15 +53,5 @@ func (e ErrorEvent) Code() Event {
 
 // Error() implements the error interface for ErrorEvent
 func (e ErrorEvent) Error() string {
-	return fmt.Sprintf("ErrorEvent %d - %s", e.Evt, e.Error())
-}
-
-// IsFailed returns true if the event is a Failed event
-func IsFailed(e Eventer) bool {
-	return e.Code() == Failed
-}
-
-// IsOK returns true if the event is an OK event
-func IsOK(e Eventer) bool {
-	return e.Code() == OK
+	return fmt.Sprintf("ErrorEvent %d - %s", e.Evt, e.Err.Error())
 }

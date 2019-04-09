@@ -456,8 +456,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "prgn-blocktime-in-metanode"
-  digest = "1:48a00324923189f3292847efea7d46c8a7b015fbfe8af41f9d500d64e6736630"
+  digest = "1:97ff561ae1135cd33b2530ccfb0f84837a68bc8e3d60f0a2926b26443e2bf509"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -467,7 +466,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "3a06cc9677bb55e072d44af2644786dca17518c2"
+  revision = "ed16a05a04bfd77c41c8bbf6a2094faec3e54c3c"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -486,8 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-fix-lock-data-clear"
-  digest = "1:869952f74ff6f0b881c9ba21db2f5624d4485f7b97593d5d7e3c88e11d645441"
+  digest = "1:38e5eb0645a555ea27c40c97702c06a67877e01dafe3facb7450c1af8326af0a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "69751670655f662a726d850313604fed1644c1e8"
+  revision = "671bae65e584d18debdfe67791126808b1d4168e"
+  version = "v1.10.0"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
@@ -934,6 +934,7 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
+    "github.com/go-redis/redis",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
