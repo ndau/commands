@@ -300,7 +300,7 @@ jobs:
             # make a persistent peers string with all the static ips
             PEERS=""
             for IP in $STATIC_IPS; do
-              PEERS+=($(sed "s/_IP_/$IP/g" <<< $PERSISTENT_PEERS))
+              PEERS+=($(echo $PERSISTENT_PEERS | sed "s/_IP_/$IP/g"))
             done
             PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
 
@@ -347,7 +347,7 @@ jobs:
             # make a persistent peers string with all the static ips
             PEERS=""
             for IP in $STATIC_IPS; do
-              PEERS+=($(sed "s/_IP_/$IP/g" <<< $PERSISTENT_PEERS))
+              PEERS+=($(echo $PERSISTENT_PEERS | sed "s/_IP_/$IP/g"))
             done
             PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
 
