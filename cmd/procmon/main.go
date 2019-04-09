@@ -13,30 +13,24 @@ import (
 	arg "github.com/alexflint/go-arg"
 )
 
-// HupTask is the name of the task that will be run on SIGHUP
-const HupTask = "HUPTASK"
-
 // WatchSignals can set up functions to call on various operating system signals.
-func WatchSignals(fhup, fint, fterm func()) {
+func WatchSignals(sigs map[os.Signal]func()) {
+	signals := make([]os.Signal, 0)
+	for s := range sigs {
+		signals = append(signals, s)
+	}
 	go func() {
 		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(sigchan, signals...)
 		for {
 			sig := <-sigchan
 			switch sig {
-			case syscall.SIGHUP:
-				if fhup != nil {
-					fhup()
-				}
-			case syscall.SIGINT:
-				if fint != nil {
-					fint()
-				}
+			// we always want to terminate on SIGTERM
 			case syscall.SIGTERM:
-				if fterm != nil {
-					fterm()
-				}
+				sigs[sig]()
 				os.Exit(0)
+			default:
+				sigs[sig]()
 			}
 		}
 	}()
@@ -66,23 +60,7 @@ func loadConfig() Config {
 	return cfg
 }
 
-// this searches the main task list for a task called
-// "HUPTASK" and if it finds it, removes it from
-// the list and returns it separately.
-func findHupTask(maintasks []*Task) ([]*Task, *Task) {
-	ret := make([]*Task, 0, len(maintasks))
-	var huptask *Task
-	for _, t := range maintasks {
-		if t.Name == HupTask {
-			huptask = t
-		} else {
-			ret = append(ret, t)
-		}
-	}
-	return ret, huptask
-}
-
-// when we get SIGINT or SIGTERM, kill everything by telling
+// killall returns a function that kills everything by telling
 // the root tasks to kill themselves.
 func killall(mainTasks []*Task) func() {
 	return func() {
@@ -94,7 +72,7 @@ func killall(mainTasks []*Task) func() {
 	}
 }
 
-// Shut things down more politely, kinda
+// shutdown returns a function that can shut things down more politely, kinda
 func shutdown(root *Task, mainTasks []*Task) func() {
 	return func() {
 		root.Logger.Print("shutting down by closing Stopped channel on the root")
@@ -104,28 +82,33 @@ func shutdown(root *Task, mainTasks []*Task) func() {
 	}
 }
 
-// When we receive sighup, if huptask is defined, we shut everything else down,
-// run huptask, and when it terminates we run the root task again
-func runhup(huptask, root *Task, mainTasks []*Task) func() {
-	if huptask == nil {
-		root.Logger.Debugf("no task called %s was defined so SIGHUP will do nothing", HupTask)
-	}
+// runfunc creates a function that allows us to run a task with a Signal or
+// from a timer.
+// If task.Shutdown is defined, we shut everything else down first.
+// Then we run the task, and when it is finished, we check task.Terminate.
+// If task.Terminate is defined, we call killall. Otherwise, if necessary
+// (task.Shutdown was true) we run the root task again.
+func runfunc(task, root *Task, mainTasks []*Task) func() {
 	return func() {
-		if huptask == nil {
-			root.Logger.Warnf("SIGHUP received but no task called %s was found", HupTask)
-			return
+		if task.Shutdown {
+			task.Logger.Warn("running shutdown task, temporarily stopping all tasks")
+			close(root.Stopped)
+			exitcode := waitForTasksToDie(root, mainTasks)
+			task.Logger.WithField("exitcode", exitcode).Warn("all tasks terminated")
 		}
-		root.Logger.Warn("SIGHUP received, temporarily stopping all tasks")
-		close(root.Stopped)
-		exitcode := waitForTasksToDie(root, mainTasks)
-		root.Logger.WithField("exitcode", exitcode).Warnf("all tasks terminated -- running %s", HupTask)
 		tempstop := make(chan struct{})
-		huptask.Start(tempstop)
+		task.Start(tempstop)
 		close(tempstop)
-		root.Logger.Warnf("%s finished, restarting main tasks", HupTask)
-		root.Stopped = make(chan struct{})
-		root.StartChildren()
-		root.Logger.Warn("SIGHUP processing complete")
+		task.Logger.Warn("finished")
+		if task.Terminate {
+			killall(mainTasks)()
+		}
+		if task.Shutdown {
+			task.Logger.Warn("restarting main tasks")
+			root.Stopped = make(chan struct{})
+			root.StartChildren()
+			task.Logger.Warn("shutdown processing complete")
+		}
 	}
 }
 
@@ -178,24 +161,31 @@ func main() {
 		logger.WithError(err).Fatal("problems running prologue")
 	}
 
-	mainTasks, err := cfg.BuildTasks(logger)
+	tasks, err := cfg.BuildTasks(logger)
 	// if we can't read the tasks we shouldn't even continue
 	if err != nil {
 		logger.WithError(err).Fatal("aborting because task file was invalid")
 	}
 
-	mainTasks, huptask := findHupTask(mainTasks)
-
 	// now build a special task to act as the parent of the root tasks
 	root := NewTask("root", "")
 	root.Logger = logger
 	root.Stopped = make(chan struct{})
-	for i := range mainTasks {
-		root.AddDependent(mainTasks[i])
+	for i := range tasks.Main {
+		root.AddDependent(tasks.Main[i])
 	}
 	root.StartChildren()
 
-	WatchSignals(runhup(huptask, root, mainTasks), shutdown(root, mainTasks), killall(mainTasks))
+	// define some default sighandlers; they can be overridden in the
+	// config file and additional ones can be defined
+	sighandlers := map[os.Signal]func(){
+		syscall.SIGTERM: killall(tasks.Main),
+		syscall.SIGINT:  shutdown(root, tasks.Main),
+	}
+	for sig, task := range tasks.Signals {
+		sighandlers[sig] = runfunc(task, root, tasks.Main)
+	}
+	WatchSignals(sighandlers)
 
 	// and run almost forever
 	logstatus := time.NewTicker(15 * time.Second)

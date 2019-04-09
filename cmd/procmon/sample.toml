@@ -27,7 +27,43 @@ level = "$LOGLEVEL"
         "-c",
         "echo hello"
     ]
-    onetime = true
+    stdout = "HUP.log"
+    [task.specials]
+        onetime = true
+        # periodic = "8h"
+        shutdown = true
+        signal = "SIGHUP"
+        terminate = false
+
+[[task]]
+    name = "USRTASK1"
+    path = "/bin/sh"
+    args = [
+        "-c",
+        "echo user sez hi"
+    ]
+    stdout = "USR1.log"
+    [task.specials]
+        onetime = true
+        periodic = "8h"
+        shutdown = false
+        signal = "SIGUSR1"
+        terminate = false
+
+[[task]]
+    name = "INT"
+    path = "/bin/sh"
+    args = [
+        "-c",
+        "echo buh-bye"
+    ]
+    stdout = "INT.log"
+    [task.specials]
+        onetime = true
+        # periodic = "8h"
+        shutdown = false
+        signal = "SIGINT"
+        terminate = true
 
 
 [[task]]

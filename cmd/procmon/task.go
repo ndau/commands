@@ -78,6 +78,9 @@ type Task struct {
 	Args         []string
 	Env          []string
 	Onetime      bool
+	Periodic     time.Duration
+	Terminate    bool
+	Shutdown     bool
 	MaxShutdown  time.Duration
 	MaxStartup   time.Duration
 	Status       chan Eventer
