@@ -1,31 +1,31 @@
 #! /usr/bin/env python3
 
-# Reads .crankgen files and creates iterations of them based on iterating
-# through values and plugging those values into a template; relieve tedium in
-# testing combinations of chasm code.
-
-# It supports two kinds of substitutions:
-# If you do something like:
-#
-# ----
-# VAR a = A, B, C
-# VAR n = 1, 2, 3
-
-# BEGIN_TEMPLATE
-# Here we go: $a$n = [[n*100]]
-# ----
-#
-# You'll get 9 files for all combinations of a and n, and $a will get the current
-# value of a, and $n will get the current value of n. After that, text in [[]]
-# will be evaluated as a python expression, converted to a string, and substituted
-# for the original. So file 8 will look like this:
-# `Here we go: C2 = 200`
+"""
+Reads .crankgen files and creates iterations of them based on iterating
+through values and plugging those values into a template; relieve tedium in
+testing combinations of chasm code.
+It supports two kinds of substitutions:
+If you do something like:
+----
+VAR a = A, B, C
+VAR n = 1, 2, 3
+BEGIN_TEMPLATE
+Here we go: $a$n = {{n*100}}
+----
+You'll get 9 files for all combinations of a and n, and $a will get the current
+value of a, and $n will get the current value of n. After that, text in {{}}
+will be evaluated as a python expression, converted to a string, and substituted
+for the original. So file 8 will look like this:
+`Here we go: C2 = 200`
+"""
 
 import os
 import re
 import sys
 import itertools
 from string import Template
+
+EVAL_PAT = re.compile(r"{{([^]]+)}}")
 
 
 def evalText(m):
@@ -70,8 +70,7 @@ def generate(fname):
             sys.stderr.write(f"Error processing template {fname}, index {index}\n")
             sys.exit(1)
         else:
-            p = re.compile(r"\[\[([^]]+)\]\]")
-            txt = p.sub(evalText, txt)
+            txt = EVAL_PAT.sub(evalText, txt)
             outf.write(txt)
             outf.close()
 
