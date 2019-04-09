@@ -2,7 +2,6 @@
 LOG_FORMAT = "text"
 LOG_LEVEL = "info"
 NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
-CHAIN = "ndau"
 
 [logger]
 output = "stderr"
