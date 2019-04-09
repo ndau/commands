@@ -10,10 +10,10 @@ If you do something like:
 VAR a = A, B, C
 VAR n = 1, 2, 3
 BEGIN_TEMPLATE
-Here we go: $a$n = {{n*100}}
+Here we go: $a$n = {-{n*100}-}
 ----
 You'll get 9 files for all combinations of a and n, and $a will get the current
-value of a, and $n will get the current value of n. After that, text in {{}}
+value of a, and $n will get the current value of n. After that, text between {-{ and }-}
 will be evaluated as a python expression, converted to a string, and substituted
 for the original. So file 8 will look like this:
 `Here we go: C2 = 200`
@@ -25,7 +25,7 @@ import sys
 import itertools
 from string import Template
 
-EVAL_PAT = re.compile(r"{{([^]]+)}}")
+EVAL_PAT = re.compile(r"{-{(.*?)}-}", re.DOTALL)
 
 
 def evalText(m):
