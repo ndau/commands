@@ -193,11 +193,15 @@ level = "$LOG_LEVEL"
 
 
 [[task]]
-    name = "HUPTASK"
+    name = "snapshot"
     path = "/bin/bash"
     args = [
         "-c", "$ROOT_DIR/docker-snapshot.sh --generate",
     ]
     stdout = "$LOG_DIR/snapshot.log"
     stderr = "$LOG_DIR/snapshot.log"
-    onetime = true
+    [task.specials]
+        onetime = true
+        shutdown = true
+        signal = "SIGHUP"
+        terminate = false
