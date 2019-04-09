@@ -25,8 +25,7 @@ import sys
 import itertools
 from string import Template
 
-EVAL_PAT = re.compile(r"{{([^]]+)}}")
-
+EVAL_PAT = re.compile(r"{{([^}]+)}}")
 
 def evalText(m):
     expr = m.group(1)
