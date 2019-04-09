@@ -21,13 +21,70 @@ format = "$FORMAT"
 level = "$LOGLEVEL"
 
 [[task]]
+    # this task is run on SIGHUP and shuts everything down before it runs
+    # this is good for periodic backups
     name = "HUPTASK"
     path = "/bin/sh"
     args = [
         "-c",
-        "echo hello"
+        "echo hup hup hooray"
     ]
-    onetime = true
+    stdout = "HUP.log"
+    [task.specials]
+        onetime = true
+        shutdown = true
+        signal = "SIGHUP"
+        terminate = false
+
+[[task]]
+    # this task is run on SIGUSR1 and can be used to trigger any kind of
+    # on-demand process; perhaps something for debugging
+    name = "USRTASK1"
+    path = "/bin/sh"
+    args = [
+        "-c",
+        "echo user sez hi"
+    ]
+    stdout = "USR1.log"
+    [task.specials]
+        onetime = true
+        shutdown = false
+        signal = "SIGUSR1"
+        terminate = false
+
+[[task]]
+    # this task is run periodically (for demos, every 17 seconds)
+    # it does not shut down the system, but if you want to make sure
+    # you have a restart every so often, this might be a way to do that
+    # if you set the "shutdown" flag.
+    name = "TIMER17"
+    path = "/bin/sh"
+    args = [
+        "-c",
+        "date"
+    ]
+    stdout = "TIMER17.log"
+    [task.specials]
+        onetime = true
+        periodic = "17s"
+        shutdown = false
+        terminate = false
+
+[[task]]
+    # This is a way to run special processing when you hit ctrl-C
+    # terminate = true
+    name = "INT"
+    path = "/bin/sh"
+    args = [
+        "-c",
+        "echo buh-bye"
+    ]
+    stdout = "INT.log"
+    [task.specials]
+        onetime = true
+        shutdown = false
+        signal = "SIGINT"
+        terminate = true
 
 
 [[task]]
