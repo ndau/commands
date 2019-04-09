@@ -77,6 +77,9 @@ commands:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
           docker_layer_caching: false
+      - run:
+          name: AWS ECR Login
+          command: eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
       - run:
           name: Checkout code
@@ -245,9 +248,6 @@ jobs:
           name: run all sub project docker scripts
           command: |
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
-            # AWS ECR Login
-            eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
             # reload saved environment variables
             source $BASH_ENV
