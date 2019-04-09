@@ -117,13 +117,25 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - test-build:
+      - build-deps:
           filters:
             branches:
               only: /^master$/
+      - test:
+            branches:
+              only: /^master$/
+          requires:
+            - build-deps
+      - build:
+          filters:
+            branches:
+              only: /^master$/
+          requires:
+            - build-deps
       - push:
           requires:
-            - test-build
+            - test
+            - build
           filters:
             branches:
               only: /^master$/
@@ -141,15 +153,32 @@ workflows:
               only: /^master$/
   tagged-build:
     jobs:
-      - test-build:
-          filters:  # required since `push` has tag filters AND requires `test-build`
+      - build-deps:
+          filters:  # required since `push` has tag filters AND requires `test, build`
             tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only deploy for these tags
+              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
             branches:
               ignore: /^master$/
+      - test:
+          filters:  # required since `push` has tag filters AND requires `test, build`
+            tags:
+              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+            branches:
+              ignore: /^master$/
+          requires:
+            - build-deps
+      - build:
+          filters:  # required since `push` has tag filters AND requires `test-build`
+            tags:
+              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+            branches:
+              ignore: /^master$/
+          requires:
+            - build-deps
       - push:
           requires:
-            - test-build
+            - test
+            - build
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
               only: /.*-push$|.*-deploy$/
@@ -221,24 +250,49 @@ mainnet_config: &mainnet_config
         NETWORK_NAME: "mainnet" # used for snapshots
 
 jobs:
-  test-build:
+  build-deps:
+    <<: *general_config
+    steps:
+      - setup
+      - run:
+          name: build-deps
+          command: |
+            # build deps image
+            docker build -t deps -f /commands/deploy/deps.docker /commands/
+      - save_image:
+          img_name: deps:latest
+
+  test:
     <<: *general_config
     steps:
       - setup
       - run:
           name: Test and build
           command: |
-            # build deps image
-            docker build -t deps -f /commands/deploy/deps.docker /commands/
+            # load previously cached containers
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
 
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
                 deps \
-                /bin/sh /root/test-and-build.sh
+                /bin/sh /root/test.sh
 
-      - save_image:
-          img_name: deps:latest
+  build:
+    <<: *general_config
+    steps:
+      - setup
+      - run:
+          name: Test and build
+          command: |
+            # load previously cached containers
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+
+            # this runs a build script within the deps image
+            docker run --rm \
+                -e CI=true \
+                deps \
+                /bin/sh /root/build.sh
 
   push:
     <<: *general_config
