@@ -108,8 +108,6 @@ func parseSignal(v interface{}) os.Signal {
 			return syscall.SIGHUP
 		case "SIGINT", "INT":
 			return syscall.SIGINT
-		case "SIGKILL", "KILL":
-			return syscall.SIGKILL
 		case "SIGTERM", "TERM":
 			return syscall.SIGTERM
 		case "SIGUSR1", "USR1":
