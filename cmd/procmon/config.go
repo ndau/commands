@@ -6,6 +6,8 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -28,7 +30,7 @@ type ConfigTask struct {
 	Name        string
 	Path        string
 	Args        []string
-	Onetime     bool
+	Specials    map[string]interface{}
 	Stdout      string
 	Stderr      string
 	Parent      string
@@ -38,21 +40,86 @@ type ConfigTask struct {
 	Prerun      []string
 }
 
-// parseDuration parses a duration string (usually from the environment) and
+// Tasks is the container for all the task types that get manipulated.
+type Tasks struct {
+	Main     []*Task
+	Signals  map[os.Signal]*Task
+	Periodic []*Task
+	All      map[string]*Task
+}
+
+// NewTasks creates the Tasks object
+func NewTasks() Tasks {
+	return Tasks{
+		Main:     make([]*Task, 0),
+		Signals:  make(map[os.Signal]*Task),
+		Periodic: make([]*Task, 0),
+		All:      make(map[string]*Task),
+	}
+}
+
+// parseDuration parses a duration (a string from the environment) and
 // accepts a default value. Even when it returns an error, it also returns
 // the default, so that the error can be logged but let the system continue.
-func parseDuration(dur string, def time.Duration) (time.Duration, error) {
-	// if it's empty, there's no error, just return the default
-	if dur == "" {
+func parseDuration(idur interface{}, def time.Duration) (time.Duration, error) {
+	switch dur := idur.(type) {
+	case string:
+		// if it's empty, there's no error, just return the default
+		if dur == "" {
+			return def, nil
+		}
+		// if it's not empty, and can't be parsed, return the error for logging
+		// as well as the default.
+		v, err := time.ParseDuration(dur)
+		if err != nil {
+			return def, err
+		}
+		return v, nil
+	default:
 		return def, nil
 	}
-	// if it's not empty, and can't be parsed, return the error for logging
-	// as well as the default.
-	v, err := time.ParseDuration(dur)
-	if err != nil {
-		return def, err
+}
+
+// parseBool turns an interface value into a bool
+func parseBool(v interface{}, def bool) bool {
+	switch b := v.(type) {
+	case string:
+		switch strings.ToLower(b) {
+		case "t", "y", "true", "yes":
+			return true
+		case "f", "n", "false", "no":
+			return false
+		default:
+			return def
+		}
+	case bool:
+		return b
+	default:
+		return def
 	}
-	return v, nil
+}
+
+// parseSignal interprets a signal name in an interface and returns the associated signal
+func parseSignal(v interface{}) os.Signal {
+	switch s := v.(type) {
+	case string:
+		switch s {
+		case "SIGHUP", "HUP":
+			return syscall.SIGHUP
+		case "SIGINT", "INT":
+			return syscall.SIGINT
+		case "SIGTERM", "TERM":
+			return syscall.SIGTERM
+		case "SIGUSR1", "USR1":
+			return syscall.SIGUSR1
+		case "SIGUSR2", "USR2":
+			return syscall.SIGUSR2
+		default:
+			return nil
+		}
+	default:
+		return nil
+	}
 }
 
 func (ct *ConfigTask) interpolate(env map[string]string) {
@@ -209,18 +276,18 @@ func fileparse(name string) (io.WriteCloser, error) {
 // BuildTasks constructs all the tasks from a loaded config
 // It returns an array of the tasks that need to be individually
 // started. All child tasks will be descendants of these.
-func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
-	taskm := make(map[string]*Task)
-	tasks := make([]*Task, 0)
+func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
+	tasks := NewTasks()
+	// taskm := make(map[string]*Task)
+	// tasks := make([]*Task, 0)
 	for _, ct := range c.Task {
 		t := NewTask(ct.Name, ct.Path, ct.Args...)
 		t.Env = c.Getenv()
-		t.Onetime = ct.Onetime
 		// set up any monitors we need
 		for _, mon := range ct.Monitors {
 			m, err := BuildMonitor(mon, logger)
 			if err != nil {
-				return nil, err
+				return tasks, err
 			}
 			switch mon["name"] {
 			case "ready":
@@ -228,7 +295,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 			default:
 				period, err := parseDuration(mon["period"], 15*time.Second)
 				if err != nil {
-					return nil, err
+					return tasks, err
 				}
 				nm := NewFailMonitor(NewMonitor(t.Status, period, m))
 				t.Monitors = append(t.Monitors, nm)
@@ -237,26 +304,26 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 		// check for stdout/err assignments
 		stdout, err := fileparse(ct.Stdout)
 		if err != nil {
-			return nil, err
+			return tasks, err
 		}
 		t.Stdout = stdout
 		stderr, err := fileparse(ct.Stderr)
 		if err != nil {
-			return nil, err
+			return tasks, err
 		}
 		t.Stderr = stderr
 
 		// MaxStartup
 		maxstartup, err := parseDuration(ct.MaxStartup, t.MaxStartup)
 		if err != nil {
-			return nil, err
+			return tasks, err
 		}
 		t.MaxStartup = maxstartup
 
 		// MaxShutdown
 		maxshutdown, err := parseDuration(ct.MaxShutdown, t.MaxShutdown)
 		if err != nil {
-			return nil, err
+			return tasks, err
 		}
 		t.MaxShutdown = maxshutdown
 
@@ -264,27 +331,39 @@ func (c *Config) BuildTasks(logger *logrus.Logger) ([]*Task, error) {
 		t.Logger = logger.WithField("task", t.Name).WithField("bin", "procmon")
 
 		for _, prerun := range ct.Prerun {
-			if _, ok := taskm[prerun]; !ok {
-				return nil, errors.New("did not find prerun task " + prerun)
+			if _, ok := tasks.All[prerun]; !ok {
+				return tasks, errors.New("did not find prerun task " + prerun)
 			}
-			t.Prerun = append(t.Prerun, taskm[prerun])
+			t.Prerun = append(t.Prerun, tasks.All[prerun])
 		}
 
-		// if the task has a parent, assign it as a dependent
-		if ct.Parent != "" {
-			if _, ok := taskm[ct.Parent]; !ok {
-				return nil, errors.New("did not find parent task " + ct.Parent)
-			}
-			taskm[ct.Parent].AddDependent(t)
-		} else {
-			// if no parent, then it's in the root set of tasks that have to
-			// be started directly
-			tasks = append(tasks, t)
+		t.Onetime = parseBool(ct.Specials["onetime"], false)
+		t.Periodic, err = parseDuration(ct.Specials["periodic"], 0)
+		t.Terminate = parseBool(ct.Specials["terminate"], false)
+		t.Shutdown = parseBool(ct.Specials["shutdown"], false)
+		if err != nil {
+			return tasks, err
 		}
-		taskm[ct.Name] = t
+		sig := parseSignal(ct.Specials["signal"])
+		switch {
+		case sig != nil:
+			tasks.Signals[sig] = t
+		case ct.Parent != "":
+			if _, ok := tasks.All[ct.Parent]; !ok {
+				return tasks, errors.New("did not find parent task " + ct.Parent)
+			}
+			tasks.All[ct.Parent].AddDependent(t)
+		case t.Periodic != 0:
+			tasks.Periodic = append(tasks.Periodic, t)
+		case ct.Parent == "" && t.Onetime == false:
+			// if no parent and not a onetime task, then it's in the root set of tasks that have to
+			// be started directly
+			fmt.Println("Adding to main: ", t.Name, t.Onetime, t.Periodic, t.Terminate, t.Shutdown)
+			tasks.Main = append(tasks.Main, t)
+		}
+		tasks.All[t.Name] = t
 	}
 
-	// return the root set
 	return tasks, nil
 }
 
