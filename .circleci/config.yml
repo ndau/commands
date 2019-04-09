@@ -197,21 +197,12 @@ general_config: &general_config
     environment:
         shell: /bin/bash
         <<: *aws_defaults
-        # nodes will be accessible from their release name combined with a number
-        # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
-        ELB_SUBDOMAIN: api.ndau.tech
-        KUBECONFIG: /root/kubeconfig
         NDAUHOME: /root/.ndau
-        S3_NODE_ID_ARCHIVE: sc-nodes-devnet.tgz
-        HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
-        SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
-        CHAOS_NOMS_TAG: 0.0.2
-        CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
-        NDAU_NOMS_TAG: 0.0.2
-        NDAU_REDIS_TAG: 0.0.1
+        PORT_OFFSET: 0
+        PERSISTENT_PEERS: 1e1c860b9c3b65fd155fe63e96482f71967f7c99@_IP_:30200,940a6e3f071da7644f7f9a6b53edd99699bb9460@_IP_:30201,778a87a4537a4dd87acd37b1e5c6c458f2b414c3@_IP_:30202,2a171821c9855c85b3c50aa4eef79ad539b5d563@_IP_:30203,a11fa11b65f1c898ddf66d5b5446ec07e655e144@_IP_:30204 # _IP_ gets s/_IP_/real_ip/g 'd
+        STATIC_IPS: 50.17.109.111 54.196.108.229
+        ECS_CLUSTER: sc-node
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -220,20 +211,11 @@ testnet_config: &testnet_config
     environment:
         shell: /bin/bash
         <<: *aws_defaults
-        # nodes will be accessible from their release name combined with a number
-        # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
-        ELB_SUBDOMAIN: api.ndau.tech
-        KUBECONFIG: /root/kubeconfig
-        S3_DEPLOY_ARCHIVE: testnet.tgz
-        HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
-        SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
-        CHAOS_NOMS_TAG: 0.0.2
-        CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
-        NDAU_NOMS_TAG: 0.0.2
-        NDAU_REDIS_TAG: 0.0.1
+        PORT_OFFSET: 50 # this gets added to for 30x00y where y is the node number
+        PERSISTENT_PEERS: 1e1c860b9c3b65fd155fe63e96482f71967f7c99@_IP_:30250,940a6e3f071da7644f7f9a6b53edd99699bb9460@_IP_:30251,778a87a4537a4dd87acd37b1e5c6c458f2b414c3@_IP_:30252,2a171821c9855c85b3c50aa4eef79ad539b5d563@_IP_:30253,a11fa11b65f1c898ddf66d5b5446ec07e655e144@_IP_:30254 # _IP_ gets s/_IP_/real_ip/g 'd
+        STATIC_IPS: 50.17.109.111 54.196.108.229
+        ECS_CLUSTER: sc-node
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -244,18 +226,9 @@ mainnet_config: &mainnet_config
         <<: *aws_defaults
         # nodes will be accessible from their release name combined with a number
         # and the subdomain of the ELB. (e.g. node-0.main.ndau.tech)
-        ELB_SUBDOMAIN: main.ndau.tech
-        KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
-        SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
-        CHAOS_NOMS_TAG: 0.0.2
-        CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
-        NDAU_NOMS_TAG: 0.0.2
-        NDAU_REDIS_TAG: 0.0.1
 
 jobs:
   test-build:
@@ -305,27 +278,39 @@ jobs:
       - run:
           name: run the deploy script
           command: |
+
+            # download ecs cli
+            curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && \
+            chmod +x /usr/local/bin/ecs-cli
+
+            # configure ecs
+            ecs-cli configure  profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
+
             # Download node identities
-            node_id_dir=/root/node-identities
-            mkdir -p "$node_id_dir"
+            S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE $node_id_dir/$S3_NODE_ID_ARCHIVE
-            (
-              cd $node_id_dir
-              tar xvf $S3_NODE_ID_ARCHIVE
-            )
+              aws s3 cp s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE ./$S3_NODE_ID_ARCHIVE
+            tar xvf $S3_NODE_ID_ARCHIVE
 
             # get bash environment variables from previous steps
             source $BASH_ENV
 
-            # Deploy the container to fargate
-            APP_BASE_NAME=sc-node \
-            NODE_ID=sc-node-0 \
-            SNAPSHOT="snapshot-devnet-g" \
-            PERSISTENT_PEERS="ca195d91c051d91c451483b08bdea0059e39fd34@100.24.11.77:30051" \
-            NODE_IDENTITY=$(base64 $node_id_dir/sc-node-0.tgz) \
-              /commands/docker/bin/deploycontainer.sh
+            # make a persistent peers string with all the static ips
+            PEERS=""
+            for IP in $STATIC_IPS; do
+              PEERS+=($(sed "s/_IP_/$IP/g" <<< $PERSISTENT_PEERS))
+            done
+            PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
+
+            for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+              if [ ! -f "./node-identity-$i.tgz" ]; then
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME
+              fi # no else break in case some nodes are updated and others are not
+            done
+
+            # TODO prune nodes with a deploy?
 
       - notify:
           msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
@@ -341,48 +326,39 @@ jobs:
       - run:
           name: run the deploy script
           command: |
-            # Redeploy nodegroup testnet
-            cd /commands
+            # download ecs cli
+            curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && \
+            chmod +x /usr/local/bin/ecs-cli
 
-            # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
-            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
+            # configure ecs
+            ecs-cli configure  profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
 
-            # copy and unzip installation scripts from aws
-            mkdir -p /root/nodegroups
+            # Download node identities
+            S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
-            (
-              cd /root/nodegroups
-              tar xvf $S3_DEPLOY_ARCHIVE
-            )
+              aws s3 cp s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE ./$S3_NODE_ID_ARCHIVE
+            tar xvf $S3_NODE_ID_ARCHIVE
 
-            # bring down nodes
-            /root/nodegroups/down.sh
+            # get bash environment variables from previous steps
+            source $BASH_ENV
 
-            # wait for stragglers to die. pvcs always go down last
-            # TODO add some smarter resource detection
-            while true; do
-              if
-                [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=testnet-1 | wc -l | tr -d "[:space:]")" == "0" ]; then
-                  break
-              else
-                echo "waiting for testnet to die"
-                sleep 1
-              fi
+            # make a persistent peers string with all the static ips
+            PEERS=""
+            for IP in $STATIC_IPS; do
+              PEERS+=($(sed "s/_IP_/$IP/g" <<< $PERSISTENT_PEERS))
+            done
+            PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
+
+             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+              if [ ! -f "./node-identity-$i.tgz" ]; then
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME
+              fi # no else break in case some nodes are updated and others are not
             done
 
-            # set SHA to what the logic in the checkout step has determined.
-            source $BASH_ENV
-            echo "SHA = $SHA"
+            # TODO prune nodes with a deploy?
 
-            # brings nodes back up
-            CHAOSNODE_TAG=$SHA \
-            NDAUNODE_TAG=$SHA \
-            HELM_CHART_PATH=/root/automation/helm/nodegroup \
-              /root/nodegroups/up.sh
       - notify:
           msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
 
@@ -550,4 +526,4 @@ jobs:
 
             # run tests
             pipenv sync
-            pipenv run pytest --net=devnet --ndauapi=https://devnet-0.api.ndau.tech
+            pipenv run pytest -v --net=devnet

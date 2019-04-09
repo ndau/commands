@@ -15,7 +15,8 @@ p2p_elb_arn=$(printf "arn:aws:elasticloadbalancing:%s:%s:loadbalancer/%s" us-eas
 http_alb_name="sc-node-http"
 http_alb_arn=$(aws elbv2 describe-load-balancers | jq -r ".LoadBalancers[] | select (.LoadBalancerName==\"$http_alb_name\") | .LoadBalancerArn")
 
-errcho() { >&2 echo "$@"; }
+errcho() { >&2 echo -e "$@"; }
+verrcho() { [ "$VERBOSE" == "true" ] && errcho "$@"; }
 
 usage() {
   errcho "Usage: PORT_OFFSET=0 $0 network_name node_number"
@@ -40,17 +41,21 @@ if [ ! "$port_offset" -eq "$port_offset" ]; then
 fi
 
 FORCE=false
+VERBOSE=false
 
 while test $# -gt 0
 do
     case "$1" in
         --force) FORCE=true
             ;;
+        --verbose) VERBOSE=true
+            ;;
     esac
     shift
 done
 
-echo "should force? $FORCE"
+verrcho "FORCE=$FORCE"
+verrcho "VERBOSE=$VERBOSE"
 
 base_port=30000
 rpc_port=$((base_port + 100 + node_number + port_offset))
@@ -63,41 +68,38 @@ ndauapi_port=$((base_port + 300 + node_number + port_offset))
 ndauapi_node_name="${network_name}-${node_number}-ndauapi"
 
 reg_targets() {
-  >&2 echo -e "\nreg_targets($@)"
+  verrcho "\nreg_targets($@)"
   local name_match=$1
   local tg_arn=$2
   instances=$(./get-instanceids-by-name.sh $name_match )
-  echo "Registering: $instances"
+  errcho "Registering: $instances"
   ids=$(for id in $instances; do echo "Id=$id"; done)
-  id_string=$(echo $ids | sed 's/\n/ /g')
-  aws elbv2 register-targets --target-group-arn $tg_arn --targets $id_string
+  id_string=$(sed 's/\n/ /g' <<< $ids)
+  aws elbv2 register-targets --target-group-arn "$tg_arn" --targets "$id_string"
 }
 
 get_tg_arn_by_name() {
-  >&2 echo -e "\nget_tg_arn_by_name($@)"
-  >&2 echo "getting tg arn by name $1"
+  verrcho "\nget_tg_arn_by_name($@)"
+  verrcho "getting tg arn by name $1"
   aws elbv2 describe-target-groups | jq -r ".TargetGroups[] | select( .TargetGroupName==\"$1\" ) | .TargetGroupArn"
 }
 
-get_load_balancer_arn() {
-  >&2 echo -e "\nget_load_balancer_arn($@)"
-  >&2 echo "getting load balancer arn: $1"
+get_load_balancer_arn_by_name() {
+  verrcho "\nget_load_balancer_arn_by_name($@)"
+  verrcho "getting load balancer arn: $1"
   resp=$(aws elbv2 describe-load-balancers | jq -r ".LoadBalancers[] | select (.LoadBalancerName==\"$1\") | .LoadBalancerArn")
-  >&2 echo "got this back: $resp"
+  verrcho "got this back: $resp"
   echo $resp
-
-
 }
 
 get_listener_arn() {
-  >&2 echo -e "\nget_listener_arn($@)"
+  verrcho "\nget_listener_arn($@)"
   lb_name=$1
   tg_name=$2
-  >&2 echo "lb_name: $lb_name"
-  >&2 echo "tg_name: $tg_name"
-  lb_arn=$(get_load_balancer_arn $lb_name)
-  >&2 echo "lb_name: $lb_name"
-  >&2 echo "lb_arn:  $lb_arn"
+  verrcho "lb_name: $lb_name"
+  verrcho "tg_name: $tg_name"
+  lb_arn=$(get_load_balancer_arn_by_name $lb_name)
+  verrcho "lb_arn:  $lb_arn"
   aws elbv2 describe-listeners \
     --load-balancer $lb_arn | \
     jq -r ".Listeners[] as \$parent | \
@@ -108,46 +110,43 @@ get_listener_arn() {
 
 
 get_listener_arn_by_port() {
-  >&2 echo -e "\nget_listener_arn_by_port($@)"
+  verrcho "\nget_listener_arn_by_port($@)"
   lb_name=$1
   port=$2
-  lb_arn=$(get_load_balancer_arn $lb_name)
-  >&2 echo "lb name: $lb_name"
-  >&2 echo "lb arn:  $lb_arn"
-  >&2 echo "port:    $port"
+  lb_arn=$(get_load_balancer_arn_by_name $lb_name)
+  verrcho "lb_name: $lb_name"
+  verrcho "lb_arn:  $lb_arn"
+  verrcho "port:    $port"
   aws elbv2 describe-listeners --load-balancer $lb_arn | jq -r ".Listeners[]? | select ( .Port==$port) | .ListenerArn" | uniq
 }
 
+# If force is set checks for a listener with a certain target group or port and deletes the listener and the target group.
 force_check() {
-  >&2 echo -e "\nforce_check($@)"
+  verrcho "\nforce_check($@)"
   tg_name=$1
   port=$2
-  if [ $FORCE == "true" ]; then
-    echo "forcing"
-    arn=$(get_listener_arn $http_alb_name $tg_name)
-    echo "listener_arn $arn"
-    if [ ! -z "$arn" ]; then
-        aws elbv2 delete-listener --listener-arn $arn
-    fi
+  if [ "$FORCE" == "true" ]; then
+    verrcho "redundantly attempting to delete previous listeners and target groups"
+    listener_arn=$(get_listener_arn $http_alb_name $tg_name)
+    verrcho "listener_arn $listener_arn"
+    [ ! -z "$listener_arn" ] && aws elbv2 delete-listener --listener-arn $listener_arn
+
     same_port_arn=$(get_listener_arn_by_port $http_alb_name $port)
-    echo "same_port_listener_arn $same_port_arn"
-    if [ ! -z "$same_port_arn" ]; then
-        aws elbv2 delete-listener --listener-arn $same_port_arn
-    fi
-    arn=$(get_tg_arn_by_name $tg_name)
-    echo "tg_arn $arn"
-    if [ ! -z "$arn" ]; then
-      aws elbv2 delete-target-group --target-group-arn $arn
-    fi
+    verrcho "same_port_listener_arn $same_port_arn"
+    [ ! -z "$same_port_arn" ] && aws elbv2 delete-listener --listener-arn $same_port_arn
+
+    tg_arn=$(get_tg_arn_by_name $tg_name)
+    verrcho "tg_arn $tg_arn"
+    [ ! -z "$tg_arn" ] && aws elbv2 delete-target-group --target-group-arn $tg_arn
   fi
 }
 
 force_p2p_check() {
-  >&2 echo -e "\nforce_p2p_check($@)"
+  verrcho "\nforce_p2p_check($@)"
   lb_name=$1
   port=$2
-  if [ $FORCE == "true" ]; then
-    echo "forcing"
+  if [ "$FORCE" == "true" ]; then
+    errcho "Attempting to delete p2p listener"
     aws elb delete-load-balancer-listeners --load-balancer-name $lb_name --load-balancer-ports $port
   fi
 }
@@ -161,17 +160,18 @@ resp=$(aws elbv2 create-target-group \
 --port ${rpc_port})
 if ! grep "An error occurred" <<< $resp; then
   tg_arn=$(jq -r '.TargetGroups[0].TargetGroupArn' <<< $resp)
-  echo "Created RPC target group for ${network_name}-${node_number}"
+  errcho "Created RPC target group for ${network_name}-${node_number}"
   reg_targets sc-node-cluster\$ $tg_arn
   aws elbv2 create-listener \
     --load-balancer-arn $http_alb_arn \
-    --protocol HTTP \
+    --certificates "CertificateArn=arn:aws:acm:us-east-1:578681496768:certificate/2e669f22-adf7-44eb-ac7b-fa45a85503d7" \
+    --protocol HTTPS \
     --port $rpc_port \
     --default-actions Type=forward,TargetGroupArn=$tg_arn
 fi
 
 # P2P
-force_p2p_check $p2p_node_name $p2p_port
+force_p2p_check $p2p_elb_name $p2p_port
 resp=$(aws elbv2 create-target-group \
 --name $p2p_node_name \
 --protocol TCP \
@@ -179,7 +179,7 @@ resp=$(aws elbv2 create-target-group \
 --port ${p2p_port})
 if ! grep "An error occurred" <<< $resp; then
   tg_arn=$(jq -r '.TargetGroups[0].TargetGroupArn' <<< $resp)
-  echo "Created P2P target group for ${network_name}-${node_number}"
+  errcho "Created P2P target group for ${network_name}-${node_number}"
   reg_targets sc-node-cluster\$ $tg_arn
   aws elb create-load-balancer-listeners --load-balancer-name $p2p_elb_name --listeners "Protocol=TCP,LoadBalancerPort=$p2p_port,InstanceProtocol=TCP,InstancePort=$p2p_port"
 fi
@@ -190,14 +190,16 @@ resp=$(aws elbv2 create-target-group \
 --name $ndauapi_node_name \
 --protocol HTTP \
 --vpc-id "$(./get-vpcid-by-name.sh $vpc)" \
+--health-check-path "/node/status" \
 --port ${ndauapi_port})
 if ! grep "An error occurred" <<< $resp; then
   tg_arn=$(jq -r '.TargetGroups[0].TargetGroupArn' <<< $resp)
-  echo "Created ndauapi target group for ${network_name}-${node_number}"
+  errcho "Created ndauapi target group for ${network_name}-${node_number}"
   reg_targets sc-node-cluster\$ $tg_arn
   aws elbv2 create-listener \
     --load-balancer-arn $http_alb_arn \
-    --protocol HTTP \
+    --certificates "CertificateArn=arn:aws:acm:us-east-1:578681496768:certificate/2e669f22-adf7-44eb-ac7b-fa45a85503d7" \
+    --protocol HTTPS \
     --port $ndauapi_port \
     --default-actions Type=forward,TargetGroupArn=$tg_arn
 fi
