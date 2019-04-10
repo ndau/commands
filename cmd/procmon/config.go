@@ -261,13 +261,13 @@ func fileparse(name string, def io.WriteCloser) (io.WriteCloser, error) {
 		// Suppress local task-specific logging.  Each task in a node group will do its own
 		// honeycomb logging in this case.  Those tasks that don't have honeycomb support
 		// (e.g. redis, noms) will simply not log.  But they don't log much we care about anyway.
-		return nil, nil
+		return io.Discard, nil
 	}
 	
-    // If name == "", the def param is returned
+	// If name == "", the def param is returned
 	// "SUPPRESS" meaning "discard this stream"
-    // "STDOUT" means "send to stdout"
-    // "STDERR" means "send to stderr"
+	// "STDOUT" means "send to stdout"
+	// "STDERR" means "send to stderr"
 	// "HONEYCOMB" sends the message to honeycomb
 	// Anything else is a named file
 	switch name {
@@ -278,7 +278,7 @@ func fileparse(name string, def io.WriteCloser) (io.WriteCloser, error) {
 	case "STDERR":
 		return os.Stderr, nil
 	case "SUPPRESS":
-		return nil, nil
+		return io.Discard, nil
 	case "HONEYCOMB":
 		// This would be useful for those apps that don't have honeycomb support built in.
 		// For example, redis and noms.  However, those apps don't log much we care about anyway.
@@ -395,7 +395,7 @@ func (c *Config) BuildLogger() *logrus.Logger {
 	if os.Getenv("HONEYCOMB_KEY") != "" {
 		// Suppress local procmon logging when the HONEYCOMB_* environment variables are set.
 		// Procmon will log to honeycomb in this case, not to disk or anywhere else.
-		out = nil
+		out = io.Discard
 	} else {
 		switch c.Logger["output"] {
 		case "STDOUT":
@@ -403,13 +403,13 @@ func (c *Config) BuildLogger() *logrus.Logger {
 		case "STDERR", "":
 			out = os.Stderr
 		case "SUPPRESS":
-			out = nil
+			out = io.Discard
 		case "HONEYCOMB":
 			// This would be useful for procmon itself to log to honeycomb, without having the
 			// global honeycomb logging behavior we get by setting the HONEYCOMB_* env vars.
-			out = nil
+			out = io.Discard
 		default:
-			out = nil
+			out = io.Discard
 		}
 	}
 
