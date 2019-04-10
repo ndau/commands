@@ -24,7 +24,8 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
-version = "~v1.3"
+branch = "eas-commands-200"
+#version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
