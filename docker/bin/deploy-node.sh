@@ -7,27 +7,35 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # args
 node_number=$1
 network_name=$2
+snapshot_url=$3
 
 # consts
 TMP_FILE="$DIR/temp-docker-compose.yml"
 TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$DIR/node-identity-${node_number}.tgz"
 
+errcho() { >&2 echo -e "$@"; }
+
 if [ -f "$TMP_FILE" ]; then
-  >&2 echo "temp file already exists: $TMP_FILE"
+  errcho "temp file already exists: $TMP_FILE"
   exit 1
 fi
 
 # Make sure template file is there
 if [ ! -f "$TEMPLATE_FILE" ]; then
-  >&2 echo "template file not found: $TEMPLATE_FILE"
+  errcho "template file not found: $TEMPLATE_FILE"
   exit 1
 fi
 
 # Make sure identity file is there
 if [ ! -f "$IDENTITY_FILE" ]; then
-  >&2 echo "Identity file not found: $IDENTITY_FILE"
+  errcho "Identity file not found: $IDENTITY_FILE"
   exit 1
+fi
+
+# Test to see if the snapshot url exists.
+if ! curl --output /dev/null --silent --head --fail "$snapshot_url"; then
+  errcho "Snapshot URL doesn't exist: $snapshot_url"
 fi
 
 port_offset=$PORT_OFFSET
@@ -43,6 +51,7 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
+    -e "s/{{SNAPSHOT_URL}}/${SNAPSHOT_URL}/g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
     -e "s/{{P2P_PORT}}/${p2p_port}/g" \
