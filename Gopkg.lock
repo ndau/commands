@@ -543,11 +543,11 @@
 
 [[projects]]
   branch = "eas-commands-200"
-  digest = "1:af9e2832b15b7e279e279ec6dcf118bd59041c05ae925c732a6d968bdb2f9ba1"
+  digest = "1:49bcf7e48ff57ae75fb475f1a575381ad2bb6995f3160a0e0c1a051ae10feadc"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "19bf389f48848ad8bd8937db7c56c2279ef0a57d"
+  revision = "b83a6082761097747451b5fa5e57ec235d223a88"
 
 [[projects]]
   digest = "1:939c7a816552e515321f531d73d14e44a88051bc4d270f0ffe27b4c3884e14e0"
