@@ -21,7 +21,13 @@ fi
 
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
-./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+if [ -z "$HONEYCOMB_KEY" ]; then
+    # Honeycomb not configured, we'll dump everything locally from procmon itself.
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+else
+    # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
+fi
 procmon_pid="$!"
 echo "Started procmon as PID $procmon_pid"
 
