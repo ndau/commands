@@ -16,7 +16,7 @@ PORT_D = "12344"
 PORT_E = "12345"
 
 [logger]
-output = "stderr"
+output = "STDERR"
 format = "$FORMAT"
 level = "$LOGLEVEL"
 

@@ -26,7 +26,7 @@ MONIKER_PREFIX = "localnet"
 NODE_ID = "$MONIKER_PREFIX-$NODE_NUM"
 
 [logger]
-output = "stderr"
+output = "STDERR"
 format = "$FORMAT"
 level = "$LOGLEVEL"
 
