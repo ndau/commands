@@ -407,7 +407,7 @@ func (c *Config) BuildLogger() *logrus.Logger {
 		case "HONEYCOMB":
 			// This would be useful for procmon itself to log to honeycomb, without having the
 			// global honeycomb logging behavior we get by setting the HONEYCOMB_* env vars.
-			return nil, errors.New("honeycomb is not currently supported as a log destination")
+			out = nil
 		default:
 			out = nil
 		}
