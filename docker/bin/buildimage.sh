@@ -31,7 +31,6 @@ cp "$PATCH_DIR"/*.patch "$IMAGE_DIR"
 echo Building ndauimage...
 docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
-       --squash \
        "$DOCKER_DIR"/image \
        --tag=ndauimage
 echo done
