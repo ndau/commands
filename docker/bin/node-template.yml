@@ -8,12 +8,12 @@ services:
       - "{{NDAUAPI_PORT}}:3030"
     environment:
       - HONEYCOMB_DATASET=sc-node-{{NETWORK_NAME}}
-      - HONEYCOMB_KEY=b5d540e08c05885849ae13cd7886df04
+      - HONEYCOMB_KEY={{HONEYCOMB_KEY}}
       - NODE_ID={{NETWORK_NAME}}-{{NODE_NUMBER}}
       - PERSISTENT_PEERS={{PERSISTENT_PEERS}}
       - BASE64_NODE_IDENTITY={{BASE64_NODE_IDENTITY}}
-      - SNAPSHOT_URL=http://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-46.tgz # e.g. https://....tgz
-    logging:
+      - SNAPSHOT_URL={{SNAPSHOT_URL}} # e.g. https://....tgz
+    logging: # these turn on the log tab in ECS
       driver: awslogs
       options:
         awslogs-group: sc-node-{{NETWORK_NAME}}
