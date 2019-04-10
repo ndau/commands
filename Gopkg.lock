@@ -486,7 +486,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-update-key-derivation"
   digest = "1:65c2695b67b37393fa264e6963eb8ac68016957bea38a2ac6c255aa673657126"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "4c321aad2fb53b9426841d5e06678040fd871f5d"
+  revision = "6f893e3ba6aeaa09d3aa80c80e688f8e057e102d"
+  version = "v1.10.2"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
