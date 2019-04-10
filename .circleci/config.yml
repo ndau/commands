@@ -353,8 +353,8 @@ jobs:
             PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
 
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
-              if [ ! -f "./node-identity-$i.tgz" ]; then
-                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME
+              if [ -f "./node-identity-$i.tgz" ]; then
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME .
               fi # no else break in case some nodes are updated and others are not
             done
 

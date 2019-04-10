@@ -7,14 +7,26 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # args
 node_number=$1
 network_name=$2
-snapshot_url=$3
+identity_folder=$3
+[ -z "$identity_folder" ] && identity_folder=.
 
 # consts
 TMP_FILE="$DIR/temp-docker-compose.yml"
 TEMPLATE_FILE="$DIR/node-template.yml"
-IDENTITY_FILE="$DIR/node-identity-${node_number}.tgz"
+IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
 
 errcho() { >&2 echo -e "$@"; }
+usage() {
+  errcho "Usage: $0 node_number network_name identity_folder"
+  errcho "  e.g.: $0 0 devnet https://a.b.c ."
+  errcho "    node_number is the number of the node (e.g. 0 or 4)"
+  errcho "    network_name is the name of the network (e.g. devnet, testnet, mainnet)"
+  errcho "    identity_folder must contain files named 'node-identity-X.tgz' where X matches a node_number."
+  errcho ""
+  errcho "  environment variables"
+  errcho "    SNAPSHOT_URL is the url of a snapshot to restore from."
+}
+
 
 if [ -f "$TMP_FILE" ]; then
   errcho "temp file already exists: $TMP_FILE"
@@ -34,8 +46,8 @@ if [ ! -f "$IDENTITY_FILE" ]; then
 fi
 
 # Test to see if the snapshot url exists.
-if ! curl --output /dev/null --silent --head --fail "$snapshot_url"; then
-  errcho "Snapshot URL doesn't exist: $snapshot_url"
+if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL"; then
+  errcho "Snapshot URL doesn't exist: $SNAPSHOT_URL"
 fi
 
 port_offset=$PORT_OFFSET
