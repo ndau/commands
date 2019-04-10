@@ -34,10 +34,13 @@ on_sigterm() {
     wait "$procmon_pid"
 
     # Logs start over next time.  Save a copy of them all.  Having the "last run" might be useful.
-    lastrun_dir="$LOG_DIR/lastrun"
-    rm -rf "$lastrun_dir"
-    mkdir -p "$lastrun_dir"
-    mv "$LOG_DIR"/*.log "$lastrun_dir"
+    # Only needed if honeycomb isn't in use.  No logs are written in that case.
+    if [ -z "$HONEYCOMB_KEY" ]; then
+        lastrun_dir="$LOG_DIR/lastrun"
+        rm -rf "$lastrun_dir"
+        mkdir -p "$lastrun_dir"
+        mv "$LOG_DIR"/*.log "$lastrun_dir"
+    fi
 
     # For completeness, mark the container as not running.
     rm -f "$RUNNING_FILE"
