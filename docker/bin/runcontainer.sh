@@ -14,8 +14,9 @@ if [ -z "$1" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
    # $5 can be empty
-   [ -z "$6" ]
-   # $7 is optional
+   # $6 can be empty
+   [ -z "$7" ]
+   # $8 is optional
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
@@ -26,8 +27,10 @@ then
     echo "  P2P_PORT      External port to map to the internal P2P port for the blockchain"
     echo "  RPC_PORT      External port to map to the internal RPC port for the blockchain"
     echo "  NDAUAPI_PORT  External port to map to the internal ndauapi port"
-    echo "  PEERS         Comma-separated list of persistent peers on the network to join"
-    echo "                Each peer should be of the form IP:P2P:RPC"
+    echo "  PEERS_P2P     Comma-separated list of persistent peers on the network to join"
+    echo "                  Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
+    echo "  PEERS_RPC     Comma-separated list of the same peers for RPC connections"
+    echo "                  Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo "  SNAPSHOT      Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optionsl:"
@@ -40,9 +43,10 @@ CONTAINER="$1"
 P2P_PORT="$2"
 RPC_PORT="$3"
 NDAUAPI_PORT="$4"
-PEERS="$5"
-SNAPSHOT="$6"
-IDENTITY="$7"
+PEERS_P2P="$5"
+PEERS_RPC="$6"
+SNAPSHOT="$7"
+IDENTITY="$8"
 
 if [[ "$CONTAINER" == *"/"* ]]; then
     # This is because we use a sed command inside the container and slashes confuse it.
@@ -67,40 +71,50 @@ echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "ndauapi port: $NDAUAPI_PORT"
 
-test_port() {
-    ip="$1"
-    port="$2"
+test_local_port() {
+    port="$1"
 
-    $(nc -G 1 -z "$ip" "$port" 2>/dev/null)
+    $(nc -G 1 -z localhost "$port" 2>/dev/null)
     if [ "$?" = 0 ]; then
         echo "Port at $ip:$port is already in use"
         exit 1
     fi
 }
 
-test_port localhost "$P2P_PORT"
-test_port localhost "$RPC_PORT"
-test_port localhost "$NDAUAPI_PORT"
+test_local_port "$P2P_PORT"
+test_local_port "$RPC_PORT"
+test_local_port "$NDAUAPI_PORT"
 
-get_peer_id() {
+test_peer() {
     ip="$1"
-    p2p="$2"
-    rpc="$3"
+    port="$2"
 
-    if [ -z "$ip" ] || [ -z "$p2p" ] || [ -z "$rpc" ]; then
-        echo "Missing ip or p2p or rpc: ip=($ip) p2p=($p2p) rpc=($rpc)"
+    if [ -z "$ip" ] || [ -z "$port" ]; then
+        echo "Missing p2p ip or port: ip=($ip) port=($port)"
         exit 1
     fi
 
-    echo "Testing connection to peer $ip:$p2p..."
-    $(nc -G 5 -z "$ip" "$p2p")
+    echo "Testing connection to peer $ip:$port..."
+    $(nc -G 5 -z "$ip" "$port")
     if [ "$?" != 0 ]; then
         echo "Could not reach peer"
         exit 1
     fi
+}
 
-    echo "Getting peer info for $ip:$rpc..."
-    PEER_ID=$(curl -s --connect-timeout 5 "http://$ip:$rpc/status" | jq -r .result.node_info.id)
+get_peer_id() {
+    protocol="$1"
+    ip="$2"
+    port="$3"
+
+    if [ -z "$protocol" ] || [ -z "$ip" ] || [ -z "$port" ]; then
+        echo "Missing rpc protocol, ip or port: protocol=($protocol) ip=($ip) port=($port)"
+        exit 1
+    fi
+
+    echo "Getting peer info for $ip:$port..."
+    PEER_ID=$(curl -s --connect-timeout 5 "$protocol://$ip:$port/status" | \
+                  jq -r .result.node_info.id)
     if [ -z "$PEER_ID" ]; then
         echo "Could not get peer id"
         exit 1
@@ -110,25 +124,47 @@ get_peer_id() {
 
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
 persistent_peers=()
-peers=()
-IFS=',' read -ra PEER <<< "$PEERS"
+peers_p2p=()
+peers_rpc=()
+IFS=',' read -ra PEER <<< "$PEERS_P2P"
 for i in "${PEER[@]}"; do
-    peers+=("$i")
+    peers_p2p+=("$i")
 done
-for peer in "${peers[@]}"; do
-    peer_pieces=()
-
-    IFS=':' read -ra pair <<< "$peer"
+IFS=',' read -ra PEER <<< "$PEERS_RPC"
+for i in "${PEER[@]}"; do
+    peers_rpc+=("$i")
+done
+len="${#peers_p2p[@]}"
+if [ "$len" != "${#peers_rpc[@]}" ]; then
+    echo "The length of P2P and RPC peers must match"
+    exit 1
+fi
+for peer in $(seq 0 $((len - 1))); do
+    pieces=()
+    IFS=':' read -ra pair <<< "${peers_p2p[$peer]}"
     for i in "${pair[@]}"; do
-        peer_pieces+=("$i")
+        pieces+=("$i")
     done
+    p2p_ip="${pieces[0]}"
+    p2p_port="${pieces[1]}"
 
-    peer_ip=${peer_pieces[0]}
-    peer_p2p=${peer_pieces[1]}
-    peer_rpc=${peer_pieces[2]}
+    test_peer "$p2p_ip" "$p2p_port"
+
+    pieces=()
+    IFS=':' read -ra pair <<< "${peers_rpc[$peer]}"
+    for i in "${pair[@]}"; do
+        pieces+=("$i")
+    done
+    rpc_protocol="${pieces[0]}"
+    rpc_ip="${pieces[1]}"
+    rpc_port="${pieces[2]}"
+
+    # Since we split on colon, the double-slash is stuck to the ip.  Remove it.
+    rpc_ip="${rpc_ip:2}"
+
     PEER_ID=""
-    get_peer_id "$peer_ip" "$peer_p2p" "$peer_rpc"
-    persistent_peers+=("tcp://$PEER_ID@$peer_ip:$peer_p2p")
+    get_peer_id "$rpc_protocol" "$rpc_ip" "$rpc_port"
+    persistent_peers+=("tcp://$PEER_ID@$p2p_ip:$p2p_port")
 done
 
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
