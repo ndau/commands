@@ -331,7 +331,7 @@ jobs:
             curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && \
             chmod +x /usr/local/bin/ecs-cli
 
-            # configure ecs
+            # configure ecs-cli
             ecs-cli configure  profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
             ecs-cli configure --cluster "$ECS_CLUSTER" --region "$AWS_DEFAULT_REGION" --config-name "$ECS_CLUSTER"
 

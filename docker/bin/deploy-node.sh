@@ -16,7 +16,7 @@ TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
 ECS_PARAMS_FILE="$DIR/ecs-params.yml"
 
-CPU_SHARES_DEFAULT=150 # 250 = 25% of a cpu
+CPU_SHARES_DEFAULT=150 # 250 = 25% of a vcpu
 MEM_LIMIT_DEFAULT=2000000000 # 2GB
 
 ecs_params() {
@@ -42,9 +42,15 @@ usage() {
   errcho "    SNAPSHOT_URL is the url of a snapshot to restore from."
 }
 
-# Warn if things didn't close down properly
+# Warn if things didn't close down properly last execution
 if [ -f "$TMP_FILE" ]; then
-  errcho "temp file already exists: $TMP_FILE"
+  errcho "temp docker-compose file already exists: $TMP_FILE"
+  exit 1
+fi
+
+# Warn if things didn't close down properly last execution
+if [ -f "$ECS_PARAMS_FILE" ]; then
+  errcho "temp ecs_params file already exists: $ECS_PARAMS_FILE"
   exit 1
 fi
 
@@ -105,8 +111,7 @@ ecs-cli compose \
   -f ${TMP_FILE} \
   service up \
   --create-log-groups \
-  --cluster-config "$CLUSTER" \
-  --force-deployment
+  --cluster-config "$CLUSTER"
 
 # clean up
 rm "$TMP_FILE" "$ECS_PARAMS_FILE"
