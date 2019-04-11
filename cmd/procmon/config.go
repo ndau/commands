@@ -378,7 +378,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 		case ct.Parent == "" && t.Onetime == false:
 			// if no parent and not a onetime task, then it's in the root set of tasks that have to
 			// be started directly
-			t.Loger.Infof(
+			t.Logger.Infof(
 				"Adding to main: name=%v onetime=%v periodic=%v terminate=%v shutdown=%v",
 				t.Name, t.Onetime, t.Periodic, t.Terminate, t.Shutdown)
 			tasks.Main = append(tasks.Main, t)
