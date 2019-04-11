@@ -87,7 +87,7 @@ cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
-    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
+    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 -w0)%g" \
     -e "s*{{SNAPSHOT_URL}}*${SNAPSHOT_URL}*g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
