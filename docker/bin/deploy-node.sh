@@ -14,6 +14,21 @@ identity_folder=$3
 TMP_FILE="$DIR/temp-docker-compose.yml"
 TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
+ECS_PARAMS_FILE="$DIR/ecs-params.yml"
+
+CPU_SHARES_DEFAULT=150 # 250 = 25% of a cpu
+MEM_LIMIT_DEFAULT=2000000000 # 2GB
+
+ecs_params() {
+  cat <<EOF
+version: 1
+task_definition:
+  services:
+    {{NETWORK_NAME}}-{{NODE_NUMBER}}:
+      cpu_shares: {{CPU_SHARES}}
+      mem_limit: {{MEM_LIMIT}}
+EOF
+}
 
 errcho() { >&2 echo -e "$@"; }
 usage() {
@@ -27,7 +42,7 @@ usage() {
   errcho "    SNAPSHOT_URL is the url of a snapshot to restore from."
 }
 
-
+# Warn if things didn't close down properly
 if [ -f "$TMP_FILE" ]; then
   errcho "temp file already exists: $TMP_FILE"
   exit 1
@@ -44,6 +59,10 @@ if [ ! -f "$IDENTITY_FILE" ]; then
   errcho "Identity file not found: $IDENTITY_FILE"
   exit 1
 fi
+
+
+CPU_SHARES=${CPU_SHARES:-$CPU_SHARES_DEFAULT}
+MEM_LIMIT=${MEM_LIMIT:-$MEM_LIMIT_DEFAULT}
 
 # Test to see if the snapshot url exists.
 if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL"; then
@@ -63,7 +82,7 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
-    -e "s/{{SNAPSHOT_URL}}/${SNAPSHOT_URL}/g" \
+    -e "s*{{SNAPSHOT_URL}}*${SNAPSHOT_URL}*g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
     -e "s/{{P2P_PORT}}/${p2p_port}/g" \
@@ -72,8 +91,22 @@ cat "$TEMPLATE_FILE" | \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
+ecs_params | sed \
+    -e "s/{{NETWORK_NAME}}/${network_name}/g" \
+    -e "s/{{NODE_NUMBER}}/${node_number}/g" \
+    -e "s/{{CPU_SHARES}}/${CPU_SHARES}/g" \
+    -e "s/{{MEM_LIMIT}}/${MEM_LIMIT}/g" \
+  > "$ECS_PARAMS_FILE"
+
 # Send it to AWS
-ecs-cli compose --verbose --project-name ${network_name}-${node_number} -f ${TMP_FILE} service up --create-log-groups --cluster-config $ECS_CLUSTER
+ecs-cli compose \
+  --verbose \
+  --project-name ${network_name}-${node_number} \
+  -f ${TMP_FILE} \
+  service up \
+  --create-log-groups \
+  --cluster-config "$CLUSTER" \
+  --force-deployment
 
 # clean up
-rm "$TMP_FILE"
+rm "$TMP_FILE" "$ECS_PARAMS_FILE"

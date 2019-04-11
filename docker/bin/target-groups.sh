@@ -2,7 +2,10 @@
 
 # makes target groups for different ips and ports
 
-vpc=${VPC:-sc-node-ecs}
+CERT_ARN="CertificateArn=arn:aws:acm:us-east-1:578681496768:certificate/2e669f22-adf7-44eb-ac7b-fa45a85503d7"
+DEFAULT_VPC="sc-node-ecs"
+
+vpc=${VPC:-$DEFAULT_VPC}
 
 network_name=$1
 node_number=$2
@@ -75,18 +78,16 @@ reg_targets() {
   errcho "Registering: $instances"
   ids=$(for id in $instances; do echo "Id=$id"; done)
   id_string=$(sed 's/\n/ /g' <<< $ids)
-  aws elbv2 register-targets --target-group-arn "$tg_arn" --targets "$id_string"
+  aws elbv2 register-targets --target-group-arn "$tg_arn" --targets $id_string # leave id_string unquoted
 }
 
 get_tg_arn_by_name() {
   verrcho "\nget_tg_arn_by_name($@)"
-  verrcho "getting tg arn by name $1"
   aws elbv2 describe-target-groups | jq -r ".TargetGroups[] | select( .TargetGroupName==\"$1\" ) | .TargetGroupArn"
 }
 
 get_load_balancer_arn_by_name() {
   verrcho "\nget_load_balancer_arn_by_name($@)"
-  verrcho "getting load balancer arn: $1"
   resp=$(aws elbv2 describe-load-balancers | jq -r ".LoadBalancers[] | select (.LoadBalancerName==\"$1\") | .LoadBalancerArn")
   verrcho "got this back: $resp"
   echo $resp
@@ -121,8 +122,8 @@ get_listener_arn_by_port() {
 }
 
 # If force is set checks for a listener with a certain target group or port and deletes the listener and the target group.
-force_check() {
-  verrcho "\nforce_check($@)"
+delete_if_forced() {
+  verrcho "\ndelete_if_forced($@)"
   tg_name=$1
   port=$2
   if [ "$FORCE" == "true" ]; then
@@ -141,8 +142,8 @@ force_check() {
   fi
 }
 
-force_p2p_check() {
-  verrcho "\nforce_p2p_check($@)"
+delete_p2p_if_forced() {
+  verrcho "\ndelete_p2p_if_forced($@)"
   lb_name=$1
   port=$2
   if [ "$FORCE" == "true" ]; then
@@ -152,7 +153,7 @@ force_p2p_check() {
 }
 
 # RPC
-force_check $rpc_node_name $rpc_port
+delete_if_forced $rpc_node_name $rpc_port
 resp=$(aws elbv2 create-target-group \
 --name $rpc_node_name \
 --protocol HTTP \
@@ -164,14 +165,14 @@ if ! grep "An error occurred" <<< $resp; then
   reg_targets sc-node-cluster\$ $tg_arn
   aws elbv2 create-listener \
     --load-balancer-arn $http_alb_arn \
-    --certificates "CertificateArn=arn:aws:acm:us-east-1:578681496768:certificate/2e669f22-adf7-44eb-ac7b-fa45a85503d7" \
+    --certificates "$CERT_ARN" \
     --protocol HTTPS \
     --port $rpc_port \
     --default-actions Type=forward,TargetGroupArn=$tg_arn
 fi
 
 # P2P
-force_p2p_check $p2p_elb_name $p2p_port
+delete_p2p_if_forced $p2p_elb_name $p2p_port
 resp=$(aws elbv2 create-target-group \
 --name $p2p_node_name \
 --protocol TCP \
@@ -185,7 +186,7 @@ if ! grep "An error occurred" <<< $resp; then
 fi
 
 # ndauapi
-force_check $ndauapi_node_name $ndauapi_port
+delete_if_forced $ndauapi_node_name $ndauapi_port
 resp=$(aws elbv2 create-target-group \
 --name $ndauapi_node_name \
 --protocol HTTP \
@@ -198,7 +199,7 @@ if ! grep "An error occurred" <<< $resp; then
   reg_targets sc-node-cluster\$ $tg_arn
   aws elbv2 create-listener \
     --load-balancer-arn $http_alb_arn \
-    --certificates "CertificateArn=arn:aws:acm:us-east-1:578681496768:certificate/2e669f22-adf7-44eb-ac7b-fa45a85503d7" \
+    --certificates "$CERT_ARN" \
     --protocol HTTPS \
     --port $ndauapi_port \
     --default-actions Type=forward,TargetGroupArn=$tg_arn
