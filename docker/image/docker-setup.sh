@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 ATTICLABS_DIR="$GOPATH"/src/github.com/attic-labs
@@ -62,5 +64,9 @@ go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndaunode
 go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndauapi
 mv ndaunode "$BIN_DIR"
 mv ndauapi "$BIN_DIR"
+
+echo Building procmon...
+go build ./cmd/procmon
+mv procmon "$BIN_DIR"
 
 echo Setup complete

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
@@ -96,8 +98,9 @@ if [ ! -f "$pvs_file" ]; then
   echo "{}" > "$pvs_file"
 fi
 
-# Make data directories that don't get created elsewhere.
+# Make directories that don't get created elsewhere.
 mkdir -p "$NODE_DATA_DIR"
+mkdir -p "$LOG_DIR"
 
 cd "$BIN_DIR" || exit 1
 

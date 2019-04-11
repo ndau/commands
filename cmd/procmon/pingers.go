@@ -15,19 +15,23 @@ import (
 
 // HTTPPinger returns a function compatible with the Monitor's Test
 // parameter that pings an HTTP address with a timeout.
-func HTTPPinger(u string, timeout time.Duration) func() Eventer {
+func HTTPPinger(u string, timeout time.Duration, logger *logrus.Logger) func() Eventer {
 	client := http.Client{Timeout: time.Duration(timeout)}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		panic(err)
 	}
 	return func() Eventer {
+		logger.WithField("url", u).WithField("pinger", "HTTPPinger").Debug("pinging")
 		resp, err := client.Do(req)
 		if err != nil {
+			logger.WithField("url", u).WithField("pinger", "HTTPPinger").Debug("error from request")
 			return NewErrorEvent(Failed, err)
 		}
 		resp.Body.Close()
 		if resp.StatusCode > 299 || resp.StatusCode < 200 {
+			logger.WithField("url", u).WithField("pinger", "HTTPPinger").
+				WithField("status", resp.StatusCode).Debug("got bad status")
 			return NewErrorEvent(Failed, fmt.Errorf("Got status code %d (%s) from %s",
 				resp.StatusCode, resp.Status, u))
 		}

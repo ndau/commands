@@ -62,7 +62,7 @@ The format of this argument is a comma-separted list of peer IP, P2P and RPC por
 This is the name (minus `.tgz` extension) of the snapshot file to use for giving the new running node a blockchain starting point.  It's required.  We use localnet to generate the genesis snapshot.
 
 1. Run an N-node localnet (see the [README](../README.md) at the root of the commands repo for how to set one up)
-1. Run `<commands>/bin/snapshot.sh` and give it a network name, e.g. `devnet`
+1. Run `<commands>/bin/snapshot.sh`
 1. The snapshot will generate the following files in the `<commands>/bin/ndau-snapshots` directory:
     - `snapshot-devnet-12345.tgz` (This is a "snapshot of devnet at block height 12345")
     - `node-identity-0.tgz`, `node-identity-1.tgz`, ..., `node_identity-<N-1>.tgz`
@@ -131,9 +131,9 @@ There's a `docker/demo` directory that can be used to fire up a 5-node network l
 You can edit these files how you want, to test things out.  But if you'd like to just see it running with the fewest amount of steps, do the following:
 
 1. `cd ~/go/src/github.com/oneiro-ndev/commands`
-1. Run `bin/setup.sh 4` to set up a 4-node localnet network
+1. Run `bin/setup.sh 4 localnet` to set up a 4-node localnet network
 1. Run `bin/run.sh` and fill the blockchain with any transactions you want
-1. Run `bin/snapshot.sh localnet` to stop localnet and generate a snapshot
+1. Run `bin/snapshot.sh` to stop localnet and generate a snapshot
     - Upload it to S3 using the instructions printed by `snapshot.sh`
     - Edit `docker/demo/get_snapshot.sh` to make it return the name of the snapshot you just created
 1. Run `docker/bin/buildimage.sh` if you haven't already

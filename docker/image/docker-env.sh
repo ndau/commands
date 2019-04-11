@@ -1,11 +1,16 @@
+#!/bin/bash
+
 export NODE_PORT=26650
 export NOMS_PORT=8000
 export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
+export NDAUAPI_PORT=3030
 
-export BIN_DIR=/image/bin
-export DATA_DIR=/image/data
+export ROOT_DIR=/image
+export BIN_DIR="$ROOT_DIR"/bin
+export DATA_DIR="$ROOT_DIR"/data
+export LOG_DIR="$ROOT_DIR"/logs
 
 export NODE_DATA_DIR="$DATA_DIR"/ndau
 export NOMS_DATA_DIR="$DATA_DIR"/noms
