@@ -8,7 +8,7 @@ cd "$SCRIPT_DIR" || exit 1
 P2P=p2p.ndau.tech:3025
 RPC=https://api.ndau.tech:3015
 
-SNAPSHOT=snapshot-testnet-46.tgz
+SNAPSHOT=snapshot-testnet-47.tgz
 
 ../bin/runcontainer.sh \
     testnet-X 26665 26675 3035 \

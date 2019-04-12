@@ -112,9 +112,9 @@ get_peer_id() {
         exit 1
     fi
 
-    echo "Getting peer info for $ip:$port..."
-    PEER_ID=$(curl -s --connect-timeout 5 "$protocol://$ip:$port/status" | \
-                  jq -r .result.node_info.id)
+    url="$protocol://$ip:$port"
+    echo "Getting peer info for $url..."
+    PEER_ID=$(curl -s --connect-timeout 5 "$url/status" | jq -r .result.node_info.id)
     if [ -z "$PEER_ID" ]; then
         echo "Could not get peer id"
         exit 1
@@ -124,37 +124,21 @@ get_peer_id() {
 
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
 persistent_peers=()
-peers_p2p=()
-peers_rpc=()
-IFS=',' read -ra PEER <<< "$PEERS_P2P"
-for i in "${PEER[@]}"; do
-    peers_p2p+=("$i")
-done
-IFS=',' read -ra PEER <<< "$PEERS_RPC"
-for i in "${PEER[@]}"; do
-    peers_rpc+=("$i")
-done
+IFS=',' read -ra peers_p2p <<< "$PEERS_P2P"
+IFS=',' read -ra peers_rpc <<< "$PEERS_RPC"
 len="${#peers_p2p[@]}"
 if [ "$len" != "${#peers_rpc[@]}" ]; then
     echo "The length of P2P and RPC peers must match"
     exit 1
 fi
 for peer in $(seq 0 $((len - 1))); do
-    pieces=()
-    IFS=':' read -ra pair <<< "${peers_p2p[$peer]}"
-    for i in "${pair[@]}"; do
-        pieces+=("$i")
-    done
+    IFS=':' read -ra pieces <<< "${peers_p2p[$peer]}"
     p2p_ip="${pieces[0]}"
     p2p_port="${pieces[1]}"
 
     test_peer "$p2p_ip" "$p2p_port"
 
-    pieces=()
-    IFS=':' read -ra pair <<< "${peers_rpc[$peer]}"
-    for i in "${pair[@]}"; do
-        pieces+=("$i")
-    done
+    IFS=':' read -ra pieces <<< "${peers_rpc[$peer]}"
     rpc_protocol="${pieces[0]}"
     rpc_ip="${pieces[1]}"
     rpc_port="${pieces[2]}"
