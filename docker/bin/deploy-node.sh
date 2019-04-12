@@ -11,6 +11,7 @@ identity_folder=$3
 [ -z "$identity_folder" ] && identity_folder=.
 
 # consts
+BASE_PORT=30000
 TMP_FILE="$DIR/temp-docker-compose.yml"
 TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
@@ -18,6 +19,11 @@ ECS_PARAMS_FILE="$DIR/ecs-params.yml"
 
 CPU_SHARES_DEFAULT=150 # 250 = 25% of a vcpu
 MEM_LIMIT_DEFAULT=2000000000 # 2GB
+
+CPU_SHARES=${CPU_SHARES:-$CPU_SHARES_DEFAULT}
+MEM_LIMIT=${MEM_LIMIT:-$MEM_LIMIT_DEFAULT}
+
+source "$DIR/deploy-lib.sh"
 
 ecs_params() {
   cat <<EOF
@@ -30,58 +36,67 @@ task_definition:
 EOF
 }
 
-errcho() { >&2 echo -e "$@"; }
 usage() {
+  errcho "$0 is mainly meant to be run in the CircleCI environment where most of these variables are suppplied."
   errcho "Usage: $0 node_number network_name identity_folder"
-  errcho "  e.g.: $0 0 devnet https://a.b.c ."
+  errcho "  e.g.: $0 0 devnet ./ids"
   errcho "    node_number is the number of the node (e.g. 0 or 4)"
   errcho "    network_name is the name of the network (e.g. devnet, testnet, mainnet)"
   errcho "    identity_folder must contain files named 'node-identity-X.tgz' where X matches a node_number."
   errcho ""
   errcho "  environment variables"
+  errcho "    SHA is the 7-digit sha1 that matches a tag in ECR."
   errcho "    SNAPSHOT_URL is the url of a snapshot to restore from."
+  errcho "    [PERSISTENT_PEERS] is a comma separated list of peers for Tendermint (id@IP:port)."
+  errcho "    [CPU_SHARES] for AWS ECS task. Defaults to $CPU_SHARES_DEFAULT."
+  errcho "    [MEM_LIMIT] for AWS ECS task. Defaults to $MEM_LIMIT_DEFAULT."
 }
+
+if [ "$#" -ne 3 ]; then
+    errcho "Error: need more arguments"
+    usage
+    exit 1
+fi
 
 # Warn if things didn't close down properly last execution
 if [ -f "$TMP_FILE" ]; then
-  errcho "temp docker-compose file already exists: $TMP_FILE"
+  errcho "Error: temp docker-compose file already exists: $TMP_FILE"
   exit 1
 fi
 
 # Warn if things didn't close down properly last execution
 if [ -f "$ECS_PARAMS_FILE" ]; then
-  errcho "temp ecs_params file already exists: $ECS_PARAMS_FILE"
+  errcho "Error: temp ecs_params file already exists: $ECS_PARAMS_FILE"
   exit 1
 fi
 
 # Make sure template file is there
 if [ ! -f "$TEMPLATE_FILE" ]; then
-  errcho "template file not found: $TEMPLATE_FILE"
+  errcho "Error: template file not found: $TEMPLATE_FILE"
   exit 1
 fi
 
 # Make sure identity file is there
 if [ ! -f "$IDENTITY_FILE" ]; then
-  errcho "Identity file not found: $IDENTITY_FILE"
+  errcho "Error: Identity file not found: $IDENTITY_FILE"
   exit 1
 fi
 
-
-CPU_SHARES=${CPU_SHARES:-$CPU_SHARES_DEFAULT}
-MEM_LIMIT=${MEM_LIMIT:-$MEM_LIMIT_DEFAULT}
+# Warn about empty persistent peers
+if [ ! -f "$IDENTITY_FILE" ]; then
+  errcho "Error: Identity file not found: $IDENTITY_FILE"
+  exit 1
+fi
 
 # Test to see if the snapshot url exists.
 if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL"; then
-  errcho "Snapshot URL doesn't exist: $SNAPSHOT_URL"
+  errcho "Error: Snapshot URL doesn't exist: $SNAPSHOT_URL"
 fi
 
-port_offset=$PORT_OFFSET
-[ -z "$port_offset" ] && port_offset=0
-
-base_port=30000
-rpc_port=$((base_port     + 100 + node_number + port_offset))
-p2p_port=$((base_port     + 200 + node_number + port_offset))
-ndauapi_port=$((base_port + 300 + node_number + port_offset))
+# base_port + (1000*network_number) + (100*service_number) + node_number
+rpc_port=$(calc_port testnet rpc $node_number)
+p2p_port=$(calc_port testnet p2p $node_number)
+ndauapi_port=$(calc_port testnet ndauapi $node_number)
 
 cat "$TEMPLATE_FILE" | \
   sed \
@@ -111,6 +126,7 @@ ecs-cli compose \
   -f ${TMP_FILE} \
   service up \
   --create-log-groups \
+  --force-deployment true \
   --cluster-config "$CLUSTER_NAME"
 
 # clean up

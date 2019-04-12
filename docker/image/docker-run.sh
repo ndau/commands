@@ -72,7 +72,7 @@ fi
 touch "$RUNNING_FILE"
 
 # If the INSANE_LOGGING environment varibale is set, tail will dump all output to stdout.
-if [ !-z "$INSANE_LOGGING" ]; then
+if [ ! -z "$INSANE_LOGGING" ]; then
   tail "$LOG_DIR/*.log"-f &
 fi
 
