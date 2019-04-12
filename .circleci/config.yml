@@ -129,9 +129,8 @@ commands:
             ecs-cli configure  profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
             ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
       - run:
-          name:
+          name: Download node identities
           command: |
-            # Download node identities
             S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
@@ -141,7 +140,28 @@ commands:
 
   ecs_deploy:
     description: Deploy using ECS
-      my docket is basically: get integration tests working, start a faux-mainnet
+    steps:
+      - run:
+          name: deploy
+          command: |
+
+            # get bash environment variables from previous steps
+            source $BASH_ENV
+
+            # make a persistent peers string with all the static ips
+            PEERS=""
+            for IP in $STATIC_IPS; do
+              PEERS+=($(echo $PERSISTENT_PEERS | sed "s/_IP_/$IP/g"))
+            done
+            PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
+
+            for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+              if [ -f "./node-identity-$i.tgz" ]; then
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME .
+              fi # no else break in case some nodes are updated and others are not
+            done
+
+
 workflows:
   version: 2
   master-build:
