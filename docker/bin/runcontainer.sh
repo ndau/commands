@@ -131,25 +131,27 @@ if [ "$len" != "${#peers_rpc[@]}" ]; then
     echo "The length of P2P and RPC peers must match"
     exit 1
 fi
-for peer in $(seq 0 $((len - 1))); do
-    IFS=':' read -ra pieces <<< "${peers_p2p[$peer]}"
-    p2p_ip="${pieces[0]}"
-    p2p_port="${pieces[1]}"
+if [ "$len" -gt 0 ]; then
+    for peer in $(seq 0 $((len - 1))); do
+        IFS=':' read -ra pieces <<< "${peers_p2p[$peer]}"
+        p2p_ip="${pieces[0]}"
+        p2p_port="${pieces[1]}"
 
-    test_peer "$p2p_ip" "$p2p_port"
+        test_peer "$p2p_ip" "$p2p_port"
 
-    IFS=':' read -ra pieces <<< "${peers_rpc[$peer]}"
-    rpc_protocol="${pieces[0]}"
-    rpc_ip="${pieces[1]}"
-    rpc_port="${pieces[2]}"
+        IFS=':' read -ra pieces <<< "${peers_rpc[$peer]}"
+        rpc_protocol="${pieces[0]}"
+        rpc_ip="${pieces[1]}"
+        rpc_port="${pieces[2]}"
 
-    # Since we split on colon, the double-slash is stuck to the ip.  Remove it.
-    rpc_ip="${rpc_ip:2}"
+        # Since we split on colon, the double-slash is stuck to the ip.  Remove it.
+        rpc_ip="${rpc_ip:2}"
 
-    PEER_ID=""
-    get_peer_id "$rpc_protocol" "$rpc_ip" "$rpc_port"
-    persistent_peers+=("tcp://$PEER_ID@$p2p_ip:$p2p_port")
-done
+        PEER_ID=""
+        get_peer_id "$rpc_protocol" "$rpc_ip" "$rpc_port"
+        persistent_peers+=("tcp://$PEER_ID@$p2p_ip:$p2p_port")
+    done
+fi
 
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
 join_by() { local IFS="$1"; shift; echo "$*"; }

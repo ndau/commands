@@ -3,21 +3,6 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
-# Test whether an ip is a valid IPv4 address.
-is_valid_ip() {
-    ip="$1"
-    stat=1
-    if [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-        OIFS="$IFS"
-        IFS='.'
-        ip=("$ip")
-        IFS="$OIFS"
-        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
-        stat="$?"
-    fi
-    return $stat
-}
-
 # The PERSISTENT_PEERS may contain domain names.  Convert them to IPs.
 # Peers are comma-separated and each peer is of the form "tcp://id@ip_or_domain_name:port".
 persistent_peers=()
@@ -36,7 +21,7 @@ for peer in "${peers[@]}"; do
     ip_or_domain="${pieces[1]}"
 
     # If it's already an ip, leave it as is.  Otherwise, convert it from a domain name to an ip.
-    if is_valid_ip "$ip_or_domain"; then
+    if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         peer_ip="$ip_or_domain"
     else
         # A sed-friendly whitespace pattern: space and tab.
