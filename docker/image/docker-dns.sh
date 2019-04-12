@@ -25,10 +25,12 @@ IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
 for peer in "${peers[@]}"; do
     # Get the port after the ':'.
     IFS=':' read -ra pieces <<< "$peer"
-    id_and_domain="${pieces[0]}"
-    peer_port="${pieces[1]}"
+    protocol="${pieces[0]}"
+    id_and_domain="${pieces[1]}"
+    peer_port="${pieces[2]}"
 
     # Get the id and domain surrounding the '@'.
+    # The peer id will have a double-slash prefix, but it just goes along for the ride.
     IFS='@' read -ra pieces <<< "$id_and_domain"
     peer_id="${pieces[0]}"
     ip_or_domain="${pieces[1]}"
@@ -41,10 +43,7 @@ for peer in "${peers[@]}"; do
         WHITE="[ 	]"
         # Look for "...A...<IP>".
         ips=($(dig +noall +answer "$ip_or_domain" | \
-                   sed -n -e 's|^.*' \
-                       "$WHITE"'\{1,\}A' \
-                       "$WHITE"'\{1,\}' \
-                       '\(.*\)$|\1|p'))
+                   sed -n -e 's|^.*'"$WHITE"'\{1,\}A'"$WHITE"'\{1,\}\(.*\)|\1|p'))
 
         len="${#ips[@]}"
         if [ "$len" = 0 ]; then
@@ -52,15 +51,16 @@ for peer in "${peers[@]}"; do
             echo "WARNING: Unable to find IP for $ip_or_domain; skipping peer $peer"
         else
             # Choose one at random.  All A records are assumed to be valid.  That's their purpose.
-            peer=$((RANDOM % len))
-            peer_ip="${ips[$peer]}"
+            index=$((RANDOM % len))
+            peer_ip="${ips[$index]}"
             echo "Using IP $peer_ip for peer $peer"
         fi
     fi
 
     # We only keep peers for which valid IPs were found.
     if [ ! -z "$peer_ip" ]; then
-        persistent_peers+=("$peer_id@$peer_ip:$peer_port")
+        # The peer id already has the double-slash in front of it.
+        persistent_peers+=("$protocol:$peer_id@$peer_ip:$peer_port")
     fi
 done
 

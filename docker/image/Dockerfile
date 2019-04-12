@@ -41,17 +41,18 @@ COPY --from=redis:5.0.4-alpine [ \
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
-RUN apk add --no-cache bash ca-certificates sed && update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash bind-tools ca-certificates sed && update-ca-certificates 2>/dev/null
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
 
 # Copy image support files needed for running the node group inside the container.
 COPY ./docker-conf.sh /image
+COPY ./docker-dns.sh /image
 COPY ./docker-env.sh /image
+COPY ./docker-procmon.toml /image
 COPY ./docker-run.sh /image
 COPY ./docker-snapshot.sh /image
-COPY ./docker-procmon.toml /image
 
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
