@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:65c2695b67b37393fa264e6963eb8ac68016957bea38a2ac6c255aa673657126"
+  branch = "prgn-api-sysvar"
+  digest = "1:60989ef6888f68e602f9314ed0de0284381ae9b45f8df7243036a9afbebc1666"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6f893e3ba6aeaa09d3aa80c80e688f8e057e102d"
-  version = "v1.10.2"
+  revision = "dc4b23deec1322c07ca952e1a3f1d07b224b9d71"
 
 [[projects]]
   digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
