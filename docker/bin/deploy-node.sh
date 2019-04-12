@@ -111,7 +111,7 @@ ecs-cli compose \
   -f ${TMP_FILE} \
   service up \
   --create-log-groups \
-  --cluster-config "$CLUSTER"
+  --cluster-config "$CLUSTER_NAME"
 
 # clean up
 rm "$TMP_FILE" "$ECS_PARAMS_FILE"

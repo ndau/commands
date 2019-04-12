@@ -11,8 +11,8 @@ export SHA="8"
 export NETWORK_NAME="testnet"
 export PORT_OFFSET="50"
 export STATIC_IPS="50.17.109.111 54.196.108.229"
-export CLUSTER="sc-node"
-export SNAPSHOT_URL="https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-46.tgz"
+export CLUSTER_NAME="sc-node-cluster"
+export SNAPSHOT_URL="https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz"
 
 STATIC_IPS="50.17.109.111 54.196.108.229"
 # get the p2p load balancer's ip address
