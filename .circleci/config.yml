@@ -346,7 +346,8 @@ jobs:
                 deps \
                 /bin/sh /root/test.sh
             container_id=$(docker ps -alq)
-            docker commit $container_id deps-built:latest
+            echo "container_id: $container_id"
+            docker commit "$container_id" deps-built:latest
       - save_image:
           img_name: deps-built:latest
 
