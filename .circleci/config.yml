@@ -341,12 +341,12 @@ jobs:
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
 
             # this runs a build script within the deps image
-            docker create \
-              -e CI=true \
-              deps \
-              /bin/sh /root/build.sh \
-              | tee docker-id
-            docker tag $(cat docker-id) deps-built:latest
+            docker run --rm \
+                -e CI=true \
+                deps \
+                /bin/sh /root/test.sh
+            container_id=$(docker ps -alq)
+            docker commit $container_id deps-built:latest
       - save_image:
           img_name: deps-built:latest
 
