@@ -345,7 +345,11 @@ jobs:
                 -e CI=true \
                 deps \
                 /bin/sh /root/test.sh
-            container_id=$(docker ps -alq)
+            echo "docker ps -a"
+            docker ps -a
+            echo "docker ps -alq"
+            docker ps -alq
+            container_id=$(docker ps -alq 2>&1)
             echo "container_id: $container_id"
             docker commit "$container_id" deps-built:latest
       - save_image:
