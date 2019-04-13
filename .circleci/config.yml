@@ -319,7 +319,7 @@ jobs:
     steps:
       - setup
       - run:
-          name: Test and build
+          name: Test
           command: |
             # load previously cached containers
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
@@ -335,22 +335,18 @@ jobs:
     steps:
       - setup
       - run:
-          name: Test and build
+          name: Build
           command: |
             # load previously cached containers
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
 
             # this runs a build script within the deps image
-            docker run --rm \
+            container_id=$(docker create \
                 -e CI=true \
                 deps \
-                /bin/sh /root/test.sh
-            echo "docker ps -a"
-            docker ps -a
-            echo "docker ps -alq"
-            docker ps -alq
+                /bin/sh /root/build.sh)
+            docker start $container_id -a
             container_id=$(docker ps -alq 2>&1)
-            echo "container_id: $container_id"
             docker commit "$container_id" deps-built:latest
       - save_image:
           img_name: deps-built:latest
