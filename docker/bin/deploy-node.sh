@@ -112,6 +112,7 @@ cat "$TEMPLATE_FILE" | \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 $b64_opts)%g" \
     -e "s*{{SNAPSHOT_URL}}*${SNAPSHOT_URL}*g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
+    -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
     -e "s/{{P2P_PORT}}/${p2p_port}/g" \
     -e "s/{{NDAUAPI_PORT}}/${ndauapi_port}/g" \
