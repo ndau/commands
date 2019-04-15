@@ -2,11 +2,13 @@
 # This script is for manual testing/deployment/debugging.
 # In real life CircleCI handles all this.
 
+set -e # exit on errors
+
 export SHA="9"
 export NETWORK_NAME="devnet"
-export PERSISTENT_PEERS="1e1c860b9c3b65fd155fe63e96482f71967f7c99@_IP_:30200,940a6e3f071da7644f7f9a6b53edd99699bb9460@_IP_:30201,778a87a4537a4dd87acd37b1e5c6c458f2b414c3@_IP_:30202,2a171821c9855c85b3c50aa4eef79ad539b5d563@_IP_:30203,a11fa11b65f1c898ddf66d5b5446ec07e655e144@_IP_:30204" # _IP_ gets s/_IP_/real_ip/g 'd
+export PERSISTENT_PEERS="93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_:30200,a02408086b9688e2f8bda083e1940d010e371627@_IP_:30201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_:30202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_:30203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_:30204" # _IP_ gets s/_IP_/real_ip/g 'd
 export STATIC_IPS="50.17.109.111 54.196.108.229"
-export CLUSTER="sc-node"
+export CLUSTER="sc-node-cluster"
 export SNAPSHOT_URL="https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz"
 
 # get the p2p load balancer's ip address

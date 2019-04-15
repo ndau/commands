@@ -94,15 +94,22 @@ if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL"; then
 fi
 
 # base_port + (1000*network_number) + (100*service_number) + node_number
-rpc_port=$(calc_port testnet rpc $node_number)
-p2p_port=$(calc_port testnet p2p $node_number)
-ndauapi_port=$(calc_port testnet ndauapi $node_number)
+rpc_port=$(calc_port $network_name rpc $node_number)
+p2p_port=$(calc_port $network_name p2p $node_number)
+ndauapi_port=$(calc_port $network_name ndauapi $node_number)
+
+# test base64 capibilities
+if echo "A" | base64 -w0 2> /dev/null; then
+  b64_opts="-w0"
+else
+  b64_opts=""
+fi
 
 cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
-    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 -w0)%g" \
+    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 $b64_opts)%g" \
     -e "s*{{SNAPSHOT_URL}}*${SNAPSHOT_URL}*g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
