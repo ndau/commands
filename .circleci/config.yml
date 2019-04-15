@@ -281,7 +281,7 @@ general_config: &general_config
         <<: *aws_defaults
         NDAUHOME: /root/.ndau
         NETWORK_NAME: "devnet" # used for snapshots
-        PERSISTENT_PEERS: 93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_30200,a02408086b9688e2f8bda083e1940d010e371627@_IP_30201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_30202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_30203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_30204  # _IP_ gets s/_IP_/real_ip/g 'd
+        PERSISTENT_PEERS: 93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_:30200,a02408086b9688e2f8bda083e1940d010e371627@_IP_:30201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_:30202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_:30203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_:30204  # _IP_ gets s/_IP_/real_ip/g 'd
         STATIC_IPS: 50.17.109.111 54.196.108.229
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
@@ -294,9 +294,9 @@ testnet_config: &testnet_config
         shell: /bin/bash
         <<: *aws_defaults
         NETWORK_NAME: "testnet" # used for snapshots
-        PERSISTENT_PEERS: 93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_31200,a02408086b9688e2f8bda083e1940d010e371627@_IP_31201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_31202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_31203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_31204  # _IP_ gets s/_IP_/real_ip/g 'd
+        PERSISTENT_PEERS: 93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_:31200,a02408086b9688e2f8bda083e1940d010e371627@_IP_:31201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_:31202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_:31203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_:31204  # _IP_ gets s/_IP_/real_ip/g 'd
         STATIC_IPS: 50.17.109.111 54.196.108.229
-        CLUSTER_NAME: sc-node=cluster
+        CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
 
 mainnet_config: &mainnet_config
