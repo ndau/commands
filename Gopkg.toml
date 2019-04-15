@@ -16,13 +16,11 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.10"
-branch = "prgn-api-sysvar"
+version = "~v1.11"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-# version = "~v1.1"
-branch = "eas-int64rate-20190415"
+version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
