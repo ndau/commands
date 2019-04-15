@@ -86,8 +86,8 @@ type Task struct {
 	Status       chan Eventer
 	Stopped      chan struct{}
 	Ready        func() Eventer
-	Stdout       io.WriteCloser
-	Stderr       io.WriteCloser
+	Stdout       io.Writer
+	Stderr       io.Writer
 	Logger       logrus.FieldLogger
 	FailCount    int
 	RestartDelay time.Duration
@@ -223,7 +223,7 @@ func (t *Task) stopMonitor() {
 func (t *Task) setOutputStreams() {
 	// streamCopy is meant to be run as a goroutine and it simply runs, copying
 	// src to dst until src is closed. It's used for logging.
-	streamCopy := func(dst io.WriteCloser, src io.ReadCloser) {
+	streamCopy := func(dst io.Writer, src io.Reader) {
 		// we want a small buffer so it keeps the output current with the input
 		buf := make([]byte, 100)
 		// copy until we got nothing left

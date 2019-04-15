@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
@@ -255,14 +256,33 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 	}
 }
 
-func fileparse(name string) (io.WriteCloser, error) {
-	// "SUPPRESS" (also "") meaning "discard this stream"
+func fileparse(name string, def io.Writer) (io.Writer, error) {
+	// When honeycomb is activated, all logging goes to it.
+	if os.Getenv("HONEYCOMB_KEY") != "" {
+		// Suppress local task-specific logging.  Each task in a node group will do its own
+		// honeycomb logging in this case.  Those tasks that don't have honeycomb support
+		// (e.g. redis, noms) will simply not log.  But they don't log much we care about anyway.
+		return ioutil.Discard, nil
+	}
+	
+	// If name == "", the def param is returned
+	// "SUPPRESS" meaning "discard this stream"
+	// "STDOUT" means "send to stdout"
+	// "STDERR" means "send to stderr"
 	// "HONEYCOMB" sends the message to honeycomb
 	// Anything else is a named file
 	switch name {
-	case "SUPPRESS", "":
-		return nil, nil
+	case "":
+		return def, nil
+	case "STDOUT":
+		return os.Stdout, nil
+	case "STDERR":
+		return os.Stderr, nil
+	case "SUPPRESS":
+		return ioutil.Discard, nil
 	case "HONEYCOMB":
+		// This would be useful for those apps that don't have honeycomb support built in.
+		// For example, redis and noms.  However, those apps don't log much we care about anyway.
 		return nil, errors.New("honeycomb is not currently supported as a log destination")
 	default:
 		f, err := os.Create(name)
@@ -302,12 +322,12 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 			}
 		}
 		// check for stdout/err assignments
-		stdout, err := fileparse(ct.Stdout)
+		stdout, err := fileparse(ct.Stdout, os.Stdout)
 		if err != nil {
 			return tasks, err
 		}
 		t.Stdout = stdout
-		stderr, err := fileparse(ct.Stderr)
+		stderr, err := fileparse(ct.Stderr, os.Stderr)
 		if err != nil {
 			return tasks, err
 		}
@@ -358,7 +378,9 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 		case ct.Parent == "" && t.Onetime == false:
 			// if no parent and not a onetime task, then it's in the root set of tasks that have to
 			// be started directly
-			fmt.Println("Adding to main: ", t.Name, t.Onetime, t.Periodic, t.Terminate, t.Shutdown)
+			t.Logger.Infof(
+				"Adding to main: name=%v onetime=%v periodic=%v terminate=%v shutdown=%v",
+				t.Name, t.Onetime, t.Periodic, t.Terminate, t.Shutdown)
 			tasks.Main = append(tasks.Main, t)
 		}
 		tasks.All[t.Name] = t
@@ -372,15 +394,26 @@ func (c *Config) BuildLogger() *logrus.Logger {
 	var formatter logrus.Formatter
 	var out io.Writer
 	var level logrus.Level
-	switch c.Logger["output"] {
-	case "stdout":
-		out = os.Stdout
-	case "stderr", "":
-		out = os.Stderr
-	case "SUPPRESS":
-		out = nil
-	default:
-		out = nil
+
+	if os.Getenv("HONEYCOMB_KEY") != "" {
+		// Suppress local procmon logging when the HONEYCOMB_* environment variables are set.
+		// Procmon will log to honeycomb in this case, not to disk or anywhere else.
+		out = ioutil.Discard
+	} else {
+		switch c.Logger["output"] {
+		case "STDOUT":
+			out = os.Stdout
+		case "STDERR", "":
+			out = os.Stderr
+		case "SUPPRESS":
+			out = ioutil.Discard
+		case "HONEYCOMB":
+			// This would be useful for procmon itself to log to honeycomb, without having the
+			// global honeycomb logging behavior we get by setting the HONEYCOMB_* env vars.
+			out = ioutil.Discard
+		default:
+			out = ioutil.Discard
+		}
 	}
 
 	switch c.Logger["format"] {

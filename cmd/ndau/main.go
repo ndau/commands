@@ -32,6 +32,7 @@ func main() {
 	app.Command("record-price", "record the current market price of ndau", getRecordPrice(verbose, keys, emitJSON, compact))
 	app.Command("sysvar", "get and set system variables", getSysvar(verbose, keys, emitJSON, compact))
 	app.Command("summary", "emit summary information about the ndau chain", getSummary(verbose))
+	app.Command("current-sib sib", "emit information about the current SIB", getSIB(verbose))
 	app.Command("info", "get information about node's current status", getInfo(verbose))
 	app.Command("version", "emit version information and quit", getVersion(verbose))
 	app.Command("signable-bytes", "emit the signable bytes of the input tx", getSignableBytes(verbose))

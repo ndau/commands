@@ -24,10 +24,9 @@ NDAUAPI_NDAU_RPC_URL="http://localhost:$TM_RPC_PORT_NUM"
 NDAUHOME = "$NODE_DATA_DIR-$NODE_NUM"
 MONIKER_PREFIX = "localnet"
 NODE_ID = "$MONIKER_PREFIX-$NODE_NUM"
-CHAIN = "ndau"
 
 [logger]
-output = "stderr"
+output = "STDERR"
 format = "$FORMAT"
 level = "$LOGLEVEL"
 

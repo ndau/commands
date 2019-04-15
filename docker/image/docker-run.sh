@@ -21,7 +21,13 @@ fi
 
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
-./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+if [ -z "$HONEYCOMB_KEY" ]; then
+    # Honeycomb not configured, we'll dump everything locally from procmon itself.
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+else
+    # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
+fi
 procmon_pid="$!"
 echo "Started procmon as PID $procmon_pid"
 
@@ -34,10 +40,13 @@ on_sigterm() {
     wait "$procmon_pid"
 
     # Logs start over next time.  Save a copy of them all.  Having the "last run" might be useful.
-    lastrun_dir="$LOG_DIR/lastrun"
-    rm -rf "$lastrun_dir"
-    mkdir -p "$lastrun_dir"
-    mv "$LOG_DIR"/*.log "$lastrun_dir"
+    # Only needed if honeycomb isn't in use.  No logs are written in that case.
+    if [ -z "$HONEYCOMB_KEY" ]; then
+        lastrun_dir="$LOG_DIR/lastrun"
+        rm -rf "$lastrun_dir"
+        mkdir -p "$lastrun_dir"
+        mv "$LOG_DIR"/*.log "$lastrun_dir"
+    fi
 
     # For completeness, mark the container as not running.
     rm -f "$RUNNING_FILE"

@@ -6,6 +6,8 @@ SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_NDAUAPI_PORT=3030
+LOG_FORMAT=json
+LOG_LEVEL=info
 
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
@@ -164,6 +166,8 @@ docker create \
        --name "$CONTAINER" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
+       -e "LOG_FORMAT=$LOG_FORMAT" \
+       -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
