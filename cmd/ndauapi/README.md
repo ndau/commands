@@ -317,7 +317,8 @@ _**Writes:**_
             {
               "Balance": 123000000,
               "Timestamp": "2018-07-10T20:01:02Z",
-              "TxHash": "L4hD20bp7w4Hi19vpn46wQ"
+              "TxHash": "L4hD20bp7w4Hi19vpn46wQ",
+              "Height": 0
             }
           ]
         }
@@ -357,8 +358,8 @@ _**Writes:**_
         {
           "NumAccounts": 1,
           "FirstIndex": 1,
-          "PageSize": 1000,
-          "PageIndex": 0,
+          "After": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+          "NextAfter": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
           "Accounts": [
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
           ]
@@ -398,8 +399,8 @@ _**Writes:**_
         {
           "NumAccounts": 1,
           "FirstIndex": 1,
-          "PageSize": 1000,
-          "PageIndex": 0,
+          "After": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+          "NextAfter": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
           "Accounts": [
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
           ]
