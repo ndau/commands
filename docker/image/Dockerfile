@@ -60,4 +60,4 @@ COPY ./docker-snapshot.sh /image
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26670 3030
 
-ENTRYPOINT ["/image/docker-run.sh"]
+CMD ["/image/docker-run.sh"]
