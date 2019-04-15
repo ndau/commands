@@ -21,7 +21,7 @@ RUN touch /root/.ssh/known_hosts && \
 # Perform custom setup steps from inside the intermediate image.
 # TODO: Consider caching the setup results (binary executables) in a separate image.
 COPY . /image
-ENV TENDERMINT_VER=v0.31.0
+ENV TENDERMINT_VER=v0.31.4
 ENV COMMANDS_BRANCH=master
 RUN /image/docker-setup.sh
 
