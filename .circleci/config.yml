@@ -1,5 +1,4 @@
 version: 2.1
-docker_cache_key: &docker_cache_key "{{ .Revision }}"
 aws_defaults: &aws_defaults
   AWS_DEFAULT_REGION: us-east-1
   ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
@@ -51,10 +50,12 @@ commands:
     parameters:
       img_name:
         type: string
+      key:
+        type: string
     steps:
       # bring back a cache if one already exists
       - restore_cache:
-          key: *docker_cache_key
+          key: << parameters.key >>
       - run:
           name: save docker image to cache
           command: |
@@ -64,7 +65,7 @@ commands:
             docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
-          key: *docker_cache_key
+          key: << parameters.key >>
           paths:
             - /opt/docker-cache
 
@@ -108,10 +109,6 @@ commands:
             echo 'export SHA=$(git rev-parse --short $CIRCLE_SHA1)' >> $BASH_ENV
             echo 'export CI_USER=$CIRCLE_USERNAME' >> $BASH_ENV
             echo 'export CI_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
-      # docker_cache_key references a cache directory that has docker images in tar balls.
-      # the tarballs were saved with a command called save_image, defined in `commands` above.
-      - restore_cache:
-          key: *docker_cache_key
 
   setup_ecs_and_identities:
     description: |
@@ -137,6 +134,18 @@ commands:
               aws s3 cp s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE ./$S3_NODE_ID_ARCHIVE
             mkdir -p /root/node-identities
             tar xvf $S3_NODE_ID_ARCHIVE -C /root/node-identities
+
+  deploy-net:
+    description: Deploy using ECS
+    steps:
+      - setup
+      - setup_ecs_and_identities
+      - mark_honeycomb:
+          dataset: $HONEYCOMB_DATASET
+          msg: Start deploy for build $CIRCLE_BUILD_NUM
+      - ecs_deploy
+      - notify:
+          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
 
   ecs_deploy:
     description: Deploy using ECS
@@ -191,7 +200,7 @@ workflows:
           filters:
             branches:
               only: /^master$/
-      - deploy:
+      - deploy-devnet:
           requires:
             - push
           filters:
@@ -199,7 +208,7 @@ workflows:
               only: /^master$/
       - integration:
           requires:
-            - deploy
+            - deploy-devnet
           filters:
             branches:
               only: /^master$/
@@ -236,7 +245,7 @@ workflows:
               only: /.*-push$|.*-deploy$/
             branches:
               ignore: /.*/
-      - deploy:
+      - deploy-devnet:
           requires:
             - push
           filters:
@@ -256,7 +265,7 @@ workflows:
               ignore: /.*/
       - integration:
           requires:
-            - deploy
+            - deploy-devnet
           filters:
             tags:
               only: /.*-deploy$/
@@ -271,7 +280,7 @@ general_config: &general_config
         NDAUHOME: /root/.ndau
         NETWORK_NAME: "devnet" # used for snapshots
         PORT_OFFSET: 0
-        PERSISTENT_PEERS: 93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_:30200,a02408086b9688e2f8bda083e1940d010e371627@_IP_:30201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_:30202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_:30203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_:30204 # _IP_ gets s/_IP_/real_ip/g 'd
+        PERSISTENT_PEERS: 43cbcf797b4b45823a66d47c4708ee2b4ed378e5@_IP_:30200,fda05e40bd038e175e099fbc55be2e5ef11cd101@_IP_:30201,8dbb62f28d939acc82b68441a0fa301d9fb25f44@_IP_:30202,47bfda03779baa808fe6e4f937b6ff5629088add@_IP_:30203,ea99ac3a4e1a3989bfe537ff2aae083aac9287c6@_IP_:30204 # _IP_ gets s/_IP_/real_ip/g 'd
         STATIC_IPS: 50.17.109.111 54.196.108.229
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
@@ -285,7 +294,7 @@ testnet_config: &testnet_config
         <<: *aws_defaults
         NETWORK_NAME: "testnet" # used for snapshots
         PORT_OFFSET: 50 # this gets added to for 30x00y where y is the node number
-        PERSISTENT_PEERS: 93ae89195d0b2f798c91cd7d1fc96062d4f72791@_IP_:31200,a02408086b9688e2f8bda083e1940d010e371627@_IP_:31201,950efa3bee5f90d442d67751969ec976eb529fdd@_IP_:31202,a6bdfb3f423ec31b6fd8ea72e60e901095d0649c@_IP_:31203,c80cdd1daeb7f65c15258831fc1dab4aacf98069@_IP_:31204 # _IP_ gets s/_IP_/real_ip/g 'd
+        PERSISTENT_PEERS: 43cbcf797b4b45823a66d47c4708ee2b4ed378e5@_IP_:31200,fda05e40bd038e175e099fbc55be2e5ef11cd101@_IP_:31201,8dbb62f28d939acc82b68441a0fa301d9fb25f44@_IP_:31202,47bfda03779baa808fe6e4f937b6ff5629088add@_IP_:31203,ea99ac3a4e1a3989bfe537ff2aae083aac9287c6@_IP_:31204 # _IP_ gets s/_IP_/real_ip/g 'd
         STATIC_IPS: 50.17.109.111 54.196.108.229
         CLUSTER_NAME: sc-node=cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
@@ -315,11 +324,14 @@ jobs:
             docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
+          key: "{{ .Revision }}-deps"
 
   test:
     <<: *general_config
     steps:
       - setup
+      - restore_cache:
+          key: "{{ .Revision }}-deps"
       - run:
           name: Test
           command: |
@@ -336,6 +348,8 @@ jobs:
     <<: *general_config
     steps:
       - setup
+      - restore_cache:
+          key: "{{ .Revision }}-deps"
       - run:
           name: Build
           command: |
@@ -352,15 +366,16 @@ jobs:
             docker commit "$container_id" deps-built:latest
       - save_image:
           img_name: deps-built:latest
+          key: "{{ .Revision }}-built"
 
   push:
     <<: *general_config
     steps:
       - setup
       - run:
-          name: run all sub project docker scripts
+          name: build the single container image
           command: |
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            # TODO let buildimage.sh use the already fetched vendor dir
 
             # reload saved environment variables
             source $BASH_ENV
@@ -372,56 +387,30 @@ jobs:
             docker push 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
 
 
-  deploy:
+  deploy-devnet:
     <<: *general_config
     steps:
-      - setup
-      - setup_ecs_and_identities
-      - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
-          msg: Start deploy for build $CIRCLE_BUILD_NUM
-      - ecs_deploy
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
-
-
+      - deploy-net
   deploy-testnet:
     <<: *testnet_config
     steps:
-      - setup
-      - setup_ecs_and_identities
-      - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
-          msg: Start deploy for build $CIRCLE_BUILD_NUM
-      - ecs_deploy
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
-
+      - deploy-net
   deploy-mainnet:
     <<: *mainnet_config
     steps:
-      - setup
-      - setup_ecs_and_identities
-      - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
-          msg: Start deploy for build $CIRCLE_BUILD_NUM
-      - ecs_deploy
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
+      - deploy-net
 
   integration:
     <<: *general_config
     steps:
       - setup
+      - restore_cache:
+          key: "{{ .Revision }}-built"
       - run:
           name: Integration tests
           command: |
             # load previously cached containers
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
-
-            URL_0=https://api.ndau.tech:30100/node/status
-            URL_1=https://api.ndau.tech:30100/node/status
 
             # ensure go path location
             export GOPATH=/go
@@ -453,6 +442,11 @@ jobs:
 
             cd integration-tests
 
-            # run tests
+            # sync pipenv
             pipenv sync
-            pipenv run pytest -v --net=devnet
+
+            # run tests
+            NODE_ADDRESS=https://api.ndau.tech \
+            NODE_0_RPC=30100 \
+            NODE_1_RPC=30101 \
+              pipenv run pytest -v --net=devnet --ndauapi=https://api.ndau.tech:30300
