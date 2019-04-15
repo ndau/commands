@@ -168,9 +168,11 @@ commands:
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: "/root/node-identities/node-identity-$i.tgz""
-                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
               fi # no else break in case some nodes are updated and others are not
             done
+
+            wait
 
 
 workflows:
