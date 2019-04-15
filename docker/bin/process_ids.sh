@@ -1,0 +1,45 @@
+#!/bin/bash
+# generates a persistent peers list
+
+# exit on errors
+set -e
+
+# get the directory of this file
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+PEERS=()
+tarballs=()
+
+
+BASE_PORT=30000
+source "$DIR/deploy-lib.sh"
+
+network_name=$1
+id_dir=$2
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 network_name identity-directory"
+  exit 1
+fi
+
+for node_number in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+    echo "Attempting node: $node_number"
+    tarball="$id_dir/node-identity-$node_number.tgz"
+    if [ -f  "$tarball" ]; then
+        tarballs+=("$tarball")
+        echo "Found node identity at: $tarball"
+
+        rnd_dir=$(dd if=/dev/urandom count=8 bs=1 2> /dev/null | base64 | tr -dc 0-9a-zA-Z | head -c8)
+        mkdir "$rnd_dir"
+        tar xzvf "$tarball" -C "$rnd_dir" 2> /dev/null
+        node_id=$(TMHOME="$rnd_dir/tendermint" tendermint show_node_id)
+        PEERS+=("$node_id@_IP_$(calc_port $network_name p2p $node_number)")
+        echo "node_id $node_number: $node_id"
+        rm -rf "$rnd_dir"
+    fi
+done
+
+echo "PERSISTENT_PEERS: $(IFS=,; echo "${PEERS[*]}") "
+
+tar zcvf node-identities-${network_name}.tgz ${tarballs[*]}
+
