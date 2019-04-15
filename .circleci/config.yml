@@ -168,9 +168,11 @@ commands:
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: "/root/node-identities/node-identity-$i.tgz""
-                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
               fi # no else break in case some nodes are updated and others are not
             done
+
+            wait
 
 
 workflows:
@@ -430,7 +432,7 @@ jobs:
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
             # copy the commands repo and build the ndau tool
-            docker run -d --entrypoint /bin/sh deps-build -c 'sleep 60'
+            docker run -d --entrypoint /bin/sh deps-built -c 'sleep 60'
             container_id=$(docker ps -alq) # get the last container id
             docker cp $container_id:/go/src/github.com/oneiro-ndev/commands/ndau $ndev_dir/
 

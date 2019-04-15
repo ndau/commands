@@ -12,10 +12,12 @@ identity_folder=$3
 
 # consts
 BASE_PORT=30000
-TMP_FILE="$DIR/temp-docker-compose.yml"
 TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
-ECS_PARAMS_FILE="$DIR/ecs-params.yml"
+
+RND=$(cat /dev/random | base64 | head -c 8)
+TMP_FILE="$DIR/temp-docker-compose-$RND.yml"
+ECS_PARAMS_FILE="$DIR/ecs-params-$RND.yml"
 
 CPU_SHARES_DEFAULT=150 # 250 = 25% of a vcpu
 MEM_LIMIT_DEFAULT=2000000000 # 2GB
