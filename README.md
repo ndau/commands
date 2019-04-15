@@ -99,7 +99,6 @@ Use `bin/build.sh` if you make changes to any of the tools and want to rebuild t
 ### Test
 
 Use `bin/test.sh` to run unit tests on the latest built tools.
-Use `bin/test.sh -i` to run integration tests found in `/ndauapi/routes`.
 
 ### Snapshot
 
