@@ -487,7 +487,7 @@
 
 [[projects]]
   branch = "prgn-api-sysvar"
-  digest = "1:60989ef6888f68e602f9314ed0de0284381ae9b45f8df7243036a9afbebc1666"
+  digest = "1:fa71ba5ce42833f5d0f4441871ec5c71fce4ec45b8e1acc5556776a0773eec66"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,10 +505,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "dc4b23deec1322c07ca952e1a3f1d07b224b9d71"
+  revision = "c0367d5587941a3dee6e35ac0b59d9c6e9ab08f0"
 
 [[projects]]
-  digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
+  branch = "eas-int64rate-20190415"
+  digest = "1:db1776ce8f12a58ecf8e97b08a69070ee0b4bcc69150757badbaf594977f9e5c"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -530,8 +531,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "93bc4c443f9d0e097ff833750b6aac7c2b02559b"
-  version = "v1.1.0"
+  revision = "01d9e2fe7c40f77ec2195ccdd6b92b56f62f7c8a"
 
 [[projects]]
   branch = "master"

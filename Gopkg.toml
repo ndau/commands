@@ -21,7 +21,8 @@ branch = "prgn-api-sysvar"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.1"
+# version = "~v1.1"
+branch = "eas-int64rate-20190415"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
