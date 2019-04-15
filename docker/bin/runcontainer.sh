@@ -164,12 +164,6 @@ echo "Snapshot: $SNAPSHOT"
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
-echo Silencing warning about Transparent Huge Pages when redis-server runs...
-docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
-       sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
-docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
-       sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/defrag'
-
 echo "Creating container..."
 # Some notes about the params to the run command:
 # - Using --sysctl silences a warning about TCP backlog when redis runs.
