@@ -15,7 +15,7 @@ BASE_PORT=30000
 TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
 
-RND=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c${1:-8})
+RND=$(dd if=/dev/urandom count=8 bs=1 2> /dev/null | base64 | tr -dc 0-9a-zA-Z | head -c8)
 TMP_FILE="$DIR/temp-docker-compose-$RND.yml"
 ECS_PARAMS_FILE="$DIR/ecs-params-$RND.yml"
 
