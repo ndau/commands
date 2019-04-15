@@ -206,10 +206,10 @@ general_config: &general_config
         HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
+        CHAOS_TM_TAG: v0.31.4
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
+        NDAU_TM_TAG: v0.31.4
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -228,10 +228,10 @@ testnet_config: &testnet_config
         HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
+        CHAOS_TM_TAG: v0.31.4
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
+        NDAU_TM_TAG: v0.31.4
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -250,10 +250,10 @@ mainnet_config: &mainnet_config
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
+        CHAOS_TM_TAG: v0.31.4
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
+        NDAU_TM_TAG: v0.31.4
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
