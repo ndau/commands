@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:2c5ea34539bec8852bc032ff52be8be3a730a447b19e6632d77ecad8155beec9"
+  branch = "prgn-issue-prices"
+  digest = "1:29ea57f72f1708bec1fd6358eb94e29898d55cd2ab0b6803213c616cd40f45ac"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "99f5813a09630f6fe117f0c3f8cf619b950b3c91"
-  version = "v1.11.0"
+  revision = "d8c178c9fb219d4d9f6cf846921d2d74b2a7e9c9"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
