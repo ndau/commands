@@ -39,27 +39,58 @@ status_one() {
         cd "$DIR" || exit 1
 
         branch=$("$CMDBIN_DIR"/branch.sh)
-        if [ "$branch" = "[ master ]" ]; then
+        if [ "$branch" = "master" ]; then
             brcol=$GRN
         else
             brcol=$YEL
         fi
 
-        changed=$(git status -s |wc -l)
-        if [ "$changed" = 0 ]; then
-            chgcol=$GRN
-            msg="       unchanged"
+        origincommit=$(git log --pretty="%h" -n 1 origin/"$branch" 2> /dev/null)
+        localcommit=$(git log --pretty="%h" -n 1)
+
+        changed=$(git status -s |wc -l|tr -Cd "[:digit:]")
+        if [ "$changed" = "0" ]; then
+            if [ "$localcommit" = "$origincommit" ]; then
+                chgcol=$GRN
+                msg="unchanged"
+            else
+                chgcol=$BYEL
+                msg="out of date"
+            fi
         else
-            chgcol=$YEL
-            msg=$(printf "%2d files changed" "$changed")
+            onlynew=$(git status --porcelain |grep -v "??" |wc -l|tr -Cd "[:digit:]")
+            if [ "$onlynew" = "0" ]; then
+                chgcol=$BLU
+            else
+                chgcol=$BYEL
+            fi
+            details=$(git status --porcelain |cut -c 1,2 |sort |uniq -c |tr -s "\n" "," |tr -d " "|sed "s/??/ new/"|sed s/,$//)
+            msg=$(printf "%d changed - %s" "$changed" "$details")
         fi
-        printf "%17s: $brcol %16s $KILLCOLOR $chgcol(%s)$KILLCOLOR\\n" "$1" "$branch" "$msg"
+
+        if [ "$brcol" = "$chgcol" ]; then
+            dircol=$brcol
+        else
+            dircol=$BWHT
+        fi
+        printf "$dircol%24s: $brcol %19s $KILLCOLOR $chgcol(%s)$KILLCOLOR\\n" "$1" "$branch" "$msg"
     else
-        printf "%17s: %18s $RED(%16s)$KILLCOLOR\\n" "$1" " " "not present"
+        printf "%24s: %18s $RED(%19s)$KILLCOLOR\\n" "$1" " " "not present"
     fi
 }
 
 initialize
-for f in {automation,chaincode,commands,integration-tests,metanode,ndau,ndaumath}; do
-    status_one "$f"
-done
+
+if [ "$1" = "--all" ]; then
+    for f in "$NDEV_DIR"/*; do
+        if [ -d $f ]; then
+            if [ -d "$f/.git" ]; then
+                status_one "$(basename "$f")"
+            fi
+        fi
+    done
+else
+    for f in {automation,chaincode,commands,generator,integration-tests,metanode,ndau,ndaumath,o11y}; do
+        status_one "$f"
+    done
+fi
