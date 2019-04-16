@@ -42,54 +42,69 @@ status_one() {
         if [ "$branch" = "master" ]; then
             brcol=$GRN
         else
+            # non-master branches are pointed out
             brcol=$YEL
         fi
 
+        # get the commit hash for this branch and the equivalent at the origin (if it exists)
         origincommit=$(git log --pretty="%h" -n 1 origin/"$branch" 2> /dev/null)
         localcommit=$(git log --pretty="%h" -n 1)
 
+        # count the number of files changed and strip any non-numerics
         changed=$(git status -s |wc -l|tr -Cd "[:digit:]")
         if [ "$changed" = "0" ]; then
             if [ "$localcommit" = "$origincommit" ]; then
+                # no changes and up to date
                 chgcol=$GRN
                 msg="unchanged"
             else
+                # no local changes but it's not up to date with origin
                 chgcol=$BYEL
                 msg="out of date"
             fi
         else
-            onlynew=$(git status --porcelain |grep -v "??" |wc -l|tr -Cd "[:digit:]")
-            if [ "$onlynew" = "0" ]; then
-                chgcol=$BLU
-            else
-                chgcol=$BYEL
-            fi
+            # how many of the changes were something other than new files?
+            nonnew=$(git status --porcelain |grep -v "??" |wc -l|tr -Cd "[:digit:]")
+            # get details of modified, deleted, new, etc.
             details=$(git status --porcelain |cut -c 1,2 |sort |uniq -c |tr -s "\n" "," |tr -d " "|sed "s/??/ new/"|sed s/,$//)
-            msg=$(printf "%d changed - %s" "$changed" "$details")
+            # if there were only new files, then we're not as concerned
+            if [ "$nonnew" = "0" ]; then
+                chgcol=$BLU
+                msg=$(printf "%s" "$details")
+            else
+                # but other changes get a higher level of warning
+                chgcol=$BYEL
+                msg=$(printf "%d changed - %s" "$changed" "$details")
+            fi
         fi
 
         if [ "$brcol" = "$chgcol" ]; then
+            # if these two are both green, make the folder name green too
             dircol=$brcol
         else
+            # otherwise make the folder more obvious
             dircol=$BWHT
         fi
         printf "$dircol%24s: $brcol %19s $KILLCOLOR $chgcol(%s)$KILLCOLOR\\n" "$1" "$branch" "$msg"
     else
+        # an expected folder was missing
         printf "%24s: %18s $RED(%19s)$KILLCOLOR\\n" "$1" " " "not present"
     fi
 }
 
 initialize
 
+# if --all is specified then do all the git folders underneath the oneiro repository
 if [ "$1" = "--all" ]; then
     for f in "$NDEV_DIR"/*; do
-        if [ -d $f ]; then
+        if [ -d "$f" ]; then
             if [ -d "$f/.git" ]; then
                 status_one "$(basename "$f")"
             fi
         fi
     done
 else
+    # this is the list of expected folders
     for f in {automation,chaincode,commands,generator,integration-tests,metanode,ndau,ndaumath,o11y}; do
         status_one "$f"
     done
