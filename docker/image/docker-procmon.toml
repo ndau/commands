@@ -219,7 +219,8 @@ output = ""
 
 
 [[task]]
-	# Restart periodically to combat memory leaks.
+    # Restart periodically to combat memory leaks.
+    # This also causes a re-dns for converting persistent peer domain names to IP addresses.
     name = "restart"
     [task.specials]
         onetime = true

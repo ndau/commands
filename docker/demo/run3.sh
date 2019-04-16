@@ -3,12 +3,16 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 cd "$SCRIPT_DIR" || exit 1
 
+# Local ip for P2P and RPC+NDAUAPI with first 4 digits of zero-based port numbers per node.
 IP=$(./get_ip.sh)
+P2P="$IP":2666
+RPC=http://"$IP":2667
 
 SNAPSHOT=$(./get_snapshot.sh)
 
 ../bin/runcontainer.sh \
     localnet-3 26663 26673 3033 \
-    "$IP:26660:26670,$IP:26661:26671,$IP:26662:26672" \
+    "${P2P}0,${P2P}1,${P2P}2" \
+    "${RPC}0,${RPC}1,${RPC}2" \
     $SNAPSHOT \
     ../../bin/ndau-snapshots/node-identity-3.tgz
