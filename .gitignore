@@ -67,6 +67,8 @@ opcodes
 !*/opcodes
 peggofmt
 !*/peggofmt
+procmon
+!*/procmon
 txmobile
 !*/txmobile
 update_genesis_json
@@ -77,5 +79,9 @@ nomscompare
 !*/nomscompare
 nomsinfo
 !*/nomsinfo
+ndauaddr
+!*/ndauaddr
+procmon
+!*/procmon
 verify
 !*/verify

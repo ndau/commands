@@ -21,17 +21,27 @@ RUN touch /root/.ssh/known_hosts && \
 # Perform custom setup steps from inside the intermediate image.
 # TODO: Consider caching the setup results (binary executables) in a separate image.
 COPY . /image
-ENV TENDERMINT_VER=v0.31.0
+ENV TENDERMINT_VER=v0.31.4
 ENV COMMANDS_BRANCH=master
-RUN /bin/bash /image/docker-setup.sh
+RUN /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
 FROM alpine:3.8 AS build
 
+# Use a specific version of redis.
+COPY --from=redis:5.0.4-alpine [ \
+    "usr/local/bin/redis-server", \
+    "usr/local/bin/redis-sentinel", \
+    "usr/local/bin/redis-cli", \
+    "usr/local/bin/redis-benchmark", \
+    "usr/local/bin/redis-check-rdb", \
+    "usr/local/bin/redis-check-aof", \
+    "/usr/local/bin/" \
+]
+
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
-RUN apk add --no-cache bash ca-certificates redis=4.0.11-r0 sed && \
-    update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash ca-certificates sed && update-ca-certificates 2>/dev/null
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
@@ -40,6 +50,8 @@ COPY --from=intermediate /image/bin /image/bin
 COPY ./docker-conf.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-run.sh /image
+COPY ./docker-snapshot.sh /image
+COPY ./docker-procmon.toml /image
 
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
@@ -47,4 +59,4 @@ COPY ./docker-run.sh /image
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26670 3030
 
-CMD ["/bin/bash", "/image/docker-run.sh"]
+ENTRYPOINT ["/image/docker-run.sh"]

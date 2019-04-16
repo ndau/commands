@@ -6,6 +6,8 @@ SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_NDAUAPI_PORT=3030
+LOG_FORMAT=json
+LOG_LEVEL=info
 
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
@@ -54,7 +56,7 @@ if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     echo "Container already exists: $CONTAINER"
     echo "Use restartcontainer.sh to restart it, or use removecontainer.sh to remove it first"
     exit 1
-fi    
+fi
 
 if [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ] ; then
     echo "Cannot find node identity file: $IDENTITY"
@@ -157,6 +159,8 @@ docker create \
        --name "$CONTAINER" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
+       -e "LOG_FORMAT=$LOG_FORMAT" \
+       -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \

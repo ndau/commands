@@ -10,17 +10,23 @@ source "$CMDBIN_DIR"/env.sh
 
 # Process command line arguments.
 node_count="$1"
+chain_id="$2"
 if [ -z "$node_count" ]; then
-    echo "node_count not set; defaulting to 1"
     node_count=1
+    echo "node_count not set; defaulting to $node_count"
+else
+    if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
+        echo Node count must be a positive integer
+        exit 1
+    fi
+    if [ "$node_count" -lt 1 ] || [ "$node_count" -gt "$MAX_NODE_COUNT" ]; then
+        echo Node count must be in [1, "$MAX_NODE_COUNT"]
+        exit 1
+    fi
 fi
-if [[ ! "$node_count" =~ ^[0-9]+$ ]]; then
-    echo Node count must be a positive integer
-    exit 1
-fi
-if [ "$node_count" -lt 1 ] || [ "$node_count" -gt "$MAX_NODE_COUNT" ]; then
-    echo Node count must be in [1, "$MAX_NODE_COUNT"]
-    exit 1
+if [ -z "$chain_id" ]; then
+    chain_id=localnet
+    echo "chain_id not set; defaulting to $chain_id"
 fi
 
 # Users may want us to generate the genesis files, or they may want to use their own.
@@ -48,6 +54,7 @@ echo SETUP: Initializing a "$node_count"-node localnet...
 rm -rf "$ROOT_DATA_DIR"
 mkdir -p "$ROOT_DATA_DIR"
 echo "$node_count" > "$NODE_COUNT_FILE"
+echo "$chain_id" > "$CHAIN_ID_FILE"
 
 # Get the correct version of noms source.
 mkdir -p "$ATTICLABS_DIR"

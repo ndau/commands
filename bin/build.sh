@@ -58,6 +58,8 @@ build_tools() {
 
     go build ./"$ETL_CMD"
     go build ./"$GENERATE_CMD"
+    go build ./"$KEYTOOL_CMD"
+    go build ./"$PROCMON_CMD"
 }
 
 build_tm() {

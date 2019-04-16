@@ -8,19 +8,29 @@ CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
-NETWORK="$1"
-if [ -z "$NETWORK" ]; then
-    echo "Usage:"
-    echo "  ./snapshot.sh NETWORK"
-    echo "Examples:"
-    echo "  ./snapshot.sh devnet"
-    echo "  ./snapshot.sh mainnet"
-    exit 1
-fi
-
 # Check a common case: not having run localnet at least once.  The redis directory 
 if [ ! -d "$REDIS_NDAU_DATA_DIR-0" ]; then
     echo "Must ./run.sh localnet at least once before generating a snapshot"
+    exit 1
+fi
+
+# Make sure you're running the right version of redis, to match what the container is using.
+REDIS_VERSION_EXPECTED=5.0
+REDIS_VERSION_ACTUAL=$(redis-server --version | \
+                           sed -n -e 's/^Redis server v=\([0-9]*\.[0-9]*\)\.[0-9]* .*/\1/p')
+if [ "$REDIS_VERSION_ACTUAL" != "$REDIS_VERSION_EXPECTED" ]; then
+    echo "Must have Redis version $REDIS_VERSION_EXPECTED installed to generate a valid snapshot"
+    exit 1
+fi
+
+# Since the chain_id was specified at setup-time, we make sure the user really wants to use it
+# as the network name.  Otherwise they'll get the default snapshot for localnet.
+NETWORK="$CHAIN_ID"
+echo "Generating snapshot for the network: $NETWORK"
+printf "Is this the right network? [y|n]: "
+read CONFIRM
+if [ "$CONFIRM" != "y" ]; then
+    echo "You can change the network name by running setup.sh or reset.sh with a new name"
     exit 1
 fi
 
@@ -75,15 +85,10 @@ cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/blockstore.db" "$TM_TEMP/data"
 cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_TEMP/data"
 
-# Use something better than "test-chain-..." for the chain_id.
-genesis_file="$TM_TEMP/config/genesis.json"
-jq ".chain_id=\"$NETWORK\"" "$genesis_file" > "$genesis_file.temp"
-mv "$genesis_file.temp" "$genesis_file"
-
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$NOMS_DIR"/noms show "$NOMS_NDAU_DATA_DIR-0"::ndau.value.Height | tr -d '"')))
 SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
-SNAPSHOT_FILE="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR/$SNAPSHOT_NAME.tgz"
+SNAPSHOT_FILE="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
 
 # Make the tarball and remove the temp dir.
 echo "  bundling $SNAPSHOT_NAME..."

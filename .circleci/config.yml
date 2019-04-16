@@ -206,10 +206,10 @@ general_config: &general_config
         HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
+        CHAOS_TM_TAG: v0.31.4
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
+        NDAU_TM_TAG: v0.31.4
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -228,10 +228,10 @@ testnet_config: &testnet_config
         HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
+        CHAOS_TM_TAG: v0.31.4
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
+        NDAU_TM_TAG: v0.31.4
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -250,10 +250,10 @@ mainnet_config: &mainnet_config
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
         SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.0
+        CHAOS_TM_TAG: v0.31.4
         CHAOS_NOMS_TAG: 0.0.2
         CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.0
+        NDAU_TM_TAG: v0.31.4
         NDAU_NOMS_TAG: 0.0.2
         NDAU_REDIS_TAG: 0.0.1
 
@@ -356,9 +356,6 @@ jobs:
           command: |
             # Redeploy nodegroup testnet
             cd /commands
-            # set SHA to latest master update
-            export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
-            echo SHA=$SHA
 
             # Clone the automation repo master branch
             git clone git@github.com:oneiro-ndev/automation.git /root/automation
@@ -390,8 +387,11 @@ jobs:
               fi
             done
 
+            # set SHA to what the logic in the checkout step has determined.
+            source $BASH_ENV
+            echo "SHA = $SHA"
+
             # brings nodes back up
-            # Use $SHA here instead of the automation's git ls-remote method.
             CHAOSNODE_TAG=$SHA \
             NDAUNODE_TAG=$SHA \
             HELM_CHART_PATH=/root/automation/helm/nodegroup \
@@ -563,4 +563,4 @@ jobs:
 
             # run tests
             pipenv sync
-            pipenv run pytest -v --net=devnet
+            pipenv run pytest --net=devnet --ndauapi=https://devnet-0.api.ndau.tech

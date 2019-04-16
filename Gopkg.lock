@@ -456,7 +456,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:4a9f163c2170744e280820e9b85680bc41c571a208957e07dda161e5bff32261"
+  digest = "1:97ff561ae1135cd33b2530ccfb0f84837a68bc8e3d60f0a2926b26443e2bf509"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -466,8 +466,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "0f1c08ce1863f6950738932dc30ddaf8d8e66809"
-  version = "v1.2.1"
+  revision = "ed16a05a04bfd77c41c8bbf6a2094faec3e54c3c"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -486,7 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:55e9b9c19159c323555264cb15756c8ece109cedd7ee95e4a7df6aed987d635e"
+  digest = "1:2c5ea34539bec8852bc032ff52be8be3a730a447b19e6632d77ecad8155beec9"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,11 +504,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "28d292ffd1e3da8f98b1b8e8bc98d84bed8760ff"
-  version = "v1.5.0"
+  revision = "99f5813a09630f6fe117f0c3f8cf619b950b3c91"
+  version = "v1.11.0"
 
 [[projects]]
-  digest = "1:237ff652ab7c0a980febe842b4180e5d415581ec0704e337b36c6868a0478ed9"
+  digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -530,8 +530,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "93bc4c443f9d0e097ff833750b6aac7c2b02559b"
-  version = "v1.1.0"
+  revision = "65e5600e601abfb67fb7697d04043466d89e8265"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -542,12 +542,12 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:054f0b4110b30f53da18450b7d341b1c27a939ad0edcd214c0d3eda7cbb39895"
+  digest = "1:49bcf7e48ff57ae75fb475f1a575381ad2bb6995f3160a0e0c1a051ae10feadc"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "b9ebe5797d7a13e39f5e5488e260d1211c4c9df4"
-  version = "v1.3.0"
+  revision = "48aeae39f7060db34c4c08caa3b1d6649c28141c"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:939c7a816552e515321f531d73d14e44a88051bc4d270f0ffe27b4c3884e14e0"
@@ -731,7 +731,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:605618ebfacc5c1860db46f17cffb8936d3085b9dae6c34b55711e4b411fd790"
+  digest = "1:b0d497533aa41891dc2a03cfe199ebc0884b66c39fa0d169ac96f095b995e3b0"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -787,8 +787,8 @@
     "version",
   ]
   pruneopts = ""
-  revision = "0d985ede28bd6937fa9d3613618e42cab6fc871c"
-  version = "v0.31.0"
+  revision = "4695414393a3e0bc3836fb1cece7f1f3768d3311"
+  version = "v0.31.4"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
@@ -938,6 +938,7 @@
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
     "github.com/attic-labs/noms/go/types",
+    "github.com/go-redis/redis",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
@@ -976,10 +977,8 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/blockchain",
     "github.com/tendermint/tendermint/crypto/ed25519",
     "github.com/tendermint/tendermint/crypto/encoding/amino",
-    "github.com/tendermint/tendermint/libs/db",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",

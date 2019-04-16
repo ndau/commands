@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
@@ -8,104 +10,63 @@ echo "Running $NODE_ID node group..."
 RUNNING_FILE="$SCRIPT_DIR/running"
 rm -f "$RUNNING_FILE"
 
+# This is needed because in the long term, noms eats more than 256 file descriptors.
+ulimit -n 1024
+
 # If there's no data directory yet, it means we're starting from scratch.
 if [ ! -d "$DATA_DIR" ]; then
     echo "Configuring node group..."
-    /bin/bash "$SCRIPT_DIR"/docker-conf.sh
+    "$SCRIPT_DIR"/docker-conf.sh
 fi
 
-# This is needed because in the long term, noms eats more than 256 file descriptors
-ulimit -n 1024
-
-# All commands are run out of the bin directory.
+# Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
+if [ -z "$HONEYCOMB_KEY" ]; then
+    # Honeycomb not configured, we'll dump everything locally from procmon itself.
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+else
+    # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
+fi
+procmon_pid="$!"
+echo "Started procmon as PID $procmon_pid"
 
-LOG_DIR="$SCRIPT_DIR/logs"
-mkdir -p "$LOG_DIR"
+# This will gracefully shut down all running processes through procmon when the container stops.
+on_sigterm() {
+    echo "Received SIGTERM; shutting down node group..."
 
-wait_port() {
-    # Block until the given port becomes open.
-    port="$1"
-    echo "Waiting for port $port..."
-    until nc -z localhost "$port" 2>/dev/null
-    do
-        :
-    done
+    # Gracefully exit all processes in the node group through procmon.
+    kill "$procmon_pid"
+    wait "$procmon_pid"
+
+    # Logs start over next time.  Save a copy of them all.  Having the "last run" might be useful.
+    # Only needed if honeycomb isn't in use.  No logs are written in that case.
+    if [ -z "$HONEYCOMB_KEY" ]; then
+        lastrun_dir="$LOG_DIR/lastrun"
+        rm -rf "$lastrun_dir"
+        mkdir -p "$lastrun_dir"
+        mv "$LOG_DIR"/*.log "$lastrun_dir"
+    fi
+
+    # For completeness, mark the container as not running.
+    rm -f "$RUNNING_FILE"
+
+    # SIGTERM = 128 + 15
+    exit 143;
 }
 
-run_redis() {
-    port="$1"
-    data_dir="$2"
-    echo "Running redis..."
+# Kill the last background process (`tail -f /dev/null`) then execute the specified handler.
+trap 'kill ${!}; on_sigterm' SIGTERM
 
-    redis-server --dir "$data_dir" \
-                 --port "$port" \
-                 --save 60 1 \
-                 >"$LOG_DIR/redis.log" 2>&1 &
-    wait_port "$port"
+# Block until the entire node group is running.  Do this by checking the last task (ndauapi) port.
+echo "Waiting for node group..."
+until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
+do
+    :
+done
 
-    # Redis isn't really ready when it's port is open, wait for a ping to work.
-    echo "Waiting for redis ping..."
-    until [[ $(redis-cli -p "$port" ping) == "PONG" ]]
-    do
-        :
-    done
-}
-
-run_noms() {
-    port="$1"
-    data_dir="$2"
-    echo "Running noms..."
-
-    ./noms serve --port="$port" "$data_dir" \
-           >"$LOG_DIR/noms.log" 2>&1 &
-    wait_port "$port"
-}
-
-run_node() {
-    port="$1"
-    redis_port="$2"
-    noms_port="$3"
-    echo "Running ndaunode..."
-
-    ./ndaunode -spec http://localhost:"$noms_port" \
-                   -index localhost:"$redis_port" \
-                   -addr 0.0.0.0:"$port" \
-                   >"$LOG_DIR/ndaunode.log" 2>&1 &
-    wait_port "$port"
-}
-
-run_tm() {
-    p2p_port="$1"
-    rpc_port="$2"
-    node_port="$3"
-    data_dir="$4"
-    echo "Running tendermint..."
-
-    CHAIN=ndau \
-    ./tendermint node --home "$data_dir" \
-                      --proxy_app tcp://localhost:"$node_port" \
-                      --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
-                      --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
-                      --log_level="*:debug" \
-                      >"$LOG_DIR/tendermint.log" 2>&1 &
-    wait_port "$p2p_port"
-    wait_port "$rpc_port"
-}
-
-run_ndauapi() {
-    echo Running ndauapi...
-
-    NDAUAPI_NDAU_RPC_URL=http://localhost:"$TM_RPC_PORT" \
-    ./ndauapi >"$LOG_DIR/ndauapi.log" 2>&1 &
-}
-
-run_redis "$REDIS_PORT" "$REDIS_DATA_DIR"
-run_noms "$NOMS_PORT" "$NOMS_DATA_DIR"
-run_node "$NODE_PORT" "$REDIS_PORT" "$NOMS_PORT"
-run_tm "$TM_P2P_PORT" "$TM_RPC_PORT" "$NODE_PORT" "$TM_DATA_DIR"
-run_ndauapi
-
+# Now that we know all data files are in place and the node group is running,
+# we can generate the node-identity file if one wasn't passed in.
 IDENTITY_FILE="$SCRIPT_DIR"/node-identity.tgz
 if [ ! -f "$IDENTITY_FILE" ]; then
     echo "Generating identity file..."
@@ -122,4 +83,7 @@ touch "$RUNNING_FILE"
 echo "Node group $NODE_ID is now running"
 
 # Wait forever to keep the container alive.
-while true; do sleep 86400; done
+while true
+do
+    tail -f /dev/null & wait ${!}
+done

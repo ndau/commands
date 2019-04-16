@@ -116,7 +116,6 @@ ndau_tm() {
     # like `--log_level="state:info,mempool:error,*:error"`.
     # value choices are debug/info/error/none
     # module options include consensus, state, p2p, mempool, proxy, node, main
-    CHAIN=ndau \
     NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
@@ -130,6 +129,27 @@ ndau_tm() {
     wait_port "$p2p_port"
 
     echo "  ./ndau conf \"http://localhost:$rpc_port\""
+}
+
+
+#---------- run ndauapi ----------
+ndau_api() {
+    node_num="$1"
+    echo running ndauapi for "ndau-$node_num"
+
+    api_port=$((NDAUAPI_PORT + node_num))
+    output_name="$CMDBIN_DIR/ndauapi-$node_num"
+
+    cd "$COMMANDS_DIR" || exit 1
+
+    NDAUAPI_NDAU_RPC_URL="http://localhost:$TM_RPC_PORT" \
+    NDAUAPI_PORT="$api_port" \
+    ./ndauapi >"$output_name.log" \
+    2>&1 &
+
+    echo $! >"$output_name.pid"
+    echo "  ndauapi coming up; waiting for port $api_port"
+    wait_port "$api_port"
 }
 
 finalize() {
@@ -160,7 +180,7 @@ finalize() {
     fi
 }
 
-if [ -z "$1" -o "$1" == "nofinalize" ]; then
+if [ -z "$1" ] || [ "$1" == "nofinalize" ]; then
     initialize
 
     # Kill everything first.  It's too easy to forget the ./kill.sh between test runs.
@@ -172,6 +192,7 @@ if [ -z "$1" -o "$1" == "nofinalize" ]; then
         ndau_noms "$node_num"
         ndau_node "$node_num"
         ndau_tm "$node_num"
+        ndau_api "$node_num"
     done
 
     finalize "$1"

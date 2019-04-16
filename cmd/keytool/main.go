@@ -27,10 +27,11 @@ func hd(cmd *cli.Cmd) {
 	cmd.Command("child", "create a child key derived from the supplied key", cmdHDChild)
 	cmd.Command("convert", "convert an old-format key into the new format", cmdHDConvert)
 	cmd.Command("addr", "convert HD key to address", cmdHDAddr)
+	cmd.Command("raw", "create an ndau-style secp256k1 key or signature from raw bytes", cmdHDRaw)
 }
 
 // ed subcommand
 func ed(cmd *cli.Cmd) {
 	cmd.Command("new", "create a new ed25519 keypair", cmdEdNew)
-	cmd.Command("raw", "create an ndau-style ed25519 public key from raw bytes", cmdEdRaw)
+	cmd.Command("raw", "create an ndau-style ed25519 key or signature from raw bytes", cmdEdRaw)
 }
