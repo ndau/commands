@@ -10,5 +10,6 @@ SNAPSHOT=$(./get_snapshot.sh)
 ../bin/runcontainer.sh \
     localnet-0 26660 26670 3030 \
     "" \
+    "" \
     $SNAPSHOT \
     ../../bin/ndau-snapshots/node-identity-0.tgz
