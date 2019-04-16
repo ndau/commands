@@ -299,8 +299,8 @@ _**Parameters:**_
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  address | Path | The address of the account for which to return history | string
- pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+ after | Query | The block height after which results should start. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -335,15 +335,15 @@ _Returns a list of account IDs._
 
 This returns a list of every account on the blockchain, sorted
 alphabetically. A maximum of 10000 accounts can be returned in a single
-request.
+request. The results are sorted by address.
 
 
 _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- pageindex | Query | The 0-based page index to get. default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=10000 | int
+ after | Query | The address after which (sorted alphabetically) results should start. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -837,8 +837,8 @@ Name | Kind | Description | DataType
  first | Path | Timestamp (ISO 3339) at which to begin (inclusive) retrieval of blocks. | string
  last | Path | Timestamp (ISO 3339) at which to end (exclusive) retrieval of blocks. | string
  noempty | Query | Set to nonblank value to exclude empty blocks | string
- pageindex | Query | The 0-based page index to get; default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+ after | Query | The timestamp after which results should start (use the last value from the previous page). | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -1411,8 +1411,8 @@ _**Parameters:**_
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  sysvar | Path | The name of the system variable for which to return history | string
- pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+ after | Query | The block height after which results should start. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
