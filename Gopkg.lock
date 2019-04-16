@@ -456,7 +456,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:97ff561ae1135cd33b2530ccfb0f84837a68bc8e3d60f0a2926b26443e2bf509"
+  digest = "1:6f7a7ce3205c403765181e4bd05ecfec6df00155536b6fbf5a1103aa2ea306cd"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -466,8 +466,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "ed16a05a04bfd77c41c8bbf6a2094faec3e54c3c"
-  version = "v1.3.0"
+  revision = "f2c4f3c98fbefb9e3712a3f51f0b574084500335"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -505,7 +505,7 @@
   ]
   pruneopts = ""
   revision = "83727b59e1746151e47cfc6efe2418075741bc02"
-  version = "v1.11.1"
+  version = "v1.12.0"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
