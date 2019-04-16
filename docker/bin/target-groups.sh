@@ -206,7 +206,7 @@ resp=$(aws elbv2 create-target-group \
 --name $ndauapi_node_name \
 --protocol HTTP \
 --vpc-id "$(./get-vpcid-by-name.sh $vpc)" \
---health-check-path "/node/status" \
+--health-check-path "/node/health" \
 --port ${ndauapi_port})
 if ! grep "An error occurred" <<< $resp; then
   tg_arn=$(jq -r '.TargetGroups[0].TargetGroupArn' <<< $resp)

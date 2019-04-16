@@ -23,9 +23,10 @@ fi
 
 for node_number in $( seq 0 9 ); do # automatically deploy up to 10 nodes
     echo "Attempting node: $node_number"
-    tarball="$id_dir/node-identity-$node_number.tgz"
+    tar_filename="node-identity-$node_number.tgz"
+    tarball="$id_dir/$tar_filename"
     if [ -f  "$tarball" ]; then
-        tarballs+=("$tarball")
+        tarballs+=("$tar_filename")
         echo "Found node identity at: $tarball"
         rnd_dir=$(dd if=/dev/urandom count=8 bs=1 2> /dev/null | base64 | tr -dc 0-9a-zA-Z | head -c8)
         mkdir "$rnd_dir"
@@ -39,9 +40,12 @@ done
 
 echo "PERSISTENT_PEERS: $(IFS=,; echo "${PEERS[*]}") "
 
-big_tarball="$DIR/node-identities-${network_name}.tgz"
-tar zcvf "$big_tarball" ${tarballs[*]}
 
+big_tarball="$DIR/node-identities-${network_name}.tgz"
+(
+  cd "$id_dir"
+  tar zcvf "$big_tarball" ${tarballs[*]}
+)
 upload=false
 while test $# -gt 0; do
     case "$1" in

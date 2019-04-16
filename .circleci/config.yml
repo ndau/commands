@@ -123,7 +123,7 @@ commands:
             chmod +x /usr/local/bin/ecs-cli
 
             # configure ecs
-            ecs-cli configure  profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
+            ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
             ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
       - run:
           name: Download node identities
@@ -167,7 +167,7 @@ commands:
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
-                echo "Found node identity at: "/root/node-identities/node-identity-$i.tgz""
+                echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
                 /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
               fi # no else break in case some nodes are updated and others are not
             done
@@ -357,16 +357,10 @@ jobs:
             find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
 
             # this runs a build script within the deps image
-            container_id=$(docker create \
+            docker run \
                 -e CI=true \
                 deps \
-                /bin/sh /root/build.sh)
-            docker start $container_id -a
-            container_id=$(docker ps -alq 2>&1)
-            docker commit "$container_id" deps-built:latest
-      - save_image:
-          img_name: deps-built:latest
-          key: "{{ .Revision }}-built"
+                /bin/sh /root/build.sh
 
   push:
     <<: *general_config
@@ -405,7 +399,7 @@ jobs:
     steps:
       - setup
       - restore_cache:
-          key: "{{ .Revision }}-built"
+          key: "{{ .Revision }}-deps"
       - run:
           name: Integration tests
           command: |
@@ -426,13 +420,16 @@ jobs:
             apk add sed
 
             # clone integration tests and ndev dep repos
-            git clone git@github.com:oneiro-ndev/integration-tests.git
+            git clone git@github.com:oneiro-ndev/integration-tests.git -b josh-sc-node-deploy
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            # copy the commands repo and build the ndau tool
-            docker run -d --entrypoint /bin/sh deps-built -c 'sleep 60'
-            container_id=$(docker ps -alq) # get the last container id
-            docker cp $container_id:/go/src/github.com/oneiro-ndev/commands/ndau $ndev_dir/
+            # build the ndau tool
+            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau'
+            container_id=$(docker ps -alq 2>&1)
+            docker commit "$container_id" temp:latest
+            docker run -d deps-built /bin/sh -c 'sleep 60'
+            container_id=$(docker ps -alq 2>&1)
+            docker cp $container_id:/root/ndau $ndev_dir/
 
             # write ndautool from bucket to a file.
             mkdir -p $NDAUHOME/ndau
