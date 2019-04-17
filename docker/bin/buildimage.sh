@@ -52,7 +52,7 @@ if [ -f "$NDAU_TOOL" ]; then
     IMAGE_NAME="$NDAU_IMAGE_NAME-$VERSION"
     IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
     docker save -o "$IMAGE_PATH" "$NDAU_IMAGE_NAME"
-    gzip "$IMAGE_PATH"
+    gzip -f "$IMAGE_PATH"
     IMAGE_PATH="$IMAGE_PATH.gz"
 
     # Save the version file.
