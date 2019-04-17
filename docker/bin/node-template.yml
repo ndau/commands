@@ -1,0 +1,21 @@
+version: '3'
+services:
+  {{NETWORK_NAME}}-{{NODE_NUMBER}}:
+    image: "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:{{TAG}}"
+    ports:
+      - "{{RPC_PORT}}:26670"
+      - "{{P2P_PORT}}:26660"
+      - "{{NDAUAPI_PORT}}:3030"
+    environment:
+      - HONEYCOMB_DATASET=sc-node-{{NETWORK_NAME}}
+      - HONEYCOMB_KEY={{HONEYCOMB_KEY}}
+      - NODE_ID={{NETWORK_NAME}}-{{NODE_NUMBER}}
+      - PERSISTENT_PEERS={{PERSISTENT_PEERS}}
+      - BASE64_NODE_IDENTITY={{BASE64_NODE_IDENTITY}}
+      - SNAPSHOT_URL={{SNAPSHOT_URL}} # e.g. https://....tgz
+    logging: # these turn on the log tab in ECS
+      driver: awslogs
+      options:
+        awslogs-group: sc-node-{{NETWORK_NAME}}
+        awslogs-region: us-east-1
+        awslogs-stream-prefix: sc-node-{{NODE_NUMBER}}

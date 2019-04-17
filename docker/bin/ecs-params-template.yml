@@ -1,0 +1,6 @@
+version: 1
+task_definition:
+  services:
+    {{NETWORK_NAME}}-{{NODE_NUMBER}}:
+      cpu_shares: {{CPU_SHARES}}
+      mem_limit: {{MEM_LIMIT}}

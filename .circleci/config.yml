@@ -1,5 +1,4 @@
 version: 2.1
-docker_cache_key: &docker_cache_key "{{ .Revision }}"
 aws_defaults: &aws_defaults
   AWS_DEFAULT_REGION: us-east-1
   ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
@@ -51,10 +50,12 @@ commands:
     parameters:
       img_name:
         type: string
+      key:
+        type: string
     steps:
       # bring back a cache if one already exists
       - restore_cache:
-          key: *docker_cache_key
+          key: << parameters.key >>
       - run:
           name: save docker image to cache
           command: |
@@ -64,7 +65,7 @@ commands:
             docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
-          key: *docker_cache_key
+          key: << parameters.key >>
           paths:
             - /opt/docker-cache
 
@@ -78,19 +79,8 @@ commands:
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
-          name: Turn environment variable secrets into files
-          command: |
-            # install helm certs
-            mkdir -p /root/.helm
-            echo -e "$helm_ca_pem" > /root/.helm/ca.pem
-            echo -e "$helm_cert_pem" > /root/.helm/cert.pem
-            echo -e "$helm_key_pem" > /root/.helm/key.pem
-
-            # install kube config certs
-            echo -e "$kube_config" > /root/kubeconfig
-
-            # AWS ECR Login
-            eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+          name: AWS ECR Login
+          command: eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
 
       - run:
           name: Checkout code
@@ -110,6 +100,7 @@ commands:
             # install github machine user key
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
             echo -e "$machine_user_key" > /commands/machine_user_key
+
       - run:
           name: get git information
           command: |
@@ -118,26 +109,100 @@ commands:
             echo 'export SHA=$(git rev-parse --short $CIRCLE_SHA1)' >> $BASH_ENV
             echo 'export CI_USER=$CIRCLE_USERNAME' >> $BASH_ENV
             echo 'export CI_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
-      # docker_cache_key references a cache directory that has docker images in tar balls.
-      # the tarballs were saved with a command called save_image, defined in `commands` above.
-      - restore_cache:
-          key: *docker_cache_key
+
+  setup_ecs_and_identities:
+    description: |
+      Downloads ecs, configures it and downloads node identities.
+      This should be run before any deploy steps.
+    steps:
+      - run:
+          name: download and configure ecs-cli
+          command: |
+            # download ecs cli
+            curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && \
+            chmod +x /usr/local/bin/ecs-cli
+
+            # configure ecs
+            ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
+      - run:
+          name: Download node identities
+          command: |
+            S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
+            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
+            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
+              aws s3 cp "s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE" "./$S3_NODE_ID_ARCHIVE"
+            mkdir -p /root/node-identities
+            tar xzvf "./$S3_NODE_ID_ARCHIVE" -C /root/node-identities
+
+  deploy-net:
+    description: Deploy using ECS
+    steps:
+      - setup
+      - setup_ecs_and_identities
+      - mark_honeycomb:
+          dataset: $HONEYCOMB_DATASET
+          msg: Start deploy for build $CIRCLE_BUILD_NUM
+      - ecs_deploy
+      - notify:
+          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
+
+  ecs_deploy:
+    description: Deploy using ECS
+    steps:
+      - run:
+          name: deploy
+          command: |
+
+            # get bash environment variables from previous steps
+            source $BASH_ENV
+
+            # make a persistent peers string with all the static ips
+            PEERS=""
+            for IP in $STATIC_IPS; do
+              PEERS+=($(echo $PERSISTENT_PEERS | sed "s/_IP_/$IP/g"))
+            done
+            PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
+
+            for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+              echo "Attempting node: $i"
+              if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
+                echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
+                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+              fi # no else break in case some nodes are updated and others are not
+            done
+
+            wait
+
 
 workflows:
   version: 2
   master-build:
     jobs:
-      - test-build:
+      - build-deps:
           filters:
             branches:
               only: /^master$/
+      - test:
+          filters:
+            branches:
+              only: /^master$/
+          requires:
+            - build-deps
+      - build:
+          filters:
+            branches:
+              only: /^master$/
+          requires:
+            - build-deps
       - push:
           requires:
-            - test-build
+            - test
+            - build
           filters:
             branches:
               only: /^master$/
-      - deploy:
+      - deploy-devnet:
           requires:
             - push
           filters:
@@ -145,27 +210,44 @@ workflows:
               only: /^master$/
       - integration:
           requires:
-            - deploy
+            - deploy-devnet
           filters:
             branches:
               only: /^master$/
   tagged-build:
     jobs:
-      - test-build:
-          filters:  # required since `push` has tag filters AND requires `test-build`
+      - build-deps:
+          filters:  # required since `push` has tag filters AND requires `test, build`
             tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only deploy for these tags
+              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
             branches:
               ignore: /^master$/
+      - test:
+          filters:  # required since `push` has tag filters AND requires `test, build`
+            tags:
+              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+            branches:
+              ignore: /^master$/
+          requires:
+            - build-deps
+      - build:
+          filters:  # required since `push` has tag filters AND requires `test-build`
+            tags:
+              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+            branches:
+              ignore: /^master$/
+          requires:
+            - build-deps
       - push:
           requires:
-            - test-build
+            - test
+            - build
           filters:  # required since `deploy` has tag filters AND requires `push`
             tags:
               only: /.*-push$|.*-deploy$/
             branches:
               ignore: /.*/
-      - deploy:
+      - deploy-devnet:
           requires:
             - push
           filters:
@@ -185,7 +267,7 @@ workflows:
               ignore: /.*/
       - integration:
           requires:
-            - deploy
+            - deploy-devnet
           filters:
             tags:
               only: /.*-deploy$/
@@ -197,21 +279,12 @@ general_config: &general_config
     environment:
         shell: /bin/bash
         <<: *aws_defaults
-        # nodes will be accessible from their release name combined with a number
-        # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
-        ELB_SUBDOMAIN: api.ndau.tech
-        KUBECONFIG: /root/kubeconfig
         NDAUHOME: /root/.ndau
-        S3_DEPLOY_ARCHIVE: devnet.tgz
-        HONEYCOMB_DATASET: "devnet"
         NETWORK_NAME: "devnet" # used for snapshots
-        SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.4
-        CHAOS_NOMS_TAG: 0.0.2
-        CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.4
-        NDAU_NOMS_TAG: 0.0.2
-        NDAU_REDIS_TAG: 0.0.1
+        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@_IP_:30200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@_IP_:30201,95ad9834ad1bee57df601b4c63660735a2400eb6@_IP_:30202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@_IP_:30203,eb9870620c46cd3608b875a5daa6c64380b44aaf@_IP_:30204  # _IP_ gets s/_IP_/real_ip/g 'd
+        STATIC_IPS: 50.17.109.111 54.196.108.229
+        CLUSTER_NAME: sc-node-cluster
+        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -220,20 +293,11 @@ testnet_config: &testnet_config
     environment:
         shell: /bin/bash
         <<: *aws_defaults
-        # nodes will be accessible from their release name combined with a number
-        # and the subdomain of the ELB. (e.g. devnet-0.api.ndau.tech)
-        ELB_SUBDOMAIN: api.ndau.tech
-        KUBECONFIG: /root/kubeconfig
-        S3_DEPLOY_ARCHIVE: testnet.tgz
-        HONEYCOMB_DATASET: "testnet"
         NETWORK_NAME: "testnet" # used for snapshots
-        SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.4
-        CHAOS_NOMS_TAG: 0.0.2
-        CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.4
-        NDAU_NOMS_TAG: 0.0.2
-        NDAU_REDIS_TAG: 0.0.1
+        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@_IP_:31200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@_IP_:31201,95ad9834ad1bee57df601b4c63660735a2400eb6@_IP_:31202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@_IP_:31203,eb9870620c46cd3608b875a5daa6c64380b44aaf@_IP_:31204  # _IP_ gets s/_IP_/real_ip/g 'd
+        STATIC_IPS: 50.17.109.111 54.196.108.229
+        CLUSTER_NAME: sc-node-cluster
+        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -244,282 +308,103 @@ mainnet_config: &mainnet_config
         <<: *aws_defaults
         # nodes will be accessible from their release name combined with a number
         # and the subdomain of the ELB. (e.g. node-0.main.ndau.tech)
-        ELB_SUBDOMAIN: main.ndau.tech
-        KUBECONFIG: /root/kubeconfig
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
-        SNAPSHOT_REDIS_TAG: 0.0.1
-        CHAOS_TM_TAG: v0.31.4
-        CHAOS_NOMS_TAG: 0.0.2
-        CHAOS_REDIS_TAG: 0.0.1
-        NDAU_TM_TAG: v0.31.4
-        NDAU_NOMS_TAG: 0.0.2
-        NDAU_REDIS_TAG: 0.0.1
 
 jobs:
-  test-build:
+  build-deps:
     <<: *general_config
     steps:
       - setup
       - run:
-          name: Test and build
+          name: build-deps
           command: |
             # build deps image
             docker build -t deps -f /commands/deploy/deps.docker /commands/
+      - save_image:
+          img_name: deps:latest
+          key: "{{ .Revision }}-deps"
+
+  test:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_cache:
+          key: "{{ .Revision }}-deps"
+      - run:
+          name: Test
+          command: |
+            # load previously cached containers
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
 
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
                 deps \
-                /bin/sh /root/test-and-build.sh
+                /bin/sh /root/test.sh
 
-      - save_image:
-          img_name: deps:latest
+  build:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_cache:
+          key: "{{ .Revision }}-deps"
+      - run:
+          name: Build
+          command: |
+            # load previously cached containers
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+
+            # this runs a build script within the deps image
+            docker run \
+                -e CI=true \
+                deps \
+                /bin/sh /root/build.sh
 
   push:
     <<: *general_config
     steps:
       - setup
       - run:
-          name: run all sub project docker scripts
+          name: build the single container image
           command: |
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-            find . -name "docker-build-push.sh" -print0 |xargs -0 -n1 -I{} sh -c {}
+            # TODO let buildimage.sh use the already fetched vendor dir
 
-  deploy:
+            # reload saved environment variables
+            source $BASH_ENV
+            # build single container node image
+            ./docker/bin/buildimage.sh
+            # retag built image
+            docker tag ndauimage 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
+            # push the image to ECR
+            docker push 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
+
+
+  deploy-devnet:
     <<: *general_config
     steps:
-      - setup
-      - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
-          msg: Start deploy for build $CIRCLE_BUILD_NUM
-      - run:
-          name: run the deploy script
-          command: |
-            # Redeploy devnet
-            # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
-            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
-
-            # get bash environments manually
-            source $BASH_ENV
-
-            # copy and unzip installation scripts from aws
-            mkdir -p /root/nodegroups
-            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
-            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
-            (
-              cd /root/nodegroups
-              tar xvf $S3_DEPLOY_ARCHIVE
-            )
-
-            # bring down nodes
-            /root/nodegroups/down.sh
-
-            # wait for stragglers to die. pvcs always go down last
-            # TODO add some smarter resource detection
-            while true; do
-              if
-                [ "$(kubectl get pvc -l release=devnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=devnet-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
-                  break
-              else
-                echo "waiting for devnet to die"
-                sleep 1
-              fi
-            done
-
-            # brings nodes back up
-            # Use $SHA here instead of the automation's git ls-remote method.
-            CHAOSNODE_TAG=$SHA \
-            NDAUNODE_TAG=$SHA \
-            HELM_CHART_PATH=/root/automation/helm/nodegroup \
-              /root/nodegroups/up.sh
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
-
-
+      - deploy-net
   deploy-testnet:
     <<: *testnet_config
     steps:
-      - setup
-      - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
-          msg: Start deploy for build $CIRCLE_BUILD_NUM
-      - run:
-          name: run the deploy script
-          command: |
-            # Redeploy nodegroup testnet
-            cd /commands
-
-            # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
-            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
-
-            # copy and unzip installation scripts from aws
-            mkdir -p /root/nodegroups
-            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
-            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
-            (
-              cd /root/nodegroups
-              tar xvf $S3_DEPLOY_ARCHIVE
-            )
-
-            # bring down nodes
-            /root/nodegroups/down.sh
-
-            # wait for stragglers to die. pvcs always go down last
-            # TODO add some smarter resource detection
-            while true; do
-              if
-                [ "$(kubectl get pvc -l release=testnet-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=testnet-1 | wc -l | tr -d "[:space:]")" == "0" ]; then
-                  break
-              else
-                echo "waiting for testnet to die"
-                sleep 1
-              fi
-            done
-
-            # set SHA to what the logic in the checkout step has determined.
-            source $BASH_ENV
-            echo "SHA = $SHA"
-
-            # brings nodes back up
-            CHAOSNODE_TAG=$SHA \
-            NDAUNODE_TAG=$SHA \
-            HELM_CHART_PATH=/root/automation/helm/nodegroup \
-              /root/nodegroups/up.sh
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
-
+      - deploy-net
   deploy-mainnet:
     <<: *mainnet_config
     steps:
-      - setup
-      - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
-          msg: Start deploy for build $CIRCLE_BUILD_NUM
-      - run:
-          name: run the deploy script
-          command: |
-            # Redeploy nodegroup mainnet
-            cd /commands
-            # set SHA to latest master update
-            export SHA=$(git rev-parse --short `git ls-remote git@github.com:oneiro-ndev/commands.git master | cut -f 1`)
-            echo SHA=$SHA
-
-            # set helm certs to mainnet values
-            echo -e "$helm_ca_pem_main" > /root/.helm/ca.pem
-            echo -e "$helm_cert_pem_main" > /root/.helm/cert.pem
-            echo -e "$helm_key_pem_main" > /root/.helm/key.pem
-
-            # install kube config certs for mainnet
-            echo -e "$kube_config_main" > /root/kubeconfig
-
-            # Clone the automation repo master branch
-            git clone git@github.com:oneiro-ndev/automation.git /root/automation
-            ( cd /root/automation && echo "automation repo at $(git rev-parse --short HEAD)" )
-
-            # copy and unzip installation scripts from aws
-            mkdir -p /root/nodegroups
-            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
-            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$S3_DEPLOY_ARCHIVE /root/nodegroups/$S3_DEPLOY_ARCHIVE
-            (
-              cd /root/nodegroups
-              tar xvf $S3_DEPLOY_ARCHIVE
-            )
-
-            # bring down nodes
-            /root/nodegroups/down.sh
-
-            # wait for stragglers to die. pvcs always go down last
-            # TODO add some smarter resource detection
-            while true; do
-              if
-                [ "$(kubectl get pvc -l release=node-0 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=node-1 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=node-2 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=node-3 | wc -l | tr -d "[:space:]")" == "0" ] &&
-                [ "$(kubectl get pvc -l release=node-4 | wc -l | tr -d "[:space:]")" == "0" ]; then
-                  break
-              else
-                echo "waiting for mainnet to die"
-                sleep 1
-              fi
-            done
-
-            # brings nodes back up
-            # Use $SHA here instead of the automation's git ls-remote method.
-            CHAOSNODE_TAG=$SHA \
-            NDAUNODE_TAG=$SHA \
-            HELM_CHART_PATH=/root/automation/helm/nodegroup \
-              /root/nodegroups/up.sh
-
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
+      - deploy-net
 
   integration:
     <<: *general_config
     steps:
       - setup
+      - restore_cache:
+          key: "{{ .Revision }}-deps"
       - run:
           name: Integration tests
           command: |
-
-            # Run integration tests
-            # get address and port of devnet0 RPC
-            NODE_IP_ADDRESS=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | cut -d " " -f1)
-            NODE_PORT_0=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-0-nodegroup-ndau-tendermint-service)
-            # get address and port of devnet1 RPC
-            NODE_PORT_1=$(kubectl get service --namespace default -o jsonpath='{.spec.ports[?(@.name=="rpc")].nodePort}' devnet-1-nodegroup-ndau-tendermint-service)
-
-            URL_0=http://$NODE_IP_ADDRESS:$NODE_PORT_0/node/status
-            URL_1=http://$NODE_IP_ADDRESS:$NODE_PORT_1/node/status
-
-            # curl retry options
-            CURL_CONNECT_TIMEOUT=5  # each try waits X seconds
-            CURL_RETRY_MAX=50       # retry X many times
-            CURL_RETRY_TOTAL=1000   # arbitrary high number, it will timeout first.
-            CURL_RETRY_DELAY=10     # try every X seconds
-            CURL_TOTAL_TIMEOUT=900  # total seconds before it fails (900s=15m)
-
-            echo "Trying to connect to $URL_0"
-            # curl until devnet-0 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-            if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
-                --retry-connrefused \
-                --max-time $CURL_RETRY_MAX \
-                --retry $CURL_RETRY_TOTAL \
-                --retry-delay $CURL_RETRY_DELAY \
-                --retry-max-time $CURL_TOTAL_TIMEOUT \
-                $URL_0; then
-                echo "Pinged $URL_0"
-            else
-                echo "Can't ping $URL_0"
-                exit 1
-            fi
-
-            echo "Trying to connect to $URL_1"
-            # curl until devnet-1 RPC is up and running, or CURL_TOTAL_TIMEOUT passes
-            if curl --connect-timeout $CURL_CONNECT_TIMEOUT \
-                --retry-connrefused \
-                --max-time $CURL_RETRY_MAX \
-                --retry $CURL_RETRY_TOTAL \
-                --retry-delay $CURL_RETRY_DELAY \
-                --retry-max-time $CURL_TOTAL_TIMEOUT \
-                $URL_1; then
-                echo "Pinged $URL_1"
-            else
-                echo "Can't ping $URL_1"
-                exit 1
-            fi
+            # load previously cached containers
+            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
 
             # ensure go path location
             export GOPATH=/go
@@ -538,22 +423,16 @@ jobs:
             git clone git@github.com:oneiro-ndev/integration-tests.git
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            # copy the commands repo and build the ndau tool
-            cp -r /commands $ndev_dir
-            (
-              cd commands
-              echo "commands repo at $(git rev-parse --short HEAD)" # for logs
-              # TODO setup runs dep ensure. deps has it already and we should copy to speed up the integration test build in setup.sh
-              #    something like this: docker cp $(docker images deps -q):/go/src/github.com/oneiro-ndev/commands/vendor $ndev_dir/commands
+            # build the ndau tool
+            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau'
+            container_id=$(docker ps -alq 2>&1)
+            docker commit "$container_id" temp:latest
+            docker run -d temp:latest /bin/sh -c 'sleep 60'
+            container_id=$(docker ps -alq 2>&1)
+            mkdir -p $ndev_dir/commands
+            docker cp $container_id:/root/ndau $ndev_dir/commands/
 
-              # bypass ./setup.sh question about generating the system_vars.toml file
-              mkdir -p /root/.localnet/genesis_files
-              touch /root/.localnet/genesis_files/system_vars.toml
-              ./bin/setup.sh # run setup just for the sake of building
-              ./bin/build.sh
-            )
-
-            # write the environment variable containing ndautool.toml to a file.
+            # write ndautool from bucket to a file.
             mkdir -p $NDAUHOME/ndau
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
@@ -561,6 +440,11 @@ jobs:
 
             cd integration-tests
 
-            # run tests
+            # sync pipenv
             pipenv sync
-            pipenv run pytest --net=devnet --ndauapi=https://devnet-0.api.ndau.tech
+
+            # run tests
+            NODE_ADDRESS=https://api.ndau.tech \
+            NODE_0_RPC=30100 \
+            NODE_1_RPC=30101 \
+              pipenv run pytest -v --net=devnet --ndauapi=https://api.ndau.tech:30300
