@@ -1,0 +1,15 @@
+diff --git a/Gopkg.toml b/Gopkg.toml
+index d3bca19e..dae15d39 100644
+--- a/Gopkg.toml
++++ b/Gopkg.toml
+@@ -36,6 +36,10 @@
+ 
+ # Allow only minor releases for other libraries
+ [[constraint]]
++  name = "github.com/oneiro-ndev/o11y"
++  branch = "master"
++
++[[constraint]]
+   name = "github.com/go-kit/kit"
+   version = "^0.6.0"
+
