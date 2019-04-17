@@ -79,6 +79,7 @@ do
 done
 
 # Copy all the data files we want into the temp dir.
+echo "Building snapshot file..."
 cp -r "$NOMS_NDAU_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/noms"
 cp -r "$REDIS_NDAU_DATA_DIR-0" "$SNAPSHOT_DATA_DIR/redis"
 cp "$TENDERMINT_NDAU_DATA_DIR-0/config/genesis.json" "$TM_TEMP/config"

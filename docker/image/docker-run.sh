@@ -19,6 +19,10 @@ if [ ! -d "$DATA_DIR" ]; then
     "$SCRIPT_DIR"/docker-conf.sh
 fi
 
+# Every time the node group launches, replace persistent peer domain names with IP addresses.
+echo "Converting persistent peer domain names to IP addresses..."
+"$SCRIPT_DIR"/docker-dns.sh
+
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
 if [ -z "$HONEYCOMB_KEY" ]; then

@@ -114,8 +114,5 @@ sed -i -E \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
     -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     "$TM_DATA_DIR/config/config.toml"
-sed -i -E \
-    -e 's|^(persistent_peers =) (.*)|\1 "'"$PERSISTENT_PEERS"'"|' \
-    "$TM_DATA_DIR/config/config.toml"
 
 echo Configuration complete

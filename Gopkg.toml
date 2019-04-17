@@ -16,7 +16,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.11"
+version = "~v1.12"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -45,7 +45,7 @@ version = "~v3.2"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
-version = "~v0.31"
+version = "v0.31.4"
 
 [[override]]
 name = "github.com/tinylabs/msgp"

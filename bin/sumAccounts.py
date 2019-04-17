@@ -38,15 +38,13 @@ if __name__ == "__main__":
 
     node = names[name]
 
-    page = 0
-    pgsz = 100
+    limit = 100
+    after = "-"
     balances = []
-    while True:
-        qp = dict(pagesize=pgsz, pageindex=page)
+    while after != "":
+        qp = dict(limit=limit, after=after)
         result = getData(node, "/account/list", parms=qp)
-        if not result["Accounts"]:
-            break
-        page += 1
+        after = result["NextAfter"]
 
         accts = result["Accounts"]
         resp = requests.post(f"{node}/account/accounts", json=result["Accounts"])
