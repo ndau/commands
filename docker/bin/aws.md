@@ -85,7 +85,7 @@ An S3 bucket called `ndau-deploy-secrets` holds tarballs containing private keys
 
 ## Load balancers
 
-This deployment uses a combination of 1 ALB for http trafffic and 1 classic ELB for p2p traffic: `sc-node-http` (accessible through `api.ndau.tech`) and `sc-node-p2p` (accessible through `p2p.ndau.tech`) respectively.
+This deployment uses a combination of 1 ALB for http traffic and 1 classic ELB for p2p traffic: `sc-node-http` (accessible through `api.ndau.tech`) and `sc-node-p2p` (accessible through `p2p.ndau.tech`) respectively.
 
 ## Elastic IPs
 

@@ -420,7 +420,7 @@ jobs:
             apk add sed
 
             # clone integration tests and ndev dep repos
-            git clone git@github.com:oneiro-ndev/integration-tests.git -b josh-sc-node-deploy
+            git clone git@github.com:oneiro-ndev/integration-tests.git
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
             # build the ndau tool
