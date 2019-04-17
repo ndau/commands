@@ -84,11 +84,6 @@ fi
 # Everything's up and running.  The outside world can poll for this file to know this.
 touch "$RUNNING_FILE"
 
-# If the INSANE_LOGGING environment varibale is set, tail will dump all output to stdout.
-if [ ! -z "$INSANE_LOGGING" ]; then
-  tail "$LOG_DIR/*.log"-f &
-fi
-
 echo "Node group $NODE_ID is now running"
 
 # Wait forever to keep the container alive.
