@@ -23,6 +23,7 @@ DashData*
 **/github_chaos_deploy
 **/machine_user_key
 **/gomu
+*.pem
 
 # docker
 docker/image/*.patch
