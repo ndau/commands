@@ -1,5 +1,5 @@
 #!/bin/bash
-# generates a persistent peers list
+# generates a persistent peers list and uploads a tarball full of identities to our S3 bucket
 
 # exit on errors
 set -e

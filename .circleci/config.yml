@@ -429,7 +429,8 @@ jobs:
             docker commit "$container_id" temp:latest
             docker run -d temp:latest /bin/sh -c 'sleep 60'
             container_id=$(docker ps -alq 2>&1)
-            docker cp $container_id:/root/ndau $ndev_dir/
+            mkdir -p $ndev_dir/commands
+            docker cp $container_id:/root/ndau $ndev_dir/commands/
 
             # write ndautool from bucket to a file.
             mkdir -p $NDAUHOME/ndau
