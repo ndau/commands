@@ -934,6 +934,10 @@
   input-imports = [
     "github.com/BurntSushi/toml",
     "github.com/alexflint/go-arg",
+    "github.com/attic-labs/noms/go/datas",
+    "github.com/attic-labs/noms/go/hash",
+    "github.com/attic-labs/noms/go/spec",
+    "github.com/attic-labs/noms/go/types",
     "github.com/go-redis/redis",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
@@ -963,6 +967,7 @@
     "github.com/oneiro-ndev/ndaumath/pkg/signature",
     "github.com/oneiro-ndev/ndaumath/pkg/types",
     "github.com/oneiro-ndev/ndaumath/pkg/words",
+    "github.com/oneiro-ndev/noms-util",
     "github.com/oneiro-ndev/o11y/pkg/honeycomb",
     "github.com/oneiro-ndev/system_vars/pkg/genesis.generator",
     "github.com/oneiro-ndev/system_vars/pkg/genesisfile",
