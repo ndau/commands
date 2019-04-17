@@ -7,7 +7,7 @@ How to build and run an ndau node using a single Docker container.  The Docker c
 ## Build
 
 1. Install Docker
-1. Put `machine_user_key` from 1password into the `<commands>/docker` directory to gain access to private oneiro-ndev repos at image build time
+1. Put `machine_user_key` from 1password into the `<commands>` directory to gain access to private oneiro-ndev repos at image build time
 1. Run `<commands>/docker/bin/buildimage.sh` to build the `ndauimage` locally
 
 ## Run
