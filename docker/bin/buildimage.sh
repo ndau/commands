@@ -23,12 +23,6 @@ echo "Removing $NDAU_IMAGE_NAME..."
 docker image rm "$NDAU_IMAGE_NAME" 2>/dev/null
 echo done
 
-echo Preparing image directory...
-IMAGE_DIR="$DOCKER_DIR"/image
-PATCH_DIR="$COMMANDS_DIR"/deploy/tendermint
-git clean -fx "$IMAGE_DIR"
-cp "$PATCH_DIR"/*.patch "$IMAGE_DIR"
-
 echo "Building $NDAU_IMAGE_NAME..."
 docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \

@@ -26,7 +26,6 @@ DashData*
 *.pem
 
 # docker
-docker/image/*.patch
 docker/ndau-images
 
 # osx chaff
