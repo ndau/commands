@@ -3,6 +3,7 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
+SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_API_PORT=3030
@@ -133,6 +134,31 @@ get_peer_id() {
     echo "Peer id: $PEER_ID"
 }
 
+# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
+join_by() { local IFS="$1"; shift; echo "$*"; }
+
+# If the ndau network environment variable is set, override the peers.
+if [ ! -z "$NDAU_NETWORK" ]; then
+    echo "Fetching $SERVICES_URL..."
+    services_json=$(curl -s "$SERVICES_URL")
+    p2ps=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].p2p))
+    rpcs=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].rpc))
+
+    len="${#rpcs[@]}"
+    if [ "$len" = 0 ]; then
+        echo "No nodes published for network: $NDAU_NETWORK"
+        exit 1
+    fi
+
+    # The RPC connections must be made through https.
+    for node in $(seq 0 $((len - 1))); do
+        rpcs[$node]="https://${rpcs[$node]}"
+    done
+
+    PEERS_P2P=$(join_by , "${p2ps[@]}")
+    PEERS_RPC=$(join_by , "${rpcs[@]}")
+fi
+
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
 persistent_peers=()
 IFS=',' read -ra peers_p2p <<< "$PEERS_P2P"
@@ -164,9 +190,6 @@ if [ "$len" -gt 0 ]; then
     done
 fi
 
-# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
-join_by() { local IFS="$1"; shift; echo "$*"; }
-
 PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
 echo "Persistent peers: '$PERSISTENT_PEERS'"
 
@@ -193,7 +216,7 @@ docker create \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
-       ndauimage 
+       ndauimage
 
 IDENTITY_FILE=node-identity.tgz
 # Copy the identity file into the container if one was specified,
