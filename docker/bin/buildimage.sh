@@ -66,7 +66,7 @@ if [ -f "$NDAU_TOOL" ]; then
     echo "Optional next steps:"
     echo "  1. Upload the image to S3 using:"
     echo "       $UPLOAD_IMAGE_CMD"
-    echo "  2. If the image was uploaded, upload the version file to mark it as the latest:"
+    echo "  2. If the image was uploaded, use this to mark it as the latest if desired:"
     echo "       $UPLOAD_VERSION_CMD"
     echo
 fi
