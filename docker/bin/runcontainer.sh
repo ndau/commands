@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
-INTERNAL_NDAUAPI_PORT=3030
+INTERNAL_API_PORT=3030
 LOG_FORMAT=json
 LOG_LEVEL=info
 
@@ -18,39 +18,39 @@ if [ -z "$1" ] || \
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER P2P_PORT RPC_PORT NDAUAPI_PORT SNAPSHOT [IDENTITY] [PEERS_P2P] [PEERS_RPC]"
+         "CONTAINER P2P_PORT RPC_PORT API_PORT SNAPSHOT [IDENTITY] [PEERS_P2P] [PEERS_RPC]"
     echo
     echo "Arguments:"
-    echo "  CONTAINER     Name to give to the container to run"
-    echo "  P2P_PORT      External port to map to the internal P2P port for the blockchain"
-    echo "  RPC_PORT      External port to map to the internal RPC port for the blockchain"
-    echo "  NDAUAPI_PORT  External port to map to the internal ndauapi port"
-    echo "  SNAPSHOT      Name of the snapshot to use as a starting point for the node group"
+    echo "  CONTAINER  Name to give to the container to run"
+    echo "  P2P_PORT   External port to map to the internal P2P port for the blockchain"
+    echo "  RPC_PORT   External port to map to the internal RPC port for the blockchain"
+    echo "  API_PORT   External port to map to the internal ndau API port"
+    echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optional:"
-    echo "  IDENTITY      node-identity.tgz file from a previous snaphot or initial container run"
-    echo "                If present, the node will use it to configure itself when [re]starting"
-    echo "                If missing, the node will generate a new identity for itself"
-    echo "  PEERS_P2P     Comma-separated list of persistent peers on the network to join"
-    echo "                  Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
-    echo "  PEERS_RPC     Comma-separated list of the same peers for RPC connections"
-    echo "                  Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
+    echo "  IDENTITY   node-identity.tgz file from a previous snaphot or initial container run"
+    echo "             If present, the node will use it to configure itself when [re]starting"
+    echo "             If missing, the node will generate a new identity for itself"
+    echo "  PEERS_P2P  Comma-separated list of persistent peers on the network to join"
+    echo "               Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
+    echo "  PEERS_RPC  Comma-separated list of the same peers for RPC connections"
+    echo "               Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo
     echo "Environment variables:"
     echo "  BASE64_NODE_IDENTITY"
-    echo "                Set to override the IDENTITY parameter"
-    echo "                The contents of the variable are a base64 encoded tarball containing:"
-    echo "                  - tendermint/config/priv_validator_key.json"
-    echo "                  - tendermint/config/node_id.json"
+    echo "             Set to override the IDENTITY parameter"
+    echo "             The contents of the variable are a base64 encoded tarball containing:"
+    echo "               - tendermint/config/priv_validator_key.json"
+    echo "               - tendermint/config/node_id.json"
     echo "  NDAU_NETWORK"
-    echo "                Set to override the PEERS_P2P and PEERS_RPC parameters"
-    echo "                Supported networks: devnet, testnet, mainnet"
+    echo "             Set to override the PEERS_P2P and PEERS_RPC parameters"
+    echo "             Supported networks: devnet, testnet, mainnet"
     exit 1
 fi
 CONTAINER="$1"
 P2P_PORT="$2"
 RPC_PORT="$3"
-NDAUAPI_PORT="$4"
+API_PORT="$4"
 SNAPSHOT="$5"
 IDENTITY="$6"
 PEERS_P2P="$7"
@@ -80,7 +80,7 @@ fi
 
 echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
-echo "ndauapi port: $NDAUAPI_PORT"
+echo "API port: $API_PORT"
 
 test_local_port() {
     port="$1"
@@ -94,7 +94,7 @@ test_local_port() {
 
 test_local_port "$P2P_PORT"
 test_local_port "$RPC_PORT"
-test_local_port "$NDAUAPI_PORT"
+test_local_port "$API_PORT"
 
 test_peer() {
     ip="$1"
@@ -182,7 +182,7 @@ echo "Creating container..."
 docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
-       -p "$NDAUAPI_PORT":"$INTERNAL_NDAUAPI_PORT" \
+       -p "$API_PORT":"$INTERNAL_API_PORT" \
        --name "$CONTAINER" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
