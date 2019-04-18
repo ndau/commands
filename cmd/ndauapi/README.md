@@ -79,6 +79,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [AccountCurrencySeats](#accountcurrencyseats)
 
+* [BlockBefore](#blockbefore)
+
 * [BlockCurrent](#blockcurrent)
 
 * [BlockHash](#blockhash)
@@ -403,6 +405,78 @@ _**Writes:**_
           "NextAfter": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
           "Accounts": [
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
+          ]
+        }
+```
+
+
+
+---
+## BlockBefore
+
+### `GET /block/before/:height`
+
+_Returns a (possibly filtered) sequence of block metadata for blocks of height less than last._
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ height | Path | Blocks of this height and greater will not be returned. | int
+ filter | Query | Set to 'noempty' to exclude empty blocks. | string
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "last_height": 12345,
+          "block_metas": [
+            {
+              "block_id": {
+                "hash": "",
+                "parts": {
+                  "total": 0,
+                  "hash": ""
+                }
+              },
+              "header": {
+                "version": {
+                  "block": 0,
+                  "app": 0
+                },
+                "chain_id": "",
+                "height": 0,
+                "time": "0001-01-01T00:00:00Z",
+                "num_txs": 0,
+                "total_txs": 0,
+                "last_block_id": {
+                  "hash": "",
+                  "parts": {
+                    "total": 0,
+                    "hash": ""
+                  }
+                },
+                "last_commit_hash": "",
+                "data_hash": "",
+                "validators_hash": "",
+                "next_validators_hash": "",
+                "consensus_hash": "",
+                "app_hash": "",
+                "last_results_hash": "",
+                "evidence_hash": "",
+                "proposer_address": ""
+              }
+            }
           ]
         }
 ```
