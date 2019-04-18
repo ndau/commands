@@ -34,6 +34,7 @@ docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        "$DOCKER_DIR"/image \
        --tag="$NDAU_IMAGE_NAME"
+echo done
 
 # Must have latest ndau tool built locally to get the version in order to save/upload the image.
 # If you don't have it, it's fine.  We'll just skip the option of saving/uploading to S3.
@@ -75,5 +76,3 @@ if [ -f "$NDAU_TOOL" ]; then
     echo "       $UPLOAD_VERSION_CMD"
     echo
 fi
-
-echo done
