@@ -13,47 +13,48 @@ if [ -z "$1" ] || \
    [ -z "$2" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
-   # $5 can be empty
-   # $6 can be empty
-   [ -z "$7" ]
-   # $8 is optional
+   [ -z "$5" ]
+   # $6 $7 and $8 are optional and "" can be used for them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER P2P_PORT RPC_PORT NDAUAPI_PORT PEERS SNAPSHOT IDENTITY"
+         "CONTAINER P2P_PORT RPC_PORT NDAUAPI_PORT SNAPSHOT [IDENTITY] [PEERS_P2P] [PEERS_RPC]"
     echo
     echo "Arguments:"
     echo "  CONTAINER     Name to give to the container to run"
     echo "  P2P_PORT      External port to map to the internal P2P port for the blockchain"
     echo "  RPC_PORT      External port to map to the internal RPC port for the blockchain"
     echo "  NDAUAPI_PORT  External port to map to the internal ndauapi port"
-    echo "  PEERS_P2P     Comma-separated list of persistent peers on the network to join"
-    echo "                  Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
-    echo "  PEERS_RPC     Comma-separated list of the same peers for RPC connections"
-    echo "                  Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo "  SNAPSHOT      Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optional:"
     echo "  IDENTITY      node-identity.tgz file from a previous snaphot or initial container run"
     echo "                If present, the node will use it to configure itself when [re]starting"
     echo "                If missing, the node will generate a new identity for itself"
+    echo "  PEERS_P2P     Comma-separated list of persistent peers on the network to join"
+    echo "                  Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
+    echo "  PEERS_RPC     Comma-separated list of the same peers for RPC connections"
+    echo "                  Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo
-    echo "  BASE64_NODE_IDENTITY (environment variable)"
-    echo "                This environment variable can be set to provide an identity. If this variable"
-    echo "                is supplied, the IDENTITY file above will not be used. The contents of the"
-    echo "                variable are a base64 encoded tarball containing the files: "
+    echo "Environment variables:"
+    echo "  BASE64_NODE_IDENTITY"
+    echo "                Set to override the IDENTITY parameter"
+    echo "                The contents of the variable are a base64 encoded tarball containing:"
     echo "                  - tendermint/config/priv_validator_key.json"
     echo "                  - tendermint/config/node_id.json"
+    echo "  NDAU_NETWORK"
+    echo "                Set to override the PEERS_P2P and PEERS_RPC parameters"
+    echo "                Supported networks: devnet, testnet, mainnet"
     exit 1
 fi
 CONTAINER="$1"
 P2P_PORT="$2"
 RPC_PORT="$3"
 NDAUAPI_PORT="$4"
-PEERS_P2P="$5"
-PEERS_RPC="$6"
-SNAPSHOT="$7"
-IDENTITY="$8"
+SNAPSHOT="$5"
+IDENTITY="$6"
+PEERS_P2P="$7"
+PEERS_RPC="$8"
 
 if [[ "$CONTAINER" == *"/"* ]]; then
     # This is because we use a sed command inside the container and slashes confuse it.
@@ -69,7 +70,10 @@ if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     exit 1
 fi
 
-if [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ] ; then
+# If we're not overriding the identity parameter,
+# and an identity file was specified,
+# but the file doesn't exist...
+if [ -z "$BASE64_NODE_IDENTITY" ] && [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ]; then
     echo "Cannot find node identity file: $IDENTITY"
     exit 1
 fi
