@@ -63,10 +63,10 @@ if [ -f "$NDAU_TOOL" ]; then
     echo "IMAGE CREATED: $IMAGE_PATH"
     echo "VERSION CREATED: $VERSION_PATH"
     echo
-    echo "Next steps:"
+    echo "Optional next steps:"
     echo "  1. Upload the image to S3 using:"
     echo "       $UPLOAD_IMAGE_CMD"
-    echo "  2. OPTIONAL: upload the version file to make the new image the latest version using:"
+    echo "  2. If the image was uploaded, upload the version file to mark it as the latest:"
     echo "       $UPLOAD_VERSION_CMD"
     echo
 fi
