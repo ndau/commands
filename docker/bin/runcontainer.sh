@@ -196,7 +196,9 @@ docker create \
        ndauimage 
 
 IDENTITY_FILE=node-identity.tgz
-if [ ! -z "$IDENTITY" ]; then
+# Copy the identity file into the container if one was specified,
+# but not if the base64 environment variable is being used to effectively override the file.
+if [ ! -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo "Copying node identity file to container..."
     docker cp "$IDENTITY" "$CONTAINER:/image/$IDENTITY_FILE"
 fi
@@ -212,7 +214,7 @@ done
 
 # In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.
-if [ -z "$IDENTITY" ]; then
+if [ -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     # We can copy the file out now since we waited for the node to full spin up above.
     OUT_FILE="$SCRIPT_DIR/node-identity-$CONTAINER.tgz"
     docker cp "$CONTAINER:/image/$IDENTITY_FILE" "$OUT_FILE"
