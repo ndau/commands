@@ -72,7 +72,7 @@ done
 # Now that we know all data files are in place and the node group is running,
 # we can generate the node-identity file if one wasn't passed in.
 IDENTITY_FILE="$SCRIPT_DIR"/node-identity.tgz
-if [ ! -f "$IDENTITY_FILE" ]; then
+if [ ! -f "$IDENTITY_FILE" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo "Generating identity file..."
 
     cd "$DATA_DIR" || exit 1

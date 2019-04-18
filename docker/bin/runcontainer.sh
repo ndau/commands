@@ -34,10 +34,17 @@ then
     echo "                  Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo "  SNAPSHOT      Name of the snapshot to use as a starting point for the node group"
     echo
-    echo "Optionsl:"
+    echo "Optional:"
     echo "  IDENTITY      node-identity.tgz file from a previous snaphot or initial container run"
     echo "                If present, the node will use it to configure itself when [re]starting"
     echo "                If missing, the node will generate a new identity for itself"
+    echo
+    echo "  BASE64_NODE_IDENTITY (environment variable)"
+    echo "                This environment variable can be set to provide an identity. If this variable"
+    echo "                is supplied, the IDENTITY file above will not be used. The contents of the"
+    echo "                variable are a base64 encoded tarball containing the files: "
+    echo "                  - tendermint/config/priv_validator_key.json"
+    echo "                  - tendermint/config/node_id.json"
     exit 1
 fi
 CONTAINER="$1"
@@ -218,6 +225,7 @@ docker create \
        -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
+       -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
        ndauimage 

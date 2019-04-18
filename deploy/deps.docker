@@ -22,8 +22,9 @@ COPY ./Gopkg.lock ${DIR}/Gopkg.lock
 COPY ./Gopkg.toml ${DIR}/Gopkg.toml
 COPY ./cmd ${DIR}/cmd
 
-# Copy test script, but do not run it right now.
-COPY ./deploy/test-and-build.sh /root/test-and-build.sh
+# Copy test script and build script, but do not run it right now.
+COPY ./deploy/test.sh /root/test.sh
+COPY ./deploy/build.sh /root/build.sh
 
 # Configure git to use ssh instead of https
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"

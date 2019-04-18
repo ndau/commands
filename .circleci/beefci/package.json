@@ -1,0 +1,14 @@
+{
+  "name": "beefci",
+  "version": "0.0.1",
+  "description": "CircleCI branch tag combination checker.",
+  "main": "beef.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Josh Anderson <fetmar@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "js-yaml": "^3.13.1"
+  }
+}
