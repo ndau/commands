@@ -2,13 +2,16 @@
 
 ## Overview
 
-How to build and run an ndau node using a single Docker container.  The Docker container contains all of our processes that make a node group: `redis`, `noms`, `ndaunode`, `tendermint` and `ndauapi`.  Running multiple instances of the container is how we make an ndau network.
+How to build and run an ndau node using a single Docker container.  The Docker container contains all of our processes that make a node group: `redis`, `noms`, `ndaunode`, `tendermint` and `ndauapi`, all driven by `procmon`.  Running multiple instances of the container is how we make an ndau network.
+
+This page outlines all of the features of the ndau Docker container, useful to Oneiro developers.  If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) would be a good place to start.
 
 ## Build
 
 1. Install Docker
-1. Put `machine_user_key` from 1password into the `<commands>` directory to gain access to private oneiro-ndev repos at image build time
-1. Run `<commands>/docker/bin/buildimage.sh` to build the `ndauimage` locally
+1. Put `machine_user_key` from 1password into the `commands` repo root directory to gain access to private oneiro-ndev repos at image build time
+1. Run `docker/bin/buildimage.sh` to build the `ndauimage` locally
+1. Optionally you can upload the image to S3; instructions provided by `buildimge.sh` output
 
 ## Run
 
@@ -17,9 +20,9 @@ In order to run a container, we feed the following arguments to `docker/bin/runc
 - Tendermint P2P port
 - Tendermint RPC port
 - ndauapi port
-- Initial persistent peers (Optional)
 - Snapshot name
 - Node identity file (Optional)
+- Initial persistent peers (Optional)
 
 For example:
 ```
@@ -28,9 +31,10 @@ SNAPSHOT=snapshot-devnet-12345.tgz
 docker/bin/runcontainer.sh \
     devnet-2 \
     26662 26672 3032 \
-    "$IP:26660:26670,$IP:26661:26671" \
     $SNAPSHOT \
-    node-identity-2.tgz
+    node-identity-2.tgz \
+    "$IP:26660,$IP:26661" \
+    "$IP:26670,$IP:26671"
 ```
 
 Below we look closer at each of these arguments.
@@ -144,3 +148,38 @@ You can edit these files how you want, to test things out.  But if you'd like to
 ## Honeycomb
 
 To enable logging to honeycomb, simply have your `HONEYCOMB_DATASET` and `HONEYCOMB_KEY` environment variables exported before running a container.  Any restart of that container will preserve and reuse these settings.
+
+## Validators and Verifiers
+
+The nodes that exist when the genesis snapshot is taken on localnet will all be validator nodes.  Nodes that spin up and connect to a network after the initial validators are running will be verifier nodes by default.  We can control the power a node has (e.g. change a node from a verifier to a validator, and vice-versa) by using the ndau tool's `cvc` command.  We describe how to do that here.
+
+This is currently not a one-button-push operation, but could be.  For now, the first thing you do is find out the public key of the node for which you want to change power.  That can be done using the following python script:
+
+```
+#!/usr/bin/env python3
+
+import base64
+import json
+import subprocess
+
+info = subprocess.check_output(["./ndau", "info"])
+info = json.loads(info)
+pubkey_bytes = bytes(info["validator_info"]["pub_key"])
+pubkey = base64.b64encode(pubkey_bytes).decode("utf-8").rstrip("=")
+print(pubkey)
+```
+
+This uses the `ndau` tool get the non-padded base64 encoding of the public key for the node that is cofigured by the `ndautool.toml`.  Its location is determined by the current value of your `NDAUHOME` environment variable.
+
+For example, if your `NDAUHOME` is `~/.ndau` and you have an `ndautool.toml` sitting in `$NDAUHOME/ndau/ndautool.toml` that points to the devnet-2 node on devnet, then a `cvc` command will affect that node.
+
+So, using the above script (call it `pubkey.py`), you can then change the node's power to 10 using the following commands:
+
+```
+PUBKEY=$(./pubkey.py)
+./ndau cvc "$PUBKEY" 10
+```
+
+By default, the initial 5 Oneiro-managed nodes on a network will all have power 10 (all validators).  Any new nodes that join a network will have power 0 (verifier).  The above steps can be used to grant or revoke validator status of any node at any time.
+
+Once a verifier becomes a validator, transactions will round-robin with it to decide on which blocks can be added to the blockchain.
