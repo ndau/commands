@@ -4,9 +4,10 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 IMAGE_BASE_URL="https://s3.amazonaws.com/ndau-images"
 SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
+SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
-INTERNAL_NDAUAPI_PORT=3030
+INTERNAL_API_PORT=3030
 LOG_FORMAT=json
 LOG_LEVEL=info
 
@@ -14,48 +15,50 @@ if [ -z "$1" ] || \
    [ -z "$2" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
-   # $5 can be empty
-   # $6 can be empty
-   [ -z "$7" ]
-   # $8 is optional
+   [ -z "$5" ]
+   # $6 $7 and $8 are optional and "" can be used for them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER P2P_PORT RPC_PORT NDAUAPI_PORT PEERS SNAPSHOT IDENTITY"
+         "CONTAINER P2P_PORT RPC_PORT API_PORT SNAPSHOT [IDENTITY] [PEERS_P2P] [PEERS_RPC]"
     echo
     echo "Arguments:"
-    echo "  CONTAINER     Name to give to the container to run"
-    echo "  P2P_PORT      External port to map to the internal P2P port for the blockchain"
-    echo "  RPC_PORT      External port to map to the internal RPC port for the blockchain"
-    echo "  NDAUAPI_PORT  External port to map to the internal ndauapi port"
-    echo "  PEERS_P2P     Comma-separated list of persistent peers on the network to join"
-    echo "                  Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
-    echo "  PEERS_RPC     Comma-separated list of the same peers for RPC connections"
-    echo "                  Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
-    echo "  SNAPSHOT      Name of the snapshot to use as a starting point for the node group"
+    echo "  CONTAINER  Name to give to the container to run"
+    echo "  P2P_PORT   External port to map to the internal P2P port for the blockchain"
+    echo "  RPC_PORT   External port to map to the internal RPC port for the blockchain"
+    echo "  API_PORT   External port to map to the internal ndau API port"
+    echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optional:"
-    echo "  IDENTITY      node-identity.tgz file from a previous snaphot or initial container run"
-    echo "                If present, the node will use it to configure itself when [re]starting"
-    echo "                If missing, the node will generate a new identity for itself"
+    echo "  IDENTITY   node-identity.tgz file from a previous snaphot or initial container run"
+    echo "             If present, the node will use it to configure itself when [re]starting"
+    echo "             If missing, the node will generate a new identity for itself"
+    echo "  PEERS_P2P  Comma-separated list of persistent peers on the network to join"
+    echo "               Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
+    echo "  PEERS_RPC  Comma-separated list of the same peers for RPC connections"
+    echo "               Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo
-    echo "  BASE64_NODE_IDENTITY (environment variable)"
-    echo "                This environment variable can be set to provide an identity. If this variable"
-    echo "                is supplied, the IDENTITY file above will not be used. The contents of the"
-    echo "                variable are a base64 encoded tarball containing the files: "
-    echo "                  - tendermint/config/priv_validator_key.json"
-    echo "                  - tendermint/config/node_id.json"
+    echo "Environment variables:"
+    echo "  BASE64_NODE_IDENTITY"
+    echo "             Set to override the IDENTITY parameter"
+    echo "             The contents of the variable are a base64 encoded tarball containing:"
+    echo "               - tendermint/config/priv_validator_key.json"
+    echo "               - tendermint/config/node_id.json"
+    echo "  NDAU_NETWORK"
+    echo "             Set to override the PEERS_P2P and PEERS_RPC parameters"
+    echo "             Supported networks: devnet, testnet, mainnet"
     exit 1
 fi
 CONTAINER="$1"
 P2P_PORT="$2"
 RPC_PORT="$3"
-NDAUAPI_PORT="$4"
-PEERS_P2P="$5"
-PEERS_RPC="$6"
-SNAPSHOT="$7"
-IDENTITY="$8"
+API_PORT="$4"
+SNAPSHOT="$5"
+IDENTITY="$6"
+PEERS_P2P="$7"
+PEERS_RPC="$8"
 
+# Validate container name (can't have slashes).
 if [[ "$CONTAINER" == *"/"* ]]; then
     # This is because we use a sed command inside the container and slashes confuse it.
     echo "Container name $CONTAINER cannot contain slashes"
@@ -70,14 +73,17 @@ if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     exit 1
 fi
 
-if [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ] ; then
+# If we're not overriding the identity parameter,
+# and an identity file was specified,
+# but the file doesn't exist...
+if [ -z "$BASE64_NODE_IDENTITY" ] && [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ]; then
     echo "Cannot find node identity file: $IDENTITY"
     exit 1
 fi
 
 echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
-echo "ndauapi port: $NDAUAPI_PORT"
+echo "API port: $API_PORT"
 
 test_local_port() {
     port="$1"
@@ -91,7 +97,7 @@ test_local_port() {
 
 test_local_port "$P2P_PORT"
 test_local_port "$RPC_PORT"
-test_local_port "$NDAUAPI_PORT"
+test_local_port "$API_PORT"
 
 test_peer() {
     ip="$1"
@@ -130,6 +136,31 @@ get_peer_id() {
     echo "Peer id: $PEER_ID"
 }
 
+# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
+join_by() { local IFS="$1"; shift; echo "$*"; }
+
+# If the ndau network environment variable is set, override the peers.
+if [ ! -z "$NDAU_NETWORK" ]; then
+    echo "Fetching $SERVICES_URL..."
+    services_json=$(curl -s "$SERVICES_URL")
+    p2ps=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].p2p))
+    rpcs=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].rpc))
+
+    len="${#rpcs[@]}"
+    if [ "$len" = 0 ]; then
+        echo "No nodes published for network: $NDAU_NETWORK"
+        exit 1
+    fi
+
+    # The RPC connections must be made through https.
+    for node in $(seq 0 $((len - 1))); do
+        rpcs[$node]="https://${rpcs[$node]}"
+    done
+
+    PEERS_P2P=$(join_by , "${p2ps[@]}")
+    PEERS_RPC=$(join_by , "${rpcs[@]}")
+fi
+
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
 persistent_peers=()
 IFS=',' read -ra peers_p2p <<< "$PEERS_P2P"
@@ -161,9 +192,6 @@ if [ "$len" -gt 0 ]; then
     done
 fi
 
-# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
-join_by() { local IFS="$1"; shift; echo "$*"; }
-
 PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
 echo "Persistent peers: '$PERSISTENT_PEERS'"
 
@@ -178,11 +206,11 @@ if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
     echo "Unable to find $NDAU_IMAGE_NAME locally; fetching latest..."
 
     DOCKER_DIR="$SCRIPT_DIR/.."
-    NDAU_IMAGES_SUBDIR=ndau-images
+    NDAU_IMAGES_SUBDIR="ndau-images"
     NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
-    VERSION_FILE=latest.txt
+    VERSION_FILE="latest.txt"
     VERSION_PATH="$NDAU_IMAGES_DIR/$VERSION_FILE"
     echo "Fetching $VERSION_FILE..."
     curl -o "$VERSION_PATH" "$IMAGE_BASE_URL/$VERSION_FILE"
@@ -217,7 +245,7 @@ echo "Creating container..."
 docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
-       -p "$NDAUAPI_PORT":"$INTERNAL_NDAUAPI_PORT" \
+       -p "$API_PORT":"$INTERNAL_API_PORT" \
        --name "$CONTAINER" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
@@ -228,10 +256,12 @@ docker create \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
-       ndauimage 
+       ndauimage
 
-IDENTITY_FILE=node-identity.tgz
-if [ ! -z "$IDENTITY" ]; then
+IDENTITY_FILE="node-identity.tgz"
+# Copy the identity file into the container if one was specified,
+# but not if the base64 environment variable is being used to effectively override the file.
+if [ ! -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo "Copying node identity file to container..."
     docker cp "$IDENTITY" "$CONTAINER:/image/$IDENTITY_FILE"
 fi
@@ -247,7 +277,7 @@ done
 
 # In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.
-if [ -z "$IDENTITY" ]; then
+if [ -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     # We can copy the file out now since we waited for the node to full spin up above.
     OUT_FILE="$SCRIPT_DIR/node-identity-$CONTAINER.tgz"
     docker cp "$CONTAINER:/image/$IDENTITY_FILE" "$OUT_FILE"
@@ -263,4 +293,4 @@ if [ -z "$IDENTITY" ]; then
     echo
 fi
 
-echo done
+echo "done"
