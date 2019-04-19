@@ -282,7 +282,7 @@ general_config: &general_config
         NDAUHOME: /root/.ndau
         NETWORK_NAME: "devnet" # used for snapshots
         PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@_IP_:30200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@_IP_:30201,95ad9834ad1bee57df601b4c63660735a2400eb6@_IP_:30202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@_IP_:30203,eb9870620c46cd3608b875a5daa6c64380b44aaf@_IP_:30204  # _IP_ gets s/_IP_/real_ip/g 'd
-        STATIC_IPS: 50.17.109.111 54.196.108.229
+        STATIC_IPS: p2p.ndau.tech
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
 
