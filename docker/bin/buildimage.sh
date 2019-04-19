@@ -21,14 +21,14 @@ fi
 
 echo "Removing $NDAU_IMAGE_NAME..."
 docker image rm "$NDAU_IMAGE_NAME" 2>/dev/null
-echo done
+echo "done"
 
 echo "Building $NDAU_IMAGE_NAME..."
 docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        "$DOCKER_DIR"/image \
        --tag="$NDAU_IMAGE_NAME"
-echo done
+echo "done"
 
 # Must have latest ndau tool built locally to get the version in order to save/upload the image.
 # If you don't have it, it's fine.  We'll just skip the option of saving/uploading to S3.

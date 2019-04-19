@@ -9,4 +9,4 @@ fi
 
 echo Stopping "$CONTAINER"...
 docker container stop "$CONTAINER" 2>/dev/null
-echo done
+echo "done"

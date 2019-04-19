@@ -293,4 +293,4 @@ if [ -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo
 fi
 
-echo done
+echo "done"
