@@ -33,7 +33,7 @@ echo done
 # Must have latest ndau tool built locally to get the version in order to save/upload the image.
 # If you don't have it, it's fine.  We'll just skip the option of saving/uploading to S3.
 NDAU_TOOL="$SCRIPT_DIR/../../ndau"
-if [ -f "$NDAU_TOOL" ]; then
+if [ "$1" != "nosave" ] && [ -f "$NDAU_TOOL" ]; then
     echo "Saving local copy of $NDAU_IMAGE_NAME..."
 
     VERSION=$($NDAU_TOOL version)
