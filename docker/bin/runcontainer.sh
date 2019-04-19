@@ -58,6 +58,7 @@ IDENTITY="$6"
 PEERS_P2P="$7"
 PEERS_RPC="$8"
 
+# Validate container name (can't have slashes).
 if [[ "$CONTAINER" == *"/"* ]]; then
     # This is because we use a sed command inside the container and slashes confuse it.
     echo "Container name $CONTAINER cannot contain slashes"
@@ -205,11 +206,11 @@ if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
     echo "Unable to find $NDAU_IMAGE_NAME locally; fetching latest..."
 
     DOCKER_DIR="$SCRIPT_DIR/.."
-    NDAU_IMAGES_SUBDIR=ndau-images
+    NDAU_IMAGES_SUBDIR="ndau-images"
     NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
-    VERSION_FILE=latest.txt
+    VERSION_FILE="latest.txt"
     VERSION_PATH="$NDAU_IMAGES_DIR/$VERSION_FILE"
     echo "Fetching $VERSION_FILE..."
     curl -o "$VERSION_PATH" "$IMAGE_BASE_URL/$VERSION_FILE"
@@ -257,7 +258,7 @@ docker create \
        --sysctl net.core.somaxconn=511 \
        ndauimage
 
-IDENTITY_FILE=node-identity.tgz
+IDENTITY_FILE="node-identity.tgz"
 # Copy the identity file into the container if one was specified,
 # but not if the base64 environment variable is being used to effectively override the file.
 if [ ! -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
@@ -292,4 +293,4 @@ if [ -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo
 fi
 
-echo done
+echo "done"

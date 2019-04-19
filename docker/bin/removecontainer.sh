@@ -14,4 +14,4 @@ fi
 
 echo "Removing $CONTAINER..."
 docker container rm "$CONTAINER" 2>/dev/null
-echo done
+echo "done"
