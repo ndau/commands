@@ -203,8 +203,9 @@ func main() {
 	}
 
 	// now build a special task to act as the parent of the root tasks
+	nodeID := cfg.Env["NODE_ID"]
 	root := NewTask("root", "")
-	root.Logger = logger
+	root.Logger = logger.WithField("node_id", nodeID)
 	root.Stopped = make(chan struct{})
 	for i := range tasks.Main {
 		root.AddDependent(tasks.Main[i])
