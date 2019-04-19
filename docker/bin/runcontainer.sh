@@ -2,6 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+IMAGE_BASE_URL="https://s3.amazonaws.com/ndau-images"
 SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
@@ -197,6 +198,44 @@ echo "Snapshot: $SNAPSHOT"
 
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
+
+# If the image isn't present, fetch the latest from S3.
+NDAU_IMAGE_NAME=ndauimage
+if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
+    echo "Unable to find $NDAU_IMAGE_NAME locally; fetching latest..."
+
+    DOCKER_DIR="$SCRIPT_DIR/.."
+    NDAU_IMAGES_SUBDIR=ndau-images
+    NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
+    mkdir -p "$NDAU_IMAGES_DIR"
+
+    VERSION_FILE=latest.txt
+    VERSION_PATH="$NDAU_IMAGES_DIR/$VERSION_FILE"
+    echo "Fetching $VERSION_FILE..."
+    curl -o "$VERSION_PATH" "$IMAGE_BASE_URL/$VERSION_FILE"
+    if [ ! -f "$VERSION_PATH" ]; then
+        echo "Unable to fetch $IMAGE_BASE_URL/$VERSION_FILE"
+        exit 1
+    fi
+
+    IMAGE_NAME=$(cat $VERSION_PATH)
+    IMAGE_ZIP="$IMAGE_NAME.docker.gz"
+    IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
+    echo "Fetching $IMAGE_ZIP..."
+    curl -o "$IMAGE_PATH.gz" "$IMAGE_BASE_URL/$IMAGE_ZIP"
+    if [ ! -f "$IMAGE_PATH.gz" ]; then
+        echo "Unable to fetch $IMAGE_BASE_URL/$IMAGE_ZIP"
+        exit 1
+    fi
+
+    echo "Loading $NDAU_IMAGE_NAME..."
+    gunzip -f "$IMAGE_PATH.gz"
+    docker load -i "$IMAGE_PATH"
+    if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
+        echo "Unable to load $NDAU_IMAGE_NAME"
+        exit 1
+    fi
+fi
 
 echo "Creating container..."
 # Some notes about the params to the run command:

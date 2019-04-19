@@ -168,7 +168,7 @@ commands:
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
-                /commands/docker/bin/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+                /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
               fi # no else break in case some nodes are updated and others are not
             done
 
@@ -374,7 +374,7 @@ jobs:
             # reload saved environment variables
             source $BASH_ENV
             # build single container node image
-            ./docker/bin/buildimage.sh
+            ./docker/bin/buildimage.sh nosave
             # retag built image
             docker tag ndauimage 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
             # push the image to ECR
