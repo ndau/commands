@@ -157,13 +157,6 @@ commands:
             # get bash environment variables from previous steps
             source $BASH_ENV
 
-            # make a persistent peers string with all the static ips
-            PEERS=""
-            for IP in $STATIC_IPS; do
-              PEERS+=($(echo $PERSISTENT_PEERS | sed "s/_IP_/$IP/g"))
-            done
-            PERSISTENT_PEERS=$(IFS=,; echo "${PEERS[*]}") # join array with ","
-
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
@@ -281,8 +274,7 @@ general_config: &general_config
         <<: *aws_defaults
         NDAUHOME: /root/.ndau
         NETWORK_NAME: "devnet" # used for snapshots
-        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@_IP_:30200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@_IP_:30201,95ad9834ad1bee57df601b4c63660735a2400eb6@_IP_:30202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@_IP_:30203,eb9870620c46cd3608b875a5daa6c64380b44aaf@_IP_:30204  # _IP_ gets s/_IP_/real_ip/g 'd
-        STATIC_IPS: 50.17.109.111 54.196.108.229
+        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@p2p.ndau.tech:30200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@p2p.ndau.tech:30201,95ad9834ad1bee57df601b4c63660735a2400eb6@p2p.ndau.tech:30202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@p2p.ndau.tech:30203,eb9870620c46cd3608b875a5daa6c64380b44aaf@p2p.ndau.tech:30204
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
 
@@ -294,8 +286,7 @@ testnet_config: &testnet_config
         shell: /bin/bash
         <<: *aws_defaults
         NETWORK_NAME: "testnet" # used for snapshots
-        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@_IP_:31200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@_IP_:31201,95ad9834ad1bee57df601b4c63660735a2400eb6@_IP_:31202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@_IP_:31203,eb9870620c46cd3608b875a5daa6c64380b44aaf@_IP_:31204  # _IP_ gets s/_IP_/real_ip/g 'd
-        STATIC_IPS: 50.17.109.111 54.196.108.229
+        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@p2p.ndau.tech:31200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@p2p.ndau.tech:31201,95ad9834ad1bee57df601b4c63660735a2400eb6@p2p.ndau.tech:31202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@p2p.ndau.tech:31203,eb9870620c46cd3608b875a5daa6c64380b44aaf@p2p.ndau.tech:31204
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
 
