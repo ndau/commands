@@ -222,6 +222,10 @@ output = ""
     # Restart periodically to combat memory leaks.
     # This also causes a re-dns for converting persistent peer domain names to IP addresses.
     name = "restart"
+    path = "/bin/bash"
+    args = [
+        "-c", "$ROOT_DIR/docker-dns.sh",
+    ]
     [task.specials]
         onetime = true
         periodic = "24h"
