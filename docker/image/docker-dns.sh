@@ -7,7 +7,7 @@ source "$SCRIPT_DIR"/docker-env.sh
 # Peers are comma-separated and each peer is of the form "id@ip_or_domain_name:port".
 persistent_peers=()
 IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
-for peer in "${peers[@]}"; do echo "$peer"; done
+for peer in "${peers[@]}"; do
     # Get the port after the ':'.
     IFS=':' read -ra split <<< "$peer"
     peer_port="${split[1]}"
