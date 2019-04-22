@@ -16,7 +16,10 @@ for peer in "${peers[@]}"; do
     # The peer id will have a double-slash prefix, but it just goes along for the ride.
     IFS='@' read -ra pieces <<< "$peer"
     peer_id="${pieces[0]}"
-    ip_or_domain="${pieces[1]}"
+    ip_or_domain_and_port="${pieces[1]}"
+    IFS=':' read -ra split <<< "$ip_or_domain_and_port"
+    ip_or_domain="${split[0]}"
+
 
     # If it's already an ip, leave it as is.  Otherwise, convert it from a domain name to an ip.
     if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
