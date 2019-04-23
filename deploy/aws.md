@@ -94,3 +94,16 @@ There are two elastic IPs that are connected to each instance in the sc-node-clu
 ## Manual deployment
 
 This should only be done for debugging situations and CircleCI relied on for all normal deployments. `devnet-deploy.sh` and `testnet-deploy.sh`. They contain the variables necessary to deploy a node, however, the variables are meant to be changed to match your configuration and situation. Internally both scripts use `deploy-node.sh` to deploy a series of nodes one at a time.
+
+## Scripts
+
+* `deploy-node.sh` deploys a new single node.
+* `process-ids.sh` takes a directory with node identities and make a tarball and persistent peers list for the PERSISTENT_PEERS variable in circle.
+* `target-groups.sh` creates target groups and listeners for a node's rpc, p2p and ndauapi ports.
+* `target-groups-init.sh` creates target groups for a network.
+
+### Debugging
+
+* `(devnet/testnet)-liveness.sh` tests that ports are available on devnet and testnet.
+* `(devnet/testnet)-deploy.sh` manually deploys devnet (do not run unless manually configured).
+

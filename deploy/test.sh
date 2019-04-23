@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# This is copied into the deps container and run in the test task.
+
 set -e # exit for any command that returns non-0
 
 # copy commands' vendor directory to the gopath

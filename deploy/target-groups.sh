@@ -69,11 +69,37 @@ verrcho $rpc_node_name $rpc_port
 verrcho $p2p_node_name $p2p_port
 verrcho $ndauapi_node_name $ndauapi_port
 
+
+
+# returns instance ids by name
+get_instanceids_by_name() {
+  name=$1 #"sc-node-cluster$"
+  aws ec2 describe-instances | jq -r " \
+    .Reservations[].Instances[] as \$parent | \
+    \$parent.Tags[]?.Value | \
+    select (. | match(\"${name}\") ) | \
+    \$parent | \
+    .InstanceId" | uniq # Don't know why uniq is required, but doubles appear.
+}
+
+# gets vpc by name
+get_vpcid_by_name() {
+  name=$1
+
+  aws ec2 describe-vpcs |
+  jq -r " \
+    .Vpcs[] as \$parent | \
+    \$parent.Tags[]?.Value | \
+    select (.==\"${name}\") | \
+    \$parent | \
+    .VpcId"
+}
+
 reg_targets() {
   verrcho "\nreg_targets($@)"
   local name_match=$1
   local tg_arn=$2
-  instances=$(./get-instanceids-by-name.sh $name_match )
+  instances=$(get_instanceids_by_name $name_match )
   err_if_empty "$instances" "Could not fetch instances with the name $name_match"
   errcho "Registering: $instances"
   ids=$(for id in $instances; do echo "Id=$id"; done)
@@ -168,7 +194,7 @@ delete_if_forced $rpc_node_name $rpc_port
 resp=$(aws elbv2 create-target-group \
 --name $rpc_node_name \
 --protocol HTTP \
---vpc-id "$(./get-vpcid-by-name.sh $vpc)" \
+--vpc-id "$(get_vpcid_by_name $vpc)" \
 --port ${rpc_port})
 if ! grep "An error occurred" <<< $resp; then
   tg_arn=$(jq -r '.TargetGroups[0].TargetGroupArn' <<< $resp)
@@ -189,7 +215,7 @@ delete_p2p_if_forced $p2p_elb_name $p2p_port $p2p_node_name
 resp=$(aws elbv2 create-target-group \
 --name $p2p_node_name \
 --protocol TCP \
---vpc-id "$(./get-vpcid-by-name.sh $vpc)" \
+--vpc-id "$(get_vpcid_by_name $vpc)" \
 --port ${p2p_port})
 if ! grep "An error occurred" <<< $resp; then
   tg_arn=$(jq -r '.TargetGroups[0].TargetGroupArn' <<< $resp)
@@ -205,7 +231,7 @@ delete_if_forced $ndauapi_node_name $ndauapi_port
 resp=$(aws elbv2 create-target-group \
 --name $ndauapi_node_name \
 --protocol HTTP \
---vpc-id "$(./get-vpcid-by-name.sh $vpc)" \
+--vpc-id "$(get_vpcid_by_name $vpc)" \
 --health-check-path "/node/health" \
 --port ${ndauapi_port})
 if ! grep "An error occurred" <<< $resp; then

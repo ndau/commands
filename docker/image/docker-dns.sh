@@ -10,11 +10,11 @@ IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
 for peer in "${peers[@]}"; do
 
     # Get the id and domain surrounding the '@'.
-    # The peer id will have a double-slash prefix, but it just goes along for the ride.
     IFS='@' read -ra split <<< "$peer"
     peer_id="${split[0]}"
     host_and_port="${split[1]}"
 
+    # separate the host and port, delimited by `:`. e.g. `something:3000` or `127.0.0.1:4242`
     IFS=':' read -ra split <<< "$host_and_port"
     ip_or_domain="${split[0]}"
     peer_port="${split[1]}"
@@ -42,7 +42,6 @@ for peer in "${peers[@]}"; do
 
     # We only keep peers for which valid IPs were found.
     if [ ! -z "$peer_ip" ]; then
-        # The peer id already has the double-slash in front of it.
         persistent_peers+=("$peer_id@$peer_ip:$peer_port")
     fi
 done
