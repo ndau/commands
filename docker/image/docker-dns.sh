@@ -11,9 +11,9 @@ for peer in "${peers[@]}"; do
 
     # Get the id and domain surrounding the '@'.
     # The peer id will have a double-slash prefix, but it just goes along for the ride.
-    IFS='@' read -ra pieces <<< "$peer"
-    peer_id="${pieces[0]}"
-    host_and_port="${pieces[1]}"
+    IFS='@' read -ra split <<< "$peer"
+    peer_id="${split[0]}"
+    host_and_port="${split[1]}"
 
     IFS=':' read -ra split <<< "$host_and_port"
     ip_or_domain="${split[0]}"
