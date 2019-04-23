@@ -17,7 +17,8 @@ network_name=$1
 id_dir=$2
 
 if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 network_name identity-directory"
+  echo "Usage: $0 network_name identity-directory [--upload]"
+  echo "  --upload is an optional flag that will use AWS creds to upload to S3"
   exit 1
 fi
 

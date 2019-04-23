@@ -188,7 +188,7 @@ if [ "$len" -gt 0 ]; then
 
         PEER_ID=""
         get_peer_id "$rpc_protocol" "$rpc_ip" "$rpc_port"
-        persistent_peers+=("tcp://$PEER_ID@$p2p_ip:$p2p_port")
+        persistent_peers+=("$PEER_ID@$p2p_ip:$p2p_port")
     done
 fi
 
