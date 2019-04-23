@@ -8,18 +8,16 @@ source "$SCRIPT_DIR"/docker-env.sh
 persistent_peers=()
 IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
 for peer in "${peers[@]}"; do
-    # Get the port after the ':'.
-    IFS=':' read -ra split <<< "$peer"
-    peer_port="${split[1]}"
 
     # Get the id and domain surrounding the '@'.
     # The peer id will have a double-slash prefix, but it just goes along for the ride.
     IFS='@' read -ra pieces <<< "$peer"
     peer_id="${pieces[0]}"
-    ip_or_domain_and_port="${pieces[1]}"
-    IFS=':' read -ra split <<< "$ip_or_domain_and_port"
-    ip_or_domain="${split[0]}"
+    host_and_port="${pieces[1]}"
 
+    IFS=':' read -ra split <<< "$host_and_port"
+    ip_or_domain="${split[0]}"
+    peer_port="${split[1]}"
 
     # If it's already an ip, leave it as is.  Otherwise, convert it from a domain name to an ip.
     if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
