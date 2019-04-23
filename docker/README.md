@@ -25,7 +25,7 @@ In order to run a container, we feed the following arguments to `docker/bin/runc
 - Initial persistent peers (Optional)
 
 For example:
-```
+```sh
 IP=52.90.26.139
 SNAPSHOT=snapshot-devnet-12345.tgz
 docker/bin/runcontainer.sh \
@@ -155,7 +155,7 @@ The nodes that exist when the genesis snapshot is taken on localnet will all be 
 
 This is currently not a one-button-push operation, but could be.  For now, the first thing you do is find out the public key of the node for which you want to change power.  That can be done using the following python script:
 
-```
+```python
 #!/usr/bin/env python3
 
 import base64
@@ -175,7 +175,7 @@ For example, if your `NDAUHOME` is `~/.ndau` and you have an `ndautool.toml` sit
 
 So, using the above script (call it `pubkey.py`), you can then change the node's power to 10 using the following commands:
 
-```
+```sh
 PUBKEY=$(./pubkey.py)
 ./ndau cvc "$PUBKEY" 10
 ```

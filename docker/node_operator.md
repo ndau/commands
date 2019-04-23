@@ -22,7 +22,7 @@ The following are also required but are likely to already be installed on your s
 
 The `docker/bin/runcontainer.sh` script will create a container based off of a Docker image named `ndauimage` which will be installed into your Docker environment automatically.  Here's how to run it:
 
-```
+```sh
 # Give your node a name.
 NODENAME=my-node
 
@@ -46,7 +46,7 @@ IMPORTANT: Read the information printed by `runcontainer.sh` about the `node-ide
 
 To stop your node, you can use:
 
-```
+```sh
 docker/bin/stopcontainer.sh $NODENAME
 ```
 
@@ -56,7 +56,7 @@ This will remove the node from the network, but can be restarted to rejoin the n
 
 To restart your stopped node, you can use:
 
-```
+```sh
 docker/bin/restartcontainer.sh $NODENAME
 ```
 
@@ -68,7 +68,7 @@ You can stop/restart your node as needed.  Think of `restartcontainer.sh` as the
 
 To remove your node from the network (and your local Docker environment), you can use:
 
-```
+```sh
 docker/bin/removecontainer.sh $NODENAME
 ```
 
@@ -82,7 +82,7 @@ If you lose your node, or Docker container, or want to start it from scratch, if
 
 Follow the original "Run" steps documented earlier, but also pass in the path to your node identity file:
 
-```
+```sh
 IDENTITY=/path/to/your/node-identity.tgz
 NDAU_NETWORK=mainnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT $SNAPSHOT $IDENTITY
 ```
