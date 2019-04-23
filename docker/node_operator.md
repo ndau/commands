@@ -40,7 +40,7 @@ NDAU_NETWORK=mainnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $A
 
 You now have created a node (Docker container) named "my-node", running and connected to mainnet.  It will catch up to the latest block height on the network since the height found in the given snapshot.
 
-IMPORTANT: Read the information printed by `runcontainer.sh` about the `node-identity.tgz` file that it will generate for you.  You must keep this secure and use it again if you ever need to run your node from scratch.  It won't be needed if you want to stop/restart your node (Docker container).  It is only needed if you lose your container, or decide to redeploy it with different ports, or for any other reason.
+IMPORTANT: Read the information printed by `runcontainer.sh` about the `node-identity.tgz` file that it will generate for you.  You must keep this secure and use it again (discussed below) if you ever need to run your node from scratch.  It won't be needed if you want to stop/restart your node (Docker container).  It is only needed if you lose your container, or decide to redeploy it with different ports, or for any other reason.
 
 ## Stop
 
