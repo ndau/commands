@@ -98,7 +98,7 @@ This should only be done for debugging situations and CircleCI relied on for all
 ## Scripts
 
 * `deploy-node.sh` deploys a new single node.
-* `process-ids.sh` takes a directory with node identities and make a tarball and persistent peers list for the PERSISTENT_PEERS variable in circle.
+* `process-ids.sh` takes a directory with node identities and make a tarball and persistent peers list for the PERSISTENT_PEERS variable in CircleCI which need to be copied and pasted into config.yml.
 * `target-groups.sh` creates target groups and listeners for a node's rpc, p2p and ndauapi ports.
 * `target-groups-init.sh` creates target groups for a network.
 
