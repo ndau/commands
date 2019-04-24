@@ -4,21 +4,20 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 source "$SCRIPT_DIR"/docker-env.sh
 
 # The PERSISTENT_PEERS may contain domain names.  Convert them to IPs.
-# Peers are comma-separated and each peer is of the form "tcp://id@ip_or_domain_name:port".
+# Peers are comma-separated and each peer is of the form "id@ip_or_domain_name:port".
 persistent_peers=()
 IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
 for peer in "${peers[@]}"; do
-    # Get the port after the ':'.
-    IFS=':' read -ra pieces <<< "$peer"
-    protocol="${pieces[0]}"
-    id_and_domain="${pieces[1]}"
-    peer_port="${pieces[2]}"
 
     # Get the id and domain surrounding the '@'.
-    # The peer id will have a double-slash prefix, but it just goes along for the ride.
-    IFS='@' read -ra pieces <<< "$id_and_domain"
-    peer_id="${pieces[0]}"
-    ip_or_domain="${pieces[1]}"
+    IFS='@' read -ra split <<< "$peer"
+    peer_id="${split[0]}"
+    host_and_port="${split[1]}"
+
+    # separate the host and port, delimited by `:`. e.g. `something:3000` or `127.0.0.1:4242`
+    IFS=':' read -ra split <<< "$host_and_port"
+    ip_or_domain="${split[0]}"
+    peer_port="${split[1]}"
 
     # If it's already an ip, leave it as is.  Otherwise, convert it from a domain name to an ip.
     if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
@@ -29,7 +28,6 @@ for peer in "${peers[@]}"; do
         # Look for "...A...<IP>".
         ips=($(dig +noall +answer "$ip_or_domain" | \
                    sed -n -e 's|^.*'"$WHITE"'\{1,\}A'"$WHITE"'\{1,\}\(.*\)|\1|p'))
-
         len="${#ips[@]}"
         if [ "$len" = 0 ]; then
             peer_ip=""
@@ -44,8 +42,7 @@ for peer in "${peers[@]}"; do
 
     # We only keep peers for which valid IPs were found.
     if [ ! -z "$peer_ip" ]; then
-        # The peer id already has the double-slash in front of it.
-        persistent_peers+=("$protocol:$peer_id@$peer_ip:$peer_port")
+        persistent_peers+=("$peer_id@$peer_ip:$peer_port")
     fi
 done
 

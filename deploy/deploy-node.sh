@@ -1,5 +1,5 @@
 #!/bin/bash
-# deploy single devnet node
+# deploy single node
 
 # get the directory of this file
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
