@@ -14,9 +14,8 @@ LOG_LEVEL=info
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
    [ -z "$3" ] || \
-   [ -z "$4" ] || \
-   [ -z "$5" ]
-   # $6 $7 and $8 are optional and "" can be used for them.
+   [ -z "$4" ]
+   # $5 through $8 are optional and "" can be used for any of them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
@@ -27,12 +26,13 @@ then
     echo "  P2P_PORT   External port to map to the internal P2P port for the blockchain"
     echo "  RPC_PORT   External port to map to the internal RPC port for the blockchain"
     echo "  API_PORT   External port to map to the internal ndau API port"
-    echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optional:"
     echo "  IDENTITY   node-identity.tgz file from a previous snaphot or initial container run"
     echo "             If present, the node will use it to configure itself when [re]starting"
     echo "             If missing, the node will generate a new identity for itself"
+    echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
+    echo "               If omitted (and NDAU_NETWORK is set), the latest snapshot will be used"
     echo "  PEERS_P2P  Comma-separated list of persistent peers on the network to join"
     echo "               Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
     echo "  PEERS_RPC  Comma-separated list of the same peers for RPC connections"
@@ -53,8 +53,8 @@ CONTAINER="$1"
 P2P_PORT="$2"
 RPC_PORT="$3"
 API_PORT="$4"
-SNAPSHOT="$5"
-IDENTITY="$6"
+IDENTITY="$5"
+SNAPSHOT="$6"
 PEERS_P2P="$7"
 PEERS_RPC="$8"
 
@@ -84,6 +84,33 @@ fi
 echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "API port: $API_PORT"
+
+# No snapshot given means "use the latest".
+if [ -z "$SNAPSHOT" ]; then
+    # We can't get the latest snapshot if we don't know the network.
+    if [ -z "$NDAU_NETWORK" ]; then
+        echo "Cannot get the latest snapshot without NDAU_NETWORK being set"
+        exit 1
+    fi
+
+    DOCKER_DIR="$SCRIPT_DIR/.."
+    NDAU_SNAPSHOTS_SUBDIR="ndau-snapshots"
+    NDAU_SNAPSHOTS_DIR="$DOCKER_DIR/$NDAU_SNAPSHOTS_SUBDIR"
+    mkdir -p "$NDAU_SNAPSHOTS_DIR"
+
+    LATEST_FILE="latest-$NDAU_NETWORK.txt"
+    LATEST_PATH="$NDAU_SNAPSHOTS_DIR/$LATEST_FILE"
+    echo "Fetching $LATEST_FILE..."
+    curl -o "$LATEST_PATH" "$SNAPSHOT_BASE_URL/$LATEST_FILE"
+    if [ ! -f "$LATEST_PATH" ]; then
+        echo "Unable to fetch $SNAPSHOT_BASE_URL/$LATEST_FILE"
+        exit 1
+    fi
+
+    SNAPSHOT=$(cat $LATEST_PATH)
+fi
+
+echo "Snapshot: $SNAPSHOT"
 
 test_local_port() {
     port="$1"
@@ -195,8 +222,6 @@ fi
 PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
 echo "Persistent peers: '$PERSISTENT_PEERS'"
 
-echo "Snapshot: $SNAPSHOT"
-
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
@@ -210,16 +235,16 @@ if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
     NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
-    VERSION_FILE="latest.txt"
-    VERSION_PATH="$NDAU_IMAGES_DIR/$VERSION_FILE"
-    echo "Fetching $VERSION_FILE..."
-    curl -o "$VERSION_PATH" "$IMAGE_BASE_URL/$VERSION_FILE"
-    if [ ! -f "$VERSION_PATH" ]; then
-        echo "Unable to fetch $IMAGE_BASE_URL/$VERSION_FILE"
+    LATEST_FILE="latest.txt"
+    LATEST_PATH="$NDAU_IMAGES_DIR/$LATEST_FILE"
+    echo "Fetching $LATEST_FILE..."
+    curl -o "$LATEST_PATH" "$IMAGE_BASE_URL/$LATEST_FILE"
+    if [ ! -f "$LATEST_PATH" ]; then
+        echo "Unable to fetch $IMAGE_BASE_URL/$LATEST_FILE"
         exit 1
     fi
 
-    IMAGE_NAME=$(cat $VERSION_PATH)
+    IMAGE_NAME=$(cat $LATEST_PATH)
     IMAGE_ZIP="$IMAGE_NAME.docker.gz"
     IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
     echo "Fetching $IMAGE_ZIP..."

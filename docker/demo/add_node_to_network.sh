@@ -15,10 +15,5 @@ if [ "$NDAU_NETWORK" != devnet ] && \
     exit 1
 fi
 
-# Devnet uses the same snapshot as testnet.
-SNAPSHOT=snapshot-testnet-47
-
 # This node is not one of the initial validators, so there's no node-identity.tgz passed in.
-../bin/runcontainer.sh \
-    "$NDAU_NETWORK-test" 26665 26675 3035 \
-    "$SNAPSHOT"
+../bin/runcontainer.sh "$NDAU_NETWORK-test" 26666 26676 3036

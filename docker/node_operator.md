@@ -28,20 +28,16 @@ The `docker/bin/runcontainer.sh` script will create a container based off of a D
 # Give your node a name.
 NODENAME=my-node
 
-# This is the ndau testnet genesis snapshot.
-# NOTE: This will be optional in the near future when we use the latest available snapshot by default.
-SNAPSHOT=snapshot-testnet-49
-
 # These are the ports you would like to use for...
 P2P_PORT=26665 # ...communication with other nodes on the network.
 RPC_PORT=26675 # ...responding to RPC requests to your node.
 API_PORT=3035  # ...responding to ndau API requests to your node.
 
 # Create and run your node, connecting it to testnet.
-NDAU_NETWORK=testnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT $SNAPSHOT
+NDAU_NETWORK=testnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT
 ```
 
-You now have created a node (Docker container) named "my-node", running and connected to testnet.  It will catch up to the latest block height on the network since the height found in the given snapshot.
+You now have created a node (Docker container) named "my-node", running and connected to testnet.  It will catch up to the latest block height on the network since the height found in the latest snapshot on S3.
 
 IMPORTANT: Read the information printed by `runcontainer.sh` about the `node-identity.tgz` file that it will generate for you.  You must keep this secure and use it again (discussed below) if you ever need to run your node from scratch.  It won't be needed if you want to stop/restart your node (Docker container).  It is only needed if you lose your container, or decide to redeploy it with different ports, or for any other reason.
 
@@ -75,7 +71,7 @@ To remove your node from the network (and your local Docker environment), you ca
 docker/bin/removecontainer.sh $NODENAME
 ```
 
-This would allow you to use `runcontainer.sh` again, perhaps with a newer snapshot, or different ports.
+This would allow you to use `runcontainer.sh` again, to allow you to change which ports you expose from your container, for example.
 
 You can remove/run your node as needed.  Think of `removecontainer.sh` as the counterpart to `runcontainer.sh`
 
@@ -87,7 +83,7 @@ Follow the original "Run" steps documented earlier, but also pass in the path to
 
 ```sh
 IDENTITY=/path/to/your/node-identity.tgz
-NDAU_NETWORK=testnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT $SNAPSHOT $IDENTITY
+NDAU_NETWORK=testnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT $IDENTITY
 ```
 
-It'll now be running and connected to testnet, and will catch up to the latest block height from the given snapshot, but this time it'll use the given node identity for itself rather than generate a new one.
+It'll now be running and connected to testnet, and will catch up to the latest block height from the latest snapshot on S3, but this time it'll use the given node identity for itself rather than generate a new one.

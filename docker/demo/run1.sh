@@ -9,11 +9,11 @@ P2P="$IP":2666
 RPC=http://"$IP":2667
 
 SNAPSHOT=$(./get_snapshot.sh)
-IDENTITY=../../bin/ndau-snapshots/node-identity-1.tgz
+IDENTITY=../ndau-snapshots/node-identity-1.tgz
 
 ../bin/runcontainer.sh \
     localnet-1 26661 26671 3031 \
-    "$SNAPSHOT" \
     "$IDENTITY" \
+    "$SNAPSHOT" \
     "${P2P}0" \
     "${RPC}0"
