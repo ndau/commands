@@ -15,7 +15,7 @@ Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/on
 #### macOS:
 
 The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package.
-1. Install the Xcode command-line tools: `xcode-select —install`
+1. Install the Xcode command-line tools: `xcode-select --install`
 1. Install [Brew](https://brew.sh/)
 1. Install `go`: `brew install go`
 1. Install `dep`: `brew install dep`
