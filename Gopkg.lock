@@ -486,7 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:b2d9b3e2ac76108f45290495e9005fbfe82664fb88a985c598bbda8832982856"
+  digest = "1:2599463cbcfb0e900bc23125873d25344fce1ed42cc9676646f0e5b486fa10b5"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "61d04da1f8c3acf8fbd7f20526bd507226a2a41f"
-  version = "v1.13.1"
+  revision = "5e03d1e2f96cd0c9e5c3c353dc38401b11c06f8a"
+  version = "v1.13.3"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
@@ -542,12 +542,12 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:49bcf7e48ff57ae75fb475f1a575381ad2bb6995f3160a0e0c1a051ae10feadc"
+  digest = "1:a6e407e79884332da0bd0671d247cbcd15119f4d9397104e3d7a3665c7ade07b"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "48aeae39f7060db34c4c08caa3b1d6649c28141c"
-  version = "v1.3.1"
+  revision = "aa2af29d92adea204a6365d09e14256c2e34211f"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:939c7a816552e515321f531d73d14e44a88051bc4d270f0ffe27b4c3884e14e0"
