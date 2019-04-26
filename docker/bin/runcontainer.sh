@@ -19,7 +19,7 @@ if [ -z "$1" ] || \
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER P2P_PORT RPC_PORT API_PORT SNAPSHOT [IDENTITY] [PEERS_P2P] [PEERS_RPC]"
+         "CONTAINER P2P_PORT RPC_PORT API_PORT [IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC]"
     echo
     echo "Arguments:"
     echo "  CONTAINER  Name to give to the container to run"
