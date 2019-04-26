@@ -286,7 +286,7 @@ testnet_config: &testnet_config
         shell: /bin/bash
         <<: *aws_defaults
         NETWORK_NAME: "testnet" # used for snapshots
-        PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:30200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:30201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:30202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:30203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:30204
+        PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:31200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:31201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:31202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:31203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:31204
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
 
