@@ -18,6 +18,8 @@ The following are also required but are likely to already be installed on your s
 1. `curl`
 1. `nc`
 
+NOTE: The following commands have been tested on macOS.  The `nc` commands in `runcontainer.sh` may have issues on Linux, for example.  Some adjustments might need to be made to `runcontainer.sh` while we are working on a multi-platform fix.  The `ndauimage` Docker image itself, however, is Linux-compatible as it is.  This is only a potential problem currently in `runcontainer.sh`.
+
 ## Run
 
 The `docker/bin/runcontainer.sh` script will create a container based off of a Docker image named `ndauimage` which will be installed into your Docker environment automatically.  Here's how to run it:
