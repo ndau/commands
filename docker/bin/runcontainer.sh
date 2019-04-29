@@ -112,10 +112,19 @@ fi
 
 echo "Snapshot: $SNAPSHOT"
 
+# The timeout flag on linux differs from mac.
+if [[ "$OSTYPE" == *"darwin"* ]]; then
+    # Use -G on macOS; there is no -G option on linux.
+    NC_TIMEOUT_FLAG="-G"
+else
+    # Use -w on linux; the -w option does not work on macOS.
+    NC_TIMEOUT_FLAG="-w"
+fi
+
 test_local_port() {
     port="$1"
 
-    $(nc -G 1 -z localhost "$port" 2>/dev/null)
+    nc "$NC_TIMEOUT_FLAG" 5 -z localhost "$port" 2>/dev/null
     if [ "$?" = 0 ]; then
         echo "Port at $ip:$port is already in use"
         exit 1
@@ -136,7 +145,7 @@ test_peer() {
     fi
 
     echo "Testing connection to peer $ip:$port..."
-    $(nc -G 5 -z "$ip" "$port")
+    nc "$NC_TIMEOUT_FLAG" 5 -z "$ip" "$port"
     if [ "$?" != 0 ]; then
         echo "Could not reach peer"
         exit 1

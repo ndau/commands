@@ -9,13 +9,12 @@ How to create a new node and connect it to the ndau testnet.
 Ensure that all of the following are installed:
 
 1. Docker
-1. Xcode command-line tools: `xcode-select --install`
-1. [Brew](https://brew.sh/)
-1. Install `jq` if needed, using: `brew install jq`
+1. `curl` (`sudo apt install curl` on Linux)
+1. `jq` (`brew install jq` on macOS)
 
 The following are also required but are likely to already be installed on your system:
 
-1. `curl`
+1. `ping`
 1. `nc`
 
 NOTE: The following commands have been tested on macOS.  The `nc` commands in `runcontainer.sh` may have issues on Linux, for example.  Some adjustments might need to be made to `runcontainer.sh` while we are working on a multi-platform fix.  The `ndauimage` Docker image itself, however, is Linux-compatible as it is.  This is only a potential problem currently in `runcontainer.sh`.
