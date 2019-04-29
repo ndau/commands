@@ -45,7 +45,7 @@ then
     echo "               - tendermint/config/priv_validator_key.json"
     echo "               - tendermint/config/node_id.json"
     echo "  NDAU_NETWORK"
-    echo "             Set to override the PEERS_P2P and PEERS_RPC parameters"
+    echo "             Set to find peers automatically when PEERS_P2P and PEERS_RPC are empty"
     echo "             Supported networks: devnet, testnet, mainnet"
     exit 1
 fi
@@ -175,8 +175,8 @@ get_peer_id() {
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
 join_by() { local IFS="$1"; shift; echo "$*"; }
 
-# If the ndau network environment variable is set, override the peers.
-if [ ! -z "$NDAU_NETWORK" ]; then
+# If the ndau network environment variable is set, and no peers were given, deduce some peers.
+if [ ! -z "$NDAU_NETWORK" ] && [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ]; then
     echo "Fetching $SERVICES_URL..."
     services_json=$(curl -s "$SERVICES_URL")
     p2ps=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].p2p))
