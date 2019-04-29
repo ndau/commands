@@ -12,7 +12,7 @@ SNAPSHOT=$(./get_snapshot.sh)
 IDENTITY="" # This last node demonstrates starting a node and having its identity file generated.
 
 ../bin/runcontainer.sh \
-    localnet-5 26665 26675 3035 \
+    localnet localnet-5 26665 26675 3035 \
     "$IDENTITY" \
     "$SNAPSHOT" \
     "${P2P}0,${P2P}1,${P2P}2,${P2P}3,${P2P}4" \

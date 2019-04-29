@@ -14,14 +14,17 @@ LOG_LEVEL=info
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
    [ -z "$3" ] || \
-   [ -z "$4" ]
-   # $5 through $8 are optional and "" can be used for any of them.
+   [ -z "$4" ] || \
+   [ -z "$5" ]
+   # $6 through $9 are optional and "" can be used for any of them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER P2P_PORT RPC_PORT API_PORT [IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC]"
+         "NETWORK CONTAINER P2P_PORT RPC_PORT API_PORT" \
+         "[IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC]"
     echo
     echo "Arguments:"
+    echo "  NETWORK    Which network to join: localnet, devnet, testnet, mainnet"
     echo "  CONTAINER  Name to give to the container to run"
     echo "  P2P_PORT   External port to map to the internal P2P port for the blockchain"
     echo "  RPC_PORT   External port to map to the internal RPC port for the blockchain"
@@ -32,11 +35,13 @@ then
     echo "             If present, the node will use it to configure itself when [re]starting"
     echo "             If missing, the node will generate a new identity for itself"
     echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
-    echo "               If omitted (and NDAU_NETWORK is set), the latest snapshot will be used"
+    echo "               If omitted, the latest $NETWORK snapshot will be used"
     echo "  PEERS_P2P  Comma-separated list of persistent peers on the network to join"
     echo "               Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
+    echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
     echo "  PEERS_RPC  Comma-separated list of the same peers for RPC connections"
     echo "               Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
+    echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
     echo
     echo "Environment variables:"
     echo "  BASE64_NODE_IDENTITY"
@@ -44,19 +49,28 @@ then
     echo "             The contents of the variable are a base64 encoded tarball containing:"
     echo "               - tendermint/config/priv_validator_key.json"
     echo "               - tendermint/config/node_id.json"
-    echo "  NDAU_NETWORK"
-    echo "             Set to override the PEERS_P2P and PEERS_RPC parameters"
-    echo "             Supported networks: devnet, testnet, mainnet"
     exit 1
 fi
-CONTAINER="$1"
-P2P_PORT="$2"
-RPC_PORT="$3"
-API_PORT="$4"
-IDENTITY="$5"
-SNAPSHOT="$6"
-PEERS_P2P="$7"
-PEERS_RPC="$8"
+NETWORK="$1"
+CONTAINER="$2"
+P2P_PORT="$3"
+RPC_PORT="$4"
+API_PORT="$5"
+IDENTITY="$6"
+SNAPSHOT="$7"
+PEERS_P2P="$8"
+PEERS_RPC="$9"
+
+if [ "$NETWORK" != "localnet" ] && \
+   [ "$NETWORK" != "devnet" ] && \
+   [ "$NETWORK" != "testnet" ] && \
+   [ "$NETWORK" != "mainnet" ]; then
+    echo "Unsupported network: $NETWORK"
+    echo "Supported networks: localnet, devnet, testnet, mainnet"
+    exit 1
+fi
+
+echo "Network: $NETWORK"
 
 # Validate container name (can't have slashes).
 if [[ "$CONTAINER" == *"/"* ]]; then
@@ -87,18 +101,12 @@ echo "API port: $API_PORT"
 
 # No snapshot given means "use the latest".
 if [ -z "$SNAPSHOT" ]; then
-    # We can't get the latest snapshot if we don't know the network.
-    if [ -z "$NDAU_NETWORK" ]; then
-        echo "Cannot get the latest snapshot without NDAU_NETWORK being set"
-        exit 1
-    fi
-
     DOCKER_DIR="$SCRIPT_DIR/.."
     NDAU_SNAPSHOTS_SUBDIR="ndau-snapshots"
     NDAU_SNAPSHOTS_DIR="$DOCKER_DIR/$NDAU_SNAPSHOTS_SUBDIR"
     mkdir -p "$NDAU_SNAPSHOTS_DIR"
 
-    LATEST_FILE="latest-$NDAU_NETWORK.txt"
+    LATEST_FILE="latest-$NETWORK.txt"
     LATEST_PATH="$NDAU_SNAPSHOTS_DIR/$LATEST_FILE"
     echo "Fetching $LATEST_FILE..."
     curl -o "$LATEST_PATH" "$SNAPSHOT_BASE_URL/$LATEST_FILE"
@@ -175,16 +183,17 @@ get_peer_id() {
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
 join_by() { local IFS="$1"; shift; echo "$*"; }
 
-# If the ndau network environment variable is set, override the peers.
-if [ ! -z "$NDAU_NETWORK" ]; then
+# If no peers were given, we can get them automatically for non-localnet networks.
+# When running a localnet, the first peer can start w/o knowing any other peers.
+if [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ] && [ "$NETWORK" != "localnet" ]; then
     echo "Fetching $SERVICES_URL..."
     services_json=$(curl -s "$SERVICES_URL")
-    p2ps=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].p2p))
-    rpcs=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].rpc))
+    p2ps=($(echo "$services_json" | jq -r .networks.$NETWORK.nodes[].p2p))
+    rpcs=($(echo "$services_json" | jq -r .networks.$NETWORK.nodes[].rpc))
 
     len="${#rpcs[@]}"
     if [ "$len" = 0 ]; then
-        echo "No nodes published for network: $NDAU_NETWORK"
+        echo "No nodes published for network: $NETWORK"
         exit 1
     fi
 

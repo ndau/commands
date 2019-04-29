@@ -12,7 +12,7 @@ SNAPSHOT=$(./get_snapshot.sh)
 IDENTITY=../ndau-snapshots/node-identity-1.tgz
 
 ../bin/runcontainer.sh \
-    localnet-1 26661 26671 3031 \
+    localnet localnet-1 26661 26671 3031 \
     "$IDENTITY" \
     "$SNAPSHOT" \
     "${P2P}0" \

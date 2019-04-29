@@ -33,7 +33,7 @@ RPC_PORT=26675 # ...responding to RPC requests to your node.
 API_PORT=3035  # ...responding to ndau API requests to your node.
 
 # Create and run your node, connecting it to testnet.
-NDAU_NETWORK=testnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT
+docker/bin/runcontainer.sh testnet $NODENAME $P2P_PORT $RPC_PORT $API_PORT
 ```
 
 You now have created a node (Docker container) named "my-node", running and connected to testnet.  It will catch up to the latest block height on the network since the height found in the latest snapshot on S3.
@@ -82,7 +82,7 @@ Follow the original "Run" steps documented earlier, but also pass in the path to
 
 ```sh
 IDENTITY=/path/to/your/node-identity.tgz
-NDAU_NETWORK=testnet docker/bin/runcontainer.sh $NODENAME $P2P_PORT $RPC_PORT $API_PORT $IDENTITY
+docker/bin/runcontainer.sh testnet $NODENAME $P2P_PORT $RPC_PORT $API_PORT $IDENTITY
 ```
 
 It'll now be running and connected to testnet, and will catch up to the latest block height from the latest snapshot on S3, but this time it'll use the given node identity for itself rather than generate a new one.
