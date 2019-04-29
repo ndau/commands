@@ -38,10 +38,11 @@ fi
 echo "Ensuring localnet is not running..."
 "$CMDBIN_DIR"/kill.sh 1>/dev/null
 
-# Prepare the output directory for the snapshot.
+# Prepare the output directory for the snapshot under the docker directory.
 echo "Removing any old snapshots..."
 NDAU_SNAPSHOTS_SUBDIR=ndau-snapshots
-NDAU_SNAPSHOTS_DIR="$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR"
+NDAU_SNAPSHOTS_DIR="$CMDBIN_DIR/../docker/$NDAU_SNAPSHOTS_SUBDIR"
+rm -rf "$CMDBIN_DIR/$NDAU_SNAPSHOTS_SUBDIR" # Remove the old location, too.
 rm -rf "$NDAU_SNAPSHOTS_DIR"
 mkdir -p "$NDAU_SNAPSHOTS_DIR"
 
@@ -89,25 +90,33 @@ cp -r "$TENDERMINT_NDAU_DATA_DIR-0/data/state.db" "$TM_TEMP/data"
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$NOMS_DIR"/noms show "$NOMS_NDAU_DATA_DIR-0"::ndau.value.Height | tr -d '"')))
 SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
-SNAPSHOT_FILE="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
+SNAPSHOT_PATH="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
 
 # Make the tarball and remove the temp dir.
 echo "  bundling $SNAPSHOT_NAME..."
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
-tar -czf "$SNAPSHOT_FILE" data
+tar -czf "$SNAPSHOT_PATH" data
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
+# Make the "latest" file.
+LATEST_FILE="latest-$NETWORK.txt"
+LATEST_PATH="$NDAU_SNAPSHOTS_DIR/$LATEST_FILE"
+echo "$SNAPSHOT_NAME" > "$LATEST_PATH"
+
 # These can be used for uploading the snapshot to S3.
-S3URI="s3://$NDAU_SNAPSHOTS_SUBDIR/$SNAPSHOT_NAME.tgz"
-UPLOAD_CMD="aws s3 cp $SNAPSHOT_FILE $S3URI"
+S3_DIR_URI="s3://$NDAU_SNAPSHOTS_SUBDIR"
+UPLOAD_SNAPSHOT_CMD="aws s3 cp $SNAPSHOT_PATH $S3_DIR_URI/$SNAPSHOT_NAME.tgz"
+UPLOAD_LATEST_CMD="aws s3 cp $LATEST_PATH $S3_DIR_URI/$LATEST_FILE"
 
 echo
-echo "SNAPSHOT CREATED: $SNAPSHOT_FILE"
+echo "SNAPSHOT CREATED: $SNAPSHOT_PATH"
+echo "LATEST FILE CREATED: $LATEST_PATH"
 echo "NODE IDENTITY FILES CREATED: $NDAU_SNAPSHOTS_DIR/node-identity-*.tgz"
 echo
 echo "Next steps:"
 echo "  1. Upload the snapshot to S3 using:"
-echo "       $UPLOAD_CMD"
-echo "  2. Make its name \"$SNAPSHOT_NAME\" known to people wanting to run a node with this snapshot on $NETWORK"
-echo "  3. Back up the node-identity-*.tgz file(s) and keep them secure; use them to start (and restart any of) the first $NODE_COUNT nodes on $NETWORK"
+echo "       $UPLOAD_SNAPSHOT_CMD"
+echo "  2. Use this to mark it as the latest snapshot on $NETWORK if desired:"
+echo "       $UPLOAD_LATEST_CMD"
+echo "  3. Back up the node-identity-*.tgz file(s) and keep them secure; use them to start (and restart any of) the first $NODE_COUNT node(s) on $NETWORK"
 echo

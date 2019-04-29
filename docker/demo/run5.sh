@@ -9,11 +9,11 @@ P2P="$IP":2666
 RPC=http://"$IP":2667
 
 SNAPSHOT=$(./get_snapshot.sh)
-IDENTITY=../ndau-snapshots/node-identity-2.tgz
+IDENTITY="" # This last node demonstrates starting a node and having its identity file generated.
 
 ../bin/runcontainer.sh \
-    localnet-2 26662 26672 3032 \
+    localnet-5 26665 26675 3035 \
     "$IDENTITY" \
     "$SNAPSHOT" \
-    "${P2P}0,${P2P}1" \
-    "${RPC}0,${RPC}1"
+    "${P2P}0,${P2P}1,${P2P}2,${P2P}3,${P2P}4" \
+    "${RPC}0,${RPC}1,${RPC}2,${RPC}3,${RPC}4"

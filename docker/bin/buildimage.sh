@@ -49,24 +49,24 @@ if [ "$1" != "nosave" ] && [ -f "$NDAU_TOOL" ]; then
     gzip -f "$IMAGE_PATH"
     IMAGE_PATH="$IMAGE_PATH.gz"
 
-    # Save the version file.
-    VERSION_FILE=latest.txt
-    VERSION_PATH="$NDAU_IMAGES_DIR/$VERSION_FILE"
-    echo "$IMAGE_NAME" > "$VERSION_PATH"
+    # Save the latest file.
+    LATEST_FILE="latest.txt"
+    LATEST_PATH="$NDAU_IMAGES_DIR/$LATEST_FILE"
+    echo "$IMAGE_NAME" > "$LATEST_PATH"
 
     # These can be used for uploading the snapshot to S3.
     S3_DIR_URI="s3://$NDAU_IMAGES_SUBDIR"
     UPLOAD_IMAGE_CMD="aws s3 cp $IMAGE_PATH $S3_DIR_URI/$IMAGE_NAME.docker.gz"
-    UPLOAD_VERSION_CMD="aws s3 cp $VERSION_PATH $S3_DIR_URI/$VERSION_FILE"
+    UPLOAD_LATEST_CMD="aws s3 cp $LATEST_PATH $S3_DIR_URI/$LATEST_FILE"
 
     echo
     echo "IMAGE CREATED: $IMAGE_PATH"
-    echo "VERSION CREATED: $VERSION_PATH"
+    echo "LATEST FILE CREATED: $LATEST_PATH"
     echo
     echo "Optional next steps:"
     echo "  1. Upload the image to S3 using:"
     echo "       $UPLOAD_IMAGE_CMD"
     echo "  2. If the image was uploaded, use this to mark it as the latest if desired:"
-    echo "       $UPLOAD_VERSION_CMD"
+    echo "       $UPLOAD_LATEST_CMD"
     echo
 fi

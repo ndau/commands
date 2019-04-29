@@ -27,6 +27,7 @@ DashData*
 
 # docker
 docker/ndau-images
+docker/ndau-snapshots
 
 # osx chaff
 .DS_Store

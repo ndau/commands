@@ -20,8 +20,8 @@ In order to run a container, we feed the following arguments to `docker/bin/runc
 - Tendermint P2P port
 - Tendermint RPC port
 - ndauapi port
-- Snapshot name
 - Node identity file (Optional)
+- Snapshot name (Optional)
 - Initial persistent peers (Optional)
 
 For example:
@@ -31,8 +31,8 @@ SNAPSHOT=snapshot-devnet-12345.tgz
 docker/bin/runcontainer.sh \
     devnet-2 \
     26662 26672 3032 \
-    $SNAPSHOT \
     node-identity-2.tgz \
+    $SNAPSHOT \
     "$IP:26660,$IP:26661" \
     "$IP:26670,$IP:26671"
 ```
@@ -135,7 +135,7 @@ There's a `docker/demo` directory that can be used to fire up a 5-node network l
 You can edit these files how you want, to test things out.  But if you'd like to just see it running with the fewest amount of steps, do the following:
 
 1. `cd ~/go/src/github.com/oneiro-ndev/commands`
-1. Run `bin/setup.sh 4 localnet` to set up a 4-node localnet network
+1. Run `bin/setup.sh 5 localnet` to set up a 5-validator-node localnet network
 1. Run `bin/run.sh` and fill the blockchain with any transactions you want
 1. Run `bin/snapshot.sh` to stop localnet and generate a snapshot
     - Upload it to S3 using the instructions printed by `snapshot.sh`
