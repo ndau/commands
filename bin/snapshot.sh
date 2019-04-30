@@ -110,7 +110,7 @@ do
     fi
 
     # Get rid of these files so they're not part of the snapshot.
-    rm -rf "$tm_config/*"
+    rm -rf "$tm_config"/*
 done
 
 # Make the all-in-one node identities file, preserving the individual ones for local testing.
