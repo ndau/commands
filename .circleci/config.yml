@@ -302,7 +302,7 @@ mainnet_config: &mainnet_config
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
-        PERSISTENT_PEERS: 437c5d5df8d268ee126016f192fc10a2a77f7a95@p2p.ndau.tech:32200,75b1d1642a870f6c915e29d2a420d9a5acac85f2@p2p.ndau.tech:32201,8320b1d9443fd62f5c068602799240f89ff01a90@p2p.ndau.tech:32202,ab16672a41d83535c9784b846525312b2f2f952e@p2p.ndau.tech:32203,c67d45758408fecf3c2a10166e51c27adce37f3b@p2p.ndau.tech:32204 # mainnet
+        PERSISTENT_PEERS: 86b00c3ba22080ee90c79af6af943cfac0ff2200@p2p.ndau.tech:32200,48c9dcdebc9a5d2b3534f23301d5a8c8732771c2@p2p.ndau.tech:32201,5ba27e091e83b6afc82dd4f67034553c092c8021@p2p.ndau.tech:32202,1260e3590fbc286e97ea5ef1d31ea2ecc13fb546@p2p.ndau.tech:32203,570d5f76c2c16cb5a000f97fdc22e4f324f00a58@p2p.ndau.tech:32204 # mainnet
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-mainnet-1.tgz
 
