@@ -85,6 +85,7 @@ type Task struct {
 	MaxStartup   time.Duration
 	Status       chan Eventer
 	Stopped      chan struct{}
+	Sigchan      chan<- os.Signal
 	Ready        func() Eventer
 	Stdout       io.Writer
 	Stderr       io.Writer
@@ -155,7 +156,14 @@ func (t *Task) exitMonitor() {
 
 	code := term.ExitCode()
 	logger := t.Logger.WithField("exit.code", code)
-	if code < 0 {
+
+	// does this task generate a particular signal on this exit code?
+	// if so, just pass along that signal
+	// (reading from a nil map is safe in go)
+	if signal, ok := t.ExitSignals[code]; ok {
+		logger.WithField("exit.type", "magic exit code").Warn("task terminated")
+		t.Sigchan <- signal
+	} else if code < 0 {
 		logger.WithError(term.Err).WithField("exit.type", "unexpected exit error").Error("task terminated")
 	} else if code > 0 {
 		logger.WithError(term.Err).WithField("exit.type", "nonzero exit code").Error("task terminated")
