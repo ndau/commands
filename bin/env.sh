@@ -90,6 +90,9 @@ fi
 # File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
 export NEEDS_UPDATE_FLAG_FILE="$ROOT_DATA_DIR"/needs_update
 
+# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
+join_by() { local IFS="$1"; shift; echo "$*"; }
+
 # Common steps to be done prior to linking for building or testing.
 prepare_for_linking() {
     REPO="$1"

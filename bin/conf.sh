@@ -44,9 +44,6 @@ do
         "$tm_ndau_home/config/config.toml"
 done
 
-# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
-join_by() { local IFS="$1"; shift; echo "$*"; }
-
 # Point tendermint nodes to each other if there are more than one node in the localnet.
 if [ "$NODE_COUNT" -gt 1 ]; then
     # Because of Tendermint's PeX feature, each node could gossip known peers to the others.

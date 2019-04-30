@@ -57,27 +57,71 @@ TM_TEMP="$SNAPSHOT_DATA_DIR/tendermint"
 mkdir -p "$TM_TEMP/config"
 mkdir -p "$TM_TEMP/data"
 
+# Prepare for modifying peer ids in circle config.
+MODIFY_CONFIG_YML=false
+PERSISTENT_PEERS=()
+PEER_HOSTS=()
+PEER_PORTS=()
+CONFIG_YML_NAME=".circleci/config.yml"
+CONFIG_YML_PATH="$CMDBIN_DIR/../$CONFIG_YML_NAME"
+grep '^ *PERSISTENT_PEERS: .* # '"$NETWORK"'$' "$CONFIG_YML_PATH" > /dev/null
+if [ "$?" = 0 ]; then
+    p=$(sed -n -e 's|^\( *PERSISTENT_PEERS: \)\(.*\)\( # '"$NETWORK"'\)$|\2|p' "$CONFIG_YML_PATH")
+    IFS=',' read -ra peers <<< "$p"
+    for peer in "${peers[@]}"; do
+        IFS='@' read -ra split <<< "$peer"
+        host_and_port="${split[1]}"
+
+        IFS=':' read -ra split <<< "$host_and_port"
+        PEER_HOSTS+=("${split[0]}")
+        PEER_PORTS+=("${split[1]}")
+    done
+    # The number of peers listed in the yml must match the number of nodes in the snapshot.
+    if [ "${#PEER_HOSTS[@]}" = "$NODE_COUNT" ]; then
+        MODIFY_CONFIG_YML=true
+    fi
+fi
+
 # Make the node identity tarball(s) first.
 echo "Building node identity files..."
+NODE_IDENTITY_NAME="node-identity"
 for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
-    name="node-identity-$node_num"
+    name="$NODE_IDENTITY_NAME-$node_num"
+    tm_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
+    tm_config="$TM_TEMP/config"
 
     echo "  bundling $name..."
 
-    cd "$TENDERMINT_NDAU_DATA_DIR-$node_num" || exit 1
-    cp config/node_key.json "$TM_TEMP/config"
-    cp config/priv_validator_key.json "$TM_TEMP/config"
+    cd "$tm_home" || exit 1
+    cp config/node_key.json "$tm_config"
+    cp config/priv_validator_key.json "$tm_config"
 
-    cd "$SNAPSHOT_DATA_DIR"
+    cd "$SNAPSHOT_DATA_DIR" || exit 1
     tar -czf "$NDAU_SNAPSHOTS_DIR/$name.tgz" \
         tendermint/config/node_key.json \
         tendermint/config/priv_validator_key.json
 
+    if [ "$MODIFY_CONFIG_YML" = true ]; then
+        peer_id=$("$TENDERMINT_DIR/tendermint" show_node_id --home "$tm_home")
+        peer_host=${PEER_HOSTS[$node_num]}
+        peer_port=${PEER_PORTS[$node_num]}
+        PERSISTENT_PEERS+=("$peer_id@$peer_host:$peer_port")
+    fi
+
     # Get rid of these files so they're not part of the snapshot.
-    rm -rf "$TM_TEMP"/config/*
-    rm -rf "$TM_TEMP"/data/*
+    rm -rf "$tm_config/*"
 done
+
+# Make the all-in-one node identities file, preserving the individual ones for local testing.
+cd "$NDAU_SNAPSHOTS_DIR" || exit 1
+IDENTITIES_FILE=node-identities-$NETWORK.tgz
+IDENTITIES_PATH="$NDAU_SNAPSHOTS_DIR/$IDENTITIES_FILE"
+mkdir -p tmp
+cp "$NODE_IDENTITY_NAME"-*.tgz tmp
+tar -czf "$IDENTITIES_FILE" "$NODE_IDENTITY_NAME"-*.tgz
+mv tmp/"$NODE_IDENTITY_NAME"-*.tgz .
+rm -rf tmp
 
 # Copy all the data files we want into the temp dir.
 echo "Building snapshot file..."
@@ -103,20 +147,46 @@ LATEST_FILE="latest-$NETWORK.txt"
 LATEST_PATH="$NDAU_SNAPSHOTS_DIR/$LATEST_FILE"
 echo "$SNAPSHOT_NAME" > "$LATEST_PATH"
 
+# Update the circle config with the new peer ids and snapshot name.
+if [ "$MODIFY_CONFIG_YML" = true ]; then
+    echo "Modifying $CONFIG_YML_NAME..."
+    persistent_peers=$(join_by , "${PERSISTENT_PEERS[@]}")
+    sed -i '' -E \
+        -e 's|^( *PERSISTENT_PEERS: )(.*)( # '"$NETWORK"')$|\1'"$persistent_peers"'\3|' \
+        -e 's|^( *SNAPSHOT_URL: .*/)(snapshot-'"$NETWORK"'-.*\.tgz)$|\1'"$SNAPSHOT_NAME.tgz"'|' \
+        "$CONFIG_YML_PATH"
+else
+    # If this happens, it could mean that the anchor comment is missing, e.g. "... # mainnet",
+    # or the number of nodes in the snapshot differs from the number of peers found in the yml.
+    # It's non-fatal; anyone wanting to re-deploy will have to take care of it manually.
+    echo "Unable to modify PERSISTENT_PEERS and SNAPSHOT_URL for $NETWORK in $CONFIG_YML_PATH"
+fi
+
 # These can be used for uploading the snapshot to S3.
-S3_DIR_URI="s3://$NDAU_SNAPSHOTS_SUBDIR"
-UPLOAD_SNAPSHOT_CMD="aws s3 cp $SNAPSHOT_PATH $S3_DIR_URI/$SNAPSHOT_NAME.tgz"
-UPLOAD_LATEST_CMD="aws s3 cp $LATEST_PATH $S3_DIR_URI/$LATEST_FILE"
+S3_SNAPSHOT_URI="s3://$NDAU_SNAPSHOTS_SUBDIR"
+S3_IDENTITIES_URI="s3://ndau-deploy-secrets"
+UPLOAD_SNAPSHOT_CMD="aws s3 cp $SNAPSHOT_PATH $S3_SNAPSHOT_URI/$SNAPSHOT_NAME.tgz"
+UPLOAD_IDENTITIES_CMD="aws s3 cp $IDENTITIES_PATH $S3_IDENTITIES_URI/$IDENTITIES_FILE"
+UPLOAD_LATEST_CMD="aws s3 cp $LATEST_PATH $S3_SNAPSHOT_URI/$LATEST_FILE"
 
 echo
 echo "SNAPSHOT CREATED: $SNAPSHOT_PATH"
+echo "NODE IDENTITY FILES CREATED (separate): $NDAU_SNAPSHOTS_DIR/$NODE_IDENTITY_NAME-*.tgz"
+echo "NODE IDENTITY FILES CREATED (all in 1): $NDAU_SNAPSHOTS_DIR/$IDENTITIES_FILE"
 echo "LATEST FILE CREATED: $LATEST_PATH"
-echo "NODE IDENTITY FILES CREATED: $NDAU_SNAPSHOTS_DIR/node-identity-*.tgz"
 echo
 echo "Next steps:"
 echo "  1. Upload the snapshot to S3 using:"
 echo "       $UPLOAD_SNAPSHOT_CMD"
-echo "  2. Use this to mark it as the latest snapshot on $NETWORK if desired:"
+echo "  2. Upload the node identities file to S3 using:"
+echo "       $UPLOAD_IDENTITIES_CMD"
+echo "  3. Use this to mark it as the latest snapshot on $NETWORK if desired:"
 echo "       $UPLOAD_LATEST_CMD"
-echo "  3. Back up the node-identity-*.tgz file(s) and keep them secure; use them to start (and restart any of) the first $NODE_COUNT node(s) on $NETWORK"
+
+if [ "$MODIFY_CONFIG_YML" = true ]; then
+    echo "  4. Your copy of $CONFIG_YML_NAME has been modified; commit it if desired"
+else
+    echo "  4. The $CONFIG_YML_NAME file needs its PERSISTENT_PEERS and SNAPSHOT_URL updated"
+fi
+
 echo
