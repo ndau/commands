@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os/exec"
+)
 
 // Event is the type that indicates the status of a Task
 type Event int
@@ -54,4 +57,47 @@ func (e ErrorEvent) Code() Event {
 // Error() implements the error interface for ErrorEvent
 func (e ErrorEvent) Error() string {
 	return fmt.Sprintf("ErrorEvent %d - %s", e.Evt, e.Err.Error())
+}
+
+// TerminateEvent is an event constructed when a Task exits
+//
+// Construct it by wrapping exec.Wait
+type TerminateEvent struct {
+	Err error
+}
+
+// assert that ErrorEvent satisfies Eventer
+var _ Eventer = (*TerminateEvent)(nil)
+
+// and also the error interface
+var _ error = (*TerminateEvent)(nil)
+
+// Code implements Eventer for TerminateEvent. It always returns Stop.
+func (e TerminateEvent) Code() Event {
+	return Stop
+}
+
+// Error implementes error for TerminateEvent
+func (e TerminateEvent) Error() string {
+	if e.Err == nil {
+		return "<nil>"
+	}
+	return e.Err.Error()
+}
+
+// ExitCode returns the exit code of the Task
+//
+// If the task was terminated by a signal, returns -1
+// If the task's exit code couldn't be determined, returns -2
+// Otherwise, returns the task's exit code
+func (e TerminateEvent) ExitCode() int {
+	if e.Err == nil {
+		return 0
+	}
+	eerr, ok := e.Err.(*exec.ExitError)
+	if !ok {
+		// we don't know what happened, but it wasn't a normal exit error
+		return -2
+	}
+	return eerr.ExitCode()
 }

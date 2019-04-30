@@ -148,13 +148,20 @@ func (t *Task) exitMonitor() {
 	// if it gets recreated we don't send a message on
 	// the new one by mistake
 	status := t.Status
-	err := t.cmd.Wait()
-	if err != nil {
-		t.Logger.WithError(err).Error("task terminated")
+
+	// find out what happened to the task
+	term := TerminateEvent{t.cmd.Wait()}
+
+	code := term.ExitCode()
+	logger := t.Logger.WithField("exit.code", code)
+	if code < 0 {
+		logger.WithError(term.Err).WithField("exit.type", "unexpected exit error").Error("task terminated")
+	} else if code > 0 {
+		logger.WithError(term.Err).WithField("exit.type", "nonzero exit code").Error("task terminated")
 	} else {
-		t.Logger.Warn("terminated")
+		logger.WithField("exit.type", "success").Warn("task terminated")
 	}
-	status <- Stop
+	status <- term
 }
 
 // The childMonitor is given a child task;
