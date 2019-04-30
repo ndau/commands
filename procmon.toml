@@ -158,6 +158,9 @@ level = "$LOGLEVEL"
         type = "portinuse"
         port = "$NODE_PORT_NUM"
 
+    [task.specials.exit_signals]
+        "0xdd" = "SIGINT"
+
 [[task]]
     name = "ndau_tm"
     parent = "ndaunode"
