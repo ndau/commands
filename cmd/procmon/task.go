@@ -94,6 +94,7 @@ type Task struct {
 	Monitors     []*FailMonitor
 	Prerun       []*Task
 	Dependents   []*Task
+	ExitSignals  map[int]os.Signal
 
 	cmd   *exec.Cmd
 	dying bool

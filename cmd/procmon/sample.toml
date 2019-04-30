@@ -86,10 +86,22 @@ level = "$LOGLEVEL"
         signal = "SIGINT"
         terminate = true
 
+[[task]]
+    # This is a way to convert particular exit codes into signals for the master task
+    name = "MAYBE_INT"
+    path = "/bin/maybe_int"
+    [task.specials]
+        onetime = true
+        signal = "SIGUSR2"
+        # If maybe_int returns 0 (or anything else not in the table),
+        # no signal is processed.
+        # If it returns 1, the master task reacts per a SIGHUP.
+        # If it returns 2, the master task reacts per a SIGTERM.
+        exit_signals = {1 = "SIGHUP", 2 = "SIGTERM"}
 
 [[task]]
     name = "$TASK_A"
-    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_A"
     ]

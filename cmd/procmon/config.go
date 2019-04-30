@@ -123,6 +123,63 @@ func parseSignal(v interface{}) os.Signal {
 	}
 }
 
+// parseExitSignals interprets an interface as a map of ints to signals
+//
+// Key conversion errors are silently discarded
+func parseExitSignals(v interface{}) map[int]os.Signal {
+	// not sure if toml supports maps with numeric keys, but
+	// we should support them anyway. Likewise, we have to support a
+	// variety of plausible types for this
+	switch t := v.(type) {
+	case map[int]os.Signal:
+		return t
+	case map[int]string:
+		m := make(map[int]os.Signal)
+		for k, v := range t {
+			m[k] = parseSignal(v)
+		}
+		return m
+	case map[int]interface{}:
+		m := make(map[int]os.Signal)
+		for k, v := range t {
+			m[k] = parseSignal(v)
+		}
+		return m
+	case map[string]os.Signal:
+		// ok, this is unlikely, but just in case
+		m := make(map[int]os.Signal)
+		for k, v := range t {
+			i, err := strconv.ParseInt(k, 0, 32)
+			if err != nil {
+				continue
+			}
+			m[int(i)] = v
+		}
+		return m
+	case map[string]string:
+		m := make(map[int]os.Signal)
+		for k, v := range t {
+			i, err := strconv.ParseInt(k, 0, 32)
+			if err != nil {
+				continue
+			}
+			m[int(i)] = parseSignal(v)
+		}
+		return m
+	case map[string]interface{}:
+		m := make(map[int]os.Signal)
+		for k, v := range t {
+			i, err := strconv.ParseInt(k, 0, 32)
+			if err != nil {
+				continue
+			}
+			m[int(i)] = parseSignal(v)
+		}
+		return m
+	}
+	return nil
+}
+
 func (ct *ConfigTask) interpolate(env map[string]string) {
 	ct.Name = interpolate(ct.Name, env)
 	ct.Path = interpolate(ct.Path, env)
@@ -264,7 +321,7 @@ func fileparse(name string, def io.Writer) (io.Writer, error) {
 		// (e.g. redis, noms) will simply not log.  But they don't log much we care about anyway.
 		return ioutil.Discard, nil
 	}
-	
+
 	// If name == "", the def param is returned
 	// "SUPPRESS" meaning "discard this stream"
 	// "STDOUT" means "send to stdout"
@@ -358,9 +415,10 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 		}
 
 		t.Onetime = parseBool(ct.Specials["onetime"], false)
-		t.Periodic, err = parseDuration(ct.Specials["periodic"], 0)
 		t.Terminate = parseBool(ct.Specials["terminate"], false)
 		t.Shutdown = parseBool(ct.Specials["shutdown"], false)
+		t.ExitSignals = parseExitSignals(ct.Specials["exit_signals"])
+		t.Periodic, err = parseDuration(ct.Specials["periodic"], 0)
 		if err != nil {
 			return tasks, err
 		}
