@@ -486,7 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:2599463cbcfb0e900bc23125873d25344fce1ed42cc9676646f0e5b486fa10b5"
+  digest = "1:33bc67e3cd2e8cdb6935a4305aac97b9219ebf561d04721e2b823a0ca340a85e"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "5e03d1e2f96cd0c9e5c3c353dc38401b11c06f8a"
-  version = "v1.13.3"
+  revision = "ba9c674b9fa633de20ddb711cd8f54b636d28953"
+  version = "v1.13.4"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
@@ -562,15 +562,15 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:3f3c40976bcb02e7e8272b6ede491b5c46b0f6bacd867cfefedc879aed750c33"
+  digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
   name = "github.com/oneiro-ndev/writers"
   packages = [
     "pkg/linewriter",
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "90774ecfea96bf0decb29ea7081d28a2831d71e1"
+  revision = "a874325e4c132628c1a8c15f056cccc9b82d6ff9"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
