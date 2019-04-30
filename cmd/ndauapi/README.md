@@ -1216,7 +1216,7 @@ _**Produces:**_ `[application/json]`
 
 ### `GET /order/current`
 
-_Please use /price/current instead_
+_This is an obsolete format. Please use /price/current instead._
 
 
 
