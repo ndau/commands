@@ -53,6 +53,13 @@ func TestParseSample(t *testing.T) {
 	require.Contains(t, mi.ExitSignals, 1)
 	require.Equal(t, mi.ExitSignals[1], syscall.SIGHUP)
 
+	mi = tasks.All["MAYBE_INT_2"]
+	require.NotNil(t, mi)
+	require.NotNil(t, mi.ExitSignals)
+	require.Equal(t, mi.ExitSignals[0xfe], syscall.SIGHUP)
+	require.Equal(t, mi.ExitSignals[0xff], syscall.SIGINT)
+	require.Equal(t, mi.ExitSignals[0777], syscall.SIGTERM)
+
 	i := tasks.All["INT"]
 	require.NotNil(t, i)
 	require.Nil(t, i.ExitSignals)

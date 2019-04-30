@@ -100,6 +100,19 @@ level = "$LOGLEVEL"
         exit_signals = {1 = "SIGHUP", 2 = "SIGTERM"}
 
 [[task]]
+    # Alternate syntax for exit signals
+    name = "MAYBE_INT_2"
+    path = "/bin/maybe_int"
+    [task.specials]
+        onetime = true
+        signal = "SIGUSR2"
+
+    [task.specials.exit_signals]
+        "0xFE" = "SIGHUP"
+        0xff = "SIGINT"
+        0777 = "SIGTERM"
+
+[[task]]
     name = "$TASK_A"
     path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
