@@ -87,6 +87,7 @@ func cmdHDAddr(cmd *cli.Cmd) {
 
 func cmdHDRaw(cmd *cli.Cmd) {
 	cmd.Command("public", "transform a raw secp256k1 public key into ndau format", cmdHDRawPublic)
+	cmd.Command("private", "transform a raw secp256k1 private key into ndau format", cmdHDRawPrivate)
 	cmd.Command("signature", "transform a raw secp256k1 signature into ndau format", cmdHDRawSig)
 }
 
@@ -99,6 +100,32 @@ func cmdHDRawPublic(cmd *cli.Cmd) {
 		data := getData()
 
 		key, err := signature.RawPublicKey(signature.Secp256k1, data, nil)
+		check(err)
+
+		data, err = key.MarshalText()
+		check(err)
+		fmt.Println(string(data))
+	}
+}
+
+func cmdHDRawPrivate(cmd *cli.Cmd) {
+	cmd.Spec = getDataSpec(true)
+
+	getData := getDataClosure(cmd, true)
+
+	cmd.Action = func() {
+		data := getData()
+
+		base := make([]byte, 32)
+		extra := make([]byte, 40)
+
+		copy(base, data[0:32])
+		if len(data) == 72 {
+			copy(extra, data[32:72])
+		}
+
+		key, err := signature.RawPrivateKey(signature.Secp256k1, base, extra)
+
 		check(err)
 
 		data, err = key.MarshalText()
