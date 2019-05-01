@@ -73,6 +73,16 @@ func TestTask_exitMonitor(t *testing.T) {
 					t.Fatal("expected data on sigchan")
 				}
 			}
+
+			// in all cases, ensure that the Status channel received a Stop
+			// which contains information about the task's exit code
+			select {
+			case status := <-task.Status:
+				require.Equal(t, Stop, status.Code())
+				require.IsType(t, TerminateEvent{}, status)
+			default:
+				t.Fatal("expected data on task.Status")
+			}
 		})
 	}
 }
