@@ -29,7 +29,7 @@ func cmdInspect(cmd *cli.Cmd) {
 
 		extraBytes := key.ExtraBytes()
 
-		if string(extraBytes) != "" {
+		if len(extraBytes) != 0 {
 			fmt.Printf("\n%20s: %x\n", "extended key depth", extraBytes[0])
 			fmt.Printf("%20s: %x\n", "parent fingerprint", extraBytes[1:4])
 			fmt.Printf("%20s: %x\n", "child number", extraBytes[4:8])
