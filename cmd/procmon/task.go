@@ -99,6 +99,11 @@ type Task struct {
 
 	cmd   *exec.Cmd
 	dying bool
+
+	// this should never be true in general use, but we need the ability in
+	// order to run the monitors externally for testing. Without this, we
+	// run into a bunch of errors of the form "exec: Wait was already called"
+	skipStartMonitors bool
 }
 
 // NewTask creates a Task (but does not start it)
@@ -334,14 +339,16 @@ func (t *Task) Start(parentstop chan struct{}) {
 	// make a Stopped channel
 	t.Stopped = make(chan struct{})
 
-	// run the masterMonitor
-	go t.masterMonitor(parentstop)
-	// spin off a goroutine that will tell us if it dies
-	go t.exitMonitor()
-	// finally, we need to start a monitor to listen to the status channel
-	go t.stopMonitor()
-	// the task is running now, start all the behavior monitors
-	t.startBehaviorMonitors()
+	if !t.skipStartMonitors {
+		// run the masterMonitor
+		go t.masterMonitor(parentstop)
+		// spin off a goroutine that will tell us if it dies
+		go t.exitMonitor()
+		// finally, we need to start a monitor to listen to the status channel
+		go t.stopMonitor()
+		// the task is running now, start all the behavior monitors
+		t.startBehaviorMonitors()
+	}
 	// now we can start any dependent children
 	t.StartChildren()
 }
