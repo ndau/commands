@@ -21,7 +21,7 @@ At this point you must upload the localnet snapshot to S3 using:
 
 ```sh
 aws s3 cp \
-    docker/ndau-snapshots/snapshot-localnet-1.tgz \
+    ~/go/src/github.com/oneiro-ndev/commands/docker/ndau-snapshots/snapshot-localnet-1.tgz \
     s3://ndau-snapshots/snapshot-localnet-demo.tgz
 ```
 
