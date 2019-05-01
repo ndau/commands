@@ -67,8 +67,9 @@ CONFIG_YML_NAME=".circleci/config.yml"
 CONFIG_YML_PATH="$CMDBIN_DIR/../$CONFIG_YML_NAME"
 set +e
 grep '^ *PERSISTENT_PEERS: .* # '"$NETWORK"'$' "$CONFIG_YML_PATH" > /dev/null
+GREP_RESULT="$?"
 set -e
-if [ "$?" = 0 ]; then
+if [ "$GREP_RESULT" = 0 ]; then
     p=$(sed -n -e 's|^\( *PERSISTENT_PEERS: \)\(.*\)\( # '"$NETWORK"'\)$|\2|p' "$CONFIG_YML_PATH")
     IFS=',' read -ra peers <<< "$p"
     for peer in "${peers[@]}"; do
