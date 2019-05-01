@@ -427,6 +427,7 @@ Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  height | Path | Blocks of this height and greater will not be returned. | int
  filter | Query | Set to 'noempty' to exclude empty blocks. | string
+ after | Query | The block height after which no more results should be returned. | int
 
 
 

@@ -58,13 +58,16 @@ mkdir -p "$TM_TEMP/config"
 mkdir -p "$TM_TEMP/data"
 
 # Prepare for modifying peer ids in circle config.
+echo "Processing peers..."
 MODIFY_CONFIG_YML=false
 PERSISTENT_PEERS=()
 PEER_HOSTS=()
 PEER_PORTS=()
 CONFIG_YML_NAME=".circleci/config.yml"
 CONFIG_YML_PATH="$CMDBIN_DIR/../$CONFIG_YML_NAME"
+set +e
 grep '^ *PERSISTENT_PEERS: .* # '"$NETWORK"'$' "$CONFIG_YML_PATH" > /dev/null
+set -e
 if [ "$?" = 0 ]; then
     p=$(sed -n -e 's|^\( *PERSISTENT_PEERS: \)\(.*\)\( # '"$NETWORK"'\)$|\2|p' "$CONFIG_YML_PATH")
     IFS=',' read -ra peers <<< "$p"
