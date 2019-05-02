@@ -21,13 +21,13 @@ func TestTask_exitMonitor(t *testing.T) {
 		fields fields
 		expect os.Signal
 	}{
-		{"true, no handler", fields{"/usr/bin/true", nil}, nil},
-		{"true, handle 1", fields{"/usr/bin/true", map[int]os.Signal{1: syscall.SIGHUP}}, nil},
-		{"true, handle 0", fields{"/usr/bin/true", map[int]os.Signal{0: syscall.SIGHUP}}, syscall.SIGHUP},
-		{"false, handle 1", fields{"/usr/bin/false", map[int]os.Signal{1: syscall.SIGHUP}}, syscall.SIGHUP},
-		{"false, handle 0", fields{"/usr/bin/false", map[int]os.Signal{0: syscall.SIGHUP}}, nil},
-		{"true, handle 0 and 1", fields{"/usr/bin/true", map[int]os.Signal{0: syscall.SIGHUP, 1: syscall.SIGTERM}}, syscall.SIGHUP},
-		{"false, handle 0 and 1", fields{"/usr/bin/false", map[int]os.Signal{0: syscall.SIGHUP, 1: syscall.SIGTERM}}, syscall.SIGTERM},
+		{"true, no handler", fields{"true", nil}, nil},
+		{"true, handle 1", fields{"true", map[int]os.Signal{1: syscall.SIGHUP}}, nil},
+		{"true, handle 0", fields{"true", map[int]os.Signal{0: syscall.SIGHUP}}, syscall.SIGHUP},
+		{"false, handle 1", fields{"false", map[int]os.Signal{1: syscall.SIGHUP}}, syscall.SIGHUP},
+		{"false, handle 0", fields{"false", map[int]os.Signal{0: syscall.SIGHUP}}, nil},
+		{"true, handle 0 and 1", fields{"true", map[int]os.Signal{0: syscall.SIGHUP, 1: syscall.SIGTERM}}, syscall.SIGHUP},
+		{"false, handle 0 and 1", fields{"false", map[int]os.Signal{0: syscall.SIGHUP, 1: syscall.SIGTERM}}, syscall.SIGTERM},
 	}
 
 	for _, tt := range tests {
