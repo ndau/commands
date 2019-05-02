@@ -45,6 +45,11 @@ func TestTask_exitMonitor(t *testing.T) {
 			// get it going
 			task.Start(nil)
 
+			// dockerized version of this test claims this channel is nil, which
+			// causes the test to hang forever. If that's true, something has
+			// gone wrong, and we can fail fast.
+			require.NotNil(t, task.Status)
+
 			// wait only as long as it takes for the exitMonitor function to complete
 			wg := sync.WaitGroup{}
 			wg.Add(1)
