@@ -169,7 +169,9 @@ func (t *Task) exitMonitor() {
 	// (reading from a nil map is safe in go)
 	if signal, ok := t.ExitSignals[code]; ok {
 		logger.WithField("exit.type", "magic exit code").Warn("task terminated")
-		t.Sigchan <- signal
+		if t.Sigchan != nil {
+			t.Sigchan <- signal
+		}
 	} else if code < 0 {
 		logger.WithError(term.Err).WithField("exit.type", "unexpected exit error").Error("task terminated")
 	} else if code > 0 {
