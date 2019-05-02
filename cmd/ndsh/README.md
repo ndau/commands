@@ -13,7 +13,9 @@ safe to run in secure operational environments.
 
 ### Implemented
 
-- no features have yet been implemented
+- is a shell
+    - has a prompt
+    - can exit to surrounding shell with `exit` or `quit`
 
 ### Planned
 
@@ -26,7 +28,7 @@ safe to run in secure operational environments.
     - or specify them from the command line
 - refer to accounts by nicknames or minimal suffixes
 - list known accounts and nicknames
-- do anything the ndau tool can do:
+- do most things the ndau tool can do:
     - accounts
         - create new account, return address and derivation path
         - claim account
@@ -60,6 +62,7 @@ safe to run in secure operational environments.
     - add signatures directly from certain harware keys
     - just emit the signable bytes of the current state
     - when complete, `write` to serialize the JSON out, or `send` to send to the blockchain
-- customize prompt by (externally) setting `NDSH_PS1` with useful substitutions
 - arrow-pageable history for non-secret commands
-- tab-completion
+- customize prompt by (externally) setting `NDSH_PS1` with useful substitutions (?)
+- tab-completion (?)
+- job control (?)
