@@ -8,7 +8,7 @@ pylint = "*"
 flake8 = "*"
 
 [packages]
-websocket-client = "*"
+websockets = "*"
 
 [requires]
 python_version = "3.7"
@@ -16,3 +16,4 @@ python_version = "3.7"
 [scripts]
 example = "python example.py"
 "example.py" = "python example.py"
+async = "python ping_async.py"
