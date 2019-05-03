@@ -9,6 +9,7 @@ flake8 = "*"
 
 [packages]
 websockets = "*"
+websocket-client = "*"
 
 [requires]
 python_version = "3.7"
@@ -17,3 +18,4 @@ python_version = "3.7"
 example = "python example.py"
 "example.py" = "python example.py"
 async = "python ping_async.py"
+ed = "python ed.py"
