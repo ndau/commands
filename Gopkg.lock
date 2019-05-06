@@ -456,7 +456,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:6f7a7ce3205c403765181e4bd05ecfec6df00155536b6fbf5a1103aa2ea306cd"
+  digest = "1:a3e5d7efa96275348cfa156795c6b59b8fb20d0c897465d25643674b1cd9b198"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -466,8 +466,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "f2c4f3c98fbefb9e3712a3f51f0b574084500335"
-  version = "v1.3.1"
+  revision = "3bb5efd37add7e9a0b826788538086eadfe5b432"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -486,7 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:33bc67e3cd2e8cdb6935a4305aac97b9219ebf561d04721e2b823a0ca340a85e"
+  digest = "1:e1b98ec4ced8d6a8bd5a35b0cf97239ff4f954ddb6eda0ee355cbbf557a086b8"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "ba9c674b9fa633de20ddb711cd8f54b636d28953"
-  version = "v1.13.4"
+  revision = "23f0e303b47286f263452d0cd3e19698867cfe9a"
+  version = "v1.14.0"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
@@ -550,7 +550,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:939c7a816552e515321f531d73d14e44a88051bc4d270f0ffe27b4c3884e14e0"
+  digest = "1:9848b47cb16fad3e81bd1f3ca2b7d304a24478e9d47c6d540939a0789d0bf82e"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -558,8 +558,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "50511a5d4950632e331501ed1963a277ee5a7c4b"
-  version = "v1.2.0"
+  revision = "656eeed8f1495986f14425afd6c201d57388ff68"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
