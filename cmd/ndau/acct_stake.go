@@ -11,35 +11,46 @@ import (
 func getStake(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
-			"NAME %s",
-			getAddressSpec("NODE"),
+			"NAME %s %s %s",
+			getAddressSpec("RULES"),
+			getAddressSpec("STAKETO"),
+			getNdauSpec(),
 		)
 
-		var name = cmd.StringArg("NAME", "", "Name of account to stake")
-		getNode := getAddressClosure(cmd, "NODE")
+		var acctName = cmd.StringArg("NAME", "", "Name of account to stake")
+		getRules := getAddressClosure(cmd, "RULES")
+		getStakeTo := getAddressClosure(cmd, "STAKETO")
+		getNdau := getNdauClosure(cmd)
 
 		cmd.Action = func() {
 			conf := getConfig()
-			acct, hasAcct := conf.Accounts[*name]
+			acct, hasAcct := conf.Accounts[*acctName]
 			if !hasAcct {
-				orQuit(fmt.Errorf("No such account: %s", *name))
+				orQuit(fmt.Errorf("No such account: %s", *acctName))
 			}
 			if len(acct.Transfer) == 0 {
-				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
+				orQuit(fmt.Errorf("Transfer key for %s not set", *acctName))
 			}
 
-			node := getNode()
+			rules := getRules()
+			staketo := getStakeTo()
+			qty := getNdau()
 
 			if *verbose {
 				fmt.Printf(
-					"Staking acct %s to %s\n",
+					"Staking %v ndau from acct %s to %s using rules %s\n",
+					qty,
 					acct.Address,
-					node,
+					staketo,
+					rules,
 				)
 			}
 
 			tx := ndau.NewStake(
-				acct.Address, node,
+				acct.Address,
+				rules,
+				staketo,
+				qty,
 				sequence(conf, acct.Address),
 				acct.TransferPrivateK(*keys)...,
 			)

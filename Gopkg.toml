@@ -4,7 +4,8 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-version = "~v1.1"
+# version = "~v1.1"
+branch = "eas-staking"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
@@ -16,7 +17,8 @@ version = "~v1.4"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.14"
+# version = "~v1.14"
+branch = "prgn-staking"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
