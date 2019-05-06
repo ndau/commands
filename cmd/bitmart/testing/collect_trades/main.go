@@ -77,9 +77,9 @@ func main() {
 	check(err, "dial")
 	defer conn.Close()
 
-	st, err := SubscribeTrade("BMX_ETH", 6)
+	st, err := SubscribeTrade("BTC_USDT", 2)
 	check(err, "make subscribe json")
-	logrus.WithField("subscribe", string(st)).Debug("subscribe to bmx/eth")
+	logrus.WithField("subscribe", string(st)).Debug("subscribe to BTC/USD")
 
 	err = conn.WriteMessage(websocket.TextMessage, st)
 	check(err, "send")
