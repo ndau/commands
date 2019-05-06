@@ -38,7 +38,7 @@ func getStake(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) 
 
 			if *verbose {
 				fmt.Printf(
-					"Staking %v ndau from acct %s to %s using rules %s\n",
+					"Staking %s ndau from acct %s to %s using rules %s\n",
 					qty,
 					acct.Address,
 					staketo,
