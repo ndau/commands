@@ -12,11 +12,14 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.3"
+# version = "~v1.3"
+branch = "prgn-urlsafe-txhash"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.13"
+# version = "~v1.13"
+branch = "prgn-urlsafe-txhash"
+
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
