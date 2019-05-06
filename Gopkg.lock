@@ -456,7 +456,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "prgn-urlsafe-txhash"
   digest = "1:a3e5d7efa96275348cfa156795c6b59b8fb20d0c897465d25643674b1cd9b198"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -467,7 +466,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "4a608c8b724d9113c487ee29a3d3b5f113d915e8"
+  revision = "3bb5efd37add7e9a0b826788538086eadfe5b432"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -486,8 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-urlsafe-txhash"
-  digest = "1:5ca0183a3ce7ead6354beddcf0479af8b897735543d7cbc4a346eae602ba357f"
+  digest = "1:e1b98ec4ced8d6a8bd5a35b0cf97239ff4f954ddb6eda0ee355cbbf557a086b8"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "0bcb55966b10a6f462f77e8db5e46de90c3236d1"
+  revision = "23f0e303b47286f263452d0cd3e19698867cfe9a"
+  version = "v1.14.0"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
