@@ -276,7 +276,7 @@ general_config: &general_config
         NETWORK_NAME: "devnet" # used for snapshots
         PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:30200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:30201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:30202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:30203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:30204 # devnet
         CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
+        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-50.tgz
 
 testnet_config: &testnet_config
     working_directory: /commands
@@ -286,9 +286,9 @@ testnet_config: &testnet_config
         shell: /bin/bash
         <<: *aws_defaults
         NETWORK_NAME: "testnet" # used for snapshots
-        PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:31200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:31201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:31202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:31203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:31204 # testnet
+        PERSISTENT_PEERS: b6053e65d5d5ed3c17ba4dae9893fb9ac970db46@p2p.ndau.tech:31200,7a09ddf5f7e13d431529be79f255a06a33bfc788@p2p.ndau.tech:31201,f0d2653ae6bf7817082dc84aa753c60478d2c6db@p2p.ndau.tech:31202,7ede484842233a9d45098b0a41baa7e68410d71f@p2p.ndau.tech:31203,573ae910ebefa87f570019f5efbbbb9c0cc199ae@p2p.ndau.tech:31204 # testnet
         CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
+        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-50.tgz
 
 mainnet_config: &mainnet_config
     working_directory: /commands
@@ -302,7 +302,7 @@ mainnet_config: &mainnet_config
         S3_DEPLOY_ARCHIVE: mainnet.tgz
         HONEYCOMB_DATASET: "mainnet"
         NETWORK_NAME: "mainnet" # used for snapshots
-        PERSISTENT_PEERS: 86b00c3ba22080ee90c79af6af943cfac0ff2200@p2p.ndau.tech:32200,48c9dcdebc9a5d2b3534f23301d5a8c8732771c2@p2p.ndau.tech:32201,5ba27e091e83b6afc82dd4f67034553c092c8021@p2p.ndau.tech:32202,1260e3590fbc286e97ea5ef1d31ea2ecc13fb546@p2p.ndau.tech:32203,570d5f76c2c16cb5a000f97fdc22e4f324f00a58@p2p.ndau.tech:32204 # mainnet
+        PERSISTENT_PEERS: d685921874900a52d811477f0e2af5b0690f408d@p2p.ndau.tech:32200,4ac831cde4d7dc1b321d46ab58783f9e732f146a@p2p.ndau.tech:32201,4c761de823793b702345098c0ba652f5df3a0530@p2p.ndau.tech:32202,5de3bd4482b9a75e10c075eef34c7defe395312a@p2p.ndau.tech:32203,77415932068e690d608e2235841120f8e138c7cb@p2p.ndau.tech:32204 # mainnet
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-mainnet-1.tgz
 
