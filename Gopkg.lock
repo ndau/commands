@@ -487,7 +487,7 @@
 
 [[projects]]
   branch = "prgn-staking"
-  digest = "1:351da3c8ff097493ba23332bfa96a541ba1b964f25607ad61c77c1d301c1b57d"
+  digest = "1:d81df3f379674c5e9d0132fd8a11d804b7349e41c11e0d0074b58e93d8bfebbc"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,7 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "2fc2cc5e9d80014403b252dbc5bc698d6a746f55"
+  revision = "d01a124c91ecae72e2e5e1b1cbf2ee8e14d58521"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
