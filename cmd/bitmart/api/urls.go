@@ -7,4 +7,5 @@ const (
 	APITime   = API + "time"
 	APIWallet = API + "wallet"
 	APITrades = API + "trades"
+	APIOrders = API + "orders"
 )
