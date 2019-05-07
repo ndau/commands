@@ -8,7 +8,7 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[Invalid-0]
+	_ = x[Unfiltered-0]
 	_ = x[Pending-1]
 	_ = x[PartialSuccess-2]
 	_ = x[Success-3]
@@ -17,9 +17,9 @@ func _() {
 	_ = x[SuccessAndCanceled-6]
 }
 
-const _OrderStatus_name = "InvalidPendingPartialSuccessSuccessCanceledPendingAndPartialSuccessSuccessAndCanceled"
+const _OrderStatus_name = "UnfilteredPendingPartialSuccessSuccessCanceledPendingAndPartialSuccessSuccessAndCanceled"
 
-var _OrderStatus_index = [...]uint8{0, 7, 14, 28, 35, 43, 67, 85}
+var _OrderStatus_index = [...]uint8{0, 10, 17, 31, 38, 46, 70, 88}
 
 func (i OrderStatus) String() string {
 	if i < 0 || i >= OrderStatus(len(_OrderStatus_index)-1) {

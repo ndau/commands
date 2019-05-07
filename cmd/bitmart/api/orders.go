@@ -20,7 +20,7 @@ type OrderStatus int64
 
 // OrderStatus pretty names
 const (
-	Invalid OrderStatus = iota
+	Unfiltered OrderStatus = iota
 	Pending
 	PartialSuccess
 	Success

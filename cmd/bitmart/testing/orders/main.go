@@ -24,9 +24,10 @@ func main() {
 		apikeyPath = app.StringArg("API_KEY", "", "Path to an apikey.json file")
 		symbol     = app.StringArg("SYMBOL", "", "Trade symbol to examine")
 		status     = app.StringOpt("s status", "", "order status filter")
+		verbose    = app.BoolOpt("v verbose", false, "verbose mode")
 	)
 
-	app.Spec = "API_KEY [SYMBOL] [--status]"
+	app.Spec = "API_KEY [SYMBOL] [--status] [--verbose]"
 
 	app.Action = func() {
 		key, err := bitmart.LoadAPIKey(*apikeyPath)
@@ -34,6 +35,9 @@ func main() {
 		auth := bitmart.NewAuth(key)
 
 		statusFilter := bitmart.OrderStatusFrom(*status)
+		if *verbose {
+			fmt.Println("using order status filter:", statusFilter)
+		}
 		orders, err := bitmart.GetOrderHistory(&auth, *symbol, statusFilter)
 		check(err, "getting orders")
 
