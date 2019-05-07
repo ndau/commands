@@ -84,7 +84,7 @@ func (ak APIKey) Authenticate() (*Token, error) {
 	message.Set("client_secret", secret)
 	buf := bytes.NewBuffer([]byte(message.Encode()))
 
-	resp, err := http.Post(AuthAPI, "application/x-www-form-urlencoded", buf)
+	resp, err := http.Post(APIAuth, "application/x-www-form-urlencoded", buf)
 	if err != nil {
 		return nil, errors.Wrap(err, "requesting grant")
 	}
