@@ -2,10 +2,8 @@ package bitmart
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -30,42 +28,11 @@ func (w *Wallet) UnmarshalJSON(data []byte) error {
 		return errors.Wrap(err, "wallet")
 	}
 
-	getnum := func(name string) float64 {
-		field, ok := obj[name]
-		if !ok {
-			err = fmt.Errorf("wallet field %s not found", name)
-			return 0
-		}
-		switch f := field.(type) {
-		case float64:
-			return f
-		case string:
-			var fl float64
-			fl, err = strconv.ParseFloat(f, 64)
-			return fl
-		}
-		err = fmt.Errorf("unexpected type for Wallet.%s: %T", name, field)
-		return 0
-	}
-
-	getstr := func(name string) string {
-		field, ok := obj[name]
-		if !ok {
-			err = fmt.Errorf("wallet field %s not found", name)
-			return ""
-		}
-		switch f := field.(type) {
-		case string:
-			return f
-		}
-		err = fmt.Errorf("unexpected type for Wallet.%s: %T", name, field)
-		return ""
-	}
-
-	w.ID = getstr("id")
-	w.Available = getnum("available")
-	w.Name = getstr("name")
-	w.Frozen = getnum("frozen")
+	// attempts to get all fields. err remains nil if everything succeeded
+	w.ID, err = getStr(obj, "id")
+	w.Available, err = getFloat(obj, "available")
+	w.Name, err = getStr(obj, "name")
+	w.Frozen, err = getFloat(obj, "frozen")
 	return err
 }
 

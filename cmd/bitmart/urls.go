@@ -6,4 +6,5 @@ const (
 	APIAuth   = API + "authentication"
 	APITime   = API + "time"
 	APIWallet = API + "wallet"
+	APITrades = API + "trades"
 )
