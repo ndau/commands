@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/oneiro-ndev/commands/cmd/bitmart"
+	bitmart "github.com/oneiro-ndev/commands/cmd/bitmart/api"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 )

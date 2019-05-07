@@ -6,7 +6,7 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/commands/cmd/bitmart"
+	bitmart "github.com/oneiro-ndev/commands/cmd/bitmart/api"
 )
 
 func check(err error, context string) {
