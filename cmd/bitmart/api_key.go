@@ -88,6 +88,7 @@ func (ak APIKey) Authenticate() (*Token, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "requesting grant")
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
