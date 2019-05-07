@@ -424,18 +424,18 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:d645183029813b447903c109e73b0d2661d7e43141c95aa7fd0f32153f9f71ec"
+  digest = "1:350c4d2de6f63277882581db732780e97b294e4bb32e56ccfab6259544cff556"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "0e1df0be018adb5fa2873168686ba07362f5a15c"
-  version = "v1.0.0"
+  revision = "98f8c65e7cda67c0c9ca7873dcde7f28c3ec7881"
+  version = "v1.1.0"
 
 [[projects]]
-  digest = "1:17e3214ac7bd997c0cbf844761fba7521c13b060e10b004d5093d18528621ee4"
+  digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -444,8 +444,8 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "c5dd233dd57d1c4eabcc9d3ed246a407c3661f46"
-  version = "v1.1.0"
+  revision = "fea8d877ccab510bda10c241bd7178a311d9e6d5"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
@@ -486,7 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:e1b98ec4ced8d6a8bd5a35b0cf97239ff4f954ddb6eda0ee355cbbf557a086b8"
+  digest = "1:d81df3f379674c5e9d0132fd8a11d804b7349e41c11e0d0074b58e93d8bfebbc"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "23f0e303b47286f263452d0cd3e19698867cfe9a"
-  version = "v1.14.0"
+  revision = "c09786f1ee23bf91a992e7f11bd5efe8d8b0ef79"
+  version = "v1.15.0"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"

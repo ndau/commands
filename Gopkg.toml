@@ -1,6 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaincode"
-version = "~v1.0"
+version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
@@ -16,7 +16,7 @@ version = "~v1.4"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.14"
+version = "~v1.15"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"

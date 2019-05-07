@@ -169,15 +169,16 @@ _**Writes:**_
           "incomingRewardsFrom": null,
           "delegationNode": null,
           "lock": null,
-          "stake": null,
           "lastEAIUpdate": "2000-01-01T00:00:00Z",
           "lastWAAUpdate": "2000-01-01T00:00:00Z",
           "weightedAverageAge": "1m",
           "sequence": 0,
-          "settlements": null,
-          "settlementSettings": {
+          "stake_rules": null,
+          "costakers": null,
+          "holds": null,
+          "recourseSettings": {
             "period": "t0s",
-            "changesAt": null,
+            "changes_at": null,
             "next": null
           },
           "currencySeatDate": null,
@@ -234,15 +235,16 @@ _**Writes:**_
             "incomingRewardsFrom": null,
             "delegationNode": null,
             "lock": null,
-            "stake": null,
             "lastEAIUpdate": "2000-01-01T00:00:00Z",
             "lastWAAUpdate": "2000-01-01T00:00:00Z",
             "weightedAverageAge": "1m",
             "sequence": 0,
-            "settlements": null,
-            "settlementSettings": {
+            "stake_rules": null,
+            "costakers": null,
+            "holds": null,
+            "recourseSettings": {
               "period": "t0s",
-              "changesAt": null,
+              "changes_at": null,
               "next": null
             },
             "currencySeatDate": null,
@@ -1656,7 +1658,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
