@@ -435,7 +435,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "eas-staking"
   digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
@@ -445,7 +444,8 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "be5e3f6a930d2886b30ea90a303163d1de1db60d"
+  revision = "fea8d877ccab510bda10c241bd7178a311d9e6d5"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
@@ -486,7 +486,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-staking"
   digest = "1:d81df3f379674c5e9d0132fd8a11d804b7349e41c11e0d0074b58e93d8bfebbc"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "d01a124c91ecae72e2e5e1b1cbf2ee8e14d58521"
+  revision = "c09786f1ee23bf91a992e7f11bd5efe8d8b0ef79"
+  version = "v1.15.0"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
