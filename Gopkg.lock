@@ -424,15 +424,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:d645183029813b447903c109e73b0d2661d7e43141c95aa7fd0f32153f9f71ec"
+  digest = "1:350c4d2de6f63277882581db732780e97b294e4bb32e56ccfab6259544cff556"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "0e1df0be018adb5fa2873168686ba07362f5a15c"
-  version = "v1.0.0"
+  revision = "98f8c65e7cda67c0c9ca7873dcde7f28c3ec7881"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "eas-staking"
