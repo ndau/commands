@@ -1,6 +1,6 @@
 version: 2.1
 aws_defaults: &aws_defaults
-  ECR_REGIONS: (us-east-1 us-east-2 us-west-1 us-west-2 ap-southeast-1)
+  ECR_REGIONS: us-east-1 us-east-2 us-west-1 us-west-2 ap-southeast-1
 
 commands:
   notify:
