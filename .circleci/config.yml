@@ -1,7 +1,6 @@
 version: 2.1
 aws_defaults: &aws_defaults
   AWS_DEFAULT_REGION: us-east-1
-  ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
 
 commands:
   notify:
@@ -252,12 +251,6 @@ workflows:
               only: /.*-testnet$/
             branches:
               ignore: /.*/
-      - deploy-mainnet:
-          filters:
-            tags:
-              only: /.*-mainnet$/
-            branches:
-              ignore: /.*/
       - integration:
           requires:
             - deploy-devnet
@@ -289,22 +282,6 @@ testnet_config: &testnet_config
         PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:31200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:31201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:31202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:31203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:31204 # testnet
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
-
-mainnet_config: &mainnet_config
-    working_directory: /commands
-    docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-        shell: /bin/bash
-        <<: *aws_defaults
-        # nodes will be accessible from their release name combined with a number
-        # and the subdomain of the ELB. (e.g. node-0.main.ndau.tech)
-        S3_DEPLOY_ARCHIVE: mainnet.tgz
-        HONEYCOMB_DATASET: "mainnet"
-        NETWORK_NAME: "mainnet" # used for snapshots
-        PERSISTENT_PEERS: 86b00c3ba22080ee90c79af6af943cfac0ff2200@p2p.ndau.tech:32200,48c9dcdebc9a5d2b3534f23301d5a8c8732771c2@p2p.ndau.tech:32201,5ba27e091e83b6afc82dd4f67034553c092c8021@p2p.ndau.tech:32202,1260e3590fbc286e97ea5ef1d31ea2ecc13fb546@p2p.ndau.tech:32203,570d5f76c2c16cb5a000f97fdc22e4f324f00a58@p2p.ndau.tech:32204 # mainnet
-        CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-mainnet-1.tgz
 
 jobs:
   build-deps:
@@ -381,10 +358,6 @@ jobs:
       - deploy-net
   deploy-testnet:
     <<: *testnet_config
-    steps:
-      - deploy-net
-  deploy-mainnet:
-    <<: *mainnet_config
     steps:
       - deploy-net
 

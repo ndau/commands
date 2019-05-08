@@ -10,17 +10,7 @@ The keypair used for the single container nodes (sc-node) is `sc-node-ec2`.
 
 ecs-cli up --keypair sc-node-ec2 --capability-iam --size 2 --instance-type m5a.xlarge --cluster-config sc-node --azs=us-east-1a,us-east-1b
 
-> note: The `m5a.xlarge` instance type is not currently supported by `ecs-cli`. It was set up for this project by editing the tool's source from github and recompiling to allow the instance type. The following diff shows the change.
-
-```
-index 868d6ee..18143e7 100644
---- a/ecs-cli/modules/clients/aws/cloudformation/cluster_template.go
-+++ b/ecs-cli/modules/clients/aws/cloudformation/cluster_template.go
-@@ -156,2 +156,3 @@ var clusterTemplate = `
-         "m5.24xlarge",
-+        "m5a.xlarge",
-         "m5d.large",
-```
+> note: Be sure to get `ecs-cli` version 1.14.1 or later, for `m5a.xlarge` instance type support.
 
 The security group that ecs-cli sets up should be changed to allow incoming traffic on the following ports:
   - 22 ssh
