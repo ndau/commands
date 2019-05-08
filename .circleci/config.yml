@@ -349,8 +349,8 @@ jobs:
             # retag built image and push the image to ECR for each supported region
             # needed for mainnet deploys with only the first region used by devnet and testnet
             for region in ${ECR_REGIONS[@]}; do
-                docker tag ndauimage 578681496768.dkr.ecr."$region".amazonaws.com/sc-node:$SHA
-                docker push 578681496768.dkr.ecr."$region".amazonaws.com/sc-node:$SHA
+                docker tag ndauimage "578681496768.dkr.ecr.$region.amazonaws.com/sc-node:$SHA"
+                docker push "578681496768.dkr.ecr.$region.amazonaws.com/sc-node:$SHA"
             done
 
   deploy-devnet:
