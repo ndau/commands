@@ -487,7 +487,7 @@
 
 [[projects]]
   branch = "prgn-renav"
-  digest = "1:4e0f3d1d0a08b258a27fa101a58477b74fee08e0fd67a7243862e06fc3a56d0b"
+  digest = "1:adfdd21bf741a0ada8350382ae457444695f19029edac8be317c9cb97276ff93"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -505,7 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6cb82785a0b623f7e8ed0439313c7a916eb36b23"
+  revision = "85d94fd822a2380b9b08ef51f3321c25c54d7b75"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
