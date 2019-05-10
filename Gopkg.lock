@@ -551,7 +551,7 @@
 
 [[projects]]
   branch = "prgn-renav-sv"
-  digest = "1:60c78773f254d3c9aafd52e201d169a07b4fcef716d1cd50785a778afe953fae"
+  digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -559,7 +559,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "e0ecb3d1d784c6e16da1c1ceecc0c8c9c9773efc"
+  revision = "b11eaf66cc012b38a3ab87f01c0dac6bb73d5fbe"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
