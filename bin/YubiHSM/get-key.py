@@ -6,13 +6,12 @@ import base64
 import getpass
 
 from yubihsm import YubiHsm
-from yubihsm.defs import CAPABILITY, ALGORITHM
 from yubihsm.objects import AsymmetricKey
 from yubihsm import eddsa
 
 if len(sys.argv) < 3:
-   print("Usage: python get-key.py <start_key_number> <end_key_number>")
-   exit()
+    print("Usage: python get-key.py <start_key_number> <end_key_number>")
+    exit()
 
 connectorURL = "http://localhost:12345/connector/api"
 

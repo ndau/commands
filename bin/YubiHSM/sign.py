@@ -8,10 +8,10 @@ from yubihsm import YubiHsm
 from yubihsm.objects import AsymmetricKey
 
 if len(sys.argv) != 3:
-   print("Usage: python sign.py <datafile> <key_number>")
-   exit()
+    print("Usage: python sign.py <datafile> <key_number>")
+    exit()
 
-infile = open(sys.argv[1], 'r')
+infile = open(sys.argv[1], "r")
 keynum = int(sys.argv[2])
 authkeyID = 101
 password = getpass.getpass()
