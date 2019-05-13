@@ -99,9 +99,10 @@ echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "API port: $API_PORT"
 
+DOCKER_DIR="$SCRIPT_DIR/.."
+
 # No snapshot given means "use the latest".
 if [ -z "$SNAPSHOT" ]; then
-    DOCKER_DIR="$SCRIPT_DIR/.."
     NDAU_SNAPSHOTS_SUBDIR="ndau-snapshots"
     NDAU_SNAPSHOTS_DIR="$DOCKER_DIR/$NDAU_SNAPSHOTS_SUBDIR"
     mkdir -p "$NDAU_SNAPSHOTS_DIR"
@@ -243,41 +244,45 @@ echo "Persistent peers: '$PERSISTENT_PEERS'"
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
-# If the image isn't present, fetch the latest from S3.
-NDAU_IMAGE_NAME=ndauimage
-if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
-    echo "Unable to find $NDAU_IMAGE_NAME locally; fetching latest..."
-
-    DOCKER_DIR="$SCRIPT_DIR/.."
+# If the image isn't present, fetch the "current" image from S3 for the given network.
+if [ "$NETWORK" = "localnet" ]; then
+    NDAU_IMAGE_NAME="ndauimage:latest"
+else
     NDAU_IMAGES_SUBDIR="ndau-images"
     NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
-    LATEST_FILE="latest.txt"
-    LATEST_PATH="$NDAU_IMAGES_DIR/$LATEST_FILE"
-    echo "Fetching $LATEST_FILE..."
-    curl -o "$LATEST_PATH" "$IMAGE_BASE_URL/$LATEST_FILE"
-    if [ ! -f "$LATEST_PATH" ]; then
-        echo "Unable to fetch $IMAGE_BASE_URL/$LATEST_FILE"
+    CURRENT_FILE="current-$NETWORK.txt"
+    CURRENT_PATH="$NDAU_IMAGES_DIR/$CURRENT_FILE"
+    echo "Fetching $CURRENT_FILE..."
+    curl -o "$CURRENT_PATH" "$IMAGE_BASE_URL/$CURRENT_FILE"
+    if [ ! -f "$CURRENT_PATH" ]; then
+        echo "Unable to fetch $IMAGE_BASE_URL/$CURRENT_FILE"
         exit 1
     fi
+    SHA=$(cat $CURRENT_PATH)
+    NDAU_IMAGE_NAME="ndauimage:$SHA"
 
-    IMAGE_NAME=$(cat $LATEST_PATH)
-    IMAGE_ZIP="$IMAGE_NAME.docker.gz"
-    IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
-    echo "Fetching $IMAGE_ZIP..."
-    curl -o "$IMAGE_PATH.gz" "$IMAGE_BASE_URL/$IMAGE_ZIP"
-    if [ ! -f "$IMAGE_PATH.gz" ]; then
-        echo "Unable to fetch $IMAGE_BASE_URL/$IMAGE_ZIP"
-        exit 1
-    fi
-
-    echo "Loading $NDAU_IMAGE_NAME..."
-    gunzip -f "$IMAGE_PATH.gz"
-    docker load -i "$IMAGE_PATH"
     if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
-        echo "Unable to load $NDAU_IMAGE_NAME"
-        exit 1
+        echo "Unable to find $NDAU_IMAGE_NAME locally; fetching..."
+
+        IMAGE_NAME="ndauimage-$SHA"
+        IMAGE_ZIP="$IMAGE_NAME.docker.gz"
+        IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
+        echo "Fetching $IMAGE_ZIP..."
+        curl -o "$IMAGE_PATH.gz" "$IMAGE_BASE_URL/$IMAGE_ZIP"
+        if [ ! -f "$IMAGE_PATH.gz" ]; then
+            echo "Unable to fetch $IMAGE_BASE_URL/$IMAGE_ZIP"
+            exit 1
+        fi
+
+        echo "Loading $NDAU_IMAGE_NAME..."
+        gunzip -f "$IMAGE_PATH.gz"
+        docker load -i "$IMAGE_PATH"
+        if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
+            echo "Unable to load $NDAU_IMAGE_NAME"
+            exit 1
+        fi
     fi
 fi
 
@@ -299,7 +304,7 @@ docker create \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
        --sysctl net.core.somaxconn=511 \
-       ndauimage
+       $NDAU_IMAGE_NAME
 
 IDENTITY_FILE="node-identity.tgz"
 # Copy the identity file into the container if one was specified,
