@@ -1,7 +1,7 @@
 version: 2.1
 aws_defaults: &aws_defaults
-  AWS_ACCOUNT: 578681496768
-  AWS_REGION: us-east-1
+  AWS_ACCOUNT: "578681496768"
+  AWS_REGION: "us-east-1"
 
 commands:
   notify:
