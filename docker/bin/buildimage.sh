@@ -24,7 +24,9 @@ docker image rm "$NDAU_IMAGE_NAME" 2>/dev/null
 echo "done"
 
 echo "Building $NDAU_IMAGE_NAME..."
+# Use --no-cache since we likely have new source code we want built that docker can't detect.
 docker build \
+       --no-cache \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        "$DOCKER_DIR"/image \
        --tag="$NDAU_IMAGE_NAME"
