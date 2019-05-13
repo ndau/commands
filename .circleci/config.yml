@@ -1,6 +1,7 @@
 version: 2.1
 aws_defaults: &aws_defaults
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCOUNT: 578681496768
+  AWS_REGION: us-east-1
 
 commands:
   notify:
@@ -79,7 +80,7 @@ commands:
           docker_layer_caching: false
       - run:
           name: AWS ECR Login
-          command: eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+          command: eval $(aws ecr get-login --no-include-email --region ${AWS_REGION})
 
       - run:
           name: Checkout code
@@ -123,7 +124,7 @@ commands:
 
             # configure ecs
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
-            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_REGION" --config-name "$CLUSTER_NAME"
       - run:
           name: Download node identities
           command: |
@@ -347,10 +348,11 @@ jobs:
             # build single container node image
             ./docker/bin/buildimage.sh nosave
             # retag built image
-            docker tag ndauimage 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
+            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
             # push the image to ECR
-            docker push 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
-
+            docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
+            # add a tag for the current image in use by the network we're deploying to
+            aws ecr tag-resource --resource-arn arn:aws:ecr:$AWS_REGION:$AWS_ACCOUNT:repository/sc-node --tags Key=current-$NETWORK_NAME,Value=$SHA
 
   deploy-devnet:
     <<: *general_config
