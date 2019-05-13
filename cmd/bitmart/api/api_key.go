@@ -19,9 +19,10 @@ import (
 
 // APIKey stores a bitmart API key
 type APIKey struct {
-	Access string `json:"access"`
-	Secret string `json:"secret"`
-	Memo   string `json:"memo"`
+	Access   string `json:"access"`
+	Secret   string `json:"secret"`
+	Memo     string `json:"memo"`
+	Endpoint string `json:"endpoint,omitempty"`
 }
 
 // AccessBytes returns the bytes of the access key
@@ -60,6 +61,37 @@ type Token struct {
 	expiry         time.Time
 }
 
+// SubsURL might update the provided URL with a replacement scheme and host.
+//
+// API keys may optionally have endpoint overrides embedded. If so, Subs will
+// update the provided URL appropriately. If there is no override defined, or
+// if any errors are encountered, Subs does not modify the URL.
+func (ak APIKey) SubsURL(purl *url.URL) {
+	if len(ak.Endpoint) == 0 {
+		return
+	}
+	eurl, err := url.Parse(ak.Endpoint)
+	if err != nil {
+		return
+	}
+	purl.Scheme = eurl.Scheme
+	purl.Host = eurl.Host
+}
+
+// Subs might update the provdied url with a replacement scheme and endpoint.
+//
+// API keys may optionally have endpoint overrides embedded. If so, Subs will
+// update the provided URL appropriately. If there is no override defined, or
+// if any errors are encountered parsing either URL, Subs returns the original url.
+func (ak APIKey) Subs(urlpath string) string {
+	purl, err := url.Parse(urlpath)
+	if err != nil {
+		return urlpath
+	}
+	ak.SubsURL(purl)
+	return purl.String()
+}
+
 // ParseToken creates a token from a json message
 func ParseToken(message string) (*Token, error) {
 	t := new(Token)
@@ -84,7 +116,8 @@ func (ak APIKey) Authenticate() (*Token, error) {
 	message.Set("client_secret", secret)
 	buf := bytes.NewBuffer([]byte(message.Encode()))
 
-	resp, err := http.Post(APIAuth, "application/x-www-form-urlencoded", buf)
+	url := ak.Subs(APIAuth)
+	resp, err := http.Post(url, "application/x-www-form-urlencoded", buf)
 	if err != nil {
 		return nil, errors.Wrap(err, "requesting grant")
 	}

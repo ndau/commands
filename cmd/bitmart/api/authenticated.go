@@ -57,22 +57,19 @@ func (a *Auth) Authorize(request *http.Request) error {
 		return errors.Wrap(err, "authenticating")
 	}
 
-	// remove headers if already present; we may have new authorization, and
-	// we probably have a new timestamp
-	delete(request.Header, AuthHeader)
-	delete(request.Header, TimestampHeader)
+	// if the API key specifies a replacement endpoint, use it
+	a.key.SubsURL(request.URL)
 
-	request.Header.Add(AuthHeader, BearerPrefix+a.token.Access)
-	request.Header.Add(TimestampHeader, fmt.Sprintf("%d", Time()))
+	request.Header.Set(AuthHeader, BearerPrefix+a.token.Access)
+	request.Header.Set(TimestampHeader, fmt.Sprintf("%d", Time()))
 	return nil
 }
 
 // Dispatch an authorized request after adding appropriate authentication headers.
-//
-// If you use Dispatch, you must not previously use Authorize.
 func (a *Auth) Dispatch(request *http.Request, timeout time.Duration) (resp *http.Response, err error) {
 	err = a.Authorize(request)
 	if err != nil {
+		err = errors.Wrap(err, "authorizing dispatch")
 		return
 	}
 	a.client.Timeout = timeout
