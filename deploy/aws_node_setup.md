@@ -160,7 +160,7 @@ Here is the Task Definition JSON for a `mainnet-<N>` node.
 1. Set the snapshot `<S>` number (height of blockchain for a given snapshot)
 1. Set the `BASE64_NODE_IDENTITY` and `PERSISTENT_PEERS` environment variable values (beyond the scope of this document)
 
-NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update the `current-mainnet` tag to reference the new SHA (in this example, it's "cb8e545").  That can be done [here](https://console.aws.amazon.com/ecr/repositories/sc-node/tags?region=us-east-1).
+NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update `s3://ndau-images/current-mainnet.txt` to reference the new SHA (in this example, it's "cb8e545").
 
 ```json
 {
