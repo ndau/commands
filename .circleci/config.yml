@@ -354,7 +354,7 @@ jobs:
             # upload the image to S3 for public access
             docker save ndauimage -o /root/ndauimage-$SHA.docker
             gzip -f /root/ndauimage-$SHA.docker
-            aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images//root/ndauimage-$SHA.docker.gz
+            aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
             # update the current-*.txt file for the network we're deploying to
             echo $SHA > /root/current-$NETWORK_NAME.txt
             aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
