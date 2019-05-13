@@ -2,7 +2,6 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-ECR_REPO="578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node"
 IMAGE_BASE_URL="https://s3.amazonaws.com/ndau-images"
 SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
@@ -262,7 +261,7 @@ else
         exit 1
     fi
     SHA=$(cat $CURRENT_PATH)
-    NDAU_IMAGE_NAME="ECR_REPO:$SHA"
+    NDAU_IMAGE_NAME="ndauimage:$SHA"
 
     if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
         echo "Unable to find $NDAU_IMAGE_NAME locally; fetching..."
