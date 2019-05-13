@@ -21,7 +21,7 @@ NOTE: The following commands have been tested on macOS.  The `nc` commands in `r
 
 ## Build
 
-There is nothing to build.  The `ndauimage` Docker image is served by ECR on the us-east-1 region.  `runcontainer.sh` will pull down the proper version if it's not found locally.
+There is nothing to build.  The `ndauimage` Docker image is served on S3 and `runcontainer.sh` will pull down the proper version if it's not found locally.
 
 ## Run
 
