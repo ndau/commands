@@ -14,7 +14,7 @@ func getLock(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 		cmd.Spec = "NAME DURATION"
 
 		var name = cmd.StringArg("NAME", "", "Name of account to lock")
-		var durationS = cmd.StringArg("DURATION", "", "Duration of notice period")
+		var durationS = cmd.StringArg("DURATION", "", "Duration of notice period. Example: 1y2m3dt4h5m6s7us")
 
 		cmd.Action = func() {
 			conf := getConfig()
