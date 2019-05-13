@@ -2,8 +2,10 @@ package bitmart
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -56,6 +58,7 @@ func GetWallets(auth *Auth) ([]Wallet, error) {
 	var wallets []Wallet
 	err = json.Unmarshal(data, &wallets)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, string(data))
 		return wallets, errors.Wrap(err, "parsing wallet response")
 	}
 
