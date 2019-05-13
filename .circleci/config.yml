@@ -347,10 +347,6 @@ jobs:
             source $BASH_ENV
             # build single container node image
             ./docker/bin/buildimage.sh
-            # retag built image
-            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
-            # push the image to ECR
-            docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage -o /root/ndauimage-$SHA.docker
@@ -359,6 +355,11 @@ jobs:
             # update the current-*.txt file for the network we're deploying to
             echo $SHA > /root/current-$NETWORK_NAME.txt
             aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+            # retag built image
+            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
+            docker rmi ndauimage:$SHA
+            # push the image to ECR
+            docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
 
   deploy-devnet:
     <<: *general_config
