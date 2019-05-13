@@ -352,6 +352,7 @@ jobs:
             # push the image to ECR
             docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
             # upload the image to S3 for public access
+            docker tag ndauimage ndauimage:$SHA
             docker save ndauimage -o /root/ndauimage-$SHA.docker
             gzip -f /root/ndauimage-$SHA.docker
             aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
