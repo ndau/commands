@@ -5,7 +5,7 @@ source "$SCRIPT_DIR"/docker-env.sh
 
 # NODE_NUM is which mainnet node we are.  It will be blank if we're not named "mainnet-N".
 # This also works for devnet, testnet and any "othernet" with nodes named appropriately.
-NODE_NUM=$(echo "$NODE_ID" | sed -n -e 's/^[a-z]\{3,\}net-\([0-9]\{1,\}\)/\1/p')
+NODE_NUM=$(echo "$NODE_ID" | sed -n -e 's/^[a-z]\{3,\}net-\([0-9]\{1\}\)$/\1/p')
 
 # Return an index in [0,len].  Choose randomly if we're not one of the initial mainnet nodes.
 # Otherwise, return an index that ensures this node will be referenced by the other peers via
@@ -14,10 +14,11 @@ NODE_NUM=$(echo "$NODE_ID" | sed -n -e 's/^[a-z]\{3,\}net-\([0-9]\{1,\}\)/\1/p')
 choose_ip_index() {
     ips_len="$1"
     peer_idx="$2"
-    peers_len="$3"
 
     # If we're not a mainnet node, or if the node num is invalid, choose the IP index randomly.
-    if [ -z "$NODE_NUM" ] || [ "$NODE_NUM" -gt "$peers_len" ]; then
+    # We only want to do the IP-cycling logic for the initial 5 nodes of a network.  Anything
+    # outside of that is out of our control and we can't rely on the peer count and ordering.
+    if [ -z "$NODE_NUM" ] || [ "$NODE_NUM" -ge 5 ]; then
         echo $((RANDOM % ips_len))
     else
         # On mainnet, the peers list has a length of one less than the number of nodes.  So, say
@@ -52,7 +53,6 @@ choose_ip_index() {
 persistent_peers=()
 IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
 peer_idx=0
-peers_len="${#peers[@]}"
 for peer in "${peers[@]}"; do
     # Get the id and domain surrounding the '@'.
     IFS='@' read -ra split <<< "$peer"
@@ -74,7 +74,7 @@ for peer in "${peers[@]}"; do
         WHITE="[ 	]"
         # Look for "...A...<IP>".
         ips=($(dig +noall +answer "$domain" | \
-                   sed -n -e 's|^.*'"$WHITE"'\{1,\}A'"$WHITE"'\{1,\}\(.*\)|\1|p'))
+                   sed -n -e 's|^.*'"$WHITE"'\{1,\}A'"$WHITE"'\{1,\}\(.*\)$|\1|p'))
         # Sort for a well-defined order.
         IFS=$'\n' ips=($(sort <<<"${ips[*]}"))
 
@@ -84,7 +84,7 @@ for peer in "${peers[@]}"; do
             echo "WARNING: Unable to find IP for $domain; skipping peer $peer"
         else
             # Choose an IP.  All A records are assumed to be valid.  That's their purpose.
-            ip_idx=$(choose_ip_index $ips_len $peer_idx $peers_len)
+            ip_idx=$(choose_ip_index $ips_len $peer_idx)
             peer_ip="${ips[$ip_idx]}"
             echo "Using IP $peer_ip for peer $peer"
         fi
