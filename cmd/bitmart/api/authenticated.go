@@ -75,11 +75,6 @@ func (a *Auth) Dispatch(request *http.Request, timeout time.Duration) (resp *htt
 		return
 	}
 	a.client.Timeout = timeout
-	fmt.Fprintf(
-		os.Stderr,
-		"debug: sending %s request to %s\n",
-		request.Method, request.URL,
-	)
-	spew.Fdump(os.Stderr, "debug: headers:", request.Header)
+	spew.Fdump(os.Stderr, request)
 	return a.client.Do(request)
 }
