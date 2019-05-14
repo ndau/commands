@@ -486,12 +486,7 @@
   version = "1.0.1"
 
 [[projects]]
-<<<<<<< Updated upstream
   digest = "1:d81df3f379674c5e9d0132fd8a11d804b7349e41c11e0d0074b58e93d8bfebbc"
-=======
-  branch = "prgn-rename-change-settlement-period"
-  digest = "1:38e5eb0645a555ea27c40c97702c06a67877e01dafe3facb7450c1af8326af0a"
->>>>>>> Stashed changes
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -509,12 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-<<<<<<< Updated upstream
   revision = "c09786f1ee23bf91a992e7f11bd5efe8d8b0ef79"
   version = "v1.15.0"
-=======
-  revision = "5291a569e05d04a767137747f0cbbdc0540c75c6"
->>>>>>> Stashed changes
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
@@ -947,6 +938,7 @@
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
     "github.com/attic-labs/noms/go/types",
+    "github.com/davecgh/go-spew/spew",
     "github.com/go-redis/redis",
     "github.com/gorilla/websocket",
     "github.com/jawher/mow.cli",
