@@ -21,9 +21,8 @@ choose_ip_index() {
     if [ -z "$NODE_NUM" ] || [ "$NODE_NUM" -ge 5 ]; then
         echo $((RANDOM % ips_len))
     else
-        # On mainnet, the peers list has a length of one less than the number of nodes.  So, say
-        # the current node is mainnet-1 (the 2nd node out of 5).  Assuming we have two IPs, here
-        # is what each node will use for their peers' IPs:
+        # On mainnet, the peers list has a length of one less than the number of nodes.
+        # Assuming we have two IPs per peer, here is what each node will use for their peers' IPs:
         #   mainnet-0: ___, IP0, IP1, IP0, IP1
         #   mainnet-1: IP1, ___, IP0, IP1, IP0
         #   mainnet-2: IP0, IP1, ___, IP0, IP1
