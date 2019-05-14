@@ -486,7 +486,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-renav"
   digest = "1:ffcb4bc4e9f277c66e416a8a33babb29da7c2ac3cebeade7b6acbfb51488ac87"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "ac7d16dfc7b04890e81475bff47d11c5e607c2bc"
+  revision = "15d7430307722a095bee380b5296a91277e7d9c5"
+  version = "v1.16"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
@@ -550,7 +550,6 @@
   version = "v1.3.2"
 
 [[projects]]
-  branch = "prgn-renav-sv"
   digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -559,7 +558,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "b11eaf66cc012b38a3ab87f01c0dac6bb73d5fbe"
+  revision = "08dc98ae4b692dacb18b704dd106fe95d4004c3a"
+  version = "v1.2.2"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
