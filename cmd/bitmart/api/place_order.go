@@ -63,6 +63,7 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 	if err != nil {
 		return nil, errors.Wrap(err, "constructing order request")
 	}
+	req.Header.Set(SignatureHeader, prepareOrderSignature(auth, symbol, side, price, amount))
 
 	resp, err := auth.Dispatch(req, 3*time.Second)
 	if err != nil {
