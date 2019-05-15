@@ -62,6 +62,8 @@ func bb(i interface{}) {
 
 func interpolateAll(data interface{}, em map[string]string) interface{} {
 	switch d := data.(type) {
+	case bool:
+		return d // Can't interpolate bools.
 	case string:
 		return interpolate(d, em)
 	case map[string]string:
