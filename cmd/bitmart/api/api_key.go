@@ -50,7 +50,7 @@ func HMACSign(key, message string) string {
 
 // ClientSecret returns the client secret: hex-encoded HMAC of the SHA256 hash of the message
 func (ak APIKey) ClientSecret() (s string, err error) {
-	message := strings.ToLower(fmt.Sprintf("%s:%s:%s", ak.Access, ak.Secret, ak.Memo))
+	message := fmt.Sprintf("%s:%s:%s", strings.ToLower(ak.Access), strings.ToLower(ak.Secret), ak.Memo)
 	return HMACSign(ak.Secret, message), nil
 }
 
