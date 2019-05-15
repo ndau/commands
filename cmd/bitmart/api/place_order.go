@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 )
 
@@ -63,6 +64,8 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 	if err != nil {
 		return nil, errors.Wrap(err, "constructing order request")
 	}
+
+	spew.Fdump(os.Stderr, req)
 
 	resp, err := auth.Dispatch(req, 3*time.Second)
 	if err != nil {
