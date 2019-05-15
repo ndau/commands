@@ -11,6 +11,10 @@ RPC=http://"$IP":2667
 SNAPSHOT=$(./get_snapshot.sh)
 IDENTITY="" # This last node demonstrates starting a node and having its identity file generated.
 
+# Uncomment this to have this node generate snapshots every minute for demonstration purposes.
+# The snapshots will also get uploaded to S3 if the AWS_* environment variables are set.
+#export SNAPSHOT_INTERVAL="1m"
+
 ../bin/runcontainer.sh \
     localnet localnet-5 26665 26675 3035 \
     "$IDENTITY" \

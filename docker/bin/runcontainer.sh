@@ -11,6 +11,14 @@ INTERNAL_API_PORT=3030
 LOG_FORMAT=json
 LOG_LEVEL=info
 
+# Leave this blank/unset to disable periodic snapshot creation.
+# Set to "4h", for example, to generate a snapshot every 4 hours.
+# Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
+# must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
+#SNAPSHOT_INTERVAL="4h"
+#AWS_ACCESS_KEY_ID=""
+#AWS_SECRET_ACCESS_KEY=""
+
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
    [ -z "$3" ] || \
@@ -297,6 +305,9 @@ docker create \
        --name "$CONTAINER" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
+       -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
+       -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
+       -e "SNAPSHOT_INTERVAL=$SNAPSHOT_INTERVAL" \
        -e "LOG_FORMAT=$LOG_FORMAT" \
        -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \

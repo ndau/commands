@@ -134,6 +134,9 @@ func (ct *ConfigTask) interpolate(env map[string]string) {
 	for i := range ct.Monitors {
 		ct.Monitors[i] = interpolateAll(ct.Monitors[i], env).(map[string]string)
 	}
+	for i := range ct.Specials {
+		ct.Specials[i] = interpolateAll(ct.Specials[i], env).(map[string]interface{})
+	}
 }
 
 // Load does the toml load into a config object

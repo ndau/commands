@@ -149,6 +149,7 @@ SNAPSHOT_PATH="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
 echo "  bundling $SNAPSHOT_NAME..."
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
 tar -czf "$SNAPSHOT_PATH" data
+cd .. || exit 1
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
 # Make the "latest" file.

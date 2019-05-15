@@ -51,15 +51,38 @@ cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"
 
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$BIN_DIR"/noms show "$NOMS_DATA_DIR"::ndau.value.Height | tr -d '"')))
-SNAPSHOT_NAME=snapshot-$NETWORK-$HEIGHT
-SNAPSHOT_FILE="$SCRIPT_DIR/$SNAPSHOT_NAME.tgz"
+SNAPSHOT_FILE="snapshot-$NETWORK-$HEIGHT.tgz"
+SNAPSHOT_PATH="$SCRIPT_DIR/$SNAPSHOT_FILE"
 
 # Make the tarball and remove the temp dir.
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
-tar -czf "$SNAPSHOT_FILE" data
+tar -czf "$SNAPSHOT_PATH" data
+cd .. || exit 1
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
-echo "Snapshot created: $SNAPSHOT_FILE"
+# Optionally upload the snapshot to the S3 bucket, but only if we have the AWS credentials.
+if [ "$2" = "--upload" ] && [ ! -z "$AWS_ACCESS_KEY_ID" ] && [ ! -z "$AWS_SECRET_ACCESS_KEY" ]
+then
+    echo "Uploading $SNAPSHOT_FILE to S3..."
+
+    aws_key="$AWS_ACCESS_KEY_ID"
+    aws_secret="$AWS_SECRET_ACCESS_KEY"
+
+    date_str=$(date -R)
+    s3_path="/ndau-snapshots/$SNAPSHOT_FILE"
+    content_type="application/x-compressed-tar"
+    signable_bytes="PUT\n\n$content_type\n$date_str\n$s3_path"
+    signature=$(echo -en "$signable_bytes" | openssl sha1 -hmac "$aws_secret" -binary | base64)
+
+    curl -X PUT -T "$SNAPSHOT_PATH" \
+         -H "Host: s3.amazonaws.com" \
+         -H "Date: $date_str" \
+         -H "Content-Type: $content_type" \
+         -H "Authorization: AWS $aws_key:$signature" \
+         "https://s3.amazonaws.com$s3_path"
+fi
 
 # Flag the snapshot as ready to be copied out of the container.
-echo "$SNAPSHOT_NAME.tgz" > "$SNAPSHOT_RESULT"
+echo "$SNAPSHOT_FILE" > "$SNAPSHOT_RESULT"
+
+echo "Snapshot created: $SNAPSHOT_PATH"
