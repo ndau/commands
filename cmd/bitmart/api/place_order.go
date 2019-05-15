@@ -1,6 +1,7 @@
 package bitmart
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -59,7 +60,18 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 		return nil, errors.Wrap(err, "invalid side")
 	}
 
-	req, err := http.NewRequest(http.MethodPost, auth.key.Subs(APIOrders), nil)
+	jsdata, err := json.Marshal(map[string]interface{}{
+		"amount": amount,
+		"price":  price,
+		"side":   side,
+		"symbol": symbol,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "json-serializing request body")
+	}
+	buf := bytes.NewBuffer(jsdata)
+
+	req, err := http.NewRequest(http.MethodPost, auth.key.Subs(APIOrders), buf)
 	if err != nil {
 		return nil, errors.Wrap(err, "constructing order request")
 	}
