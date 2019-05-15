@@ -3,10 +3,7 @@ package bitmart
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"time"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/pkg/errors"
 )
@@ -75,7 +72,6 @@ func (a *Auth) Dispatch(request *http.Request, timeout time.Duration) (resp *htt
 		err = errors.Wrap(err, "authorizing dispatch")
 		return
 	}
-	spew.Fdump(os.Stderr, request)
 	a.client.Timeout = timeout
 	return a.client.Do(request)
 }
