@@ -51,8 +51,8 @@ cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"
 
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$BIN_DIR"/noms show "$NOMS_DATA_DIR"::ndau.value.Height | tr -d '"')))
-SNAPSHOT_FILE="snapshot-$NETWORK-$HEIGHT.tgz"
-SNAPSHOT_PATH="$SCRIPT_DIR/$SNAPSHOT_FILE"
+SNAPSHOT_NAME="snapshot-$NETWORK-$HEIGHT"
+SNAPSHOT_PATH="$SCRIPT_DIR/$SNAPSHOT_NAME.tgz"
 
 # Make the tarball and remove the temp dir.
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
@@ -60,29 +60,52 @@ tar -czf "$SNAPSHOT_PATH" data
 cd .. || exit 1
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
-# Optionally upload the snapshot to the S3 bucket, but only if we have the AWS credentials.
-if [ "$2" = "--upload" ] && [ ! -z "$AWS_ACCESS_KEY_ID" ] && [ ! -z "$AWS_SECRET_ACCESS_KEY" ]
-then
-    echo "Uploading $SNAPSHOT_FILE to S3..."
+AWS_BASE_URL="https://s3.amazonaws.com"
+upload_to_s3() {
+    file_name="$1"
+    content_type="$2"
 
     aws_key="$AWS_ACCESS_KEY_ID"
     aws_secret="$AWS_SECRET_ACCESS_KEY"
 
     date_str=$(date -R)
-    s3_path="/ndau-snapshots/$SNAPSHOT_FILE"
-    content_type="application/x-compressed-tar"
+    s3_path="/ndau-snapshots/$file_name"
     signable_bytes="PUT\n\n$content_type\n$date_str\n$s3_path"
     signature=$(echo -en "$signable_bytes" | openssl sha1 -hmac "$aws_secret" -binary | base64)
 
-    curl -X PUT -T "$SNAPSHOT_PATH" \
+    curl -X PUT -T "$SCRIPT_DIR/$file_name" \
          -H "Host: s3.amazonaws.com" \
          -H "Date: $date_str" \
          -H "Content-Type: $content_type" \
          -H "Authorization: AWS $aws_key:$signature" \
-         "https://s3.amazonaws.com$s3_path"
+         "$AWS_BASE_URL$s3_path"
+}
+
+# Optionally upload the snapshot to the S3 bucket, but only if we have the AWS credentials.
+if [ "$2" = "--upload" ] && [ ! -z "$AWS_ACCESS_KEY_ID" ] && [ ! -z "$AWS_SECRET_ACCESS_KEY" ]
+then
+    # Make sure we don't clobber a snapshot with the same name.  This protects us against
+    # multiple nodes being set up to upload snapshots.  It's something we should avoid doing.
+    # But if it happens, the first node to upload a given height's snapshot "wins".
+    file_name="SNAPSHOT_NAME.tgz"
+    if curl --output /dev/null --silent --head --fail "$AWS_BASE_URL/ndau-snapshots/$file_name"
+    then
+        echo "Snapshot file $file_name already exists on S3"
+    else
+        echo "Uploading $SNAPSHOT_NAME to S3..."
+
+        upload_to_s3 "$file_name" "application/x-gtar"
+
+        # Make the "latest" file for S3.
+        LATEST_FILE="latest-$NETWORK.txt"
+        LATEST_PATH="$SCRIPT_DIR/$LATEST_FILE"
+        echo "$SNAPSHOT_NAME" > "$LATEST_PATH"
+
+        upload_to_s3 "$LATEST_FILE" "text/plain"
+    fi
 fi
 
 # Flag the snapshot as ready to be copied out of the container.
-echo "$SNAPSHOT_FILE" > "$SNAPSHOT_RESULT"
+echo "$SNAPSHOT_NAME.tgz" > "$SNAPSHOT_RESULT"
 
 echo "Snapshot created: $SNAPSHOT_PATH"
