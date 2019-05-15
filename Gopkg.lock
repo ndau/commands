@@ -312,7 +312,7 @@
   version = "v1.9.5"
 
 [[projects]]
-  digest = "1:d557c549fb8422ece9f4878b4ea2b22f3fc36a46e195472f70bffc03a7b012c9"
+  digest = "1:02292e838f9eec0acc417def88c01e7d9dfa752dc7ba1a69dda0190fba31b248"
   name = "github.com/jawher/mow.cli"
   packages = [
     ".",
@@ -325,8 +325,8 @@
     "internal/values",
   ]
   pruneopts = ""
-  revision = "d9c41c7c90d99b076732ee72a657577128d610da"
-  version = "v1.0.5"
+  revision = "9b8ce431ec028691b79d71211c3848f1ad4078d7"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
@@ -938,7 +938,6 @@
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
     "github.com/attic-labs/noms/go/types",
-    "github.com/davecgh/go-spew/spew",
     "github.com/go-redis/redis",
     "github.com/gorilla/websocket",
     "github.com/jawher/mow.cli",
@@ -978,6 +977,7 @@
     "github.com/rs/cors",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
+    "github.com/stretchr/testify/require",
     "github.com/tendermint/tendermint/abci/server",
     "github.com/tendermint/tendermint/crypto/ed25519",
     "github.com/tendermint/tendermint/crypto/encoding/amino",
