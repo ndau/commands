@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 )
@@ -62,8 +63,6 @@ func bb(i interface{}) {
 
 func interpolateAll(data interface{}, em map[string]string) interface{} {
 	switch d := data.(type) {
-	case bool:
-		return d // Can't interpolate bools.
 	case string:
 		return interpolate(d, em)
 	case map[string]string:
@@ -79,6 +78,6 @@ func interpolateAll(data interface{}, em map[string]string) interface{} {
 		}
 		return r
 	default:
-		panic("bad type")
+		panic(fmt.Sprintf("bad type: '%v' (%T)", d, d))
 	}
 }
