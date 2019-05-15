@@ -73,6 +73,7 @@ upload_to_s3() {
     signable_bytes="PUT\n\n$content_type\n$date_str\n$s3_path"
     signature=$(echo -en "$signable_bytes" | openssl sha1 -hmac "$aws_secret" -binary | base64)
 
+    echo "Uploading $file_name to S3..."
     curl -s -X PUT -T "$SCRIPT_DIR/$file_name" \
          -H "Host: s3.amazonaws.com" \
          -H "Date: $date_str" \
@@ -90,9 +91,8 @@ then
     file_name="$SNAPSHOT_NAME.tgz"
     if curl --output /dev/null --silent --head --fail "$AWS_BASE_URL/ndau-snapshots/$file_name"
     then
-        echo "Snapshot file $file_name already exists on S3"
+        echo "Snapshot $file_name already exists on S3"
     else
-        echo "Uploading $file_name to S3..."
         upload_to_s3 "$file_name" "application/x-gtar"
         if [ "$?" != 0 ]; then
             echo "Failed to upload snapshot"
@@ -100,8 +100,6 @@ then
             LATEST_FILE="latest-$NETWORK.txt"
             LATEST_PATH="$SCRIPT_DIR/$LATEST_FILE"
             echo "$SNAPSHOT_NAME" > "$LATEST_PATH"
-
-            echo "Uploading $LATEST_FILE file to S3..."
             upload_to_s3 "$LATEST_FILE" "text/plain"
         fi
     fi
@@ -110,4 +108,4 @@ fi
 # Flag the snapshot as ready to be copied out of the container.
 echo "$SNAPSHOT_NAME.tgz" > "$SNAPSHOT_RESULT"
 
-echo "Snapshot created: $SNAPSHOT_PATH"
+echo "Snapshot ready: $SNAPSHOT_PATH"
