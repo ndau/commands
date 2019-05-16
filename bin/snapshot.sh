@@ -169,7 +169,7 @@ else
     # If this happens, it could mean that the anchor comment is missing, e.g. "... # mainnet",
     # or the number of nodes in the snapshot differs from the number of peers found in the yml.
     # It's non-fatal; anyone wanting to re-deploy will have to take care of it manually.
-    echo "Unable to modify PERSISTENT_PEERS and SNAPSHOT_URL for $NETWORK in $CONFIG_YML_PATH"
+    echo "Unable to modify PERSISTENT_PEERS and SNAPSHOT_NAME for $NETWORK in $CONFIG_YML_PATH"
 fi
 
 # These can be used for uploading the snapshot to S3.
@@ -196,7 +196,7 @@ echo "       $UPLOAD_LATEST_CMD"
 if [ "$MODIFY_CONFIG_YML" = true ]; then
     echo "  4. Your copy of $CONFIG_YML_NAME has been modified; commit it if desired"
 else
-    echo "  4. The $CONFIG_YML_NAME file might need its PERSISTENT_PEERS and SNAPSHOT_URL updated"
+    echo "  4. The $CONFIG_YML_NAME file might need PERSISTENT_PEERS and SNAPSHOT_NAME updated"
 fi
 
 echo
