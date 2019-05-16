@@ -98,7 +98,7 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 
 		cmd.Command(
 			"stake",
-			"stake this account to another",
+			"stake ndau from this account to another",
 			getStake(verbose, keys, emitJSON, compact),
 		)
 
