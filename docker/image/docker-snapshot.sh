@@ -49,7 +49,6 @@ tar -czf "$SNAPSHOT_PATH" data
 cd .. || exit 1
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
-AWS_BASE_URL="https://s3.amazonaws.com"
 upload_to_s3() {
     file_name="$1"
     content_type="$2"
@@ -58,7 +57,7 @@ upload_to_s3() {
     aws_secret="$AWS_SECRET_ACCESS_KEY"
 
     date_str=$(date -R)
-    s3_path="/ndau-snapshots/$file_name"
+    s3_path="/$SNAPSHOT_BUCKET/$file_name"
     signable_bytes="PUT\n\n$content_type\n$date_str\n$s3_path"
     signature=$(echo -en "$signable_bytes" | openssl sha1 -hmac "$aws_secret" -binary | base64)
 
@@ -68,7 +67,7 @@ upload_to_s3() {
          -H "Date: $date_str" \
          -H "Content-Type: $content_type" \
          -H "Authorization: AWS $aws_key:$signature" \
-         "$AWS_BASE_URL$s3_path"
+         "$SNAPSHOT_URL$s3_path"
 }
 
 # Optionally upload the snapshot to the S3 bucket, but only if we have the AWS credentials.
@@ -78,7 +77,7 @@ then
     # multiple nodes being set up to upload snapshots.  It's something we should avoid doing.
     # But if it happens, the first node to upload a given height's snapshot "wins".
     file_name="$SNAPSHOT_NAME.tgz"
-    if curl --output /dev/null --silent --head --fail "$AWS_BASE_URL/ndau-snapshots/$file_name"
+    if curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$file_name"
     then
         echo "Snapshot $file_name already exists on S3"
     else

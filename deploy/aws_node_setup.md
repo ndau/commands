@@ -208,10 +208,6 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                     "value": "mainnet-<N>"
                 },
                 {
-                    "name": "SNAPSHOT_URL",
-                    "value": "https://s3.amazonaws.com/ndau-snapshots"
-                },
-                {
                     "name": "SNAPSHOT_NAME",
                     "value": ""
                 },

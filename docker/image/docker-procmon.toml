@@ -7,6 +7,9 @@ LOG_LEVEL = "debug"
 # This is needed as an environment variable by the ndauapi task.  It shouldn't need overriding.
 NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
 
+# Periodic snapshot logging off by default.
+SNAPSHOT_INTERVAL = ""
+
 [logger]
 # The format is only used for procmon logging.
 format = "$LOG_FORMAT"

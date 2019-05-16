@@ -3,7 +3,6 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 IMAGE_BASE_URL="https://s3.amazonaws.com/ndau-images"
-SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
@@ -298,7 +297,6 @@ docker create \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
-       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
        --sysctl net.core.somaxconn=511 \
        $NDAU_IMAGE_NAME
