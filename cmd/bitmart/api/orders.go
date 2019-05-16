@@ -20,7 +20,7 @@ type OrderStatus int64
 
 // OrderStatus pretty names
 const (
-	Unfiltered OrderStatus = iota
+	Invalid OrderStatus = iota
 	Pending
 	PartialSuccess
 	Success
@@ -100,6 +100,12 @@ type OrderHistory struct {
 
 // GetOrderHistory retrieves the list of all user orders
 func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, error) {
+	if status == Invalid {
+		return nil, errors.New("invalid status")
+	}
+	if symbol == "" {
+		return nil, errors.New("symbol must not be empty")
+	}
 	var orders []Order
 	var th OrderHistory
 	var offset = 0
@@ -114,7 +120,7 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 
 		req, err := http.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("%s?%s", APIOrders, queryParams.Encode()),
+			fmt.Sprintf("%s?%s", auth.key.Subs(APIOrders), queryParams.Encode()),
 			nil,
 		)
 		if err != nil {

@@ -56,6 +56,9 @@ type TradeHistory struct {
 
 // GetTradeHistory retrieves the list of all user trades
 func GetTradeHistory(auth *Auth, symbol string) ([]Trade, error) {
+	if symbol == "" {
+		return nil, errors.New("symbol must not be empty")
+	}
 	var trades []Trade
 	var th TradeHistory
 	var offset = 0
@@ -69,7 +72,7 @@ func GetTradeHistory(auth *Auth, symbol string) ([]Trade, error) {
 
 		req, err := http.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("%s?%s", APITrades, queryParams.Encode()),
+			fmt.Sprintf("%s?%s", auth.key.Subs(APITrades), queryParams.Encode()),
 			nil,
 		)
 		if err != nil {

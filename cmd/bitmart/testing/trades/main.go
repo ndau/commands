@@ -22,7 +22,7 @@ func main() {
 
 	var (
 		apikeyPath = app.StringArg("API_KEY", "", "Path to an apikey.json file")
-		symbol     = app.StringArg("SYMBOL", "", "Trade symbol to examine")
+		symbol     = app.StringArg("SYMBOL", bitmart.NdauSymbol, "Trade symbol to examine")
 	)
 
 	app.Spec = "API_KEY [SYMBOL]"
