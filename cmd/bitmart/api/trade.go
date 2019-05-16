@@ -8,19 +8,20 @@ import (
 	"net/url"
 	"time"
 
+	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 )
 
 // Trade represents a particular trade
 type Trade struct {
-	Symbol    string  `json:"symbol"`
-	Amount    float64 `json:"amount"`
-	Fees      float64 `json:"fees"`
-	TradeID   int64   `json:"trade_id"`
-	Price     float64 `json:"price"`
-	Active    bool    `json:"active"`
-	EntrustID int64   `json:"entrust_id"`
-	Timestamp int64   `json:"timestamp"` // milliseconds since unix epoch
+	Symbol    string    `json:"symbol"`
+	Amount    math.Ndau `json:"amount"`
+	Fees      float64   `json:"fees"`
+	TradeID   int64     `json:"trade_id"`
+	Price     float64   `json:"price"`
+	Active    bool      `json:"active"`
+	EntrustID int64     `json:"entrust_id"`
+	Timestamp int64     `json:"timestamp"` // milliseconds since unix epoch
 }
 
 // UnmarshalJSON implements json.Unmarshaler
@@ -36,7 +37,7 @@ func (t *Trade) UnmarshalJSON(data []byte) error {
 
 	// attempts to get all fields. err remains nil if everything succeeded
 	t.Symbol, err = getStr(obj, "symbol")
-	t.Amount, err = getFloat(obj, "amount")
+	t.Amount, err = getNdau(obj, "amount")
 	t.Fees, err = getFloat(obj, "fees")
 	t.TradeID, err = getInt(obj, "trade_id")
 	t.Price, err = getFloat(obj, "price")

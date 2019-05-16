@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/oneiro-ndev/ndaumath/pkg/constants"
+	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 )
 
 // bitmart has unusual ideas about what constitutes a number, sometimes
@@ -41,6 +44,27 @@ func getFloat(obj map[string]interface{}, name string) (f float64, err error) {
 		return
 	case string:
 		f, err = strconv.ParseFloat(fd, 64)
+		return
+	}
+	err = fmt.Errorf("unexpected type for Wallet.%s: %T", name, field)
+	return
+}
+
+func getNdau(obj map[string]interface{}, name string) (n math.Ndau, err error) {
+	field, ok := obj[name]
+	if !ok {
+		err = fmt.Errorf("wallet field %s not found", name)
+		return
+	}
+	// we just have to approximate to the best of our ability
+	switch fd := field.(type) {
+	case float64:
+		n = math.Ndau(fd * constants.NapuPerNdau)
+		return
+	case string:
+		var f float64
+		f, err = strconv.ParseFloat(fd, 64)
+		n = math.Ndau(f * constants.NapuPerNdau)
 		return
 	}
 	err = fmt.Errorf("unexpected type for Wallet.%s: %T", name, field)
