@@ -56,13 +56,20 @@ type TradeHistory struct {
 
 // GetTradeHistory retrieves the list of all user trades
 func GetTradeHistory(auth *Auth, symbol string) ([]Trade, error) {
+	return GetTradeHistoryAfter(auth, symbol, 0)
+}
+
+// GetTradeHistoryAfter retrieves the list of all user trades whose trade_id is
+// greater than tradeIDLimit.
+func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trade, error) {
 	if symbol == "" {
 		return nil, errors.New("symbol must not be empty")
 	}
-	var trades []Trade
-	var th TradeHistory
 	var offset = 0
 	const limit = 1000
+	var th TradeHistory
+	trades := make([]Trade, 0, limit)
+	stop := false
 
 	getPage := func() error {
 		queryParams := url.Values{}
@@ -90,10 +97,23 @@ func GetTradeHistory(auth *Auth, symbol string) ([]Trade, error) {
 			return errors.Wrap(err, "reading trade history response")
 		}
 
+		offset += limit
+
 		err = json.Unmarshal(data, &th)
 		if err != nil {
 			return errors.Wrap(err, "parsing trade history response")
 		}
+
+		midx := -1
+		for idx, trade := range th.Trades {
+			if trade.TradeID > tradeIDLimit {
+				midx = idx
+			} else {
+				stop = true
+				break
+			}
+		}
+		trades = append(trades, th.Trades[:midx+1]...)
 		return nil
 	}
 
@@ -102,16 +122,12 @@ func GetTradeHistory(auth *Auth, symbol string) ([]Trade, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "getting first trade history page")
 	}
-	trades = append(trades, th.Trades...)
 
-	// in the future, parallelize this?
-	for th.CurrentPage < th.TotalPages {
-		offset += limit
+	for !stop && th.CurrentPage < th.TotalPages {
 		err = getPage()
 		if err != nil {
 			return trades, errors.Wrap(err, fmt.Sprintf("getting trade history page %d", offset/limit))
 		}
-		trades = append(trades, th.Trades...)
 	}
 
 	return trades, nil
