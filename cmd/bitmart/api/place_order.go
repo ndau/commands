@@ -38,6 +38,12 @@ func ParseSide(s string) (string, error) {
 	}
 }
 
+// PlaceOrderResponse is the response type expected when placing an order
+type PlaceOrderResponse struct {
+	EntrustID int64  `json:"entrust_id"`
+	Message   string `json:"message,omitempty"`
+}
+
 // bitmart uses a very particular encoding scheme to validate request bodies
 // https://github.com/bitmartexchange/bitmart-official-api-docs/blob/master/rest/authenticated/post_order.md
 //
@@ -54,47 +60,63 @@ func prepareOrderSignature(auth *Auth, symbol string, side string, price float64
 }
 
 // PlaceOrder places an order on bitmart
-func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount float64) (*Order, error) {
-	side, err := ParseSide(side)
+func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount float64) (entrustID int64, err error) {
+	side, err = ParseSide(side)
 	if err != nil {
-		return nil, errors.Wrap(err, "invalid side")
+		err = errors.Wrap(err, "invalid side")
+		return
 	}
 
-	jsdata, err := json.Marshal(map[string]interface{}{
+	var jsdata []byte
+	jsdata, err = json.Marshal(map[string]interface{}{
 		"amount": amount,
 		"price":  price,
 		"side":   side,
 		"symbol": symbol,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "json-serializing request body")
+		err = errors.Wrap(err, "json-serializing request body")
+		return
 	}
 	buf := bytes.NewBuffer(jsdata)
 
-	req, err := http.NewRequest(http.MethodPost, APIOrders, buf)
+	req := new(http.Request)
+	req, err = http.NewRequest(http.MethodPost, APIOrders, buf)
 	if err != nil {
-		return nil, errors.Wrap(err, "constructing order request")
+		err = errors.Wrap(err, "constructing order request")
+		return
 	}
 	req.Header.Set(SignatureHeader, prepareOrderSignature(auth, symbol, side, price, amount))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := auth.Dispatch(req, 3*time.Second)
+	resp := new(http.Response)
+	resp, err = auth.Dispatch(req, 3*time.Second)
 	if err != nil {
-		return nil, errors.Wrap(err, "performing order request")
+		err = errors.Wrap(err, "performing order request")
+		return
 	}
 	defer resp.Body.Close()
 
-	data, err := ioutil.ReadAll(resp.Body)
+	var data []byte
+	data, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading order response")
+		err = errors.Wrap(err, "reading order response")
+		return
 	}
 
-	var order Order
-	err = json.Unmarshal(data, &order)
+	var poresp PlaceOrderResponse
+	err = json.Unmarshal(data, &poresp)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, string(data))
-		return &order, errors.Wrap(err, "parsing order response")
+		err = errors.Wrap(err, "parsing order response")
+		return
 	}
 
-	return &order, nil
+	entrustID = poresp.EntrustID
+	if poresp.Message != "" {
+		err = errors.New(poresp.Message)
+		err = errors.Wrap(err, "server returned error")
+	}
+
+	return
 }
