@@ -58,7 +58,7 @@ func (a *Auth) Authorize(request *http.Request) error {
 	}
 
 	// if the API key specifies a replacement endpoint, use it
-	a.key.SubsURL(request.URL)
+	request.Host = a.key.SubsURL(request.URL)
 
 	request.Header.Set(AuthHeader, BearerPrefix+a.token.Access)
 	request.Header.Set(TimestampHeader, fmt.Sprintf("%d", Time()))

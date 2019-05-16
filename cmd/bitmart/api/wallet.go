@@ -40,7 +40,7 @@ func (w *Wallet) UnmarshalJSON(data []byte) error {
 
 // GetWallets retrieves the list of user wallets
 func GetWallets(auth *Auth) ([]Wallet, error) {
-	req, err := http.NewRequest(http.MethodGet, auth.key.Subs(APIWallet), nil)
+	req, err := http.NewRequest(http.MethodGet, APIWallet, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "constructing wallet request")
 	}

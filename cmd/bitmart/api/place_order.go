@@ -71,7 +71,7 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 	}
 	buf := bytes.NewBuffer(jsdata)
 
-	req, err := http.NewRequest(http.MethodPost, auth.key.Subs(APIOrders), buf)
+	req, err := http.NewRequest(http.MethodPost, APIOrders, buf)
 	if err != nil {
 		return nil, errors.Wrap(err, "constructing order request")
 	}

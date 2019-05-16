@@ -66,7 +66,10 @@ type Token struct {
 // API keys may optionally have endpoint overrides embedded. If so, Subs will
 // update the provided URL appropriately. If there is no override defined, or
 // if any errors are encountered, Subs does not modify the URL.
-func (ak APIKey) SubsURL(purl *url.URL) {
+//
+// Returns the host string appropriate for substituting into a request Host field.
+func (ak APIKey) SubsURL(purl *url.URL) (host string) {
+	host = purl.Host
 	if len(ak.Endpoint) == 0 {
 		return
 	}
@@ -76,6 +79,7 @@ func (ak APIKey) SubsURL(purl *url.URL) {
 	}
 	purl.Scheme = eurl.Scheme
 	purl.Host = eurl.Host
+	return eurl.Host
 }
 
 // Subs might update the provdied url with a replacement scheme and endpoint.

@@ -79,7 +79,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 
 		req, err := http.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("%s?%s", auth.key.Subs(APITrades), queryParams.Encode()),
+			fmt.Sprintf("%s?%s", APITrades, queryParams.Encode()),
 			nil,
 		)
 		if err != nil {

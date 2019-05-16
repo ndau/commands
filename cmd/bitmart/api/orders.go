@@ -106,10 +106,11 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 	if symbol == "" {
 		return nil, errors.New("symbol must not be empty")
 	}
-	var orders []Order
-	var th OrderHistory
+
 	var offset = 0
 	const limit = 1000
+	var th OrderHistory
+	orders := make([]Order, 0, limit)
 
 	getPage := func() error {
 		queryParams := url.Values{}
@@ -120,7 +121,7 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 
 		req, err := http.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("%s?%s", auth.key.Subs(APIOrders), queryParams.Encode()),
+			fmt.Sprintf("%s?%s", APIOrders, queryParams.Encode()),
 			nil,
 		)
 		if err != nil {
