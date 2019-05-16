@@ -550,6 +550,17 @@
   version = "v1.3.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:6f3f400a8c4635f135ac228107f629bb8b183b68b8e3bc39d40ed1ddc1667104"
+  name = "github.com/oneiro-ndev/recovery"
+  packages = [
+    "pkg/message",
+    "pkg/signer",
+  ]
+  pruneopts = ""
+  revision = "e729d7647315405f85b65dfaba0141437d2d43ef"
+
+[[projects]]
   digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -970,6 +981,8 @@
     "github.com/oneiro-ndev/ndaumath/pkg/words",
     "github.com/oneiro-ndev/noms-util",
     "github.com/oneiro-ndev/o11y/pkg/honeycomb",
+    "github.com/oneiro-ndev/recovery/pkg/message",
+    "github.com/oneiro-ndev/recovery/pkg/signer",
     "github.com/oneiro-ndev/system_vars/pkg/genesis.generator",
     "github.com/oneiro-ndev/system_vars/pkg/genesisfile",
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",

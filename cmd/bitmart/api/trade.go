@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
@@ -132,4 +133,61 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 	}
 
 	return trades, nil
+}
+
+// FilterSales retains only those Trades which correspond to a sell order
+//
+// For each trade, dispatches an individual goroutine fetching the appropriate
+// Order. If that Order comes back as a sell order, retains the Trade; otherwise,
+// discards it.
+//
+// This is a fairly IO-intensive call, though it's made as concurrent as possible.
+func FilterSales(auth *Auth, trades []Trade) ([]Trade, error) {
+	// order traide pair
+	type otp struct {
+		order Order
+		trade Trade
+	}
+	orders := make(chan otp)
+	errs := make(chan error)
+	for _, trade := range trades {
+		go func(trade Trade) {
+			order, err := GetOrder(auth, trade.EntrustID)
+			// always send exactly one message on a channel
+			if err == nil {
+				if order != nil {
+					orders <- otp{*order, trade}
+				} else {
+					errs <- errors.New("nil order returned from GetOrder")
+				}
+			} else {
+				errs <- errors.Wrap(err, fmt.Sprint(trade.EntrustID))
+			}
+		}(trade)
+	}
+
+	filtered := make([]Trade, 0, len(trades))
+
+	allerrs := make([]string, 0)
+
+	deadline := time.After(5 * time.Second)
+	for responses := 0; responses < len(trades); responses++ {
+		select {
+		case pair := <-orders:
+			if pair.order.IsSale() {
+				filtered = append(filtered, pair.trade)
+			}
+		case err := <-errs:
+			allerrs = append(allerrs, err.Error())
+		case <-deadline:
+			allerrs = append(allerrs, "timeout: deadline expired")
+			break
+		}
+	}
+
+	var err error
+	if len(allerrs) > 0 {
+		err = errors.New(strings.Join(allerrs, "; "))
+	}
+	return filtered, err
 }
