@@ -48,7 +48,8 @@ usage() {
   errcho ""
   errcho "  environment variables"
   errcho "    SHA is the 7-digit sha1 that matches a tag in ECR."
-  errcho "    SNAPSHOT_URL is the url of a snapshot to restore from."
+  errcho "    SNAPSHOT_URL is the base url of a snapshot to restore from."
+  errcho "    SNAPSHOT_NAME is the name of a snapshot to restore from."
   errcho "    [PERSISTENT_PEERS] is a comma separated list of peers for Tendermint (id@IP:port)."
   errcho "    [CPU_SHARES] for AWS ECS task. Defaults to $CPU_SHARES_DEFAULT."
   errcho "    [MEM_LIMIT] for AWS ECS task. Defaults to $MEM_LIMIT_DEFAULT."
@@ -91,8 +92,8 @@ if [ ! -f "$IDENTITY_FILE" ]; then
 fi
 
 # Test to see if the snapshot url exists.
-if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL"; then
-  errcho "Error: Snapshot URL doesn't exist: $SNAPSHOT_URL"
+if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL/$SNAPSHOT_NAME"; then
+  errcho "Error: Snapshot URL doesn't exist: $SNAPSHOT_URL/$SNAPSHOT_NAME"
 fi
 
 # base_port + (1000*network_number) + (100*service_number) + node_number
@@ -113,6 +114,7 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 $b64_opts)%g" \
     -e "s*{{SNAPSHOT_URL}}*${SNAPSHOT_URL}*g" \
+    -e "s*{{SNAPSHOT_NAME}}*${SNAPSHOT_NAME}*g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \

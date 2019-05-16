@@ -163,7 +163,7 @@ if [ "$MODIFY_CONFIG_YML" = true ]; then
     persistent_peers=$(join_by , "${PERSISTENT_PEERS[@]}")
     sed -i '' -E \
         -e 's|^( *PERSISTENT_PEERS: )(.*)( # '"$NETWORK"')$|\1'"$persistent_peers"'\3|' \
-        -e 's|^( *SNAPSHOT_URL: .*/)(snapshot-'"$NETWORK"'-.*\.tgz)$|\1'"$SNAPSHOT_NAME.tgz"'|' \
+        -e 's|^( *SNAPSHOT_NAME: /)(snapshot-'"$NETWORK"'-.*)$|\1'"$SNAPSHOT_NAME"'|' \
         "$CONFIG_YML_PATH"
 else
     # If this happens, it could mean that the anchor comment is missing, e.g. "... # mainnet",

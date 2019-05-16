@@ -54,6 +54,7 @@ In all cases, leave default settings unless specified below.
     - VPC: `mainnet-<N>`
     - Attach
 1. VPC > Route Tables
+    - Find the route table in the list for the new VPC; give it the name `mainnet-<N>-main`
     - Create route table
     - Name tag: `mainnet-<N>`
     - VPC: `mainnet-<N>`
@@ -68,7 +69,6 @@ In all cases, leave default settings unless specified below.
     - Actions > Edit subnet associations
     - Select `mainnet-<N>`
     - Save
-    - Eventually, a new route table shows up in the list for the VPC.  When you see it, give it the name `mainnet-<N>-main`
 1. ECS > Clusters
     - Create Cluster
     - EC2 Linux + Networking
@@ -105,10 +105,11 @@ In all cases, leave default settings unless specified below.
     - Review and Create
     - Create
     - If there is an "unknown error" reported, click "Review and resolve", then "Create" again
-    - The health check will fail until the end of the remaining steps
+    - Ignore failing health checks until the end of the remaining steps
 1. EC2 > Network Interfaces
     - Filter by VPC ID to find all the Network Interfaces created by the Load Balancer
     - Name them all appropriately: `mainnet-<N>:{0,1,2}`
+    - The two with Description `ELB mainnet-<N>` can be left alone; AWS clears their names periodically.
 1. EC2 > Load Balancers
     - Select `mainnet-<N>`
     - Find the "DNS name" at the bottom under the "Description" tab, select the text (up to the .com) and copy it to the clipboard
@@ -119,7 +120,9 @@ In all cases, leave default settings unless specified below.
     - Name: `mainet-<N>` (.ndau.tech)
     - Type: `A - IPv4 address`
     - Alias: `Yes`
-    - Alias Target: (paste the DNS name from the clipboard, it'll get a `dualstack` prepended automatically, leave it)
+    - Alias Target: (paste the DNS name from the clipboard)
+        - It'll get a `dualstack.` prepended automatically, leave it
+        - Add a `.` to the end of it (might not matter)
     - Create
     - Run `dig +noall +answer mainnet-<N>.ndau.tech` and make sure the `A` records that come back mention `mainnet-<N>.ndau.tech` in them.  If not, they haven't propogated and the nodes won't work yet.  Wait for this to happen before moving on.
 1. ECS > Task Definitions
@@ -156,8 +159,7 @@ At this point, the node is up and running and ready to use.
 Here is the Task Definition JSON for a `mainnet-<N>` node.
 
 1. Copy/paste it into the JSON box when setting up the Task Definition.
-1. Replace all occurrences of `mainnet-<N>` with the desired node name.  e.g. `mainnet-5`
-1. Set the snapshot `<S>` number (height of blockchain for a given snapshot)
+1. Replace all occurrences of `mainnet-<N>` with the desired node name.  e.g. `mainnet-6`
 1. Set the `BASE64_NODE_IDENTITY` and `PERSISTENT_PEERS` environment variable values (beyond the scope of this document)
 
 NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update `s3://ndau-images/current-mainnet.txt` to reference the new SHA (in this example, it's "cb8e545").
@@ -195,8 +197,16 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
             "cpu": 512,
             "environment": [
                 {
+                    "name": "NETWORK",
+                    "value": "mainnet"
+                },
+                {
                     "name": "SNAPSHOT_URL",
-                    "value": "https://s3.amazonaws.com/ndau-snapshots/snapshot-mainnet-<S>.tgz"
+                    "value": "https://s3.amazonaws.com/ndau-snapshots"
+                },
+                {
+                    "name": "SNAPSHOT_NAME",
+                    "value": ""
                 },
                 {
                     "name": "BASE64_NODE_IDENTITY",
