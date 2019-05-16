@@ -160,6 +160,9 @@ Here is the Task Definition JSON for a `mainnet-<N>` node.
 
 1. Copy/paste it into the JSON box when setting up the Task Definition.
 1. Replace all occurrences of `mainnet-<N>` with the desired node name.  e.g. `mainnet-6`
+1. Configure snapshot environment variables
+    - Leave the snapshot name blank for it to use the latest
+    - Set `SNAPSHOT_INTERVAL` (e.g. "4h") and the `AWS_*` variables to have periodic backups uploaded to S3
 1. Set the `BASE64_NODE_IDENTITY` and `PERSISTENT_PEERS` environment variable values (beyond the scope of this document)
 
 NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update `s3://ndau-images/current-mainnet.txt` to reference the new SHA (in this example, it's "cb8e545").
@@ -201,6 +204,10 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                     "value": "mainnet"
                 },
                 {
+                    "name": "NODE_ID",
+                    "value": "mainnet-<N>"
+                },
+                {
                     "name": "SNAPSHOT_URL",
                     "value": "https://s3.amazonaws.com/ndau-snapshots"
                 },
@@ -209,24 +216,32 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                     "value": ""
                 },
                 {
+                    "name": "AWS_ACCESS_KEY_ID",
+                    "value": ""
+                },
+                {
+                    "name": "AWS_SECRET_ACCESS_KEY",
+                    "value": ""
+                },
+                {
+                    "name": "SNAPSHOT_INTERVAL",
+                    "value": ""
+                },
+                {
                     "name": "BASE64_NODE_IDENTITY",
-                    "value": "TODO - set this"
+                    "value": ""
+                },
+                {
+                    "name": "PERSISTENT_PEERS",
+                    "value": ""
                 },
                 {
                     "name": "HONEYCOMB_KEY",
                     "value": "b5d540e08c05885849ae13cd7886df04"
                 },
                 {
-                    "name": "PERSISTENT_PEERS",
-                    "value": "TODO - set this"
-                },
-                {
                     "name": "HONEYCOMB_DATASET",
                     "value": "sc-node-mainnet"
-                },
-                {
-                    "name": "NODE_ID",
-                    "value": "mainnet-<N>"
                 }
             ],
             "resourceRequirements": null,
