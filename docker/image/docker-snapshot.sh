@@ -15,17 +15,6 @@ if [ "$1" != "--generate" ]; then
     exit 0
 fi
 
-# The outside world can look for a snapshot result starting with this to handle errors.
-ERROR_PREFIX="ERROR:"
-
-# Get the network name from tendermint's chain_id.
-GENESIS_JSON="$TM_DATA_DIR/config/genesis.json"
-NETWORK=$(sed -n -e 's/^  "chain_id": "\(.*\)",$/\1/p' "$GENESIS_JSON")
-if [ "$NETWORK" = "" ]; then
-    ERROR_MSG="$ERROR_PREFIX Unable to deduce network name; cannot generate snapshot"
-    echo "$ERROR_MSG" > "$SNAPSHOT_RESULT"
-    exit 1
-fi
 echo "Generating $NETWORK snapshot..."
 
 # Remove any existing snapshot from the container.  The user should copy each one out every time.
@@ -45,7 +34,7 @@ mkdir -p "$TM_TEMP/data"
 # Copy all the data files we want into the temp dir.
 cp -r "$NOMS_DATA_DIR" "$SNAPSHOT_DATA_DIR/noms"
 cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
-cp "$GENESIS_JSON" "$TM_TEMP/config"
+cp "$TM_DATA_DIR/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TM_DATA_DIR/data/blockstore.db" "$TM_TEMP/data"
 cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"
 

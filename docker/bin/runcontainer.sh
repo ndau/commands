@@ -107,27 +107,11 @@ echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "API port: $API_PORT"
 
-DOCKER_DIR="$SCRIPT_DIR/.."
-
-# No snapshot given means "use the latest".
 if [ -z "$SNAPSHOT" ]; then
-    NDAU_SNAPSHOTS_SUBDIR="ndau-snapshots"
-    NDAU_SNAPSHOTS_DIR="$DOCKER_DIR/$NDAU_SNAPSHOTS_SUBDIR"
-    mkdir -p "$NDAU_SNAPSHOTS_DIR"
-
-    LATEST_FILE="latest-$NETWORK.txt"
-    LATEST_PATH="$NDAU_SNAPSHOTS_DIR/$LATEST_FILE"
-    echo "Fetching $LATEST_FILE..."
-    curl -o "$LATEST_PATH" "$SNAPSHOT_BASE_URL/$LATEST_FILE"
-    if [ ! -f "$LATEST_PATH" ]; then
-        echo "Unable to fetch $SNAPSHOT_BASE_URL/$LATEST_FILE"
-        exit 1
-    fi
-
-    SNAPSHOT=$(cat $LATEST_PATH)
+    echo "Snapshot: (latest)"
+else
+    echo "Snapshot: $SNAPSHOT"
 fi
-
-echo "Snapshot: $SNAPSHOT"
 
 # The timeout flag on linux differs from mac.
 if [[ "$OSTYPE" == *"darwin"* ]]; then
@@ -257,7 +241,7 @@ if [ "$NETWORK" = "localnet" ]; then
     NDAU_IMAGE_NAME="ndauimage:latest"
 else
     NDAU_IMAGES_SUBDIR="ndau-images"
-    NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
+    NDAU_IMAGES_DIR="$SCRIPT_DIR/../$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
     CURRENT_FILE="current-$NETWORK.txt"
@@ -303,6 +287,7 @@ docker create \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
        -p "$API_PORT":"$INTERNAL_API_PORT" \
        --name "$CONTAINER" \
+       -e "NETWORK=$NETWORK" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
        -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
@@ -313,7 +298,8 @@ docker create \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
-       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
+       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL" \
+       -e "SNAPSHOT_NAME=$SNAPSHOT" \
        --sysctl net.core.somaxconn=511 \
        $NDAU_IMAGE_NAME
 
