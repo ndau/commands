@@ -81,8 +81,7 @@ then
     then
         echo "Snapshot $file_name already exists on S3"
     else
-        upload_to_s3 "$file_name" "application/x-gtar"
-        if [ "$?" != 0 ]; then
+        if ! upload_to_s3 "$file_name" "application/x-gtar"; then
             echo "Failed to upload snapshot"
         else
             LATEST_FILE="latest-$NETWORK.txt"
