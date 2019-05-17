@@ -99,6 +99,7 @@ In all cases, leave default settings unless specified below.
     - Ping Protocol: `HTTP`
     - Ping Port: `3030`
     - Ping Path: `/health`
+    - Change the Healthy interval from `10` to `2`
     - Next: Add EC2 Instances
     - Select `ECS Instance - EC2ContainerService-mainnet-<N>`
     - Next: Add Tags
