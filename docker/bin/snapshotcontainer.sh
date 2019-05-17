@@ -28,11 +28,6 @@ done
 # ensure we don't read partial data as the file is being written to inside the container.
 SNAPSHOT_RESULT=$(docker exec "$CONTAINER" cat /image/snapshot_result)
 
-if [[ "$SNAPSHOT_RESULT" == "ERROR:"* ]]; then
-    echo "$SNAPSHOT_RESULT"
-    exit 1
-fi
-
 SNAPSHOT_FILE="$SCRIPT_DIR/$SNAPSHOT_RESULT"
 docker cp "$CONTAINER:/image/$SNAPSHOT_RESULT" "$SNAPSHOT_FILE"
 

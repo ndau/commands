@@ -22,7 +22,7 @@ RUN touch /root/.ssh/known_hosts && \
 # TODO: Consider caching the setup results (binary executables) in a separate image.
 COPY . /image
 ENV TENDERMINT_VER=v0.31.4
-ENV COMMANDS_BRANCH=master
+ENV COMMANDS_BRANCH=mainnet-20190516
 RUN /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
@@ -41,7 +41,8 @@ COPY --from=redis:5.0.4-alpine [ \
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
-RUN apk add --no-cache bash bind-tools ca-certificates sed && update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed \
+    && update-ca-certificates 2>/dev/null
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
