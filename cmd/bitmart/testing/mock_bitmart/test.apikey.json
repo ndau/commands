@@ -1,3 +1,6 @@
 {
-    "endpoint": "localhost:25204"
+  "memo": "These fields don't matter for test purposes",
+  "access": "",
+  "secret": "",
+  "endpoint": "localhost:25204"
 }
