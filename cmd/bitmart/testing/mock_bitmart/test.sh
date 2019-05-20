@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e -x
+set -e
 
 # This test script attempts to get the issuance service up and running in a
 # test environment. Fundamentally, this requires these steps:
@@ -39,6 +39,7 @@ commands_path="$GOPATH/src/github.com/oneiro-ndev/commands"
 bitmart_path="$commands_path/cmd/bitmart"
 testing_path="$bitmart_path/testing"
 mock_bitmart_path="$testing_path/mock_bitmart"
+signing_service_path="$commands_path/../recovery/cmd/signer"
 
 # set up the ndau tool
 if [ -z "$GOPATH" ]; then
@@ -113,6 +114,7 @@ if [ "$rfe_validation_public_local" != "$rfe_validation_public_chain" ]; then
     echo "  chain: $rfe_validation_public_chain"
     exit 1
 fi
+rfe_validation_public=$(echo "$rfe_validation_public_chain" | jq '.[0]' --raw-output)
 rfe_validation_private=$(
     toml2json "$sa" |\
     jq '.ReleaseFromEndowmentValidationPrivate' --raw-output
@@ -136,30 +138,47 @@ issuance_service_private=$("$KEYTOOL" hd new)
 issuance_service_public=$("$KEYTOOL" hd public "$issuance_service_private")
 
 # get the RPC address the ndau tool is using
-rpc=$(toml2json "$("$NDAU" conf-path)" | jq .node | sed -E 's/https?/ws/')
+rpc=$(toml2json "$("$NDAU" conf-path)" | jq .node --raw-output)
 
 # get the websocket address to which the client signature service will connect
 ws_addr=$(echo "$sigconfig_json" | jq .connections.local.url --raw-output)
 
 # ensure there's plenty of un-issued RFE'd ndau floating around
 # this is an arbitrary address; nobody's expected to have access to it
-"$NDAU" rfe 1000 --address ndaaiz75f4ejxp3gdxb7eqct4wuyukrj36epf245qaeifcw2
+"$NDAU" rfe 50000 --address ndaaiz75f4ejxp3gdxb7eqct4wuyukrj36epf245qaeifcw2
 
 # let's start running things!
-# mock bitmart api
-go run "$testing_path/mock_bitmart" &
-mock_bitmart_pid="$!"
+# before we start: we're going to be running several background tasks,
+# and we want them to just die when we exit. Because we've set -e to quit if
+# anything fails, we can't know the full list of what will be running ahead
+# of time. Happily, it's not hard to kill background jobs in an exit function.
 
-# issuance service
+killsubp () {
+    # kill direct subprocesses
+    for job in $(jobs -p); do
+        kill "$job"
+    done
+    # go run does a double-fork, orphaning the process, so we have to
+    # just kill everything that's been go-built in the current process table
+    pkill -f 'go-build'
+}
+
+trap killsubp EXIT
+
+echo starting mock bitmart api
+go run "$testing_path/mock_bitmart" &
+sleep 2
+
+echo starting issuance service
 go run "$bitmart_path" \
     "$mock_bitmart_path/test.apikey.json" \
     "$rpc" \
     "$issuance_service_public" \
     --priv-key "$issuance_service_private" \
-    --serve "$ws_addr"
-    "$rfe_validation_public_chain" \
+    --serve "$ws_addr" \
+    "$rfe_validation_public" \
     &
-issuance_service_pid="$!"
+sleep 2
 
 # we're going to use this message to subscribe to tendermint's tx notification,
 # so that we can detect whether or not an issue tx went through
@@ -173,10 +192,54 @@ subscribe_to_txs="{
 }"
 
 # start watching for transactions
-wsta "$rpc/websocket" "$subscribe_to_txs" > "$testing_path/websocket.data"
-wsta_pid="$!"
+datafile="$testing_path/websocket.data"
+# wsta is picky about protocols
+wrpc=$(echo "$rpc" | sed -E 's/http/ws/')
+echo starting websocket transfer agent
+wsta "$wrpc/websocket" "$subscribe_to_txs" > "$datafile" &
+sleep 2
 
-# TODO:
-# - start the signing service client pointing to the appropriate sigconfig.toml,
-# - notice an issue tx in websocket.data or timeout
-# - shut down everything
+
+# start the signing service client pointing to our configuration
+echo starting signing service client
+go run "$signing_service_path" -c "$sigconfig" &
+
+# give everything a bit to get settled
+echo "processing, please wait"
+sleep 10
+
+# The sequence of events when we went to sleep just then:
+#
+# - Signing service starts up, connects to all its defined connections:
+#   just the issuance service, as defined in sigconfig.toml
+# - Issuance service notices the incoming connection, starts its loop.
+# - Issuance service sends a request to bitmart asking for the list of all
+#   new trades. Because there is an "endpoint" parameter in test.apikey.json,
+#   it actually sends that request to the mock api.
+# - Mock api says, yup, here are some new trades.
+# - Issuance service goes back and forth establishing a list of only those
+#   trades which were sales.
+# - Issuance service adds up the qty of the sales and generates an appropriate
+#   Issue tx. However, the tx is incomplete: the issuance service doesn't have
+#   appropriate private keys to sign it with.
+# - Issuance service sends the tx to the signing service and asks for it to be
+#   signed with the list of signing keys from its invocation.
+# - Signing service discovers that it does in fact have that key configured
+#   (as a virtual key in sigconfig.toml), signs the signable bytes of the tx,
+#   and returns the signature.
+# - Issuance service applies that signature to the tx and sends it to the
+#   blockchain, then goes to sleep for the poll interval.
+# - Blockchain accepts this request, hopefully. This creates a "Tx" event on
+#   its internal event loop, which in due course gets pushed to all connected
+#   tx subscriptions.
+# - WSTA receives the event, pretty-prints it to stdout, which is redirected
+#   to a file we know to watch.
+#
+# That should all hopefully take much less than 5 seconds, but we don't really
+# have a good way to detect when it's complete, so we just overkill a little
+# waiting for it to all resolve.
+
+cat "$datafile"
+# if the datafile contains a tx with a hash, it's ours, which means that this
+# succeeded, so we should return success
+grep -q "tx.hash" "$datafile"

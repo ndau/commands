@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -151,7 +150,7 @@ func main() {
 				issue := ndau.NewIssue(totalNewSales, ad.Sequence+1)
 
 				// get it signed
-				msgPL, err := message.NewSignPayload(issue, signkeys)
+				msgPL, err := message.NewSignTxPayload(issue, signkeys)
 				check(err, "constructing signing payload")
 				msg, err := msgPL.IntoMessage()
 				check(err, "wrapping payload in message")
@@ -164,25 +163,19 @@ func main() {
 				result, err := resp.GetResult()
 				check(err, "getting result from signature service response")
 
+				if result.Msg != "" {
+					bail(result.Msg)
+				}
+
 				// unpack and validate response
-				tx, err := ndau.TxFromName(result.TxType)
-				check(err, "creating blank tx from name from signature service response")
-				err = json.Unmarshal(result.TxRaw, &tx)
-				check(err, "deserializing tx from signature service response")
-				returnedissue, ok := tx.(*ndau.Issue)
-				if !ok {
-					bail("signature service returned an unexpected tx type: " + result.TxType)
-				}
-				if returnedissue.Qty != issue.Qty {
-					bail("signature service changed the quantity to issue from %d to %d", issue.Qty, returnedissue.Qty)
-				}
-				if len(returnedissue.Signatures) < len(signkeys) {
-					bail("signature service failed to sign the tx enough times: expect %d, have %d", len(signkeys), len(returnedissue.Signatures))
+				issue.ExtendSignatures(result.Signatures)
+				if len(result.Signatures) < len(signkeys) {
+					bail("signature service failed to sign the tx enough times: expect %d, have %d", len(signkeys), len(result.Signatures))
 				}
 
 				// now send it
 				log.Print("sending signed Issue tx to the ndau blockchain...")
-				_, err = tool.SendCommit(rpcNode, returnedissue)
+				_, err = tool.SendCommit(rpcNode, issue)
 				check(err, "submitting issue tx to blockchain")
 
 				// update the last trade so we don't double-issue

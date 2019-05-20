@@ -2,6 +2,7 @@
 
 It turns out that we need to implement only a few endpoints in order to support the issuance service:
 
+- authentication at `/v2/authentication`
 - trade history at `/v2/trades`
 - order detail at `/v2/orders/:entrust_id`
 

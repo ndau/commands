@@ -116,6 +116,17 @@ func main() {
 	m := mux.NewRouter()
 
 	// now define some handlers
+	m.HandleFunc("/v2/authentication", func(w http.ResponseWriter, r *http.Request) {
+		// https://github.com/bitmartexchange/bitmart-official-api-docs/blob/master/rest/authenticated/oauth.md#sample-response
+		response := `
+		{
+			"access_token":"m261aeb5bfa471c67c6ac41243959ae0dd408838cdc1a47e945305dd558e2fa78",
+			"expires_in":900
+		}
+		`
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(response))
+	})
 	m.HandleFunc("/v2/trades", func(w http.ResponseWriter, r *http.Request) {
 		ts := make([]bitmart.Trade, len(trades))
 		for id, t := range trades {

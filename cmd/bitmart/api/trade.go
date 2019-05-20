@@ -48,6 +48,22 @@ func (t *Trade) UnmarshalJSON(data []byte) error {
 	return err
 }
 
+// MarshalJSON implements json.Marshaler
+//
+// It's necessary so that when mocking out the bitmart service, we don't end up
+// with "amount" values which are just way too high
+func (t *Trade) MarshalJSON() ([]byte, error) {
+	// make an alias to avoid recursion
+	type Alias Trade
+	return json.Marshal(&struct {
+		Amount string `json:"amount"`
+		*Alias
+	}{
+		Amount: t.Amount.String(),
+		Alias:  (*Alias)(t),
+	})
+}
+
 // TradeHistory is the response from the bitmart trade history request
 type TradeHistory struct {
 	TotalTrades int64   `json:"total_trades"`
