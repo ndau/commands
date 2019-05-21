@@ -11,47 +11,27 @@ identity_folder=$3
 [ -z "$identity_folder" ] && identity_folder=.
 
 # consts
-BASE_PORT=30000
 TEMPLATE_FILE="$DIR/node-template.yml"
 IDENTITY_FILE="$identity_folder/node-identity-${node_number}.tgz"
 
 RND=$(dd if=/dev/urandom count=8 bs=1 2> /dev/null | base64 | tr -dc 0-9a-zA-Z | head -c8)
 TMP_FILE="$DIR/temp-docker-compose-$RND.yml"
-ECS_PARAMS_FILE="$DIR/ecs-params-$RND.yml"
-
-CPU_SHARES_DEFAULT=150 # 250 = 25% of a vcpu
-MEM_LIMIT_DEFAULT=2000000000 # 2GB
-
-CPU_SHARES=${CPU_SHARES:-$CPU_SHARES_DEFAULT}
-MEM_LIMIT=${MEM_LIMIT:-$MEM_LIMIT_DEFAULT}
 
 source "$DIR/deploy-lib.sh"
-
-ecs_params() {
-  cat <<EOF
-version: 1
-task_definition:
-  services:
-    {{NETWORK_NAME}}-{{NODE_NUMBER}}:
-      cpu_shares: {{CPU_SHARES}}
-      mem_limit: {{MEM_LIMIT}}
-EOF
-}
 
 usage() {
   errcho "$0 is mainly meant to be run in the CircleCI environment where most of these variables are suppplied."
   errcho "Usage: $0 node_number network_name identity_folder"
   errcho "  e.g.: $0 0 devnet ./ids"
   errcho "    node_number is the number of the node (e.g. 0 or 4)"
-  errcho "    network_name is the name of the network (e.g. devnet, testnet, mainnet)"
+  errcho "    network_name is the name of the network (e.g. devnet)"
   errcho "    identity_folder must contain files named 'node-identity-X.tgz' where X matches a node_number."
   errcho ""
   errcho "  environment variables"
   errcho "    SHA is the 7-digit sha1 that matches a tag in ECR."
-  errcho "    SNAPSHOT_NAME is the name of a snapshot to restore from."
+  errcho "    CLUSTER_NAME is the name of the cluster to deploy to."
+  errcho "    [HONEYCOMB_KEY] is the honeycomb key to log to."
   errcho "    [PERSISTENT_PEERS] is a comma separated list of peers for Tendermint (id@IP:port)."
-  errcho "    [CPU_SHARES] for AWS ECS task. Defaults to $CPU_SHARES_DEFAULT."
-  errcho "    [MEM_LIMIT] for AWS ECS task. Defaults to $MEM_LIMIT_DEFAULT."
 }
 
 if [ "$#" -ne 3 ]; then
@@ -63,12 +43,6 @@ fi
 # Warn if things didn't close down properly last execution
 if [ -f "$TMP_FILE" ]; then
   errcho "Error: temp docker-compose file already exists: $TMP_FILE"
-  exit 1
-fi
-
-# Warn if things didn't close down properly last execution
-if [ -f "$ECS_PARAMS_FILE" ]; then
-  errcho "Error: temp ecs_params file already exists: $ECS_PARAMS_FILE"
   exit 1
 fi
 
@@ -84,22 +58,9 @@ if [ ! -f "$IDENTITY_FILE" ]; then
   exit 1
 fi
 
-# Warn about empty persistent peers
-if [ ! -f "$IDENTITY_FILE" ]; then
-  errcho "Error: Identity file not found: $IDENTITY_FILE"
-  exit 1
-fi
-
-# Test to see if the snapshot url exists.
-SNAPSHOT_URL="https://s3.amazonaws.com"
-if ! curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL/$SNAPSHOT_NAME.tgz"; then
-  errcho "Error: Snapshot URL doesn't exist: $SNAPSHOT_URL/$SNAPSHOT_NAME.tgz"
-fi
-
-# base_port + (1000*network_number) + (100*service_number) + node_number
-rpc_port=$(calc_port $network_name rpc $node_number)
-p2p_port=$(calc_port $network_name p2p $node_number)
-ndauapi_port=$(calc_port $network_name ndauapi $node_number)
+rpc_port=$(calc_port rpc $node_number)
+p2p_port=$(calc_port p2p $node_number)
+ndauapi_port=$(calc_port ndauapi $node_number)
 
 # test base64 capibilities
 if echo "A" | base64 -w0 2> /dev/null; then
@@ -113,7 +74,6 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
     -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 $b64_opts)%g" \
-    -e "s*{{SNAPSHOT_NAME}}*${SNAPSHOT_NAME}*g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
@@ -123,22 +83,14 @@ cat "$TEMPLATE_FILE" | \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
-ecs_params | sed \
-    -e "s/{{NETWORK_NAME}}/${network_name}/g" \
-    -e "s/{{NODE_NUMBER}}/${node_number}/g" \
-    -e "s/{{CPU_SHARES}}/${CPU_SHARES}/g" \
-    -e "s/{{MEM_LIMIT}}/${MEM_LIMIT}/g" \
-  > "$ECS_PARAMS_FILE"
-
 # Send it to AWS
 ecs-cli compose \
   --verbose \
   --project-name ${network_name}-${node_number} \
   -f ${TMP_FILE} \
   service up \
-  --create-log-groups \
   --force-deployment true \
   --cluster-config "$CLUSTER_NAME"
 
 # clean up
-rm "$TMP_FILE" "$ECS_PARAMS_FILE"
+rm "$TMP_FILE"

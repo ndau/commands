@@ -1,14 +1,14 @@
 #!/bin/bash
 # This script is for manual testing/deployment/debugging.
 # In real life CircleCI handles all this.
+# See the commands in ./circleci/config.yml under the "configure ecs" comment for ecs-cli prereqs.
 
 set -e # exit on errors
 
-export SHA="9"
+export SHA="36f7c63"
 export NETWORK_NAME="devnet"
-export PERSISTENT_PEERS="81ce8ead16c3424e46fd4fa162482ba783a333ce@p2p.ndau.tech:30200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@p2p.ndau.tech:30201,95ad9834ad1bee57df601b4c63660735a2400eb6@p2p.ndau.tech:30202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@p2p.ndau.tech:30203,eb9870620c46cd3608b875a5daa6c64380b44aaf@p2p.ndau.tech:30204" # _IP_ gets s/_IP_/real_ip/g 'd
-export CLUSTER="sc-node-cluster"
-export SNAPSHOT_NAME="snapshot-testnet-47"
+export PERSISTENT_PEERS="c8e98c9e80b497b79b5f8a09190f35472444556b@devnet.ndau.tech:26660,baeef050d0fe5286360e55d6a37dda916d491ff8@devnet.ndau.tech:26661,a354751ca164d047b83760843b742052b9d0dd47@devnet.ndau.tech:26662,43396b8eade8f0977088330fe27d3f7f548761a2@devnet.ndau.tech:26663,2e189edb1e4351cabf2ea5e00491cf9eb0e7278e@devnet.ndau.tech:26664"
+export CLUSTER_NAME="devnet"
 
 for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
   if [ -f "./node-identity-$i.tgz" ]; then
