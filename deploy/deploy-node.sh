@@ -29,6 +29,8 @@ usage() {
   errcho ""
   errcho "  environment variables"
   errcho "    SHA is the 7-digit sha1 that matches a tag in ECR."
+  errcho "    CLUSTER_NAME is the name of the cluster to deploy to."
+  errcho "    [HONEYCOMB_KEY] is the honeycomb key to log to."
   errcho "    [PERSISTENT_PEERS] is a comma separated list of peers for Tendermint (id@IP:port)."
 }
 
@@ -53,12 +55,6 @@ fi
 # Make sure identity file is there
 if [ ! -f "$IDENTITY_FILE" ]; then
   errcho "Error: Identity file not found: $IDENTITY_FILE"
-  exit 1
-fi
-
-# Warn about empty persistent peers
-if [ -z "$PERSISTENT_PEERS" ]; then
-  errcho "Error: No persistent peers given"
   exit 1
 fi
 
