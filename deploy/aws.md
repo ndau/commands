@@ -24,7 +24,7 @@ The user that's running `ecs-cli` needs the following permissions:
 
 ## Port scheme
 
-Moving things to AWS has led to some differences in the way our main services are addressed. One load balancer, reachable at `devnet.ndau.tech` serve the traffic.
+Moving things to AWS has led to some differences in the way our main services are addressed. One load balancer, reachable at `devnet.ndau.tech` routes all traffic.
 
 This is an example of node 0 on devnet:
 
