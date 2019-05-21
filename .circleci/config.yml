@@ -1,7 +1,8 @@
 version: 2.1
 aws_defaults: &aws_defaults
   AWS_ACCOUNT: "578681496768"
-  AWS_REGION: "us-east-1"
+  ECR_REGION: "us-east-1"
+  ECS_REGION: "us-west-1"
 
 commands:
   notify:
@@ -80,7 +81,7 @@ commands:
           docker_layer_caching: false
       - run:
           name: AWS ECR Login
-          command: eval $(aws ecr get-login --no-include-email --region ${AWS_REGION})
+          command: eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
 
       - run:
           name: Checkout code
@@ -124,7 +125,7 @@ commands:
 
             # configure ecs
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
-            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_REGION" --config-name "$CLUSTER_NAME"
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$ECS_REGION" --config-name "$CLUSTER_NAME"
       - run:
           name: Download node identities
           command: |
@@ -262,8 +263,8 @@ general_config: &general_config
         <<: *aws_defaults
         NDAUHOME: /root/.ndau
         NETWORK_NAME: "devnet" # used for snapshots (but they are disabled on devnet nodes)
-        PERSISTENT_PEERS: c8e98c9e80b497b79b5f8a09190f35472444556b@p2p.ndau.tech:30200,baeef050d0fe5286360e55d6a37dda916d491ff8@p2p.ndau.tech:30201,a354751ca164d047b83760843b742052b9d0dd47@p2p.ndau.tech:30202,43396b8eade8f0977088330fe27d3f7f548761a2@p2p.ndau.tech:30203,2e189edb1e4351cabf2ea5e00491cf9eb0e7278e@p2p.ndau.tech:30204 # devnet
-        CLUSTER_NAME: sc-node-cluster
+        PERSISTENT_PEERS: c8e98c9e80b497b79b5f8a09190f35472444556b@devnet.ndau.tech:26660,baeef050d0fe5286360e55d6a37dda916d491ff8@devnet.ndau.tech:26660,a354751ca164d047b83760843b742052b9d0dd47@devnet.ndau.tech:26660,43396b8eade8f0977088330fe27d3f7f548761a2@devnet.ndau.tech:26660,2e189edb1e4351cabf2ea5e00491cf9eb0e7278e@devnet.ndau.tech:26660 # devnet
+        CLUSTER_NAME: devnet
         SNAPSHOT_NAME: snapshot-devnet-27
 
 jobs:
@@ -338,10 +339,10 @@ jobs:
             echo $SHA > /root/current-$NETWORK_NAME.txt
             aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
             # retag built image
-            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
+            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
             docker rmi ndauimage:$SHA
             # push the image to ECR
-            docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
+            docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
 
   deploy-devnet:
     <<: *general_config
@@ -370,7 +371,7 @@ jobs:
             # install dep
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
-            # install sed?
+            # install sed
             apk add sed
 
             # clone integration tests and ndev dep repos
@@ -386,11 +387,10 @@ jobs:
             mkdir -p $ndev_dir/commands
             docker cp $container_id:/root/ndau $ndev_dir/commands/
 
-            # write ndautool from bucket to a file.
+            # get ndautool.toml from the genesis repo; we use the testnet copy for devnet
+            git clone git@github.com:oneiro-ndev/genesis.git
             mkdir -p $NDAUHOME/ndau
-            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
-            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$NETWORK_NAME-ndautool.toml $NDAUHOME/ndau/ndautool.toml
+            cp genesis/testnet-genesis/genesis_files/ndautool.toml $NDAUHOME/ndau/ndautool.toml
 
             cd integration-tests
 
