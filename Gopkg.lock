@@ -559,14 +559,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9acc7b33a339a4beee5bad8b83a8be865064c3c26438299b1223341c0edaebe6"
+  digest = "1:7d00d04a9afd24c1322aba8e6c1bc18df36706dd472b7cd1145732cf8509426c"
   name = "github.com/oneiro-ndev/recovery"
   packages = [
     "pkg/message",
     "pkg/signer",
   ]
   pruneopts = ""
-  revision = "86643114b1ec447c4929c960193648f679bb89e5"
+  revision = "8ff46887cf29f0f2829730bac473a3a88efe431f"
 
 [[projects]]
   digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"

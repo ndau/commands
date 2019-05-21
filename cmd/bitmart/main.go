@@ -73,7 +73,7 @@ func main() {
 			pks := input("ndau-format private key: ")
 			privkeyS = &pks
 		}
-		selfkey, err := signer.CreateKey(*pubkeyS, *privkeyS)
+		selfkey, err := signer.NewVirtualDevice(*pubkeyS, *privkeyS)
 		check(err, "creating signer key from supplied keys")
 
 		signkeys := make([]signature.PublicKey, 0, len(*signkeysS))
