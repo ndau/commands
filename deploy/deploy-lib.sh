@@ -33,8 +33,6 @@ get_network_number() {
   case "$1" in
     devnet) echo 0
         ;;
-    testnet) echo 1
-        ;;
     *) err "Network name: $1. Not recognized."
         ;;
   esac

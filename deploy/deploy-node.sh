@@ -43,7 +43,7 @@ usage() {
   errcho "Usage: $0 node_number network_name identity_folder"
   errcho "  e.g.: $0 0 devnet ./ids"
   errcho "    node_number is the number of the node (e.g. 0 or 4)"
-  errcho "    network_name is the name of the network (e.g. devnet, testnet, mainnet)"
+  errcho "    network_name is the name of the network (e.g. devnet)"
   errcho "    identity_folder must contain files named 'node-identity-X.tgz' where X matches a node_number."
   errcho ""
   errcho "  environment variables"

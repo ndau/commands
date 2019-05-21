@@ -246,12 +246,6 @@ workflows:
           filters:
             tags:
               only: /.*-deploy$/
-      - deploy-testnet:
-          filters:
-            tags:
-              only: /.*-testnet$/
-            branches:
-              ignore: /.*/
       - integration:
           requires:
             - deploy-devnet
@@ -271,18 +265,6 @@ general_config: &general_config
         PERSISTENT_PEERS: c8e98c9e80b497b79b5f8a09190f35472444556b@p2p.ndau.tech:30200,baeef050d0fe5286360e55d6a37dda916d491ff8@p2p.ndau.tech:30201,a354751ca164d047b83760843b742052b9d0dd47@p2p.ndau.tech:30202,43396b8eade8f0977088330fe27d3f7f548761a2@p2p.ndau.tech:30203,2e189edb1e4351cabf2ea5e00491cf9eb0e7278e@p2p.ndau.tech:30204 # devnet
         CLUSTER_NAME: sc-node-cluster
         SNAPSHOT_NAME: snapshot-devnet-27
-
-testnet_config: &testnet_config
-    working_directory: /commands
-    docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-        shell: /bin/bash
-        <<: *aws_defaults
-        NETWORK_NAME: "testnet" # used for snapshots (but they are disabled on testnet nodes)
-        PERSISTENT_PEERS: ff807134e94f192967a2e684dfb0bfb552be456e@p2p.ndau.tech:31200,3b632332066b441bb90536e72d7eab0189cabc76@p2p.ndau.tech:31201,8f267f2bd84979758d9418e423bda642b633d070@p2p.ndau.tech:31202,9dc6da231292bb8d30d82eb0ee0c4321c0bd1c7e@p2p.ndau.tech:31203,c600d62f26b9694f802a1a1b74b9b5d868d1d447@p2p.ndau.tech:31204 # testnet
-        CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_NAME: snapshot-testnet-29
 
 jobs:
   build-deps:
@@ -363,10 +345,6 @@ jobs:
 
   deploy-devnet:
     <<: *general_config
-    steps:
-      - deploy-net
-  deploy-testnet:
-    <<: *testnet_config
     steps:
       - deploy-net
 

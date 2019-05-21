@@ -27,7 +27,7 @@ Create 2 load balancers
         name: sc-node-p2p
         health check: just make it TCP port 22 to keep it happy.
 
-Run `target-groups-init.sh devnet` and `target-groups-init.sh testnet`.
+Run `target-groups-init.sh devnet`.
 
 Go to Route53 and add records the load balancers
     - `api.ndau.tech` for `sc-node-http` and
@@ -59,13 +59,13 @@ This is an example of node-0 on devnet:
 
 Or basically the following: `3XYZZ`
   * where 3 is by convention,
-  * X is the network (0=devnet, 1=testnet),
+  * X is the network (0=devnet),
   * Y is the service (1=rpc, 2=p2p, 3=ndauapi),
   * and ZZ is the node number.
 
 ## Target groups
 
-Setting up target groups, listeners, connecting them to instances is tedious and error prone. Once the target groups have been established however, they likely will not need to be touched for some time. `target-groups.sh` helps by setting up a single node's target groups, attaching them to the ec2 instances, and setting up listeners on the correct ports. `target-groups-init.sh` will run `target-groups.sh` multiple times to set up either devnet or testnet (e.g. `./target-groups-init.sh devnet`).
+Setting up target groups, listeners, connecting them to instances is tedious and error prone. Once the target groups have been established however, they likely will not need to be touched for some time. `target-groups.sh` helps by setting up a single node's target groups, attaching them to the ec2 instances, and setting up listeners on the correct ports. `target-groups-init.sh` will run `target-groups.sh` multiple times to set up either devnet (e.g. `./target-groups-init.sh devnet`).
 
 # Other resources
 
@@ -83,7 +83,7 @@ There are two elastic IPs that are connected to each instance in the sc-node-clu
 
 ## Manual deployment
 
-This should only be done for debugging situations and CircleCI relied on for all normal deployments. `devnet-deploy.sh` and `testnet-deploy.sh`. They contain the variables necessary to deploy a node, however, the variables are meant to be changed to match your configuration and situation. Internally both scripts use `deploy-node.sh` to deploy a series of nodes one at a time.
+This should only be done for debugging situations and CircleCI relied on for all normal deployments. `devnet-deploy.sh`. They contain the variables necessary to deploy a node, however, the variables are meant to be changed to match your configuration and situation. Internally both scripts use `deploy-node.sh` to deploy a series of nodes one at a time.
 
 ## Scripts
 
@@ -94,6 +94,6 @@ This should only be done for debugging situations and CircleCI relied on for all
 
 ### Debugging
 
-* `(devnet/testnet)-liveness.sh` tests that ports are available on devnet and testnet.
-* `(devnet/testnet)-deploy.sh` manually deploys devnet (do not run unless manually configured).
+* `devnet-liveness.sh` tests that ports are available on devnet.
+* `devnet-deploy.sh` manually deploys devnet (do not run unless manually configured).
 
