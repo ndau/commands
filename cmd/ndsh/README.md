@@ -16,10 +16,10 @@ safe to run in secure operational environments.
 - is a shell
     - has a prompt
     - can exit to surrounding shell with `exit` or `quit`
+- launch with a `--net=X` argument, where `X` can be `main`, `test`, `dev`, `local`, or any URL. Default to `main`.
 
 ### Planned
 
-- launch with a `--net=X` argument, where `X` can be `main`, `test`, `dev`, `local`, or any URL. Default to `main`.
 - enter a 12-word phrase after launch: it isn't exposed to your shell history
 - automatically asynchronously discover accounts for a given phrase
 - `await-discovery`: wait for discovery to finish, show progress

@@ -3,24 +3,42 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
-	"github.com/pkg/errors"
+	cli "github.com/jawher/mow.cli"
 )
 
-func check(err error) {
+func bail(err string, context ...interface{}) {
+	if !strings.HasSuffix(err, "\n") {
+		err = err + "\n"
+	}
+	fmt.Fprintf(os.Stderr, err, context...)
+	os.Exit(1)
+}
+
+func check(err error, context string, more ...interface{}) {
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		bail(fmt.Sprintf("%s: %s", context, err.Error()), more...)
 	}
 }
 
-func checkw(err error, context string) {
-	check(errors.Wrap(err, context))
-}
-
 func main() {
-	shell := NewShell(
-		Exit{},
+	app := cli.App("ndsh", "the ndau shell")
+
+	var (
+		neturl  = app.StringOpt("N net", "mainnet", "net to configure: ('main', 'test', 'dev', 'local', or a url)")
+		node    = app.IntOpt("n node", 0, "node number to which to connect")
+		verbose = app.BoolOpt("v verbose", false, "emit additional debug data")
 	)
-	shell.Run()
+
+	app.Action = func() {
+		shell := NewShell(
+			*verbose,
+			getClient(*neturl, *node),
+			Exit{},
+		)
+		shell.Run()
+	}
+
+	app.Run(os.Args)
 }

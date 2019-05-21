@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/shlex"
+	"github.com/tendermint/tendermint/rpc/client"
 )
 
 // Shell manages global state, dispatching commands, and other similar responsibilities.
@@ -17,16 +18,20 @@ type Shell struct {
 	Ps1      string
 	Running  sync.WaitGroup
 	Stop     chan struct{}
+	Node     client.ABCIClient
+	Verbose  bool
 
 	ireader *bufio.Reader
 }
 
 // NewShell initializes the shell
-func NewShell(commands ...Command) *Shell {
+func NewShell(verbose bool, node client.ABCIClient, commands ...Command) *Shell {
 	sh := Shell{
 		Commands: make(map[string]Command),
 		Ps1:      "ndsh> ",
 		Stop:     make(chan struct{}),
+		Node:     node,
+		Verbose:  verbose,
 		ireader:  bufio.NewReader(os.Stdin),
 	}
 	for _, command := range commands {
@@ -65,7 +70,7 @@ func (sh *Shell) Exit(err error) {
 	timeout(func() { sh.Running.Wait() }, 5*time.Second, "misbehaved goroutines didn't stop!")
 
 	// if all subcommands have shut down, we can exit gracefully
-	check(err)
+	check(err, "error")
 	os.Exit(0)
 }
 
@@ -83,9 +88,9 @@ func (sh *Shell) expandPrompt() string {
 func (sh *Shell) prompt() {
 	fmt.Print(sh.expandPrompt())
 	input, err := sh.ireader.ReadString('\n')
-	checkw(err, "scanning input line from user")
+	check(err, "scanning input line from user")
 	tokens, err := shlex.Split(input)
-	checkw(err, "tokenizing user input")
+	check(err, "tokenizing user input")
 	if len(tokens) > 0 {
 		cmd := sh.Commands[tokens[0]]
 		if cmd == nil {
