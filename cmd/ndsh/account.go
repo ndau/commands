@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
@@ -146,4 +148,92 @@ func (as *Accounts) Add(a Account, nicknames ...string) {
 
 	as.rnames = newrnames
 	as.accts = newaccts
+}
+
+// NotUniqueSuffix is returned when someone tries to Get an account with an
+// insufficient suffix to distinguish it from other candidates.
+type NotUniqueSuffix struct {
+	want string
+	dym  []string
+}
+
+func (nup NotUniqueSuffix) Error() string {
+	return fmt.Sprintf(
+		"'%s' is not a unique suffix. Candidates: %s",
+		nup.want,
+		strings.Join(nup.dym, ", "),
+	)
+}
+
+var _ error = (*NotUniqueSuffix)(nil)
+
+// IsNotUniqueSuffix is true when the provided error is NotUniqueSuffix
+func IsNotUniqueSuffix(err error) bool {
+	_, ok := err.(NotUniqueSuffix)
+	return ok
+}
+
+// NoMatch is returned when someone tries to Get an account, but there are no
+// matching names.
+type NoMatch struct {
+	want string
+}
+
+func (nm NoMatch) Error() string {
+	return "No match found for account " + nm.want
+}
+
+var _ error = (*NoMatch)(nil)
+
+// IsNoMatch is true when the provided error is NoMatch
+func IsNoMatch(err error) bool {
+	_, ok := err.(NoMatch)
+	return ok
+}
+
+// Get gets the account named
+//
+// The name can be the account's address, or any of its nicknames. Further, any
+// unique suffix is sufficient.
+func (as *Accounts) Get(name string) (*Account, error) {
+	// special case: if name is blank but there is exactly one account known,
+	// just return that. This improves the CLI use case so a user only operating
+	// on one account doesn't have to name it all the time.
+	if name == "" && len(as.accts) == 1 {
+		return as.accts[0], nil
+	}
+
+	rname := rev(name)
+	// start by using a binary search to locate candidates, if any exist
+	start := 0
+	end := len(as.rnames) - 1
+	for start <= end {
+		median := (start + end) / 2
+		if as.rnames[median] < rname {
+			start = median + 1
+		} else {
+			end = median - 1
+		}
+	}
+
+	if start == len(as.rnames) {
+		return nil, NoMatch{name}
+	}
+	matches := make([]string, 0, 1)
+	for idx := start; idx < len(as.rnames) && strings.HasPrefix(as.rnames[idx], rname); idx++ {
+		matches = append(matches, rev(as.rnames[idx]))
+	}
+
+	if len(matches) == 0 {
+		return nil, NoMatch{name}
+	}
+	// if we have supplied a full identifier, it must succeed even if there
+	// are other identifiers which have this as a suffix
+	if matches[0] == name {
+		return as.accts[start], nil
+	}
+	if len(matches) > 1 {
+		return nil, NotUniqueSuffix{name, matches}
+	}
+	return as.accts[start], nil
 }

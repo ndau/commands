@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
-
 	"github.com/stretchr/testify/require"
 )
 
@@ -124,4 +123,54 @@ func TestAccounts_Add(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAccounts_Get(t *testing.T) {
+	tests := []struct {
+		name       string
+		want       string
+		existnames []string
+		wantErr    func(error) bool
+	}{
+		{"nonempty list: not found in tail", "foo", []string{"bar"}, IsNoMatch},
+		{"nonempty list: not found in head", "apple", []string{"bar"}, IsNoMatch},
+		{"nonempty list: not found in middle", "bravo", []string{"alpha", "charlie"}, IsNoMatch},
+		{"success: head", "alpha", []string{"alpha", "bravo", "charlie"}, nil},
+		{"success: mid", "bravo", []string{"alpha", "bravo", "charlie"}, nil},
+		{"success: tail", "charlie", []string{"alpha", "bravo", "charlie"}, nil},
+		{"success: unique suffix", "o", []string{"alpha", "bravo", "charlie"}, nil},
+		{"success: full word despite prefixes", "bravo", []string{"alpha", "sbravo", "bravo", "charlie"}, nil},
+		{"not unique", "ravo", []string{"alpha", "bravo", "sbravo", "charlie"}, IsNotUniqueSuffix},
+		{"empty search with 0 items", "", nil, func(error) bool { return true }}, // don't care what kind of error
+		{"empty search with >1 item", "", []string{"foo", "bar"}, IsNotUniqueSuffix},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			as := NewAccounts()
+			if len(tt.existnames) > 0 {
+				as.Add(makeacct(t), tt.existnames...)
+			}
+			_, err := as.Get(tt.want)
+			if tt.wantErr != nil {
+				require.Error(t, err)
+				require.True(t, tt.wantErr(err), "wrong error type returned")
+			} else {
+				require.NoError(t, err)
+			}
+			// we're not testing what value we got, just because that's
+			// difficult to test, and most of the hard work is in Add anyway
+		})
+	}
+	t.Run("search in empty list", func(t *testing.T) {
+		as := NewAccounts()
+		_, err := as.Get("foo")
+		require.Error(t, err)
+		require.True(t, IsNoMatch(err), "wrong error type returned")
+	})
+	t.Run("empty search with 1 item", func(t *testing.T) {
+		as := NewAccounts()
+		as.Add(makeacct(t))
+		_, err := as.Get("")
+		require.NoError(t, err)
+	})
 }
