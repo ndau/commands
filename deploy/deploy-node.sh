@@ -91,3 +91,6 @@ ecs-cli compose \
   service up \
   --force-deployment true \
   --cluster-config "$CLUSTER_NAME"
+
+# clean up
+rm "$TMP_FILE"
