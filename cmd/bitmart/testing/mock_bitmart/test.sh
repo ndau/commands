@@ -31,9 +31,10 @@ set -e
 # or down a localnet.
 #
 # Required tools:
-# - jq        https://github.com/stedolan/jq
-# - remarshal https://github.com/dbohdan/remarshal (toml2json, json2toml)
-# - wsta      https://github.com/esphen/wsta
+# - jq          https://github.com/stedolan/jq
+# - msgpack-cli https://github.com/jakm/msgpack-cli
+# - remarshal   https://github.com/dbohdan/remarshal (toml2json, json2toml)
+# - wsta        https://github.com/esphen/wsta
 
 commands_path="$GOPATH/src/github.com/oneiro-ndev/commands"
 bitmart_path="$commands_path/cmd/bitmart"
@@ -239,7 +240,35 @@ sleep 10
 # have a good way to detect when it's complete, so we just overkill a little
 # waiting for it to all resolve.
 
-cat "$datafile"
-# if the datafile contains a tx with a hash, it's ours, which means that this
-# succeeded, so we should return success
-grep -q "tx.hash" "$datafile"
+# if the datafile contains no tx with a hash, then this definitely failed
+if ! grep -q "tx.hash" "$datafile"; then
+    echo "no transaction appeared in websocket tx stream ($datafile)"
+    exit 1
+fi
+
+# ensure the tx was an Issue tx
+# it's possible that external users submitted transactions; let's protect against
+# that case.
+foundissue=false
+transactions=$(jq --raw-output '.result.data.value.TxResult.tx | values' "$datafile")
+# this may produce multiple lines, so loop
+for tx in $transactions; do
+    txid=$(echo "$tx" | base64 -D | msgpack-cli decode | jq .TransactableID)
+    if [ "$txid" == 20 ]; then
+        # issue txid is 20: https://github.com/oneiro-ndev/ndau/blob/370c97d92f6cff6aa04f123819d232fb8a2dfd27/pkg/ndau/transactions.go#L36
+        foundissue=true
+        break
+    fi
+done
+
+# we can't know for sure whether or not we submitted that issue tx, or whether some
+# external party submitted it, but it's pretty suggestive evidence. Let's just
+# treat it as if it were accurate:
+if "$foundissue"; then
+    echo "found an issue tx; assuming this means success"
+else
+    echo "no issue tx found in transactions; something went wrong :("
+fi
+
+# run the program again to generate the right return code.
+"$foundissue"
