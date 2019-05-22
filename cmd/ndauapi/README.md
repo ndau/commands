@@ -1646,8 +1646,11 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "fee_napu": 10,
-          "err": "only set if an error occurred"
+          "fee_napu": 100,
+          "sib_napu": 10,
+          "err": "Err and ErrCode are only set if an error occurred",
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available"
         }
 ```
 
@@ -1692,7 +1695,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "hash": "123abc34099f"
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available"
         }
 ```
 
