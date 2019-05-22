@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/alexflint/go-arg"
 )
@@ -32,14 +31,15 @@ func (Verbose) Run(argvs []string, sh *Shell) (err error) {
 
 	if args.Set && args.Unset {
 		err = errors.New("cannot simultaneously set and unset verbose mode")
+		return
 	} else if args.Set {
 		sh.Verbose = true
-		fmt.Printf("verbose mode: %t\n", sh.Verbose)
 	} else if args.Unset {
 		sh.Verbose = false
-	} else {
-		fmt.Printf("verbose mode: %t\n", sh.Verbose)
 	}
 
+	if sh.Verbose {
+		sh.Write("verbose mode: %t\n", sh.Verbose)
+	}
 	return
 }

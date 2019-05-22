@@ -21,8 +21,10 @@ type Shell struct {
 	Node     client.ABCIClient
 	Verbose  bool
 
-	ireader *bufio.Reader
-	accts   *Accounts
+	ireader   *bufio.Reader
+	accts     *Accounts
+	writelock sync.Mutex
+	writer    *bufio.Writer
 }
 
 // NewShell initializes the shell
@@ -35,6 +37,7 @@ func NewShell(verbose bool, node client.ABCIClient, commands ...Command) *Shell 
 		Verbose:  verbose,
 		ireader:  bufio.NewReader(os.Stdin),
 		accts:    NewAccounts(),
+		writer:   bufio.NewWriter(os.Stdout),
 	}
 	for _, command := range commands {
 		for _, name := range strings.Split(command.Name(), " ") {
@@ -117,4 +120,28 @@ func (sh *Shell) Run() {
 	for {
 		sh.prompt()
 	}
+}
+
+// Write some data to the shell's output
+func (sh *Shell) Write(format string, context ...interface{}) {
+	if format[len(format)-1] != '\n' {
+		format += "\n"
+	}
+	sh.writelock.Lock()
+	defer sh.writelock.Unlock()
+	fmt.Fprintf(sh.writer, format, context...)
+	sh.writer.Flush()
+}
+
+// WriteBatch writes connected messages to the shell's output, ensuring it's not interrupted by other routines
+func (sh *Shell) WriteBatch(writes func(write func(format string, context ...interface{}))) {
+	sh.writelock.Lock()
+	defer sh.writelock.Unlock()
+	writes(func(format string, context ...interface{}) {
+		if format[len(format)-1] != '\n' {
+			format += "\n"
+		}
+		fmt.Fprintf(sh.writer, format, context...)
+	})
+	sh.writer.Flush()
 }

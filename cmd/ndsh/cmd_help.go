@@ -44,14 +44,17 @@ func (Help) Run(argvs []string, sh *Shell) (err error) {
 			}
 		}
 		sort.Strings(names)
-		fmt.Println("Ndau Shell: common ndau operations on in-memory data")
-		fmt.Println()
-		fmt.Println("Known commands:")
-		for _, name := range names {
-			fmt.Printf("  %s\n", name)
-		}
-		fmt.Println()
-		fmt.Println("(`help command` to get detail help on that particular command")
+
+		sh.WriteBatch(func(print func(format string, context ...interface{})) {
+			print("Ndau Shell: common ndau operations on in-memory data")
+			print("")
+			print("Known commands:")
+			for _, name := range names {
+				print("  %s", name)
+			}
+			print("")
+			print("(`help command` to get detail help on that particular command")
+		})
 	}
 	return
 }

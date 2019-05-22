@@ -52,7 +52,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if len(args.SeedWords) != 12 {
-		fmt.Printf("WARN: ndau seed phrases are typically 12 words long, but you provided %d\n", len(args.SeedWords))
+		sh.Write("WARN: ndau seed phrases are typically 12 words long, but you provided %d\n", len(args.SeedWords))
 	}
 	for idx := range args.SeedWords {
 		(args.SeedWords)[idx] = strings.ToLower((args.SeedWords)[idx])
@@ -68,7 +68,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		return err
 	}
 
-	fmt.Println("Communicating with blockchain...")
+	sh.Write("Communicating with blockchain...")
 	// TODO: add some kind of progress bar?
 	// https://github.com/vbauerster/mpb seems good for this usage
 
@@ -79,6 +79,9 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 	// this should only ever be run in a new goroutine
 	trypath := func(pattern string, idx int, ch chan<- Account) {
 		path := fmt.Sprintf(pattern, idx)
+		if sh.Verbose {
+			sh.Write("trypath(%s)\n", path)
+		}
 		scopy := make([]byte, len(seed))
 		copy(scopy, seed)
 		buf := bytes.NewBuffer(scopy)
@@ -135,14 +138,14 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 
 	wg.Wait()
 
-	fmt.Printf("Discovered %d accounts:\n", len(accounts))
+	sh.Write("Discovered %d accounts:", len(accounts))
 	for _, acct := range accounts {
-		fmt.Printf("  %s (%s)\n", acct.Address, acct.Path)
+		sh.Write("  %s (%s)\n", acct.Address, acct.Path)
 		sh.accts.Add(acct)
 	}
 	// add nicknames if we've recovered exactly one account
 	if len(accounts) == 1 && len(args.Nicknames) > 0 {
-		fmt.Printf("Adding nicknames to %s: %s\n", accounts[0].Address, strings.Join(args.Nicknames, ", "))
+		sh.Write("Adding nicknames to %s: %s", accounts[0].Address, strings.Join(args.Nicknames, ", "))
 		sh.accts.Add(accounts[0], args.Nicknames...)
 	}
 
@@ -162,20 +165,42 @@ func (sh *Shell) tryAccount(
 ) {
 	defer wg.Done()
 
-	acct, err := NewAccount(seed, path, kind)
-	if err != nil {
-		return
-	}
+	sh.WriteBatch(func(print func(format string, args ...interface{})) {
+		if sh.Verbose {
+			print("tryAccount(%s, %s)", path, kind)
+		}
 
-	ad, resp, err := tool.GetAccount(sh.Node, acct.Address)
-	if err != nil {
-		return
-	}
-	exists := false
-	_, err = fmt.Sscanf(resp.Response.Info, query.AccountInfoFmt, &exists)
-	if err != nil || !exists {
-		return
-	}
+		acct, err := NewAccount(seed, path, kind)
+		if err != nil {
+			if sh.Verbose {
+				print("    %s", err)
+			}
+			return
+		}
 
-	acct.Data = ad
+		if sh.Verbose {
+			print(" -> %s", acct.Address)
+		}
+
+		ad, resp, err := tool.GetAccount(sh.Node, acct.Address)
+		if err != nil {
+			if sh.Verbose {
+				print("    %s", err)
+			}
+			return
+		}
+		exists := false
+		_, err = fmt.Sscanf(resp.Response.Info, query.AccountInfoFmt, &exists)
+		if sh.Verbose {
+			print("    exists: %t", exists)
+		}
+		if err != nil || !exists {
+			if sh.Verbose {
+				print("    %s", err)
+			}
+			return
+		}
+
+		acct.Data = ad
+	})
 }

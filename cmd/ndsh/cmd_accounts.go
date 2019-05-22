@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -29,7 +28,7 @@ func (ListAccounts) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	for acct, nicknames := range sh.accts.Reverse() {
-		fmt.Printf("%s: %s", acct.Address, strings.Join(nicknames, " "))
+		sh.Write("%s: %s", acct.Address, strings.Join(nicknames, " "))
 	}
 	return
 }
