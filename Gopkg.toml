@@ -1,6 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaincode"
-version = "~v1.0"
+version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
@@ -12,11 +12,11 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.3"
+version = "~v1.4"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.15"
+version = "~v1.16"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -29,6 +29,10 @@ version = "~v1.3"
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
 version = "~v1.2"
+
+[[constraint]]
+name = "github.com/jawher/mow.cli"
+version = "~v1.1"
 
 [[override]]
 name = "github.com/attic-labs/graphql"

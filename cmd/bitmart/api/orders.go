@@ -20,7 +20,7 @@ type OrderStatus int64
 
 // OrderStatus pretty names
 const (
-	Unfiltered OrderStatus = iota
+	Invalid OrderStatus = iota
 	Pending
 	PartialSuccess
 	Success
@@ -65,6 +65,15 @@ type Order struct {
 	Status          int64   `json:"status"`
 }
 
+// IsSale is true when the order is a sell order
+func (t *Order) IsSale() bool {
+	s, err := ParseSide(t.Side)
+	if err != nil {
+		return false
+	}
+	return s == SideSell
+}
+
 // UnmarshalJSON implements json.Unmarshaler
 //
 // It's necessary because we can't trust bitmart to actually send numbers
@@ -100,10 +109,17 @@ type OrderHistory struct {
 
 // GetOrderHistory retrieves the list of all user orders
 func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, error) {
-	var orders []Order
-	var th OrderHistory
+	if status == Invalid {
+		return nil, errors.New("invalid status")
+	}
+	if symbol == "" {
+		return nil, errors.New("symbol must not be empty")
+	}
+
 	var offset = 0
 	const limit = 1000
+	var th OrderHistory
+	orders := make([]Order, 0, limit)
 
 	getPage := func() error {
 		queryParams := url.Values{}
@@ -157,4 +173,31 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 	}
 
 	return orders, nil
+}
+
+// GetOrder gets the named order
+func GetOrder(auth *Auth, entrustID int64) (*Order, error) {
+	url := fmt.Sprintf("%s/%d", APIOrders, entrustID)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "constructing order request")
+	}
+	resp, err := auth.Dispatch(req, 2*time.Second)
+	if err != nil {
+		return nil, errors.Wrap(err, "performing order request")
+	}
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "reading order response")
+	}
+
+	var order Order
+	err = json.Unmarshal(data, &order)
+	if err != nil {
+		return nil, errors.Wrap(err, "parsing order response")
+	}
+
+	return &order, nil
 }

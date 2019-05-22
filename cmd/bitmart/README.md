@@ -5,15 +5,11 @@ issue appropriate `Issue` transactions on the `ndau` chain when appropriate.
 
 ## General Architecture
 
-- **Signing Service**: external oneiro software. Connects to a websocket server, and then listens for signature requests. On receipt, signs and returns them. Note: structurally this is a client, even though behaviorally this is a server. This is a bit unusual, but it simplifies the security requirements.
+- **Signing Service**: [external oneiro software](https://github.com/oneiro-ndev/recovery/tree/master/cmd/signer). Connects to a websocket server, and then listens for signature requests. On receipt, signs and returns them. Note: structurally this is a client, even though behaviorally this is a server. This is a bit unusual, but it simplifies the security requirements.
 
-    An instance of the signing service will be a client of the
+    The signing service will connect to the Bitmart Integration.
 
-- **Bitmart Integration**: this software. It subscribes to messages about NDAU sales from the primary sales account on Bitmart. For each of these, it generates an appropriate `Issue` tx and sends it to the signing service. On getting it back, it sends it to the ndau chain.
-
-    It is a client of the ndau chain, and of the
-
-- **Bitmart Websocket Service**: external software run by bitmart. Provides near-real-time push updates about transactions of interest.
+- **Bitmart Integration**: this software. Polls the Bitmart REST API for new trades from a particular account. For each batch of new trades from this account, it calculates the total ndau traded from those trades which were sales. It then creates an `Issue` tx, has it signed by the signing service, and submits it to the ndau blockchain.
 
 ## Api Keys
 
@@ -33,3 +29,13 @@ To keep track of that for our application, create a file whose extension is `api
 - `secret` is the API secret
 - `memo` is the human-friendly name the user provided when the API key was created
 
+It is occasionally necessary to override the endpoint used for a particular key. This is mainly useful for testing. If necessary, just add an `endpoint` field to the json file, like:
+
+```json
+{
+    "access": "6591f7c2491db0a23a1d8ad6911c825e",
+    "secret": "8c08d9d5c3d15b105dbddaf96e427ac6",
+    "memo": "mymemo",
+    "endpoint": "https://bm-htf-v2-testing-d8pvw98nl.bitmart.com"
+}
+```

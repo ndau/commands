@@ -1,0 +1,9 @@
+[client]
+priv_key = "npvtayjadtcbicsrsawrd6c6ziydstnsc9avwhpam75uts87pxv84jasbze33y6z2wm9pj53ff4cn8ffgj979bybrjbkrb9srdrt25j8umsbdxcfdhrkhrmtdkvm"
+pub_key = "npuba8jadtbbebiz84vzukmwe36kknv958dnc8ucw8d9a8g9dtyv7ezachkekgq8w99qm8gw4yqc"
+type = "virtual"
+
+[connections]
+
+[connections.local]
+url = "ws://localhost:20036/signer"

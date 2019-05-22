@@ -22,16 +22,17 @@ func main() {
 
 	var (
 		apikeyPath = app.StringArg("API_KEY", "", "Path to an apikey.json file")
-		symbol     = app.StringArg("SYMBOL", "", "Trade symbol to examine")
+		symbol     = app.StringArg("SYMBOL", bitmart.NdauSymbol, "Trade symbol to examine")
+		limit      = app.IntOpt("limit", 0, "return only values with trade_id > limit")
 	)
 
-	app.Spec = "API_KEY [SYMBOL]"
+	app.Spec = "API_KEY [SYMBOL] [--limit]"
 
 	app.Action = func() {
 		key, err := bitmart.LoadAPIKey(*apikeyPath)
 		check(err, "loading api key")
 		auth := bitmart.NewAuth(key)
-		trades, err := bitmart.GetTradeHistory(&auth, *symbol)
+		trades, err := bitmart.GetTradeHistoryAfter(&auth, *symbol, int64(*limit))
 		check(err, "getting trades")
 
 		data, err := json.MarshalIndent(trades, "", "  ")

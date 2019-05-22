@@ -29,6 +29,9 @@ DashData*
 docker/ndau-images
 docker/ndau-snapshots
 
+# testing files
+websocket.data
+
 # osx chaff
 .DS_Store
 

@@ -37,8 +37,8 @@ func getTransfer(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cm
 
 			// ensure we know the private transfer key of this account
 			fromAcct, hasAcct := conf.Accounts[from.String()]
-			if !hasAcct {
-				orQuit(fmt.Errorf("From account '%s' not found", fromAcct.Name))
+			if !hasAcct || fromAcct == nil {
+				orQuit(fmt.Errorf("Account for address '%s' not found in config", from))
 			}
 			if fromAcct.Transfer == nil {
 				orQuit(fmt.Errorf("From acct transfer key not set"))

@@ -22,12 +22,12 @@ func main() {
 
 	var (
 		apikeyPath = app.StringArg("API_KEY", "", "Path to an apikey.json file")
-		symbol     = app.StringArg("SYMBOL", "", "Trade symbol to examine")
-		status     = app.StringOpt("s status", "", "order status filter")
+		symbol     = app.StringArg("SYMBOL", bitmart.NdauSymbol, "Trade symbol to examine")
+		status     = app.StringArg("STATUS", bitmart.Invalid.String(), "order status filter")
 		verbose    = app.BoolOpt("v verbose", false, "verbose mode")
 	)
 
-	app.Spec = "API_KEY [SYMBOL] [--status] [--verbose]"
+	app.Spec = "API_KEY [SYMBOL] STATUS [--verbose]"
 
 	app.Action = func() {
 		key, err := bitmart.LoadAPIKey(*apikeyPath)

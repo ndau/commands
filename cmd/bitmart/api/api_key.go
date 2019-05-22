@@ -50,7 +50,7 @@ func HMACSign(key, message string) string {
 
 // ClientSecret returns the client secret: hex-encoded HMAC of the SHA256 hash of the message
 func (ak APIKey) ClientSecret() (s string, err error) {
-	message := strings.ToLower(fmt.Sprintf("%s:%s:%s", ak.Access, ak.Secret, ak.Memo))
+	message := fmt.Sprintf("%s:%s:%s", strings.ToLower(ak.Access), strings.ToLower(ak.Secret), ak.Memo)
 	return HMACSign(ak.Secret, message), nil
 }
 
@@ -66,7 +66,10 @@ type Token struct {
 // API keys may optionally have endpoint overrides embedded. If so, Subs will
 // update the provided URL appropriately. If there is no override defined, or
 // if any errors are encountered, Subs does not modify the URL.
-func (ak APIKey) SubsURL(purl *url.URL) {
+//
+// Returns the host string appropriate for substituting into a request Host field.
+func (ak APIKey) SubsURL(purl *url.URL) (host string) {
+	host = purl.Host
 	if len(ak.Endpoint) == 0 {
 		return
 	}
@@ -76,6 +79,7 @@ func (ak APIKey) SubsURL(purl *url.URL) {
 	}
 	purl.Scheme = eurl.Scheme
 	purl.Host = eurl.Host
+	return eurl.Host
 }
 
 // Subs might update the provdied url with a replacement scheme and endpoint.
