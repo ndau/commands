@@ -486,7 +486,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:d81df3f379674c5e9d0132fd8a11d804b7349e41c11e0d0074b58e93d8bfebbc"
+  branch = "mainnet-20190516"
+  digest = "1:78adb92c7298b4896d192202685a825b2c85e0b8dc81d96490321cfdb9c26fc4"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -504,8 +505,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "c09786f1ee23bf91a992e7f11bd5efe8d8b0ef79"
-  version = "v1.15.0"
+  revision = "da8c8dfad84a3f843aafb5e9010aca6d6915fc71"
 
 [[projects]]
   digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
