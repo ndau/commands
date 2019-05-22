@@ -4,12 +4,11 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/stretchr/testify/require"
 )
 
 func makeacct(t *testing.T) Account {
-	a, err := NewAccount(signature.Ed25519, nil, 0)
+	a, err := NewAccount(nil, "", 0)
 	require.NoError(t, err)
 	return a
 }

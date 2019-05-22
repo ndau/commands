@@ -516,7 +516,8 @@
   version = "v1.13.4"
 
 [[projects]]
-  digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
+  branch = "prgn-parse-kind"
+  digest = "1:6118e67c9e25e160a1e3160209c72ec4b55743b3a9bdc33aed393a4a4356b5f6"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -538,8 +539,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "65e5600e601abfb67fb7697d04043466d89e8265"
-  version = "v1.2.0"
+  revision = "e6f9a389ffe1c9da3f0828da01628bf538e1ccde"
 
 [[projects]]
   branch = "master"
@@ -985,6 +985,7 @@
     "github.com/rs/cors",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
+    "github.com/stretchr/testify/require",
     "github.com/tendermint/tendermint/abci/server",
     "github.com/tendermint/tendermint/crypto/ed25519",
     "github.com/tendermint/tendermint/crypto/encoding/amino",

@@ -22,6 +22,7 @@ type Shell struct {
 	Verbose  bool
 
 	ireader *bufio.Reader
+	accts   *Accounts
 }
 
 // NewShell initializes the shell
@@ -33,6 +34,7 @@ func NewShell(verbose bool, node client.ABCIClient, commands ...Command) *Shell 
 		Node:     node,
 		Verbose:  verbose,
 		ireader:  bufio.NewReader(os.Stdin),
+		accts:    NewAccounts(),
 	}
 	for _, command := range commands {
 		for _, name := range strings.Split(command.Name(), " ") {
@@ -89,16 +91,25 @@ func (sh *Shell) prompt() {
 	fmt.Print(sh.expandPrompt())
 	input, err := sh.ireader.ReadString('\n')
 	check(err, "scanning input line from user")
+	err = sh.Exec(input)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// Exec runs the command per a given input
+func (sh *Shell) Exec(input string) error {
+	var err error
 	tokens, err := shlex.Split(input)
 	check(err, "tokenizing user input")
 	if len(tokens) > 0 {
 		cmd := sh.Commands[tokens[0]]
 		if cmd == nil {
-			fmt.Printf("command not found: '%s'\n", tokens[0])
-			return
+			return fmt.Errorf("command not found: '%s'", tokens[0])
 		}
-		cmd.Run(tokens, sh)
+		err = cmd.Run(tokens, sh)
 	}
+	return err
 }
 
 // Run the shell

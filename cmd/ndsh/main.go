@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	cli "github.com/jawher/mow.cli"
+	"github.com/alexflint/go-arg"
 )
 
 func bail(err string, context ...interface{}) {
@@ -23,22 +23,22 @@ func check(err error, context string, more ...interface{}) {
 }
 
 func main() {
-	app := cli.App("ndsh", "the ndau shell")
-
-	var (
-		neturl  = app.StringOpt("N net", "mainnet", "net to configure: ('main', 'test', 'dev', 'local', or a url)")
-		node    = app.IntOpt("n node", 0, "node number to which to connect")
-		verbose = app.BoolOpt("v verbose", false, "emit additional debug data")
-	)
-
-	app.Action = func() {
-		shell := NewShell(
-			*verbose,
-			getClient(*neturl, *node),
-			Exit{},
-		)
-		shell.Run()
+	args := struct {
+		Neturl  string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
+		Node    int    `arg:"-n" help:"node number to which to connect"`
+		Verbose bool   `arg:"-v" help:"emit additional debug data"`
+	}{
+		Neturl: "mainnet",
 	}
 
-	app.Run(os.Args)
+	arg.MustParse(&args)
+
+	shell := NewShell(
+		args.Verbose,
+		getClient(args.Neturl, args.Node),
+		Exit{},
+		Help{},
+		Recover{},
+	)
+	shell.Run()
 }

@@ -1,5 +1,11 @@
 package main
 
+import (
+	"os"
+
+	"github.com/alexflint/go-arg"
+)
+
 // A Command acts like a sub-program: it can specify its own argument parser,
 // and can succeed or fail, displaying arbitrary messages as a result, without
 // exiting the shell.
@@ -29,4 +35,22 @@ type Command interface {
 	// should periodically attempt to read from shell.Stop; if such a read
 	// produces a result, the command should shut itself down immediately.
 	Run([]string, *Shell) error
+}
+
+// ParseInto parses the argvs into the destination data
+//
+// This leverages alexflint/go-arg, so the dest struct can be constructed
+// the same way. However, the only toplevel functions in that library
+// always take the argument list from os.Args, which isn't appropriate;
+// this function just lets you put in the appropriate argument strings.
+func ParseInto(argvs []string, dest ...interface{}) error {
+	p, err := arg.NewParser(arg.Config{Program: argvs[0]}, dest...)
+	if err != nil {
+		return err
+	}
+	err = p.Parse(argvs[1:])
+	if err == arg.ErrHelp {
+		p.WriteHelp(os.Stdout)
+	}
+	return err
 }

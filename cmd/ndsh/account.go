@@ -8,42 +8,78 @@ import (
 
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/oneiro-ndev/ndaumath/pkg/key"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
 )
 
 // An Account is the ndsh's internal representation of an account
 type Account struct {
+	Path                  string
+	root                  *key.ExtendedKey
+	OwnershipPrivate      *signature.PrivateKey
+	OwnershipPublic       *signature.PublicKey
 	Address               address.Address
 	Data                  *backing.AccountData
-	OwnershipPublic       *signature.PublicKey
-	OwnershipPrivate      *signature.PrivateKey
 	PrivateValidationKeys []signature.PrivateKey
 }
 
-// NewAccount creates a new Account from an algorithm and seed
+// NewAccount creates a new Account from a seed and derivation path
 //
 // It does not attempt to perform any blockchain actions.
 //
+// If seed is nil, the system's best source of cryptographic randomness will
+// be used.
+//
+// If path is empty, the default /44'/20036'/100/1 is used.
+//
 // Kind should be one of the kinds defined in the address package in ndaumath.
 // If it <= 0, it will default to KindUser.
-func NewAccount(with signature.Algorithm, seed io.Reader, kind byte) (Account, error) {
+func NewAccount(seed io.Reader, path string, kind byte) (Account, error) {
+	if path == "" {
+		path = "/44'/20036'/100/1"
+	}
 	if kind <= 0 {
 		kind = address.KindUser
 	}
-	publicOwn, privateOwn, err := signature.Generate(with, seed)
-	if err != nil {
-		return Account{}, errors.Wrap(err, "generating keys")
+
+	a := Account{
+		Path: path,
 	}
-	addr, err := address.Generate(kind, publicOwn.KeyBytes())
+
+	_, root, err := signature.Generate(signature.Secp256k1, seed)
 	if err != nil {
-		return Account{}, errors.Wrap(err, "generating address")
+		return a, errors.Wrap(err, "generating root keys")
 	}
-	return Account{
-		Address:          addr,
-		OwnershipPublic:  &publicOwn,
-		OwnershipPrivate: &privateOwn,
-	}, nil
+	a.root, err = key.FromSignatureKey(&root)
+	if err != nil {
+		return a, errors.Wrap(err, "converting root to extended key format")
+	}
+
+	ownPvt, err := a.root.DeriveFrom("/", path)
+	if err != nil {
+		return a, errors.Wrap(err, "deriving ownership key")
+	}
+	a.OwnershipPrivate, err = ownPvt.SPrivKey()
+	if err != nil {
+		return a, errors.Wrap(err, "converting ownership pvt key to ndau fmt")
+	}
+
+	ownPub, err := ownPvt.Public()
+	if err != nil {
+		return a, errors.Wrap(err, "deriving public ownership key")
+	}
+	a.OwnershipPublic, err = ownPub.SPubKey()
+	if err != nil {
+		return a, errors.Wrap(err, "converting ownership pub key to ndau fmt")
+	}
+
+	a.Address, err = address.Generate(kind, a.OwnershipPublic.KeyBytes())
+	if err != nil {
+		return a, errors.Wrap(err, "generating address")
+	}
+
+	return a, nil
 }
 
 func rev(s string) string {
@@ -82,6 +118,9 @@ func NewAccounts() *Accounts {
 // duplicate existing nicknames, this will overwrite the existing data. However,
 // if the overwritten account retains names not overwritten, it will still be
 // accessable via those names.
+//
+// This behavior means that, in order to add new nicknames, it is safe to just
+// call this function again with the new nicknames.
 func (as *Accounts) Add(a Account, nicknames ...string) {
 	// construct a sorted list of reversed names by which to refer to this account
 	arnames := make([]string, 0, 1+len(nicknames))
@@ -236,4 +275,14 @@ func (as *Accounts) Get(name string) (*Account, error) {
 		return nil, NotUniqueSuffix{name, matches}
 	}
 	return as.accts[start], nil
+}
+
+// AppendNicknames is a shorthand for combining Get and Add to add nicknames to an account
+func (as *Accounts) AppendNicknames(name string, nicknames ...string) error {
+	acct, err := as.Get(name)
+	if err != nil {
+		return err
+	}
+	as.Add(*acct, nicknames...)
+	return nil
 }

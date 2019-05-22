@@ -20,7 +20,8 @@ version = "~v1.13"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.2"
+# version = "~v1.2"
+branch = "prgn-parse-kind"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"

@@ -66,3 +66,8 @@ safe to run in secure operational environments.
 - customize prompt by (externally) setting `NDSH_PS1` with useful substitutions (?)
 - tab-completion (?)
 - job control (?)
+
+## Conventions
+
+`ndsh` expects that every `Command` implement a safe, idempotent `-h` flag which
+displays some help about that command.
