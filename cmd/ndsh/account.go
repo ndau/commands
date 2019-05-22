@@ -286,3 +286,18 @@ func (as *Accounts) AppendNicknames(name string, nicknames ...string) error {
 	as.Add(*acct, nicknames...)
 	return nil
 }
+
+// Reverse returns a map of account data to the list of names refering to it
+func (as *Accounts) Reverse() map[*Account][]string {
+	out := make(map[*Account][]string)
+	for idx, rname := range as.rnames {
+		name := rev(rname)
+		if name != as.accts[idx].Address.String() {
+			out[as.accts[idx]] = append(out[as.accts[idx]], name)
+		} else if _, ok := out[as.accts[idx]]; !ok {
+			// ensure the account appears in the map even if it has no nicknames
+			out[as.accts[idx]] = make([]string, 0)
+		}
+	}
+	return out
+}

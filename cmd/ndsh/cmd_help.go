@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/alexflint/go-arg"
 )
@@ -32,17 +33,22 @@ func (Help) Run(argvs []string, sh *Shell) (err error) {
 		sh.Exec(fmt.Sprintf("%s -h", args.Command))
 	} else {
 		knownNames := make(map[string]struct{})
-		fmt.Println("Ndau Shell: common ndau operations on in-memory data")
-		fmt.Println()
-		fmt.Println("Known commands:")
+		names := make([]string, 0)
 		for _, command := range sh.Commands {
 			name := command.Name()
 			if _, ok := knownNames[name]; ok {
 				// skip it
 			} else {
 				knownNames[name] = struct{}{}
-				fmt.Printf("  %s\n", name)
+				names = append(names, name)
 			}
+		}
+		sort.Strings(names)
+		fmt.Println("Ndau Shell: common ndau operations on in-memory data")
+		fmt.Println()
+		fmt.Println("Known commands:")
+		for _, name := range names {
+			fmt.Printf("  %s\n", name)
 		}
 		fmt.Println()
 		fmt.Println("(`help command` to get detail help on that particular command")

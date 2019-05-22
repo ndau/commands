@@ -60,14 +60,12 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 
 	kind, err := address.ParseKind(args.Kind)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	seed, err := words.ToBytes(args.Lang, args.SeedWords)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	fmt.Println("Communicating with blockchain...")
@@ -76,7 +74,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 
 	accountsStream := make(chan Account, 0)
 	var wg sync.WaitGroup
-	accounts := make([]Account, 1)
+	accounts := make([]Account, 0)
 
 	// this should only ever be run in a new goroutine
 	trypath := func(pattern string, idx int, ch chan<- Account) {
@@ -148,7 +146,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		sh.accts.Add(accounts[0], args.Nicknames...)
 	}
 
-	return
+	return err
 }
 
 // try getting an account from the blockchain. If it exists, construct an appropriate

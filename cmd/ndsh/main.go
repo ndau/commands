@@ -39,6 +39,8 @@ func main() {
 		Exit{},
 		Help{},
 		Recover{},
+		ListAccounts{},
+		Verbose{},
 	)
 	shell.Run()
 }
