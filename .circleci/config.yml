@@ -263,7 +263,7 @@ general_config: &general_config
         <<: *aws_defaults
         NDAUHOME: /root/.ndau
         NETWORK_NAME: devnet
-        PERSISTENT_PEERS: 44f9597767d0d79837673092de6f1beeb0567b54@devnet.ndau.tech:26660,7de4466c4b25123be90d1f34bab717674a939416@devnet.ndau.tech:26661,b11fdbad1cc3b0fa525c87731d2f5502350bb82b@devnet.ndau.tech:26662,01953a11549569073c63ca1dee9cc4494d22d729@devnet.ndau.tech:26663,5e1d0ea23839b2343799bf7b18296e5601471773@devnet.ndau.tech:26664 # devnet
+        PERSISTENT_PEERS: 88cf98107823c1ca6621a0656daeecf731870532@devnet.ndau.tech:26660,7c7a66648ca0bf152aeee0c2d358f2d9f7b18341@devnet.ndau.tech:26661,dfa5eca4f826e977379e44d19dd606c06d8f7b7c@devnet.ndau.tech:26662,595562bf12ae2ba03d522f7026d9aa653ab9707c@devnet.ndau.tech:26663,59ed8217b8ef647b7ed1439408f3de35873e65d0@devnet.ndau.tech:26664 # devnet
         CLUSTER_NAME: devnet
 
 jobs:
