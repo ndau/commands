@@ -28,11 +28,11 @@ func (Recover) Name() string { return "recover" }
 // Run implements Command
 func (Recover) Run(argvs []string, sh *Shell) (err error) {
 	args := struct {
-		SeedWords   []string `arg:"positional,required" help:"seed phrase from which to recover this account"`
-		Nicknames   []string `arg:"-n" help:"short nicknames which can refer to this account. Only applied if exactly one account was recovered"`
+		SeedPhrase  []string `arg:"positional,required" help:"seed phrase from which to recover this account"`
+		Nicknames   []string `arg:"-n,separate" help:"short nicknames which can refer to this account. Only applied if exactly one account was recovered"`
 		Lang        string   `arg:"-l" help:"recovery phrase language"`
 		Persistence int      `help:"number of non-accounts to discover before deciding there are no more in a derivation style"`
-		Kind        string   `arg:"-k" help:"kind of account to attempt recovery of"`
+		Kind        string   `arg:"-k" help:"kind of account"`
 	}{
 		Lang:        "en",
 		Persistence: 50,
@@ -47,11 +47,11 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		return
 	}
 
-	if len(args.SeedWords) != 12 {
-		sh.Write("WARN: ndau seed phrases are typically 12 words long, but you provided %d\n", len(args.SeedWords))
+	if len(args.SeedPhrase) != 12 {
+		sh.Write("WARN: ndau seed phrases are typically 12 words long, but you provided %d\n", len(args.SeedPhrase))
 	}
-	for idx := range args.SeedWords {
-		(args.SeedWords)[idx] = strings.ToLower((args.SeedWords)[idx])
+	for idx := range args.SeedPhrase {
+		(args.SeedPhrase)[idx] = strings.ToLower((args.SeedPhrase)[idx])
 	}
 
 	kind, err := address.ParseKind(args.Kind)
@@ -59,7 +59,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		return err
 	}
 
-	seed, err := words.ToBytes(args.Lang, args.SeedWords)
+	seed, err := words.ToBytes(args.Lang, args.SeedPhrase)
 	if err != nil {
 		return err
 	}
@@ -83,10 +83,13 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		go func(pattern string) {
 			for acct := range patstream {
 				accountsStream <- acct
+
 				patmutex.Lock()
+				path := fmt.Sprintf(pattern, patidx)
+
 				// note: we don't increment the wgs here for the new goroutine
 				// that's the responsibility of the old goroutine
-				go sh.tryAccount(seed, pattern, patidx, kind, patstream, &wg, &patwg)
+				go sh.tryAccount(seed, path, kind, patstream, &wg, &patwg)
 
 				patidx++
 				patmutex.Unlock()
@@ -98,7 +101,9 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		for patidx = 0; patidx < args.Persistence; patidx++ {
 			wg.Add(1)
 			patwg.Add(1)
-			go sh.tryAccount(seed, pattern, patidx, kind, patstream, &wg, &patwg)
+
+			path := fmt.Sprintf(pattern, patidx)
+			go sh.tryAccount(seed, path, kind, patstream, &wg, &patwg)
 		}
 		patmutex.Unlock()
 
@@ -121,12 +126,12 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 	sh.Write("Discovered %d accounts:", len(accounts))
 	for _, acct := range accounts {
 		sh.Write("  %s (%s)\n", acct.Address, acct.Path)
-		sh.accts.Add(acct)
+		sh.accts.Add(&acct)
 	}
 	// add nicknames if we've recovered exactly one account
 	if len(accounts) == 1 && len(args.Nicknames) > 0 {
 		sh.Write("Adding nicknames to %s: %s", accounts[0].Address, strings.Join(args.Nicknames, ", "))
-		sh.accts.Add(accounts[0], args.Nicknames...)
+		sh.accts.Add(&accounts[0], args.Nicknames...)
 	}
 
 	return err
@@ -140,8 +145,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 // Does _not_ attempt to discover any private keys
 func (sh *Shell) tryAccount(
 	seed []byte,
-	pattern string,
-	idx int,
+	path string,
 	kind byte,
 	out chan<- Account,
 	wgs ...*sync.WaitGroup,
@@ -151,8 +155,6 @@ func (sh *Shell) tryAccount(
 			wg.Done()
 		}
 	}()
-
-	path := fmt.Sprintf(pattern, idx)
 
 	sh.WriteBatch(func(print func(format string, args ...interface{})) {
 		if sh.Verbose {

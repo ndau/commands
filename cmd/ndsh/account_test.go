@@ -9,17 +9,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func makeacct(t *testing.T) Account {
+func makeacct(t *testing.T) *Account {
 	a, err := NewAccount(nil, "", 0)
 	require.NoError(t, err)
-	return a
+	return &a
 }
 
 func makeaccts(t *testing.T, qty int) []*Account {
 	as := make([]*Account, qty)
 	for idx := range as {
-		a := makeacct(t)
-		as[idx] = &a
+		as[idx] = makeacct(t)
 	}
 	return as
 }
@@ -31,7 +30,7 @@ func TestAccounts_Add(t *testing.T) {
 		accts  []*Account
 	}
 	type args struct {
-		a         Account
+		a         *Account
 		nicknames []string
 	}
 	tests := []struct {
@@ -120,10 +119,47 @@ func TestAccounts_Add(t *testing.T) {
 
 			require.Equal(t, oldamap, olddata, "we must not have overwritten any data")
 			for _, ptr := range newdata {
-				require.Equal(t, &tt.args.a, ptr, "all added data pointers must point to the added item")
+				require.Equal(t, tt.args.a, ptr, "all added data pointers must point to the added item")
 			}
 		})
 	}
+}
+
+func TestAccounts_AddIsIdempotent(t *testing.T) {
+	a := makeacct(t)
+	as := NewAccounts()
+
+	getfirst := func(m map[*Account][]string) []string {
+		for _, ss := range m {
+			return ss
+		}
+		t.Fatal("no elements in m")
+		return nil
+	}
+
+	logaddrs := func() {
+		t.Logf("address of a: %p", &a)
+		for idx := range as.rnames {
+			t.Logf("              %p (%s)", as.accts[idx], rev(as.rnames[idx]))
+		}
+	}
+
+	logaddrs()
+	as.Add(a)
+	logaddrs()
+	require.Equal(t, 1, len(as.Reverse()))
+	as.Add(a)
+	logaddrs()
+	require.Equal(t, 1, len(as.Reverse()))
+	require.Equal(t, 0, len(getfirst(as.Reverse())))
+	as.Add(a, "nick")
+	logaddrs()
+	require.Equal(t, 1, len(as.Reverse()))
+	require.Equal(t, 1, len(getfirst(as.Reverse())))
+	as.Add(a, "another", "nickname")
+	logaddrs()
+	require.Equal(t, 1, len(as.Reverse()))
+	require.Equal(t, 3, len(getfirst(as.Reverse())))
 }
 
 func TestAccounts_Get(t *testing.T) {

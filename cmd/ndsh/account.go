@@ -48,13 +48,19 @@ func NewAccount(seed []byte, path string, kind byte) (Account, error) {
 		kind = address.KindUser
 	}
 
-	a := Account{
-		Path: path,
+	root := new(key.ExtendedKey)
+	root, err = key.NewMaster(seed)
+	if err != nil {
+		return Account{}, errors.Wrap(err, "generating root keys")
 	}
 
-	a.root, err = key.NewMaster(seed)
-	if err != nil {
-		return a, errors.Wrap(err, "generating root keys")
+	return newAccountFromRoot(root, path, kind)
+}
+
+func newAccountFromRoot(root *key.ExtendedKey, path string, kind byte) (Account, error) {
+	a := Account{
+		Path: path,
+		root: root,
 	}
 
 	ownPvt, err := a.root.DeriveFrom("/", path)
@@ -122,7 +128,7 @@ func NewAccounts() *Accounts {
 //
 // This behavior means that, in order to add new nicknames, it is safe to just
 // call this function again with the new nicknames.
-func (as *Accounts) Add(a Account, nicknames ...string) {
+func (as *Accounts) Add(a *Account, nicknames ...string) {
 	// construct a sorted list of reversed names by which to refer to this account
 	arnames := make([]string, 0, 1+len(nicknames))
 	arnames = append(arnames, rev(a.Address.String()))
@@ -142,17 +148,6 @@ func (as *Accounts) Add(a Account, nicknames ...string) {
 	// - for every element in as.rnames, using its index as an index into
 	//   as.accts gives the correct struct.
 
-	if len(as.rnames) == 0 {
-		// we can skip a sort step here because there is no existing data, so
-		// we can just pick the new stuff
-		as.rnames = arnames
-		as.accts = make([]*Account, len(arnames))
-		for idx := range as.accts {
-			as.accts[idx] = &a
-		}
-		return
-	}
-
 	// next up: construct new storage for output rnames and accts lists with
 	// sufficient capacity for all elements.
 	newrnames := make([]string, 0, len(as.rnames)+len(arnames))
@@ -170,12 +165,13 @@ func (as *Accounts) Add(a Account, nicknames ...string) {
 		} else {
 			// this prefers the new data if the new name >= the old name
 			newrnames = append(newrnames, arnames[idxnew])
-			newaccts = append(newaccts, &a)
-			idxnew++
+			newaccts = append(newaccts, a)
 			if as.rnames[idxexisting] == arnames[idxnew] {
 				// if they're equal, we also have to increment the existing index
 				idxexisting++
 			}
+			// only increment this after we index using it
+			idxnew++
 		}
 	}
 	// we've run out of items, so just append all remaining items
@@ -183,7 +179,7 @@ func (as *Accounts) Add(a Account, nicknames ...string) {
 	newaccts = append(newaccts, as.accts[idxexisting:]...)
 	newrnames = append(newrnames, arnames[idxnew:]...)
 	for i := idxnew; i < len(arnames); i++ {
-		newaccts = append(newaccts, &a)
+		newaccts = append(newaccts, a)
 	}
 
 	as.rnames = newrnames
@@ -284,7 +280,7 @@ func (as *Accounts) AppendNicknames(name string, nicknames ...string) error {
 	if err != nil {
 		return err
 	}
-	as.Add(*acct, nicknames...)
+	as.Add(acct, nicknames...)
 	return nil
 }
 

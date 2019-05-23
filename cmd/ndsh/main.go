@@ -54,6 +54,7 @@ func main() {
 		ListAccounts{},
 		Verbose{},
 		Net{},
+		Add{},
 	)
 
 	if args.Command != "" {
