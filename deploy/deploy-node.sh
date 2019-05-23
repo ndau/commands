@@ -98,7 +98,7 @@ ecs-cli compose \
 echo "Bringing up new $network_name-$node_number..."
 # We try in a loop to wait for the old services to drain.
 success=false
-for i in {1..24}; do
+for i in {1..36}; do
     echo "Attempt $i for $network_name-$node_number..."
     if ecs-cli compose \
                --project-name ${network_name}-${node_number} \
@@ -106,6 +106,7 @@ for i in {1..24}; do
                service up \
                --force-deployment \
                --cluster-config "$CLUSTER_NAME"; then
+        echo "Successfully brought up $network_name-$node_number"
         success=true
         break
     fi
