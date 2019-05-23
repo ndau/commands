@@ -1,19 +1,15 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"strings"
 	"sync"
 
 	"github.com/alexflint/go-arg"
-
-	"github.com/oneiro-ndev/ndaumath/pkg/words"
-
 	"github.com/oneiro-ndev/ndau/pkg/query"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/oneiro-ndev/ndaumath/pkg/words"
 )
 
 var accountPatterns = []string{
@@ -35,11 +31,11 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		SeedWords   []string `arg:"positional,required" help:"seed phrase from which to recover this account"`
 		Nicknames   []string `arg:"-n" help:"short nicknames which can refer to this account. Only applied if exactly one account was recovered"`
 		Lang        string   `arg:"-l" help:"recovery phrase language"`
-		Persistance int      `help:"number of non-accounts to discover before deciding there are no more in a derivation style"`
+		Persistence int      `help:"number of non-accounts to discover before deciding there are no more in a derivation style"`
 		Kind        string   `arg:"-k" help:"kind of account to attempt recovery of"`
 	}{
 		Lang:        "en",
-		Persistance: 50,
+		Persistence: 50,
 		Kind:        string(address.KindUser),
 	}
 
@@ -76,19 +72,6 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 	var wg sync.WaitGroup
 	accounts := make([]Account, 0)
 
-	// this should only ever be run in a new goroutine
-	trypath := func(pattern string, idx int, ch chan<- Account) {
-		path := fmt.Sprintf(pattern, idx)
-		if sh.Verbose {
-			sh.Write("trypath(%s)\n", path)
-		}
-		scopy := make([]byte, len(seed))
-		copy(scopy, seed)
-		buf := bytes.NewBuffer(scopy)
-		wg.Add(1)
-		sh.tryAccount(&wg, buf, path, kind, ch)
-	}
-
 	// for each account pattern, keep trying variations until persist failures
 	for _, pattern := range accountPatterns {
 		patstream := make(chan Account, 0)
@@ -97,36 +80,33 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 		var patwg sync.WaitGroup
 		// for every success, pass it to the outer stream, but also
 		// try a new path as well
-		go func() {
+		go func(pattern string) {
 			for acct := range patstream {
 				accountsStream <- acct
 				patmutex.Lock()
+				// note: we don't increment the wgs here for the new goroutine
+				// that's the responsibility of the old goroutine
+				go sh.tryAccount(seed, pattern, patidx, kind, patstream, &wg, &patwg)
+
 				patidx++
 				patmutex.Unlock()
-				patwg.Add(1)
-				go func() {
-					trypath(pattern, patidx, patstream)
-					patwg.Done()
-				}()
 			}
-		}()
+		}(pattern)
 
 		// now generate the initial set of attempts for this pattern
 		patmutex.Lock()
-		for patidx = 0; patidx < args.Persistance; patidx++ {
+		for patidx = 0; patidx < args.Persistence; patidx++ {
+			wg.Add(1)
 			patwg.Add(1)
-			go func(idx int) {
-				trypath(pattern, idx, patstream)
-				patwg.Done()
-			}(patidx)
+			go sh.tryAccount(seed, pattern, patidx, kind, patstream, &wg, &patwg)
 		}
 		patmutex.Unlock()
 
 		// close the pattern stream when we exhaust the pattern possibilities
-		go func() {
+		go func(pattern string) {
 			patwg.Wait()
 			close(patstream)
-		}()
+		}(pattern)
 	}
 
 	// collect all results from all patterns into an array
@@ -155,25 +135,34 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 // try getting an account from the blockchain. If it exists, construct an appropriate
 // struct and pass it along the channel. Discard any errors.
 //
+// each invocation of this function should be run within a new goroutine
+//
 // Does _not_ attempt to discover any private keys
 func (sh *Shell) tryAccount(
-	wg *sync.WaitGroup,
-	seed io.Reader,
-	path string,
+	seed []byte,
+	pattern string,
+	idx int,
 	kind byte,
 	out chan<- Account,
+	wgs ...*sync.WaitGroup,
 ) {
-	defer wg.Done()
+	defer func() {
+		for _, wg := range wgs {
+			wg.Done()
+		}
+	}()
+
+	path := fmt.Sprintf(pattern, idx)
 
 	sh.WriteBatch(func(print func(format string, args ...interface{})) {
 		if sh.Verbose {
-			print("tryAccount(%s, %s)", path, kind)
+			print("tryAccount(%s, %s)", path, string(kind))
 		}
 
 		acct, err := NewAccount(seed, path, kind)
 		if err != nil {
 			if sh.Verbose {
-				print("    %s", err)
+				print("    newaccount: %s", err)
 			}
 			return
 		}
@@ -185,7 +174,7 @@ func (sh *Shell) tryAccount(
 		ad, resp, err := tool.GetAccount(sh.Node, acct.Address)
 		if err != nil {
 			if sh.Verbose {
-				print("    %s", err)
+				print("    getting account: %s", err.Error())
 			}
 			return
 		}
@@ -195,12 +184,22 @@ func (sh *Shell) tryAccount(
 			print("    exists: %t", exists)
 		}
 		if err != nil || !exists {
-			if sh.Verbose {
-				print("    %s", err)
+			if sh.Verbose && err != nil {
+				print("    err determing whether acct exists: %s", err.Error())
 			}
 			return
 		}
 
 		acct.Data = ad
+
+		out <- acct
+		// we know that by sending an account out the outbound channel, we're
+		// about to trigger a new goroutine. We can't increment the WGs at the
+		// site where we launch that goroutine, though, because there's a race
+		// condition: if this is the last currently-existing goroutine, the
+		// channel might close first. Instead, let's increment the WGs here:
+		for _, wg := range wgs {
+			wg.Add(1)
+		}
 	})
 }

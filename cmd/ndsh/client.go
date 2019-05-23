@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -17,6 +18,9 @@ var (
 	// this is a hilarious type
 	servicesJSON     map[string]map[string]map[string]map[string]map[string]string
 	haveServicesJSON chan struct{}
+
+	// ClientURL stores client URL currently in use
+	ClientURL *url.URL
 )
 
 // on init, async get the services list
@@ -35,62 +39,68 @@ func init() {
 	}()
 }
 
-func getClient(network string, node int) client.ABCIClient {
+func getClient(network string, node int) (client.ABCIClient, error) {
 	if node < 0 {
-		bail(fmt.Sprintf("invalid node: %d", node))
+		return nil, fmt.Errorf("invalid node: %d", node)
 	}
 	var netname string
-	var u *url.URL
 	var err error
 	switch strings.ToLower(network) {
 	case "main", "mainnet":
 		netname = "mainnet"
+		ClientURL = nil
 	case "test", "testnet":
 		netname = "testnet"
+		ClientURL = nil
 	case "dev", "devnet":
 		netname = "devnet"
+		ClientURL = nil
 	case "local", "localnet":
-		u, err = url.Parse(fmt.Sprintf("http://localhost:%d", 26670+node))
-		check(err, "bad code in net.go: couldn't parse localnet url")
+		ClientURL, err = url.Parse(fmt.Sprintf("http://localhost:%d", 26670+node))
+		if err != nil {
+			return nil, errors.New("bad code in net.go: couldn't parse localnet url")
+		}
 	default:
-		u, err = url.Parse(network)
+		ClientURL, err = url.Parse(network)
 		if err != nil {
 			// suppress the actual error, but use our own
-			bail(fmt.Sprintf("invalid URL: %s", network))
+			return nil, fmt.Errorf("invalid URL: %s", network)
 		}
 	}
 
-	if u == nil {
+	if ClientURL == nil {
 		// user specified a symbolic name, which means we have to wait for
 		// the AWS query to resolve
 		<-haveServicesJSON
 		nws, ok := servicesJSON["networks"]
 		if !ok {
-			bail("networks key not in services.json")
+			return nil, errors.New("networks key not in services.json")
 		}
 		netjs, ok := nws[netname]
 		if !ok {
-			bail("%s not found in services networks list", netname)
+			return nil, fmt.Errorf("%s not found in services networks list", netname)
 		}
 		nodes, ok := netjs["nodes"]
 		if !ok {
-			bail("nodes key not found in %s services list", netname)
+			return nil, fmt.Errorf("nodes key not found in %s services list", netname)
 		}
 		nodename := fmt.Sprintf("%s-%d", netname, node)
 		svcs, ok := nodes[nodename]
 		if !ok {
-			bail("%s not found in nodes list", nodename)
+			return nil, fmt.Errorf("%s not found in nodes list", nodename)
 		}
 		rpc, ok := svcs["rpc"]
 		if !ok {
-			bail("bad services.json: rpc key not found in %s", nodename)
+			return nil, fmt.Errorf("bad services.json: rpc key not found in %s", nodename)
 		}
-		u, err = url.Parse(rpc)
-		check(err, "invalid services.json for %s", nodename)
+		ClientURL, err = url.Parse(rpc)
+		if err != nil {
+			return nil, errors.Wrap(err, "invalid services.json for "+nodename)
+		}
 	}
 
 	// we have a URL object
 	// ignore any path; we'll supply our own, externally
-	u.Path = ""
-	return client.NewHTTP(u.String(), "/websocket")
+	ClientURL.Path = ""
+	return client.NewHTTP(ClientURL.String(), "/websocket"), nil
 }

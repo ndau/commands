@@ -91,26 +91,37 @@ func (sh *Shell) expandPrompt() string {
 // yet intercept arrows (for in-memory history) or tabs (for completion).
 // This is what we'll want to mess with to change that in the future.
 func (sh *Shell) prompt() {
+	// we can't use sh.Write here, because we don't want a newline.
+	// However, we still want to ensure that we wait until the lock is ready.
+	sh.writelock.Lock()
 	fmt.Print(sh.expandPrompt())
+	sh.writelock.Unlock()
 	input, err := sh.ireader.ReadString('\n')
 	check(err, "scanning input line from user")
 	err = sh.Exec(input)
 	if err != nil {
-		fmt.Println(err)
+		sh.Write(err.Error())
 	}
 }
 
 // Exec runs the command per a given input
 func (sh *Shell) Exec(input string) error {
 	var err error
-	tokens, err := shlex.Split(input)
-	check(err, "tokenizing user input")
-	if len(tokens) > 0 {
-		cmd := sh.Commands[tokens[0]]
-		if cmd == nil {
-			return fmt.Errorf("command not found: '%s'", tokens[0])
+	commands := strings.Split(input, "&&")
+	for _, command := range commands {
+		var tokens []string
+		tokens, err = shlex.Split(command)
+		check(err, "tokenizing user input")
+		if len(tokens) > 0 {
+			cmd := sh.Commands[tokens[0]]
+			if cmd == nil {
+				return fmt.Errorf("command not found: '%s'", tokens[0])
+			}
+			err = cmd.Run(tokens, sh)
 		}
-		err = cmd.Run(tokens, sh)
+		if err != nil {
+			break
+		}
 	}
 	return err
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
-	"io"
 	"sort"
 	"strings"
 
@@ -35,7 +35,12 @@ type Account struct {
 //
 // Kind should be one of the kinds defined in the address package in ndaumath.
 // If it <= 0, it will default to KindUser.
-func NewAccount(seed io.Reader, path string, kind byte) (Account, error) {
+func NewAccount(seed []byte, path string, kind byte) (Account, error) {
+	var err error
+	if seed == nil {
+		seed = make([]byte, key.RecommendedSeedLen)
+		_, err = rand.Read(seed)
+	}
 	if path == "" {
 		path = "/44'/20036'/100/1"
 	}
@@ -47,13 +52,9 @@ func NewAccount(seed io.Reader, path string, kind byte) (Account, error) {
 		Path: path,
 	}
 
-	_, root, err := signature.Generate(signature.Secp256k1, seed)
+	a.root, err = key.NewMaster(seed)
 	if err != nil {
 		return a, errors.Wrap(err, "generating root keys")
-	}
-	a.root, err = key.FromSignatureKey(&root)
-	if err != nil {
-		return a, errors.Wrap(err, "converting root to extended key format")
 	}
 
 	ownPvt, err := a.root.DeriveFrom("/", path)
@@ -171,7 +172,7 @@ func (as *Accounts) Add(a Account, nicknames ...string) {
 			newrnames = append(newrnames, arnames[idxnew])
 			newaccts = append(newaccts, &a)
 			idxnew++
-			if as.rnames[idxexisting] == as.rnames[idxnew] {
+			if as.rnames[idxexisting] == arnames[idxnew] {
 				// if they're equal, we also have to increment the existing index
 				idxexisting++
 			}

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/hex"
 	"sort"
 	"testing"
 
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/stretchr/testify/require"
 )
 
@@ -172,4 +174,23 @@ func TestAccounts_Get(t *testing.T) {
 		_, err := as.Get("")
 		require.NoError(t, err)
 	})
+}
+
+func TestNewAccount(t *testing.T) {
+	seed, err := hex.DecodeString("512a2544a89512a2544a89512a2544a8")
+	require.NoError(t, err)
+	paths := []string{
+		"/44'/20036'/100/0",
+		"/44'/20036'/100/1",
+		"/44'/20036'/100/2",
+	}
+	kind := address.KindUser
+
+	for _, path := range paths {
+		t.Run(path, func(t *testing.T) {
+			a, err := NewAccount(seed, path, kind)
+			require.NoError(t, err)
+			require.NotZero(t, a)
+		})
+	}
 }
