@@ -1,6 +1,8 @@
 #!/bin/bash
 # deploy single node
 
+set -e # exit on errors
+
 # get the directory of this file
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -83,14 +85,60 @@ cat "$TEMPLATE_FILE" | \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
-# Send it to AWS
+# Take down the old service first, to free up the ports.
+echo "Taking down old $network_name-$node_number..."
 ecs-cli compose \
   --verbose \
   --project-name ${network_name}-${node_number} \
   -f ${TMP_FILE} \
-  service up \
-  --force-deployment true \
-  --cluster-config "$CLUSTER_NAME"
+  service down \
+  --cluster "$CLUSTER_NAME"
+
+# Send the new task definition to AWS and start up a new service for the node.
+echo "Bringing up new $network_name-$node_number..."
+# We try in a loop to wait for the old services to drain.
+success=false
+for i in {1..24}; do
+    echo "Attempt $i for $network_name-$node_number..."
+    if ecs-cli compose \
+               --project-name ${network_name}-${node_number} \
+               -f ${TMP_FILE} \
+               service up \
+               --force-deployment \
+               --cluster-config "$CLUSTER_NAME"; then
+        success=true
+        break
+    fi
+    sleep 5
+done
+if [ "$success" != "true" ]; then
+    echo "Failed to bring up $network_name-$node_number"
+    exit 1
+fi
 
 # clean up
 rm "$TMP_FILE"
+
+# Wait for the node to become healthy.
+echo "Waiting for $network_name-$node_number to become healthy..."
+# Only devnet nodes are all on the same instance.
+if [ "$network_name" = "devnet" ]; then
+    cname="$network_name"
+    port="303$node_number"
+else
+    cname="$network_name-$node_number"
+    port="3030"
+fi
+for i in {1..60}; do
+    printf "$node_number" # Use the number we're waiting for since this script is backgrounded.
+    health=$(curl -s "https://$cname.ndau.tech:$port/health")
+    if [ "$health" = '"OK"' ]; then
+        printf "\n"
+        echo "$network_name-$node_number is healthy; its deploy is complete"
+        exit 0
+    fi
+    sleep 2
+done
+
+echo "Timed out waiting for node to become healthy"
+exit 1
