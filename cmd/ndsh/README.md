@@ -17,16 +17,18 @@ safe to run in secure operational environments.
     - has a prompt
     - can exit to surrounding shell with `exit` or `quit`
 - launch with a `--net=X` argument, where `X` can be `main`, `test`, `dev`, `local`, or any URL. Default to `main`.
+- specify commands to execute on launch, and post-execution exit policy
 - enter a 12-word phrase after launch: it isn't exposed to your shell history
 - automatically asynchronously discover accounts for a given phrase
 - manually add undiscovered accounts by derivation path
+- refer to accounts by nicknames or minimal suffixes
+- list known accounts and nicknames
+- manually add nicknamed "foreign" accounts by address
+    - or specify them from the command line (use `-c`)
+- view account details
 
 ### Planned
 
-- manually add nicknamed "foreign" accounts by address
-    - or specify them from the command line
-- refer to accounts by nicknames or minimal suffixes
-- list known accounts and nicknames
 - do most things the ndau tool can do:
     - accounts
         - create new account, return address and derivation path
@@ -62,9 +64,12 @@ safe to run in secure operational environments.
     - just emit the signable bytes of the current state
     - when complete, `write` to serialize the JSON out, or `send` to send to the blockchain
 - arrow-pageable history for non-secret commands
-- customize prompt by (externally) setting `NDSH_PS1` with useful substitutions (?)
-- tab-completion (?)
-- job control (?)
+
+### Maybe
+- customize prompt by (externally) setting `NDSH_PS1` with useful substitutions
+- tab-completion
+- job control
+- use https://github.com/bongole/go-jq to do builtin filters on things which return JSON
 
 ## Conventions
 

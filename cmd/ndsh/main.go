@@ -55,6 +55,8 @@ func main() {
 		Verbose{},
 		Net{},
 		Add{},
+		Watch{},
+		View{},
 	)
 
 	if args.Command != "" {

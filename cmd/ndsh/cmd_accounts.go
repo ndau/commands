@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/alexflint/go-arg"
 )
 
@@ -12,7 +10,7 @@ type ListAccounts struct{}
 var _ Command = (*ListAccounts)(nil)
 
 // Name implements Command
-func (ListAccounts) Name() string { return "accounts" }
+func (ListAccounts) Name() string { return "accounts list" }
 
 // Run implements Command
 func (ListAccounts) Run(argvs []string, sh *Shell) (err error) {
@@ -28,7 +26,7 @@ func (ListAccounts) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	for acct, nicknames := range sh.accts.Reverse() {
-		sh.Write("%s: %s", acct.Address, strings.Join(nicknames, " "))
+		acct.display(sh, nicknames)
 	}
 	return
 }

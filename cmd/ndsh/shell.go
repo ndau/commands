@@ -145,7 +145,7 @@ func (sh *Shell) Write(format string, context ...interface{}) {
 }
 
 // WriteBatch writes connected messages to the shell's output, ensuring it's not interrupted by other routines
-func (sh *Shell) WriteBatch(writes func(write func(format string, context ...interface{}))) {
+func (sh *Shell) WriteBatch(writes func(print func(format string, context ...interface{}))) {
 	sh.writelock.Lock()
 	defer sh.writelock.Unlock()
 	writes(func(format string, context ...interface{}) {

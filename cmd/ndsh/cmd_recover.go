@@ -6,8 +6,6 @@ import (
 	"sync"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/query"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/words"
 )
@@ -173,26 +171,13 @@ func (sh *Shell) tryAccount(
 			print(" -> %s", acct.Address)
 		}
 
-		ad, resp, err := tool.GetAccount(sh.Node, acct.Address)
+		err = acct.Update(sh, print)
 		if err != nil {
-			if sh.Verbose {
-				print("    getting account: %s", err.Error())
+			if !IsAccountDoesNotExist(err) {
+				print("    updating from blockchain: %s", err.Error())
 			}
 			return
 		}
-		exists := false
-		_, err = fmt.Sscanf(resp.Response.Info, query.AccountInfoFmt, &exists)
-		if sh.Verbose {
-			print("    exists: %t", exists)
-		}
-		if err != nil || !exists {
-			if sh.Verbose && err != nil {
-				print("    err determing whether acct exists: %s", err.Error())
-			}
-			return
-		}
-
-		acct.Data = ad
 
 		out <- acct
 		// we know that by sending an account out the outbound channel, we're
