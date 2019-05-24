@@ -58,6 +58,7 @@ func main() {
 		Watch{},
 		View{},
 		New{},
+		RecoverKeys{},
 	)
 
 	if args.Command != "" {

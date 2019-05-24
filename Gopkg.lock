@@ -517,7 +517,7 @@
 
 [[projects]]
   branch = "prgn-parse-kind"
-  digest = "1:6118e67c9e25e160a1e3160209c72ec4b55743b3a9bdc33aed393a4a4356b5f6"
+  digest = "1:7433f9c91c0b2f6030b3f998023f19ade5ef23dce63c2eef028f788ad39da4e4"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -539,7 +539,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "e6f9a389ffe1c9da3f0828da01628bf538e1ccde"
+  revision = "f39e22564d7083a634bf93f8032869963485218a"
 
 [[projects]]
   branch = "master"
@@ -966,6 +966,7 @@
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
+    "github.com/oneiro-ndev/ndau/pkg/query",
     "github.com/oneiro-ndev/ndau/pkg/tool",
     "github.com/oneiro-ndev/ndau/pkg/tool.config",
     "github.com/oneiro-ndev/ndau/pkg/version",

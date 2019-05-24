@@ -7,7 +7,7 @@ import (
 	"github.com/alexflint/go-arg"
 )
 
-// Help leaves the shell
+// Help provides help about general usage and specific commands
 type Help struct{}
 
 var _ Command = (*Help)(nil)
