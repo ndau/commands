@@ -26,12 +26,15 @@ safe to run in secure operational environments.
 - manually add nicknamed "foreign" accounts by address
     - or specify them from the command line (use `-c`)
 - view account details
+- do most things the ndau tool can do:
+    - accounts
+        - create new account, return address and derivation path
+
 
 ### Planned
 
 - do most things the ndau tool can do:
     - accounts
-        - create new account, return address and derivation path
         - claim account
         - claim child account
         - closeout account into another account, transfering out all ndau

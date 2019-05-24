@@ -57,6 +57,7 @@ func main() {
 		Add{},
 		Watch{},
 		View{},
+		New{},
 	)
 
 	if args.Command != "" {

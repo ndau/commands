@@ -140,5 +140,5 @@ func (acct *Account) Update(sh *Shell, print func(format string, args ...interfa
 }
 
 func (acct *Account) display(sh *Shell, nicknames []string) {
-	sh.Write("%s: %s", acct.Address, strings.Join(nicknames, " "))
+	sh.Write("%s (%s): %s", acct.Address, acct.Path, strings.Join(nicknames, " "))
 }

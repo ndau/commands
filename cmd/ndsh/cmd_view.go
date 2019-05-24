@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// View leaves the shell
+// View views an account
 type View struct{}
 
 var _ Command = (*View)(nil)
