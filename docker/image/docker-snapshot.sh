@@ -18,7 +18,7 @@ fi
 echo "Generating $NETWORK snapshot..."
 
 # Remove any existing snapshot from the container.  The user should copy each one out every time.
-rm -rf "$SCRIPT_DIR/snapshot-*.tgz"
+rm -rf "$SCRIPT_DIR"/snapshot-*.tgz
 
 # Make a temp dir for copying data files into for tar'ing up later in this script.
 SNAPSHOT_TEMP_DIR="$SCRIPT_DIR"/snapshot-temp
