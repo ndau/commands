@@ -6,6 +6,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/oneiro-ndev/ndaumath/pkg/key"
 	"github.com/oneiro-ndev/ndaumath/pkg/words"
 	"github.com/pkg/errors"
 )
@@ -70,6 +71,11 @@ func (r runargs) acct(sh *Shell) (*Account, error) {
 			return nil, err
 		}
 
+		root, err := key.NewMaster(seed)
+		if err != nil {
+			return nil, err
+		}
+
 		kind, err := address.ParseKind(r.Kind)
 		if err != nil {
 			return nil, err
@@ -79,7 +85,7 @@ func (r runargs) acct(sh *Shell) (*Account, error) {
 		var wg sync.WaitGroup
 		wg.Add(1)
 
-		go sh.tryAccount(seed, r.Path, kind, acctstream, &wg)
+		go sh.tryAccount(root, r.Path, kind, acctstream, &wg)
 		wg.Wait()
 		close(acctstream)
 		acct, ok := <-acctstream

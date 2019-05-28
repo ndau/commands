@@ -38,8 +38,7 @@ func (Verbose) Run(argvs []string, sh *Shell) (err error) {
 		sh.Verbose = false
 	}
 
-	if sh.Verbose {
-		sh.Write("verbose mode: %t\n", sh.Verbose)
-	}
+	sh.Write("verbose mode: %t\n", sh.Verbose)
+
 	return
 }

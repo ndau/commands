@@ -14,11 +14,12 @@ type View struct{}
 var _ Command = (*View)(nil)
 
 // Name implements Command
-func (View) Name() string { return "view" }
+func (View) Name() string { return "view show" }
 
 type viewargs struct {
-	Account string `arg:"positional,required" help:"view this account"`
-	Update  bool   `arg:"-u" help:"update this account from the blockchain before viewing"`
+	Account     string `arg:"positional,required" help:"view this account"`
+	Update      bool   `arg:"-u" help:"update this account from the blockchain before viewing"`
+	PrivateKeys bool   `help:"show the private keys associated with this account instead of the account data"`
 	// TODO:
 	// JQ string `help:"filter output json by this jq expression"`
 }
@@ -62,7 +63,14 @@ func (View) Run(argvs []string, sh *Shell) (err error) {
 		}
 	}
 
-	jsdata, err := json.MarshalIndent(acct.Data, "", "  ")
+	var data interface{}
+	if args.PrivateKeys {
+		data = acct.PrivateValidationKeys
+	} else {
+		data = acct.Data
+	}
+
+	jsdata, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		err = errors.Wrap(err, "marshalling account data to json")
 		return

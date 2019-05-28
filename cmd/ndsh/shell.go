@@ -149,7 +149,7 @@ func (sh *Shell) WriteBatch(writes func(print func(format string, context ...int
 	sh.writelock.Lock()
 	defer sh.writelock.Unlock()
 	writes(func(format string, context ...interface{}) {
-		if format[len(format)-1] != '\n' {
+		if format == "" || format[len(format)-1] != '\n' {
 			format += "\n"
 		}
 		fmt.Fprintf(sh.writer, format, context...)

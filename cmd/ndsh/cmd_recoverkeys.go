@@ -9,11 +9,20 @@ import (
 	"github.com/pkg/errors"
 )
 
-var keyPatterns = []string{
-	"/44'/20036'/2000/%d/%d",
-	"/44'/20036'/100/%d/44'/20036'/2000/%d",
-	"/44'/20036'/100/10000/%d/%d",
-	"/44'/20036'/100/10000'/%d'/%d",
+func kpf(kp string) func(int, int) string {
+	return func(acct, key int) string {
+		return fmt.Sprintf(kp, acct, key)
+	}
+}
+
+var keyPatterns = []func(acctidx, keyidx int) string{
+	kpf("/44'/20036'/2000/%d/%d"),
+	kpf("/44'/20036'/100/%d/44'/20036'/2000/%d"),
+	kpf("/44'/20036'/100/10000/%d/%d"),
+	kpf("/44'/20036'/100/10000'/%d'/%d"),
+	func(acct, key int) string {
+		return fmt.Sprintf("/44'/20036'/100/%d/44'/20036'/100/10000/%d/%d", acct, acct, key)
+	},
 }
 
 // RecoverKeys recovers the keys of an account
@@ -22,7 +31,7 @@ type RecoverKeys struct{}
 var _ Command = (*RecoverKeys)(nil)
 
 // Name implements Command
-func (RecoverKeys) Name() string { return "recover-keys recover" }
+func (RecoverKeys) Name() string { return "recover-keys" }
 
 type recoverkeysargs struct {
 	Account     string `arg:"positional,required" help:"recover keys for this account"`
@@ -47,7 +56,9 @@ the root key is known.
 
 // Run implements Command
 func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
-	args := recoverkeysargs{}
+	args := recoverkeysargs{
+		Persistence: 50,
+	}
 
 	err = ParseInto(argvs, &args)
 	if err != nil {
@@ -83,9 +94,17 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 	for _, public := range acct.Data.ValidationKeys {
 		remaining[&public] = struct{}{}
 	}
+	if sh.Verbose {
+		sh.Write("existing validation keys on blockchain:")
+		for rem := range remaining {
+			sh.Write("  %s", rem)
+		}
+	}
 
 	found := 0
-	defer sh.Write("found %d private keys", found)
+	defer func(found *int) {
+		sh.Write("found %d private keys", *found)
+	}(&found)
 
 	for _, pattern := range keyPatterns {
 		keyidx := 0
@@ -103,6 +122,7 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 					acct.PrivateValidationKeys,
 					*pvt,
 				)
+				found++
 			}
 			if len(remaining) == 0 {
 				return
@@ -117,7 +137,7 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 func deriveKey(
 	sh *Shell,
 	failures *int,
-	pattern string,
+	pattern func(int, int) string,
 	acctidx uint, keyidx *int,
 	acct *Account,
 	remaining map[*signature.PublicKey]struct{},
@@ -130,7 +150,7 @@ func deriveKey(
 		}
 	}()
 
-	keypath := fmt.Sprintf(pattern, acctidx, keyidx)
+	keypath := pattern(int(acctidx), *keyidx)
 	if sh.Verbose {
 		sh.Write("deriving key from pattern %s...", keypath)
 	}
@@ -145,11 +165,17 @@ func deriveKey(
 		sh.Write("%s: %s", "getting signature-style key from key", err)
 		return nil
 	}
+	if sh.Verbose {
+		sh.Write("  %s", pvt)
+	}
 
 	for pub := range remaining {
 		if signature.Match(*pub, *pvt) {
 			succeeded = true
 			delete(remaining, pub)
+			if sh.Verbose {
+				sh.Write("  matches %s; %d pubkeys remaining", pub, len(remaining))
+			}
 			return pvt
 		}
 	}
