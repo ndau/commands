@@ -34,7 +34,7 @@ var _ Command = (*RecoverKeys)(nil)
 func (RecoverKeys) Name() string { return "recover-keys" }
 
 type recoverkeysargs struct {
-	Account     string `arg:"positional,required" help:"recover keys for this account"`
+	Account     string `arg:"positional" help:"recover keys for this account"`
 	Persistence int    `help:"number of non-keys to discover before deciding there are no more in a particular derivation style"`
 }
 
@@ -122,6 +122,9 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 					acct.PrivateValidationKeys,
 					*pvt,
 				)
+				if keyidx > acct.highKeyidx {
+					acct.highKeyidx = keyidx
+				}
 				found++
 			}
 			if len(remaining) == 0 {

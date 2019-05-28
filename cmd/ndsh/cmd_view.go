@@ -17,7 +17,7 @@ var _ Command = (*View)(nil)
 func (View) Name() string { return "view show" }
 
 type viewargs struct {
-	Account     string `arg:"positional,required" help:"view this account"`
+	Account     string `arg:"positional" help:"view this account"`
 	Update      bool   `arg:"-u" help:"update this account from the blockchain before viewing"`
 	PrivateKeys bool   `help:"show the private keys associated with this account instead of the account data"`
 	// TODO:

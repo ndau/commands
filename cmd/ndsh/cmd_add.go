@@ -85,7 +85,7 @@ func (r runargs) acct(sh *Shell) (*Account, error) {
 		var wg sync.WaitGroup
 		wg.Add(1)
 
-		go sh.tryAccount(root, r.Path, kind, acctstream, &wg)
+		go sh.tryAccount(root, 0, r.Path, kind, acctstream, &wg)
 		wg.Wait()
 		close(acctstream)
 		acct, ok := <-acctstream

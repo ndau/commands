@@ -31,18 +31,18 @@ const (
 
 func main() {
 	args := struct {
-		Neturl  string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
+		Net     string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
 		Node    int    `arg:"-n" help:"node number to which to connect"`
 		Verbose bool   `arg:"-v" help:"emit additional debug data"`
 		Command string `arg:"-c" help:"run this command"`
 		CMode   int    `arg:"-C" help:"when to exit after running a command. 0 (default): always; 1: if no err; 2: if err; 3: never"`
 	}{
-		Neturl: "mainnet",
+		Net: "mainnet",
 	}
 
 	arg.MustParse(&args)
 
-	client, err := getClient(args.Neturl, args.Node)
+	client, err := getClient(args.Net, args.Node)
 	check(err, "setting up connection to node")
 
 	shell := NewShell(
@@ -59,6 +59,7 @@ func main() {
 		View{},
 		New{},
 		RecoverKeys{},
+		Claim{},
 	)
 
 	if args.Command != "" {

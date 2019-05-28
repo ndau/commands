@@ -110,7 +110,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 
 				// note: we don't increment the wgs here for the new goroutine
 				// that's the responsibility of the old goroutine
-				go sh.tryAccount(root, path, kind, patstream, &wg, &patwg)
+				go sh.tryAccount(root, patidx, path, kind, patstream, &wg, &patwg)
 
 				patidx++
 				patmutex.Unlock()
@@ -124,7 +124,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 			patwg.Add(1)
 
 			path := fmt.Sprintf(pattern, patidx)
-			go sh.tryAccount(root, path, kind, patstream, &wg, &patwg)
+			go sh.tryAccount(root, patidx, path, kind, patstream, &wg, &patwg)
 		}
 		patmutex.Unlock()
 
@@ -166,6 +166,7 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 // Does _not_ attempt to discover any private keys
 func (sh *Shell) tryAccount(
 	root *key.ExtendedKey,
+	acctidx int,
 	path string,
 	kind byte,
 	out chan<- Account,
@@ -183,6 +184,7 @@ func (sh *Shell) tryAccount(
 		}
 
 		acct, err := newAccountFromRoot(root, path, kind)
+		acct.acctidx = acctidx
 		if err != nil {
 			if sh.Verbose {
 				print("    newaccount: %s", err)

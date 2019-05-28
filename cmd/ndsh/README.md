@@ -29,13 +29,13 @@ safe to run in secure operational environments.
 - do most things the ndau tool can do:
     - accounts
         - create new account, return address and derivation path
+        - claim account
 
 
 ### Planned
 
 - do most things the ndau tool can do:
     - accounts
-        - claim account
         - claim child account
         - closeout account into another account, transfering out all ndau
         - add, remove, list, or edit validation script (specify `.chasm` or `.chbin` file)

@@ -23,6 +23,8 @@ type Account struct {
 	Address               address.Address
 	Data                  *backing.AccountData
 	PrivateValidationKeys []signature.PrivateKey
+	acctidx               int
+	highKeyidx            int
 }
 
 // NewAccount creates a new Account from a seed and derivation path
@@ -131,6 +133,7 @@ func (acct *Account) Update(sh *Shell, print func(format string, args ...interfa
 		return err
 	}
 	if !exists {
+		acct.Data = &backing.AccountData{}
 		return AccountDoesNotExist{acct.Address}
 	}
 

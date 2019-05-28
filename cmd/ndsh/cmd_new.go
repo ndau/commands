@@ -137,7 +137,6 @@ func (New) Run(argvs []string, sh *Shell) (err error) {
 	if err != nil {
 		return errors.Wrap(err, "constructing account")
 	}
-	sh.Write("derived from %s:", args.Path)
 	acct.display(sh, args.Nicknames)
 
 	sh.accts.Add(&acct, args.Nicknames...)
