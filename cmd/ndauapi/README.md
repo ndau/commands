@@ -1650,7 +1650,8 @@ _**Writes:**_
           "sib_napu": 10,
           "err": "Err and ErrCode are only set if an error occurred",
           "hash": "123abc34099f",
-          "msg": "only set if additional information is available"
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
@@ -1696,7 +1697,8 @@ _**Writes:**_
 ```json
         {
           "hash": "123abc34099f",
-          "msg": "only set if additional information is available"
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
