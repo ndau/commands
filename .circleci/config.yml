@@ -353,8 +353,11 @@ jobs:
             gzip -f /root/ndauimage-$SHA.docker
             aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
             # update the current-*.txt file for the network we're deploying to
-            echo $SHA > /root/current-$NETWORK_NAME.txt
-            aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+            # but only if we're deploying to master (e.g. don't do this for tagged pushes)
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+                echo $SHA > /root/current-$NETWORK_NAME.txt
+                aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+            fi
             # retag built image
             docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
             docker rmi ndauimage:$SHA
