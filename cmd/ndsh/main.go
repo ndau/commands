@@ -31,11 +31,12 @@ const (
 
 func main() {
 	args := struct {
-		Net     string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
-		Node    int    `arg:"-n" help:"node number to which to connect"`
-		Verbose bool   `arg:"-v" help:"emit additional debug data"`
-		Command string `arg:"-c" help:"run this command"`
-		CMode   int    `arg:"-C" help:"when to exit after running a command. 0 (default): always; 1: if no err; 2: if err; 3: never"`
+		Net      string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
+		Node     int    `arg:"-n" help:"node number to which to connect"`
+		Verbose  bool   `arg:"-v" help:"emit additional debug data"`
+		Command  string `arg:"-c" help:"run this command"`
+		CMode    int    `arg:"-C" help:"when to exit after running a command. 0 (default): always; 1: if no err; 2: if err; 3: never"`
+		SysAccts string `arg:"--system-accts" help:"load system_accts.toml from this path"`
 	}{
 		Net: "mainnet",
 	}
@@ -62,7 +63,16 @@ func main() {
 		Claim{},
 		Tx{},
 		ChangeValidation{},
+		LoadSystemAccounts{},
+		Sysvar{},
 	)
+
+	shell.VWrite("initialized shell...")
+
+	if args.SysAccts != "" {
+		err = shell.LoadSystemAccts(args.SysAccts)
+		check(err, "loading system accounts")
+	}
 
 	if args.Command != "" {
 		code := 0
@@ -89,5 +99,6 @@ func main() {
 		}
 	}
 
+	shell.VWrite("running shell...")
 	shell.Run()
 }

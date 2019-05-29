@@ -46,12 +46,12 @@ func (View) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	var acct *Account
-	acct, err = sh.accts.Get(args.Account)
+	acct, err = sh.Accts.Get(args.Account)
 	if err != nil {
 		return
 	}
 
-	acct.display(sh, sh.accts.Reverse()[acct])
+	acct.display(sh, sh.Accts.Reverse()[acct])
 
 	if args.Update {
 		if sh.Verbose {

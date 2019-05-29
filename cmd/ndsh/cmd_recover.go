@@ -147,12 +147,12 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 	sh.Write("Discovered %d accounts:", len(accounts))
 	for _, acct := range accounts {
 		sh.Write("  %s (%s)\n", acct.Address, acct.Path)
-		sh.accts.Add(&acct)
+		sh.Accts.Add(&acct)
 	}
 	// add nicknames if we've recovered exactly one account
 	if len(accounts) == 1 && len(args.Nicknames) > 0 {
 		sh.Write("Adding nicknames to %s: %s", accounts[0].Address, strings.Join(args.Nicknames, ", "))
-		sh.accts.Add(&accounts[0], args.Nicknames...)
+		sh.Accts.Add(&accounts[0], args.Nicknames...)
 	}
 
 	return err

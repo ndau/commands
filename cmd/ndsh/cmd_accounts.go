@@ -25,7 +25,7 @@ func (ListAccounts) Run(argvs []string, sh *Shell) (err error) {
 		return
 	}
 
-	for acct, nicknames := range sh.accts.Reverse() {
+	for acct, nicknames := range sh.Accts.Reverse() {
 		acct.display(sh, nicknames)
 	}
 	return

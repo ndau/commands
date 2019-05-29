@@ -8,8 +8,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/google/shlex"
+	"github.com/mitchellh/go-homedir"
 	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -22,11 +27,12 @@ type Shell struct {
 	Node     client.ABCIClient
 	Verbose  bool
 	Staged   *Stage
+	Accts    *Accounts
 
-	ireader   *bufio.Reader
-	accts     *Accounts
-	writelock sync.Mutex
-	writer    *bufio.Writer
+	ireader     *bufio.Reader
+	writelock   sync.Mutex
+	writer      *bufio.Writer
+	systemAccts map[string]string
 }
 
 // NewShell initializes the shell
@@ -38,7 +44,7 @@ func NewShell(verbose bool, node client.ABCIClient, commands ...Command) *Shell 
 		Node:     node,
 		Verbose:  verbose,
 		ireader:  bufio.NewReader(os.Stdin),
-		accts:    NewAccounts(),
+		Accts:    NewAccounts(),
 		writer:   bufio.NewWriter(os.Stdout),
 	}
 	for _, command := range commands {
@@ -180,4 +186,83 @@ func (sh *Shell) VWrite(format string, context ...interface{}) {
 	if sh.Verbose {
 		sh.Write(format, context...)
 	}
+}
+
+// LoadSystemAccts from system_accts.toml
+func (sh *Shell) LoadSystemAccts(path string) (err error) {
+	path = os.ExpandEnv(path)
+	path, err = homedir.Expand(path)
+	if err != nil {
+		return errors.Wrap(err, "expanding homedir")
+	}
+
+	_, err = toml.DecodeFile(path, &sh.systemAccts)
+	if err != nil {
+		return errors.Wrap(err, "decoding "+path)
+	}
+	return nil
+}
+
+func (sh *Shell) saStr(sv string) (string, error) {
+	if sh.systemAccts == nil {
+		return "", errors.New("system accounts not loaded")
+	}
+	s, ok := sh.systemAccts[sv]
+	if !ok {
+		return "", errors.New(sv + " not found in system accounts")
+	}
+	return s, nil
+}
+
+// SAAddr returns the system account address for a given system variable
+func (sh *Shell) SAAddr(sv string) (*address.Address, error) {
+	s, err := sh.saStr(sv)
+	if err != nil {
+		return nil, err
+	}
+	a, err := address.Validate(s)
+	return &a, err
+}
+
+// SAPrivateKey returns the private key for a given system variable
+func (sh *Shell) SAPrivateKey(sv string) (*signature.PrivateKey, error) {
+	s, err := sh.saStr(sv)
+	if err != nil {
+		return nil, err
+	}
+	return signature.ParsePrivateKey(s)
+}
+
+// SAPublicKey returns the public key for a given system variable
+func (sh *Shell) SAPublicKey(sv string) (*signature.PublicKey, error) {
+	s, err := sh.saStr(sv)
+	if err != nil {
+		return nil, err
+	}
+	return signature.ParsePublicKey(s)
+}
+
+// SAAcct returns an Account for the magic account for a system variable.
+//
+// Does not add this account to the accounts list
+func (sh *Shell) SAAcct(addressName string, validationPrivateName string) (*Account, error) {
+	addr, err := sh.SAAddr(addressName)
+	if err != nil {
+		return nil, errors.Wrap(err, "getting address for magic account")
+	}
+
+	pvt, err := sh.SAPrivateKey(validationPrivateName)
+	if err != nil {
+		return nil, err
+	}
+
+	acct := &Account{
+		Address: *addr,
+		PrivateValidationKeys: []signature.PrivateKey{
+			*pvt,
+		},
+	}
+	err = acct.Update(sh, sh.Write)
+	err = errors.Wrap(err, "updating magic account")
+	return acct, err
 }

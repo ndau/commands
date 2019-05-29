@@ -55,7 +55,7 @@ func (r runargs) acct(sh *Shell) (*Account, error) {
 		return nil, errors.New("cannot set both `-r` and `-S`")
 	}
 	if r.SeedFrom != "" {
-		return sh.accts.Get(r.SeedFrom)
+		return sh.Accts.Get(r.SeedFrom)
 	}
 	if r.SeedPhrase != "" {
 		seedwords := strings.Split(r.SeedPhrase, " ")
@@ -101,7 +101,7 @@ func (r runargs) acct(sh *Shell) (*Account, error) {
 
 		// if we already know about this account, return the one we know of
 		// instead of the same one at a different pointer
-		sacct, err := sh.accts.Get(acct.Address.String())
+		sacct, err := sh.Accts.Get(acct.Address.String())
 		if err == nil {
 			return sacct, nil
 		}
@@ -138,7 +138,7 @@ func (Add) Run(argvs []string, sh *Shell) (err error) {
 		// special case: add an account with a new derivation path (-p)
 		// from the same seed which derived an existing account (-r)
 		var existing *Account
-		existing, err = sh.accts.Get(args.SeedFrom)
+		existing, err = sh.Accts.Get(args.SeedFrom)
 		if err != nil {
 			return
 		}
@@ -154,13 +154,13 @@ func (Add) Run(argvs []string, sh *Shell) (err error) {
 		// if we've set a path, we expect to create an account
 		acct, err = args.acct(sh)
 	} else if args.SeedFrom != "" {
-		acct, err = sh.accts.Get(args.SeedFrom)
+		acct, err = sh.Accts.Get(args.SeedFrom)
 	}
 	if err != nil {
 		return
 	}
 
-	sh.accts.Add(acct, args.Nicknames...)
+	sh.Accts.Add(acct, args.Nicknames...)
 
 	return
 }

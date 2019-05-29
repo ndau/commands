@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -84,7 +83,7 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if args.Account != "" {
-		sh.Staged.Account, err = sh.accts.Get(args.Account)
+		sh.Staged.Account, err = sh.Accts.Get(args.Account)
 		if err != nil {
 			return errors.Wrap(err, "getting account")
 		}
@@ -102,31 +101,11 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 			return errors.New("-k and -v can only be used together")
 		}
 
-		// people will probably want to use bare strings for values sometimes.
-		// When are they doing so?
-		var autoquote bool
-		if args.OverrideValue == "null" ||
-			(args.OverrideValue[0] == '"' && args.OverrideValue[len(args.OverrideValue)-1] == '"') ||
-			(args.OverrideValue[0] == '[' && args.OverrideValue[len(args.OverrideValue)-1] == ']') ||
-			(args.OverrideValue[0] == '{' && args.OverrideValue[len(args.OverrideValue)-1] == '}') {
-			autoquote = false
-		} else if _, err := strconv.ParseFloat(args.OverrideValue, 64); err == nil {
-			autoquote = false
-		} else {
-			autoquote = true
-		}
-		if autoquote {
-			args.OverrideValue = fmt.Sprintf("\"%s\"", args.OverrideValue)
-		}
-
-		// we have to json-unmarshal the value in order to ensure that
-		// we set the right datatype
 		var value interface{}
-		err = json.Unmarshal([]byte(args.OverrideValue), &value)
+		value, err = parseJSON(args.OverrideValue)
 		if err != nil {
-			return errors.Wrap(err, "interpreting value as JSON")
+			return err
 		}
-
 		err = sh.Staged.Override(args.OverrideKey, value)
 		if err != nil {
 			return errors.Wrap(err, "updating "+args.OverrideKey)

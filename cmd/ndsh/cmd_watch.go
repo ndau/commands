@@ -48,7 +48,7 @@ func (Watch) Run(argvs []string, sh *Shell) (err error) {
 		return
 	}
 
-	sh.accts.Add(a, args.Nicknames...)
+	sh.Accts.Add(a, args.Nicknames...)
 
 	return
 }

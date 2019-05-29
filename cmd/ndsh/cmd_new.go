@@ -75,7 +75,7 @@ func (New) Run(argvs []string, sh *Shell) (err error) {
 	var root *key.ExtendedKey
 	if args.ShareSeed != "" {
 		var shared *Account
-		shared, err = sh.accts.Get(args.ShareSeed)
+		shared, err = sh.Accts.Get(args.ShareSeed)
 		if err != nil {
 			return
 		}
@@ -95,7 +95,7 @@ func (New) Run(argvs []string, sh *Shell) (err error) {
 					return errors.Wrap(err, "getting idx of path of shared account")
 				}
 
-				for _, acct := range sh.accts.accts {
+				for _, acct := range sh.Accts.accts {
 					if acct.root == shared.root && acct.Path != "" {
 						_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &idx)
 						if err != nil {
@@ -147,7 +147,7 @@ func (New) Run(argvs []string, sh *Shell) (err error) {
 	}
 	acct.display(sh, args.Nicknames)
 
-	sh.accts.Add(&acct, args.Nicknames...)
+	sh.Accts.Add(&acct, args.Nicknames...)
 
 	return
 }
