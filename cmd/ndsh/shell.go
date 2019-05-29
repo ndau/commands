@@ -174,3 +174,10 @@ func (sh *Shell) WriteBatch(writes func(print func(format string, context ...int
 	})
 	sh.writer.Flush()
 }
+
+// VWrite writes the message if the shell is in Verbose mode
+func (sh *Shell) VWrite(format string, context ...interface{}) {
+	if sh.Verbose {
+		sh.Write(format, context...)
+	}
+}

@@ -31,6 +31,8 @@ safe to run in secure operational environments.
         - create new account, return address and derivation path
         - claim account
         - update status from blockchain
+        - add, remove validation script
+        - perform CRUD operations on arbitrary validation keys
 - staged mode for transactions:
     - override any field (via JSON representation)
     - add signatures from arbitrary private keys
@@ -44,8 +46,6 @@ safe to run in secure operational environments.
     - accounts
         - claim child account
         - closeout account into another account, transfering out all ndau
-        - add, remove, list, or edit validation script (specify `.chasm` or `.chbin` file)
-        - perform CRUD operations on arbitrary validation keys
         - change recourse period
         - delegate
         - send `CreditEAI` tx

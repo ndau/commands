@@ -61,6 +61,7 @@ func main() {
 		RecoverKeys{},
 		Claim{},
 		Tx{},
+		ChangeValidation{},
 	)
 
 	if args.Command != "" {
