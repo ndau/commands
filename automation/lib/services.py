@@ -6,7 +6,7 @@ import requests
 import sys
 
 
-def get_network_urls(network_name, node_name):
+def get_services(network_name, node_name):
     """
     Return a dictionary with node name keys and protocol://domain:port for the values for the
     given network's node from services.json.

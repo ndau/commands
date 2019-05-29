@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from lib.args import get_args
-from lib.services import get_network_urls
+from lib.services import get_services
 import json
 import requests
 
@@ -13,7 +13,7 @@ def main():
 
     network_name, node_name = get_args()
 
-    apis, rpcs = get_network_urls(network_name, node_name)
+    apis, rpcs = get_services(network_name, node_name)
 
     heights = {}
 
