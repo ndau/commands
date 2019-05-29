@@ -28,10 +28,10 @@ func (Claim) Name() string { return "claim set-validation" }
 
 type claimargs struct {
 	Account          string   `arg:"positional" help:"account to claim"`
-	NumKeys          uint     `arg:"-n" help:"number of validation keys to set"`
+	NumKeys          uint     `arg:"-n,--num-keys" help:"number of validation keys to set"`
 	Paths            []string `arg:"-p,separate" help:"use these keypaths"`
-	ValidationScript string   `arg:"-s" help:"set this validation script (base64)"`
-	WalletCompat     bool     `arg:"-C" help:"if set, generate keypaths the way the wallet does"`
+	ValidationScript string   `arg:"-s,--script" help:"set this validation script (base64)"`
+	WalletCompat     bool     `arg:"-C,--wallet-compat" help:"if set, generate keypaths the way the wallet does"`
 	Update           bool     `arg:"-u" help:"update this account from the blockchain before creating tx"`
 	Stage            bool     `arg:"-S" help:"stage this tx; do not send it"`
 }

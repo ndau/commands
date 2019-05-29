@@ -26,10 +26,10 @@ var _ Command = (*New)(nil)
 func (New) Name() string { return "new" }
 
 type newargs struct {
-	ShareSeed string   `arg:"-S" help:"share the seed phrase with this account"`
-	SeedSize  uint     `help:"num bytes of random seed used to generate seed phrase"`
+	ShareSeed string   `arg:"-S,--share-seed" help:"share the seed phrase with this account"`
+	SeedSize  uint     `arg:"--seed-size" help:"num bytes of random seed used to generate seed phrase"`
 	Path      string   `arg:"-p" help:"create account with this derivation path"`
-	PathIdx   uint     `arg:"-i" help:"use this value as the account index"`
+	PathIdx   uint     `arg:"-i,--path-idx" help:"use this value as the account index"`
 	Lang      string   `arg:"-l" help:"seed phrase language"`
 	Kind      string   `arg:"-k" help:"kind of account"`
 	Nicknames []string `arg:"-n,separate" help:"short nicknames which can refer to this account"`

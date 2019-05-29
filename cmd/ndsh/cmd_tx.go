@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -23,10 +24,12 @@ var _ Command = (*Tx)(nil)
 func (Tx) Name() string { return "tx" }
 
 type txargs struct {
-	Name          string                 `arg:"-n" help:"name of tx to stage (with -j)"`
-	FromJSON      string                 `arg:"-j" help:"stage a tx based on this JSON data (with -n)"`
+	Name          string                 `arg:"-n" help:"with -j, name of tx to stage"`
+	FromJSON      string                 `arg:"-j,--json" help:"with -n, stage a tx based on this JSON data"`
 	Account       string                 `arg:"-a" help:"associate the staged tx with this account"`
 	Sequence      uint                   `arg:"-s" help:"set tx sequence to this value and re-sign with account keys"`
+	OverrideKey   string                 `arg:"-k,--key" help:"with -v, override this key to that value"`
+	OverrideValue string                 `arg:"-v,--value" help:"with -k, override that key to this value"`
 	Signatures    []signature.Signature  `arg:"separate" help:"add raw signatures to this tx"`
 	SignWith      []signature.PrivateKey `arg:"separate" help:"add signatures to this tx with this private key"`
 	SignableBytes bool                   `arg:"-b" help:"print the base64 signable bytes of this tx and return"`
@@ -88,52 +91,45 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if args.Sequence > 0 {
-		// this is a bit of a nasty hack, but we can't get around it: we know
-		// that every tx has a Sequence field, and we'd like to manipulate it.
-		// Go, however, doesn't know that every tx has a Sequence field.
-		// It therefore won't let us do that.
-		// What we can do is marshal it to JSON, unmarshal it into a dict,
-		// set the sequence, and unmarshal.
-		var data []byte
-		var jsdata map[string]interface{}
-		data, err = json.Marshal(sh.Staged.Tx)
+		err = sh.Staged.Override("sequence", args.Sequence)
 		if err != nil {
-			return errors.Wrap(err, "marshaling staged tx for sequence edit")
+			return errors.Wrap(err, "updating sequence")
 		}
-		err = json.Unmarshal(data, &jsdata)
-		if err != nil {
-			return errors.Wrap(err, "unmarshaling tx into map for sequence edit")
+	}
+
+	if args.OverrideKey != "" || args.OverrideValue != "" {
+		if (args.OverrideKey == "") != (args.OverrideValue == "") {
+			return errors.New("-k and -v can only be used together")
 		}
 
-		// update sequence
-		jsdata["sequence"] = args.Sequence
-
-		// clear existing signatures: they'll be invalid now
-		jsdata["signature"] = nil
-		jsdata["signatures"] = nil
-
-		// clear out the tx object
-		txid, err := metatx.TxIDOf(sh.Staged.Tx, ndau.TxIDs)
-		if err != nil {
-			return errors.Wrap(err, "getting txid")
+		// people will probably want to use bare strings for values sometimes.
+		// When are they doing so?
+		var autoquote bool
+		if args.OverrideValue == "null" ||
+			(args.OverrideValue[0] == '"' && args.OverrideValue[len(args.OverrideValue)-1] == '"') ||
+			(args.OverrideValue[0] == '[' && args.OverrideValue[len(args.OverrideValue)-1] == ']') ||
+			(args.OverrideValue[0] == '{' && args.OverrideValue[len(args.OverrideValue)-1] == '}') {
+			autoquote = false
+		} else if _, err := strconv.ParseFloat(args.OverrideValue, 64); err == nil {
+			autoquote = false
+		} else {
+			autoquote = true
 		}
-		sh.Staged.Tx = metatx.Clone(ndau.TxIDs[txid])
-
-		data, err = json.Marshal(jsdata)
-		if err != nil {
-			return errors.Wrap(err, "marshaling sequence edited tx")
-		}
-		err = json.Unmarshal(data, &sh.Staged.Tx)
-		if err != nil {
-			return errors.Wrap(err, "unmarshaling sequence edited tx")
+		if autoquote {
+			args.OverrideValue = fmt.Sprintf("\"%s\"", args.OverrideValue)
 		}
 
-		// re-sign with associated account
-		if sh.Staged.Account != nil {
-			err = sh.Staged.Sign(nil)
-			if err != nil {
-				return err
-			}
+		// we have to json-unmarshal the value in order to ensure that
+		// we set the right datatype
+		var value interface{}
+		err = json.Unmarshal([]byte(args.OverrideValue), &value)
+		if err != nil {
+			return errors.Wrap(err, "interpreting value as JSON")
+		}
+
+		err = sh.Staged.Override(args.OverrideKey, value)
+		if err != nil {
+			return errors.Wrap(err, "updating "+args.OverrideKey)
 		}
 	}
 

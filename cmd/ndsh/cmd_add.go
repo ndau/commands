@@ -20,8 +20,8 @@ var _ Command = (*Add)(nil)
 func (Add) Name() string { return "add" }
 
 type runargs struct {
-	SeedFrom   string   `arg:"-r" help:"use the same seed as this account"`
-	SeedPhrase string   `arg:"-S" help:"seed phrase generating the required seed"`
+	SeedFrom   string   `arg:"-r,--seed-from" help:"use the same seed as this account"`
+	SeedPhrase string   `arg:"-S,--seed-phrase" help:"seed phrase generating the required seed"`
 	Path       string   `arg:"-p" help:"create account with this derivation path"`
 	Nicknames  []string `arg:"-n,separate" help:"short nicknames which can refer to this account. Only applied if exactly one account was recovered"`
 	Lang       string   `arg:"-l" help:"recovery phrase language"`

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
@@ -56,4 +57,54 @@ func (s *Stage) Sign(sigs []signature.Signature) error {
 	default:
 		return fmt.Errorf("cannot sign %T", v)
 	}
+}
+
+// Override the specified field name with the given value
+func (s *Stage) Override(k string, v interface{}) error {
+	if s == nil || s.Tx == nil {
+		return ErrNilStage
+	}
+
+	data, err := json.Marshal(s.Tx)
+	if err != nil {
+		return errors.Wrap(err, "marshaling staged tx for override")
+	}
+	var jsdata map[string]interface{}
+	err = json.Unmarshal(data, &jsdata)
+	if err != nil {
+		return errors.Wrap(err, "unmarshaling tx into map for override")
+	}
+
+	// update sequence
+	jsdata[k] = v
+
+	// clear existing signatures: they'll be invalid now
+	delete(jsdata, "signature")
+	delete(jsdata, "signatures")
+
+	// clear out the tx object
+	txid, err := metatx.TxIDOf(s.Tx, ndau.TxIDs)
+	if err != nil {
+		return errors.Wrap(err, "getting txid")
+	}
+	s.Tx = metatx.Clone(ndau.TxIDs[txid])
+
+	data, err = json.Marshal(jsdata)
+	if err != nil {
+		return errors.Wrap(err, "marshaling edited tx")
+	}
+	err = json.Unmarshal(data, &s.Tx)
+	if err != nil {
+		return errors.Wrap(err, "unmarshaling edited tx")
+	}
+
+	// re-sign with associated account
+	if s.Account != nil {
+		err = s.Sign(nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

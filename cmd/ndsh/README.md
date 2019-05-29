@@ -30,7 +30,13 @@ safe to run in secure operational environments.
     - accounts
         - create new account, return address and derivation path
         - claim account
-
+        - update status from blockchain
+- staged mode for transactions:
+    - override any field (via JSON representation)
+    - add signatures from arbitrary private keys
+    - add signatures directly from certain hardware keys
+    - just emit the signable bytes of the current state
+    - serialize the JSON out, or `send` to send to the blockchain
 
 ### Planned
 
@@ -40,7 +46,6 @@ safe to run in secure operational environments.
         - closeout account into another account, transfering out all ndau
         - add, remove, list, or edit validation script (specify `.chasm` or `.chbin` file)
         - perform CRUD operations on arbitrary validation keys
-        - update status from blockchain
         - change recourse period
         - delegate
         - send `CreditEAI` tx
@@ -60,12 +65,6 @@ safe to run in secure operational environments.
     - get and set system variables
     - get sib information
     - get version information
-- `prepare` mode for transactions:
-    - override any field
-    - add signatures from arbitrary private keys
-    - add signatures directly from certain harware keys
-    - just emit the signable bytes of the current state
-    - when complete, `write` to serialize the JSON out, or `send` to send to the blockchain
 - arrow-pageable history for non-secret commands
 
 ### Maybe
