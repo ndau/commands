@@ -8,7 +8,7 @@ import requests
 
 def main():
     """
-    Return SHA json for nodes on a network.
+    Dump SHA json for nodes on a network.
     """
 
     network_name, node_name = get_args()

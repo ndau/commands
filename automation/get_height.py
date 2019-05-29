@@ -8,7 +8,7 @@ import requests
 
 def main():
     """
-    Return height json for nodes on a network.
+    Dump height json for nodes on a network.
     """
 
     network_name, node_name = get_args()

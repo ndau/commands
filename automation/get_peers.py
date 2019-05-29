@@ -8,7 +8,7 @@ import requests
 
 def main():
     """
-    Return peer count json for nodes on a network.
+    Dump peer count json for nodes on a network.
     """
 
     network_name, node_name = get_args()
