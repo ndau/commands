@@ -19,7 +19,8 @@ class Network(Enum):
 
 def get_args():
     """
-    All commands use the same arguments.
+    Return the network name and node name from the command line.
+    If no node was specified, then "all" is assumed and None is returned for it.
     """
 
     parser = ArgumentParser()
@@ -28,13 +29,7 @@ def get_args():
     parser.add_argument('--node', required=False, help='node name')
 
     args = parser.parse_args()
+    network_name = str(args.net)
+    node_name = args.node
 
-    network_name = args.net
-    if args.node is None:
-        node_name = "(all)"
-    else:
-        node_name = args.node
-    print(f"Network: {network_name}")
-    print(f"Node   : {node_name}")
-
-    return args
+    return network_name, node_name
