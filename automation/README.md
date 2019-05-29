@@ -8,41 +8,85 @@ This directory contains scripts for managing nodes on the following ndau network
 * testnet
 * mainnet
 
-The scripts assume that the network is already set up.  See the `.md` files in the `deploy` directory for for further details and instructions on setting up a node manually.
+The scripts assume that the network is already set up.  See the `.md` files in the `deploy` directory for further details and instructions on setting up nodes on a network manually.
 
-## Automated Tasks
+## Node Status
 
-There are scripts for different kinds of node management task.
+The `get_*.py` scripts poll status info from nodes on a network.  If you omit the `--node` argument, status is returned for all nodes on the given network.
 
-### Status
+To get the health of node 3 on testnet:
+```sh
+./get_health.py testnet --node testnet-3
+```
 
-To get the status of nodes on a network, run: `./status.sh`
+To get the SHA of node 3 on testnet:
+```sh
+./get_sha.py testnet --node testnet-3
+```
 
-It will prompt you for which network's status to display.
+To get the height of node 3 on testnet:
+```sh
+./get_height.py testnet --node testnet-3
+```
 
-### Stop
+To get the number of peers of node 3 on testnet:
+```sh
+./get_peers.py testnet --node testnet-3
+```
 
-To stop a node (so that it won't automatically get restarted by AWS), run: `./stop.sh`
+## Node Control
 
-It will prompt you for which network's node(s) to stop, one or all.  Stopping all nodes is useful for re-deploying a network, for example, with a new genesis snapshot or an updated (non backwards compatible) image.
-
-### Start
-
-To start a node, run: `./start.sh`
-
-It will prompt you for which network's node(s) to start, one or all.
+The following scripts make modifications to nodes on a network.
 
 ### Upgrade
 
-To upgrade a node, run: `./upgrade.sh`
+This should be the most common thing we need to do when controlling nodes on a network.  As long as we have backward-compatible changes, we can do a rolling upgrade of a network's nodes.
 
-It will prompt you for which network's node(s) to upgrade.
+The upgrade script is interactive and will prompt you with choices for which available SHA to use for the new `ndauimage` Docker image you would like to upgrade your node to.  If you don't see it listed, then it's probably not pushed to ECR.  Do a tagged build (e.g. `git tag your-tag-push`) to push up the desired image from the branch you want.  Or land your changes to commands master and it'll automatically become available on ECR.
 
-It will prompt you with choices available for which SHA to use for the new `ndauimage` Docker image.  If you don't see it listed, then it's probably not pushed to ECR.  Do a tagged build (e.g. `git tag your-tag-push`) to push up the desired image from the branch you want.
+To upgrade all nodes on testnet:
+```sh
+./upgrade.py testnet
+```
 
-It will then prompt you for which nodes to upgrade, one or all.  When upgrading all nodes, it does a rolling upgrade, starting with the hightest node number and working backward.  There is a deliberate delay between each node's upgrade so that the daily restart timers of each node don't are somewhat staggered.
+This does a rolling upgrade, starting with the hightest node number and working backward.  There is a deliberate delay between each node's upgrade so that the daily restart timers of each node don't are somewhat staggered.
 
-## Manual Tasks
+To upgrade node 3 on testnet:
+```sh
+./upgrade.py testnet --node testnet-3
+```
+
+Single node upgrades are useful if you would like more control over the timing and order of node upgrades on a network.  It's also useful if a rolling upgrade was interrupted for any reason.
+
+### Stop
+
+Stopping nodes is useful for re-deploying a network, for example, with a new genesis snapshot or non-backward-compatible image.
+
+To stop all nodes on testnet:
+```sh
+./stop.py testnet
+```
+
+To stop node 3 on testnet:
+```sh
+./stop.py testnet --node testnet-3
+```
+
+### Start
+
+Starting nodes is only useful if they've been explicitly stopped.  Restarted nodes will catch up where they left off on the blockchain.
+
+To start all nodes on testnet:
+```sh
+./start.py testnet
+```
+
+To start node 3 on testnet:
+```sh
+./start.py testnet --node testnet-3
+```
+
+## Manual Steps
 
 If there are things you'd like to change about a node that the above scripts don't support, they can be done manually through the AWS Management Console.
 
