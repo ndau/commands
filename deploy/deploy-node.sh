@@ -85,37 +85,13 @@ cat "$TEMPLATE_FILE" | \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
-# Take down the old service first, to free up the ports.
-echo "Taking down old $network_name-$node_number..."
+# Send the new task definition to AWS and update the service for the node.
+echo "Updating $network_name-$node_number..."
 ecs-cli compose \
-  --verbose \
-  --project-name ${network_name}-${node_number} \
-  -f ${TMP_FILE} \
-  service down \
-  --cluster "$CLUSTER_NAME"
-
-# Send the new task definition to AWS and start up a new service for the node.
-echo "Bringing up new $network_name-$node_number..."
-# We try in a loop to wait for the old services to drain.
-success=false
-for i in {1..36}; do
-    echo "Attempt $i for $network_name-$node_number..."
-    if ecs-cli compose \
-               --project-name ${network_name}-${node_number} \
-               -f ${TMP_FILE} \
-               service up \
-               --force-deployment \
-               --cluster-config "$CLUSTER_NAME"; then
-        echo "Successfully brought up $network_name-$node_number"
-        success=true
-        break
-    fi
-    sleep 5
-done
-if [ "$success" != "true" ]; then
-    echo "Failed to bring up $network_name-$node_number"
-    exit 1
-fi
+        --project-name ${network_name}-${node_number} \
+        -f ${TMP_FILE} \
+        service up \
+        --cluster-config "$CLUSTER_NAME"
 
 # clean up
 rm "$TMP_FILE"

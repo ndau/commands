@@ -145,6 +145,8 @@ In all cases, leave default settings unless specified below.
          - Revision: `(latest)`
     - Service name: `mainnet-<N>`
     - Number of tasks: `1`
+    - Minimum healthy percent: `0`
+    - Maximum percent: `100`
     - Placement Templates: `One Task Per Host`
     - Next step
     - Uncheck "Enable service discovery integration"
