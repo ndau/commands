@@ -20,10 +20,10 @@ def main():
     for network in apis:
         url = apis[network]
         response = requests.get(f"{url}/health")
-        if response is None:
-            healths[network] = "BAD"
-        else:
-            healths[network] = response.content.decode("utf-8").strip('"').rstrip('"\n')
+        healght = "BAD"
+        if not response is None:
+            health = response.content.decode("utf-8").strip('"').rstrip('"\n')
+        healths[network] = health
 
     print(json.dumps(healths))
 

@@ -17,15 +17,18 @@ def main():
 
     shas = {}
 
+    # Key names in response json.
+    sha_name = "NdauSha"
+
     for network in apis:
         url = apis[network]
         response = requests.get(f"{url}/version")
-        shas[network] = "UNKNOWN"
+        sha = "UNKNOWN"
         if not response is None:
-            sha_name = "NdauSha"
             version_obj = json.loads(response.content)
             if not version_obj is None and sha_name in version_obj:
-                shas[network] = version_obj[sha_name]
+                sha = version_obj[sha_name]
+        shas[network] = sha
 
     print(json.dumps(shas))
 
