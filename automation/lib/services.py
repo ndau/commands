@@ -11,12 +11,14 @@ def get_network_urls(network_name, node_name):
     Return a dictionary with node name keys and protocol://domain:port for the values for the
     given network's node from services.json.
     The dictionary will contain all urls on the given network if node_name is None.
+    Two dictionaires are returned, one with ndauapi urls, one with tendermint RPC urls.
     """
 
     # Key names in services.json
     networks_name = "networks"
     nodes_name = "nodes"
     api_name = "api"
+    rpc_name = "rpc"
 
     services_response = requests.get(constants.SERVICES_URL)
     if services_response is None:
@@ -44,16 +46,21 @@ def get_network_urls(network_name, node_name):
         new_node_name = f"{network_name}-5"
         if not new_node_name in nodes_obj:
             nodes_obj[new_node_name] = {
-                api_name: f"{new_node_name}.ndau.tech:3030"
+                api_name: f"{new_node_name}.ndau.tech:3030",
+                rpc_name: f"{new_node_name}.ndau.tech:26670"
             }
 
-    urls = {}
+    apis = {}
+    rpcs = {}
 
     for node_obj_name in nodes_obj:
         if node_name is None or node_name == node_obj_name:
             node_obj = nodes_obj[node_obj_name]
             if not api_name in node_obj:
                 sys.exit(f"Unable to find api object in {node_obj}")
-            urls[node_obj_name] = f"https://{node_obj[api_name]}"
+            if not rpc_name in node_obj:
+                sys.exit(f"Unable to find rpc object in {node_obj}")
+            apis[node_obj_name] = f"https://{node_obj[api_name]}"
+            rpcs[node_obj_name] = f"https://{node_obj[rpc_name]}"
 
-    return urls
+    return apis, rpcs

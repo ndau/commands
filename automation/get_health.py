@@ -8,17 +8,17 @@ import requests
 
 def main():
     """
-    Return node health json on a given network.
+    Return health json for nodes on a network.
     """
 
     network_name, node_name = get_args()
 
-    urls = get_network_urls(network_name, node_name)
+    apis, rpcs = get_network_urls(network_name, node_name)
 
     healths = {}
 
-    for network in urls:
-        url = urls[network]
+    for network in apis:
+        url = apis[network]
         response = requests.get(f"{url}/health")
         if response is None:
             healths[network] = "BAD"
