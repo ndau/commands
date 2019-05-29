@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/shlex"
+	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -20,6 +21,7 @@ type Shell struct {
 	Stop     chan struct{}
 	Node     client.ABCIClient
 	Verbose  bool
+	Staged   *Stage
 
 	ireader   *bufio.Reader
 	accts     *Accounts
@@ -31,7 +33,7 @@ type Shell struct {
 func NewShell(verbose bool, node client.ABCIClient, commands ...Command) *Shell {
 	sh := Shell{
 		Commands: make(map[string]Command),
-		Ps1:      "ndsh> ",
+		Ps1:      "{tx}ndsh> ",
 		Stop:     make(chan struct{}),
 		Node:     node,
 		Verbose:  verbose,
@@ -82,7 +84,23 @@ func (sh *Shell) Exit(err error) {
 // this is just a stub for now, but the intent is to be able to expand variables
 // into the ndau shell's prompt
 func (sh *Shell) expandPrompt() string {
-	return sh.Ps1
+	prompt := sh.Ps1
+	for _, subs := range []struct {
+		replace string
+		with    func() string
+	}{
+		{"{tx}", sh.staged},
+	} {
+		prompt = strings.Replace(prompt, subs.replace, subs.with(), -1)
+	}
+	return prompt
+}
+
+func (sh *Shell) staged() string {
+	if sh.Staged == nil || sh.Staged.Tx == nil {
+		return ""
+	}
+	return fmt.Sprintf("(%s) ", metatx.NameOf(sh.Staged.Tx))
 }
 
 // prompt the user, and dispatch appropriate commands

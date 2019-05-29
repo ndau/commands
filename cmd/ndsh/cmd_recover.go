@@ -184,7 +184,7 @@ func (sh *Shell) tryAccount(
 		}
 
 		acct, err := newAccountFromRoot(root, path, kind)
-		acct.acctidx = acctidx
+		acct.AcctIdx = acctidx
 		if err != nil {
 			if sh.Verbose {
 				print("    newaccount: %s", err)

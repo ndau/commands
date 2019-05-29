@@ -24,7 +24,7 @@ const (
 )
 
 // Name implements Command
-func (Claim) Name() string { return "claim" }
+func (Claim) Name() string { return "claim set-validation" }
 
 type claimargs struct {
 	Account          string   `arg:"positional" help:"account to claim"`
@@ -33,6 +33,7 @@ type claimargs struct {
 	ValidationScript string   `arg:"-s" help:"set this validation script (base64)"`
 	WalletCompat     bool     `arg:"-C" help:"if set, generate keypaths the way the wallet does"`
 	Update           bool     `arg:"-u" help:"update this account from the blockchain before creating tx"`
+	Stage            bool     `arg:"-S" help:"stage this tx; do not send it"`
 }
 
 func (claimargs) Description() string {
@@ -109,8 +110,8 @@ func (Claim) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	for ; args.NumKeys > 0; args.NumKeys-- {
-		acct.highKeyidx++
-		path := fmt.Sprintf(keypath, acct.acctidx, acct.highKeyidx)
+		acct.HighKeyIdx++
+		path := fmt.Sprintf(keypath, acct.AcctIdx, acct.HighKeyIdx)
 		if sh.Verbose {
 			sh.Write("generating key at %s...", path)
 		}
@@ -139,8 +140,20 @@ func (Claim) Run(argvs []string, sh *Shell) (err error) {
 		*acct.OwnershipPrivate,
 	)
 
+	if args.Stage {
+		sh.Staged = &Stage{
+			Tx:      tx,
+			Account: acct,
+		}
+		return
+	}
+
 	_, err = tool.SendCommit(sh.Node, tx)
 	if err != nil {
+		sh.Staged = &Stage{
+			Tx:      tx,
+			Account: acct,
+		}
 		return errors.Wrap(err, "sending transaction")
 	}
 	acct.Data.Sequence++

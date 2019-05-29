@@ -23,8 +23,8 @@ type Account struct {
 	Address               address.Address
 	Data                  *backing.AccountData
 	PrivateValidationKeys []signature.PrivateKey
-	acctidx               int
-	highKeyidx            int
+	AcctIdx               int
+	HighKeyIdx            int
 }
 
 // NewAccount creates a new Account from a seed and derivation path

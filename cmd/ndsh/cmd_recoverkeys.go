@@ -122,8 +122,8 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 					acct.PrivateValidationKeys,
 					*pvt,
 				)
-				if keyidx > acct.highKeyidx {
-					acct.highKeyidx = keyidx
+				if keyidx > acct.HighKeyIdx {
+					acct.HighKeyIdx = keyidx
 				}
 				found++
 			}

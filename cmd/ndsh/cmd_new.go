@@ -29,6 +29,7 @@ type newargs struct {
 	ShareSeed string   `arg:"-S" help:"share the seed phrase with this account"`
 	SeedSize  uint     `help:"num bytes of random seed used to generate seed phrase"`
 	Path      string   `arg:"-p" help:"create account with this derivation path"`
+	PathIdx   uint     `arg:"-i" help:"use this value as the account index"`
 	Lang      string   `arg:"-l" help:"seed phrase language"`
 	Kind      string   `arg:"-k" help:"kind of account"`
 	Nicknames []string `arg:"-n,separate" help:"short nicknames which can refer to this account"`
@@ -57,6 +58,7 @@ internal data.
 func (New) Run(argvs []string, sh *Shell) (err error) {
 	args := newargs{
 		Path:     defaultPath,
+		PathIdx:  defaultPathIdx,
 		Lang:     "en",
 		Kind:     string(address.KindUser),
 		SeedSize: 16,
@@ -84,27 +86,32 @@ func (New) Run(argvs []string, sh *Shell) (err error) {
 
 		// we might also have to update the path
 		if args.Path == defaultPath && shared.Path != "" {
-			// what's the highest path we know of which shares this seed?
-			var idx, highidx uint
-			_, err = fmt.Sscanf(shared.Path, defaultPathFmt, &highidx)
-			if err != nil {
-				return errors.Wrap(err, "getting idx of path of shared account")
-			}
+			if args.PathIdx == defaultPathIdx {
+				// we need to detect an appropriate path index
+				// what's the highest path we know of which shares this seed?
+				var idx uint
+				_, err = fmt.Sscanf(shared.Path, defaultPathFmt, &args.PathIdx)
+				if err != nil {
+					return errors.Wrap(err, "getting idx of path of shared account")
+				}
 
-			for _, acct := range sh.accts.accts {
-				if acct.root == shared.root && acct.Path != "" {
-					_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &idx)
-					if err != nil {
-						sh.Write("%s: %s", acct.Address, err.Error())
-						continue
-					}
-					if idx > highidx {
-						highidx = idx
+				for _, acct := range sh.accts.accts {
+					if acct.root == shared.root && acct.Path != "" {
+						_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &idx)
+						if err != nil {
+							sh.Write("%s: %s", acct.Address, err.Error())
+							continue
+						}
+						if idx > args.PathIdx {
+							args.PathIdx = idx
+						}
 					}
 				}
-			}
 
-			args.Path = fmt.Sprintf(defaultPathFmt, highidx+1)
+				args.PathIdx++
+			}
+			// else a path index was picked by the user
+			args.Path = fmt.Sprintf(defaultPathFmt, args.PathIdx)
 		}
 	} else {
 		wordsseed := make([]byte, args.SeedSize)
@@ -134,6 +141,7 @@ func (New) Run(argvs []string, sh *Shell) (err error) {
 
 	var acct Account
 	acct, err = newAccountFromRoot(root, args.Path, kind)
+	acct.AcctIdx = int(args.PathIdx)
 	if err != nil {
 		return errors.Wrap(err, "constructing account")
 	}

@@ -17,9 +17,9 @@ var _ Command = (*View)(nil)
 func (View) Name() string { return "view show" }
 
 type viewargs struct {
-	Account     string `arg:"positional" help:"view this account"`
-	Update      bool   `arg:"-u" help:"update this account from the blockchain before viewing"`
-	PrivateKeys bool   `help:"show the private keys associated with this account instead of the account data"`
+	Account string `arg:"positional" help:"view this account"`
+	Update  bool   `arg:"-u" help:"update this account from the blockchain before viewing"`
+	Struct  bool   `help:"show the whole account struct, not just the account data"`
 	// TODO:
 	// JQ string `help:"filter output json by this jq expression"`
 }
@@ -64,8 +64,8 @@ func (View) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	var data interface{}
-	if args.PrivateKeys {
-		data = acct.PrivateValidationKeys
+	if args.Struct {
+		data = acct
 	} else {
 		data = acct.Data
 	}

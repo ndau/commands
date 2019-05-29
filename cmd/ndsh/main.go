@@ -60,6 +60,7 @@ func main() {
 		New{},
 		RecoverKeys{},
 		Claim{},
+		Tx{},
 	)
 
 	if args.Command != "" {
