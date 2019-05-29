@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/rpc/client"
@@ -17,7 +19,7 @@ const servicesURL = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 var (
 	// this is a hilarious type
 	servicesJSON     map[string]map[string]map[string]map[string]map[string]string
-	haveServicesJSON chan struct{}
+	haveServicesJSON chan error
 
 	// ClientURL stores client URL currently in use
 	ClientURL *url.URL
@@ -26,16 +28,28 @@ var (
 // on init, async get the services list
 // just try to read from haveServicesJson before trying to use it
 func init() {
-	haveServicesJSON = make(chan struct{})
+	haveServicesJSON = make(chan error)
 	go func() {
+		defer close(haveServicesJSON)
 		resp, err := http.Get(servicesURL)
-		check(err, "getting services map")
+		if err != nil {
+			haveServicesJSON <- errors.Wrap(err, "getting services map")
+			return
+		}
+
 		defer resp.Body.Close()
 		data, err := ioutil.ReadAll(resp.Body)
-		check(err, "reading services data")
+		if err != nil {
+			haveServicesJSON <- errors.Wrap(err, "reading services data")
+			return
+		}
+
 		err = json.Unmarshal(data, &servicesJSON)
-		check(err, "unmarshaling services data")
-		close(haveServicesJSON)
+		if err != nil {
+			haveServicesJSON <- errors.Wrap(err, "unmarshaling services data")
+			fmt.Fprintln(os.Stderr, "unmarshaling services data:", err)
+			return
+		}
 	}()
 }
 
@@ -71,7 +85,13 @@ func getClient(network string, node int) (client.ABCIClient, error) {
 	if ClientURL == nil {
 		// user specified a symbolic name, which means we have to wait for
 		// the AWS query to resolve
-		<-haveServicesJSON
+		select {
+		case <-time.After(10 * time.Second):
+			err = errors.New("timeout after 10 s")
+		case err = <-haveServicesJSON:
+			// probably success, but we check it anyway
+		}
+		check(err, "fetching services.json")
 		nws, ok := servicesJSON["networks"]
 		if !ok {
 			return nil, errors.New("networks key not in services.json")
