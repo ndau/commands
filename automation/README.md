@@ -60,18 +60,18 @@ The following scripts make modifications to nodes on a network.
 
 This should be the most common thing we need to do when controlling nodes on a network.  As long as we have backward-compatible changes, we can do a rolling upgrade of a network's nodes.
 
-The upgrade script is interactive and will prompt you with choices for which available SHA to use for the new `ndauimage` Docker image you would like to upgrade your node to.  If you don't see it listed, then it's probably not pushed to ECR.  Do a tagged build (e.g. `git tag your-tag-push`) to push up the desired image from the branch you want.  Or land your changes to commands master and it'll automatically become available on ECR.
+First, find the SHA you want to upgrade to on [ECR](https://console.aws.amazon.com/ecr/repositories/sc-node/?region=us-east-1).  The image revisions that show up there come from devnet master deploys and tagged builds from a branch (e.g. `git tag your-tag-push`).  Only SHAs that are listed here are allowed to be used when upgrading.
 
-To upgrade all nodes on testnet:
+To upgrade all nodes on testnet to the `badf00d` SHA:
 ```sh
-./upgrade.py testnet
+./upgrade.py testnet --sha badf00d
 ```
 
 This does a rolling upgrade, starting with the hightest node number and working backward.  There is a deliberate delay between each node's upgrade so that the daily restart timers of each node don't are somewhat staggered.
 
-To upgrade node 3 on testnet:
+To upgrade node 3 on testnet to the `badf00d` SHA:
 ```sh
-./upgrade.py testnet --node testnet-3
+./upgrade.py testnet --sha badf00d --node testnet-3
 ```
 
 Single node upgrades are useful if you would like more control over the timing and order of node upgrades on a network.  It's also useful if a rolling upgrade was interrupted for any reason.
