@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from lib.args import get_net
 from get_health import get_health
 from get_height import get_height
 from get_peers import get_peers
@@ -39,6 +40,12 @@ def render_hud():
     Render node status on the screen until interrupted.
     """
 
+    network = get_net()
+    if network is None:
+        networks = list(Network)
+    else:
+        networks = [network]
+
     os.system("clear")
 
     column_width = 11
@@ -61,7 +68,7 @@ def render_hud():
     # Render status forever.
     while True:
         y_network = 4
-        for network in list(Network):
+        for network in networks:
             network_name = str(network)
             apis = network_apis[network_name]
             rpcs = network_rpcs[network_name]

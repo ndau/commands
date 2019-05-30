@@ -72,8 +72,8 @@ def parse_services(network_name, node_name, services_json):
         new_node_name = f"{network_name}-5"
         if not new_node_name in nodes_obj:
             nodes_obj[new_node_name] = {
-                api_name: f"{new_node_name}.ndau.tech:303",
-                rpc_name: f"{new_node_name}.ndau.tech:2667"
+                api_name: f"{new_node_name}.ndau.tech:3030",
+                rpc_name: f"{new_node_name}.ndau.tech:26670"
             }
 
     apis = {}

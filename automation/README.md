@@ -45,6 +45,11 @@ To see an auto-updating HUD:
 ./hud.py
 ```
 
+To see only testnet info in the HUD:
+```sh
+./hud.py testnet
+```
+
 It can be useful when doing a rolling upgrade (below) to keep an eye on every node's status on that network as each node is restarted.
 
 ## Node Control

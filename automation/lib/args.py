@@ -26,3 +26,15 @@ def get_url(kind):
     parser.add_argument(f"url", help=f"{kind} URL of the form protocol://domain:port")
     args = parser.parse_args()
     return args.url
+
+
+def get_net():
+    """
+    Return the net argument.
+    """
+
+    parser = ArgumentParser()
+    parser.add_argument(
+        'net', nargs="?", type=Network, choices=list(Network), help='network name')
+    args = parser.parse_args()
+    return args.net
