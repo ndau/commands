@@ -113,6 +113,9 @@ func getClient(network string, node int) (client.ABCIClient, error) {
 		if !ok {
 			return nil, fmt.Errorf("bad services.json: rpc key not found in %s", nodename)
 		}
+		if !strings.HasPrefix(rpc, "http") {
+			rpc = "https://" + rpc
+		}
 		ClientURL, err = url.Parse(rpc)
 		if err != nil {
 			return nil, errors.Wrap(err, "invalid services.json for "+nodename)
