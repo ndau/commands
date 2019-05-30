@@ -37,6 +37,7 @@ func (Net) Run(argvs []string, sh *Shell) (err error) {
 		sh.Node = client
 	}
 	// ClientURL gets updated as a side-effect of getClient
-	sh.Write(ClientURL.String())
+	// so does RecoveryURL
+	sh.Write("    node: %s\nrecovery: %s", ClientURL, RecoveryURL)
 	return
 }

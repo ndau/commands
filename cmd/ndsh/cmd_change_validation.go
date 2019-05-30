@@ -22,7 +22,7 @@ func (ChangeValidation) Name() string { return "change-validation" }
 type cvargs struct {
 	Account          string   `arg:"positional" help:"account to claim"`
 	NumKeys          uint     `arg:"-n,--add-keys" help:"number of validation keys to add"`
-	Paths            []string `arg:"-p,separate" help:"use these keypaths"`
+	Paths            []string `arg:"-p,--path,separate" help:"use these keypaths"`
 	RemoveKeyIdx     []uint   `arg:"-r,--remove-key,separate" help:"remove the existing validation key at this index (0-based)"`
 	ValidationScript string   `arg:"-s,--script" help:"set this validation script (base64)"`
 	WalletCompat     bool     `arg:"-C,--wallet-compat" help:"if set, generate keypaths the way the wallet does"`
