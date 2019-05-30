@@ -141,20 +141,5 @@ func sysvarSet(sh *Shell, args sysvarargs) error {
 		*key,
 	)
 
-	if args.Stage {
-		sh.Staged = &Stage{
-			Tx:      ssv,
-			Account: magic,
-		}
-		return nil
-	}
-
-	_, err = tool.SendCommit(sh.Node, ssv)
-	if err != nil {
-		sh.Staged = &Stage{
-			Tx:      ssv,
-			Account: magic,
-		}
-	}
-	return err
+	return sh.Dispatch(args.Stage, ssv, nil, magic)
 }

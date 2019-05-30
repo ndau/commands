@@ -517,7 +517,7 @@
 
 [[projects]]
   branch = "prgn-parse-kind"
-  digest = "1:18a9c82f83a6727079d720344aa7a6c8781fc95b7c2277ebc9f09154c02a8eec"
+  digest = "1:e3b4d7779e13ea5f4c5ccce070c4eef9462aa2d1dcb9d16533a02cc8be3a0fa4"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -539,7 +539,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "4b27e9f4788ba501238e8abe0b5713b4c499a748"
+  revision = "73bc8fdfbceaddd9aa21900bc71ddf9120bb802e"
 
 [[projects]]
   branch = "master"
@@ -950,6 +950,7 @@
     "github.com/google/shlex",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
+    "github.com/mitchellh/go-homedir",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
     "github.com/oneiro-ndev/genesis/pkg/cli.util",

@@ -65,6 +65,7 @@ func main() {
 		ChangeValidation{},
 		LoadSystemAccounts{},
 		Sysvar{},
+		ReleaseFromEndowment{},
 	)
 
 	shell.VWrite("initialized shell...")

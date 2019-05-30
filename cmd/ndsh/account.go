@@ -114,10 +114,13 @@ func IsAccountDoesNotExist(err error) bool {
 // Writes debug data if the print function is non-nil and sh.Verbose is true.
 // It is safe to pass a nil print function.
 func (acct *Account) Update(sh *Shell, print func(format string, args ...interface{})) (err error) {
+	if sh.Verbose && print != nil {
+		print("updating %s", acct.Address)
+	}
 	ad, resp, err := tool.GetAccount(sh.Node, acct.Address)
 	if err != nil {
 		if sh.Verbose && print != nil {
-			print("    getting account: %s", err.Error())
+			print("    %s", err.Error())
 		}
 		return err
 	}

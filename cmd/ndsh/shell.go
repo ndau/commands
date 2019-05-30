@@ -12,6 +12,7 @@ import (
 	"github.com/google/shlex"
 	"github.com/mitchellh/go-homedir"
 	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
@@ -265,4 +266,32 @@ func (sh *Shell) SAAcct(addressName string, validationPrivateName string) (*Acco
 	err = acct.Update(sh, sh.Write)
 	err = errors.Wrap(err, "updating magic account")
 	return acct, err
+}
+
+// Dispatch a tx, handling staging appropriately
+func (sh *Shell) Dispatch(stage bool, tx metatx.Transactable, update, magic *Account) error {
+	staged := &Stage{
+		Tx: tx,
+	}
+	if magic != nil {
+		staged.Account = magic
+	} else if update != nil {
+		staged.Account = update
+	}
+
+	if stage {
+		sh.Staged = staged
+		return nil
+	}
+
+	_, err := tool.SendCommit(sh.Node, tx)
+	if err != nil {
+		sh.Staged = staged
+		return errors.Wrap(err, "sending transaction")
+	}
+
+	if update != nil {
+		err = update.Update(sh, sh.Write)
+	}
+	return err
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/key"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
@@ -140,28 +139,7 @@ func (Claim) Run(argvs []string, sh *Shell) (err error) {
 		*acct.OwnershipPrivate,
 	)
 
-	if args.Stage {
-		sh.Staged = &Stage{
-			Tx:      tx,
-			Account: acct,
-		}
-		return
-	}
-
-	_, err = tool.SendCommit(sh.Node, tx)
-	if err != nil {
-		sh.Staged = &Stage{
-			Tx:      tx,
-			Account: acct,
-		}
-		return errors.Wrap(err, "sending transaction")
-	}
-	acct.Data.Sequence++
-	acct.Data.ValidationScript = validationScript
-	acct.Data.ValidationKeys = pubs
-	acct.PrivateValidationKeys = pvts
-
-	return
+	return sh.Dispatch(args.Stage, tx, acct, nil)
 }
 
 func derive(root *key.ExtendedKey, path string, pubs []signature.PublicKey, pvts []signature.PrivateKey) ([]signature.PublicKey, []signature.PrivateKey, error) {
