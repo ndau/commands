@@ -139,7 +139,13 @@ func (Claim) Run(argvs []string, sh *Shell) (err error) {
 		*acct.OwnershipPrivate,
 	)
 
-	return sh.Dispatch(args.Stage, tx, acct, nil)
+	err = sh.Dispatch(args.Stage, tx, acct, nil)
+	if err != nil {
+		return
+	}
+
+	acct.PrivateValidationKeys = pvts
+	return
 }
 
 func derive(root *key.ExtendedKey, path string, pubs []signature.PublicKey, pvts []signature.PrivateKey) ([]signature.PublicKey, []signature.PrivateKey, error) {

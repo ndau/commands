@@ -12,6 +12,7 @@ import (
 	"github.com/google/shlex"
 	"github.com/mitchellh/go-homedir"
 	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
+	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
@@ -270,27 +271,34 @@ func (sh *Shell) SAAcct(addressName string, validationPrivateName string) (*Acco
 
 // Dispatch a tx, handling staging appropriately
 func (sh *Shell) Dispatch(stage bool, tx metatx.Transactable, update, magic *Account) error {
-	staged := &Stage{
+	sh.Staged = &Stage{
 		Tx: tx,
 	}
 	if magic != nil {
-		staged.Account = magic
+		sh.Staged.Account = magic
 	} else if update != nil {
-		staged.Account = update
+		sh.Staged.Account = update
 	}
 
 	if stage {
-		sh.Staged = staged
 		return nil
+	}
+
+	if s, ok := tx.(ndau.Signeder); ok {
+		if len(s.GetSignatures()) == 0 {
+			return errors.New("tx has 0 signatures; will not send")
+		}
 	}
 
 	sh.VWrite("sending tx with hash %s", metatx.Hash(tx))
 
 	_, err := tool.SendCommit(sh.Node, tx)
 	if err != nil {
-		sh.Staged = staged
 		return errors.Wrap(err, "sending transaction")
 	}
+
+	// clear staging after successful send
+	sh.Staged = nil
 
 	if update != nil {
 		err = update.Update(sh, sh.Write)

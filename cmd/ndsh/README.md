@@ -33,6 +33,8 @@ safe to run in secure operational environments.
         - update status from blockchain
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys
+    - rfe
+    - transfer
 - staged mode for transactions:
     - override any field (via JSON representation)
     - add signatures from arbitrary private keys
@@ -55,9 +57,7 @@ safe to run in secure operational environments.
         - stake
         - register node
         - claim node reward
-    - transfer
     - transfer and lock
-    - rfe
     - issue
     - nominate node rewards
     - command validation change
