@@ -18,7 +18,10 @@ def get_height(url):
     response = fetch_url(f"{url}/block/current")
 
     if not response is None:
-        block_obj = json.loads(response.content)
+        try:
+            block_obj = json.loads(response.content)
+        except:
+            block_obj = None
         if not block_obj is None and block_meta_name in block_obj:
             block_meta_obj = block_obj[block_meta_name]
             if not block_meta_obj is None and header_name in block_meta_obj:

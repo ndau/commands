@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from get_health import get_health
+from get_sha import get_sha
 from lib.args import get_net_node_sha
 from lib.services import fetch_services, parse_services
 from lib.networks import NETWORK_LOCATIONS
@@ -23,7 +25,7 @@ def upgrade_node(node_name, cluster, region, sha, url):
     Uses the url to check its health before returning.
     """
 
-    print("Fetching latest task definition...")
+    print(f"Fetching latest {node_name} task definition...")
     r = subprocess.run(
         [
             "aws", "ecs", "describe-task-definition",
@@ -35,7 +37,12 @@ def upgrade_node(node_name, cluster, region, sha, url):
     if r.returncode != 0:
         sys.exit(f"aws ecs describe-task-definition failed with code {r.returncode}")
     
-    task_definition_json = json.loads(r.stdout)
+    try:
+        task_definition_json = json.loads(r.stdout)
+    except:
+        task_definition_json = None
+    if task_definition_json is None:
+        sys.exit(f"Unable to load json")
 
     # Key names in json.
     task_definition_name = "taskDefinition"
@@ -55,7 +62,7 @@ def upgrade_node(node_name, cluster, region, sha, url):
             sys.exit(f"Cannot find {image_name} in {container_definition}")
         container_definition[image_name] = f"{ECR_URI}:{sha}"
 
-    print("Registering new task definition...")
+    print(f"Registering new {node_name} task definition...")
     r = subprocess.run([
         "aws", "ecs", "register-task-definition",
         "--region", region,
@@ -66,7 +73,7 @@ def upgrade_node(node_name, cluster, region, sha, url):
     if r.returncode != 0:
         sys.exit(f"aws ecs register-task-definition failed with code {r.returncode}")
 
-    print("Updating service...")
+    print(f"Updating {node_name} service...")
     r = subprocess.run([
         "aws", "ecs", "update-service",
         "--cluster", cluster,
@@ -76,6 +83,16 @@ def upgrade_node(node_name, cluster, region, sha, url):
     ])
     if r.returncode != 0:
         sys.exit(f"ecs-cli configure failed with code {r.returncode}")
+
+    print(f"Waiting for {node_name} to become healthy...")
+
+    for attempt in range(60):
+        time.sleep(2)
+        if get_sha(url) == sha and get_health(url) == "OK":
+            print(f"Upgrade of {node_name} is complete")
+            return
+
+    sys.exit(f"Timed out waiting for {node_name} to become healthy")
 
 
 def upgrade_nodes(network_name, node_name, sha):
@@ -101,6 +118,7 @@ def upgrade_nodes(network_name, node_name, sha):
         region = node_info["region"]
 
         if upgraded_nodes > 0:
+            print(f"Waiting {WAIT_BETWEEN_NODES} seconds before upgrading {node_name}...")
             time.sleep(WAIT_BETWEEN_NODES)
 
         upgrade_node(node_name, cluster, region, sha, url)

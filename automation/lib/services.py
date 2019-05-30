@@ -52,7 +52,10 @@ def parse_services(network_name, node_name, services_json):
     api_name = "api"
     rpc_name = "rpc"
 
-    services_obj = json.loads(services_json)
+    try:
+        services_obj = json.loads(services_json)
+    except:
+        services_obj = None
     if services_obj is None:
         sys.exit("Unable to parse services json")
 

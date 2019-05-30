@@ -16,7 +16,10 @@ def get_sha(url):
     response = fetch_url(f"{url}/version")
 
     if not response is None:
-        version_obj = json.loads(response.content)
+        try:
+            version_obj = json.loads(response.content)
+        except:
+            version_obj = None
         if not version_obj is None and sha_name in version_obj:
             return version_obj[sha_name]
 

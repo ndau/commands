@@ -17,7 +17,10 @@ def get_peers(url):
     response = fetch_url(f"{url}/net_info")
 
     if not response is None:
-        info_obj = json.loads(response.content)
+        try:
+            info_obj = json.loads(response.content)
+        except:
+            info_obj = None
         if not info_obj is None and result_name in info_obj:
             result_obj = info_obj[result_name]
             if not result_obj is None and peers_name in result_obj:
