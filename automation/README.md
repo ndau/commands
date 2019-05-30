@@ -12,27 +12,40 @@ The scripts assume that the network is already set up.  See the `.md` files in t
 
 ## Node Status
 
-The `get_*.py` scripts poll status info from nodes on a network.  If you omit the `--node` argument, status is returned for all nodes on the given network.
+The `get_*.py` scripts poll status info from nodes on a network.
+
+It's up to the caller to know the API and RPC URLs to use.  The [services.json](https://s3.us-east-2.amazonaws.com/ndau-json/services.json) file contains the URLs available.  We don't fetch it ourselves internally since these tools are meant to be executed in loops over nodes in a network and over multiple networks.  The caller can get `services.json` once and then run those loops.
 
 To get the health of node 3 on testnet:
 ```sh
-./get_health.py testnet --node testnet-3
+./get_health.py https://testnet-3.ndau.tech:3030
 ```
 
 To get the SHA of node 3 on testnet:
 ```sh
-./get_sha.py testnet --node testnet-3
+./get_sha.py https://testnet-3.ndau.tech:3030
 ```
 
 To get the height of node 3 on testnet:
 ```sh
-./get_height.py testnet --node testnet-3
+./get_height.py https://testnet-3.ndau.tech:3030
 ```
 
 To get the number of peers of node 3 on testnet:
 ```sh
-./get_peers.py testnet --node testnet-3
+./get_peers.py https://testnet-3.ndau.tech:26670
 ```
+
+## HUD
+
+Ultimately we'll want a GUI published somewhere for point-and-click node management.  For now, we have a text-based HUD.  This script demonstrates fetching `services.json` once and looping over its entries to display status information about every Oneiro node on every network.
+
+To see an auto-updating HUD:
+```sh
+./hud.py
+```
+
+It can be useful when doing a rolling upgrade (below) to keep an eye on every node's status on that network as each node is restarted.
 
 ## Node Control
 

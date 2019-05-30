@@ -1,42 +1,42 @@
 #!/usr/bin/env python3
 
-from lib.args import get_args
-from lib.services import get_services
+from lib.args import get_url, UrlKind
+from lib.fetch import fetch_url
 import json
-import requests
 
 
-def main():
+def get_height(url):
     """
-    Dump height json for nodes on a network.
+    Get the current height of the node at the given api url.
     """
-
-    network_name, node_name = get_args()
-
-    apis, rpcs = get_services(network_name, node_name)
-
-    heights = {}
 
     # Key names in response json.
     block_meta_name = "block_meta"
     header_name = "header"
     height_name = "height"
 
-    for network in apis:
-        url = apis[network]
-        response = requests.get(f"{url}/block/current")
-        height = 0
-        if not response is None:
-            block_obj = json.loads(response.content)
-            if not block_obj is None and block_meta_name in block_obj:
-                block_meta_obj = block_obj[block_meta_name]
-                if not block_meta_obj is None and header_name in block_meta_obj:
-                    header_obj = block_meta_obj[header_name]
-                    if not header_obj is None and height_name in header_obj:
-                        height = header_obj[height_name]
-        heights[network] = height
+    response = fetch_url(f"{url}/block/current")
 
-    print(json.dumps(heights))
+    if not response is None:
+        block_obj = json.loads(response.content)
+        if not block_obj is None and block_meta_name in block_obj:
+            block_meta_obj = block_obj[block_meta_name]
+            if not block_meta_obj is None and header_name in block_meta_obj:
+                header_obj = block_meta_obj[header_name]
+                if not header_obj is None and height_name in header_obj:
+                    return header_obj[height_name]
+
+    return 0
+
+
+def main():
+    """
+    Print the height for the node at the given API url.
+    """
+
+    url = get_url(UrlKind.API)
+    height = get_height(url)
+    print(height)
 
 
 if __name__ == '__main__':

@@ -1,33 +1,32 @@
 #!/usr/bin/env python3
 
-from lib.args import get_args
-from lib.services import get_services
-import json
-import requests
+from lib.args import get_url, UrlKind
+from lib.fetch import fetch_url
+
+
+def get_health(url):
+    """
+    Get the health of the node at the given api url.
+    """
+
+    response = fetch_url(f"{url}/health")
+
+    if not response is None:
+        health_content = response.content
+        if not health_content is None:
+            return health_content.decode("utf-8").strip('"').rstrip('"\n')
+
+    return "BAD"
 
 
 def main():
     """
-    Dump health json for nodes on a network.
+    Print the health for the node at the given API url.
     """
 
-    network_name, node_name = get_args()
-
-    apis, rpcs = get_services(network_name, node_name)
-
-    healths = {}
-
-    for network in apis:
-        url = apis[network]
-        response = requests.get(f"{url}/health")
-        health = "BAD"
-        if not response is None:
-            health_content = response.content
-            if not health_content is None:
-                health = health_content.decode("utf-8").strip('"').rstrip('"\n')
-        healths[network] = health
-
-    print(json.dumps(healths))
+    url = get_url(UrlKind.API)
+    health = get_health(url)
+    print(health)
 
 
 if __name__ == '__main__':

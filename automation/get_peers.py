@@ -1,39 +1,39 @@
 #!/usr/bin/env python3
 
-from lib.args import get_args
-from lib.services import get_services
+from lib.args import get_url, UrlKind
+from lib.fetch import fetch_url
 import json
-import requests
 
 
-def main():
+def get_peers(url):
     """
-    Dump peer count json for nodes on a network.
+    Get the peer count of the node at the given RPC url.
     """
-
-    network_name, node_name = get_args()
-
-    apis, rpcs = get_services(network_name, node_name)
-
-    peers = {}
 
     # Key names in response json.
     result_name = "result"
     peers_name = "n_peers"
 
-    for network in rpcs:
-        url = rpcs[network]
-        response = requests.get(f"{url}/net_info")
-        num_peers = 0
-        if not response is None:
-            info_obj = json.loads(response.content)
-            if not info_obj is None and result_name in info_obj:
-                result_obj = info_obj[result_name]
-                if not result_obj is None and peers_name in result_obj:
-                    num_peers = result_obj[peers_name]
-        peers[network] = num_peers
+    response = fetch_url(f"{url}/net_info")
 
-    print(json.dumps(peers))
+    if not response is None:
+        info_obj = json.loads(response.content)
+        if not info_obj is None and result_name in info_obj:
+            result_obj = info_obj[result_name]
+            if not result_obj is None and peers_name in result_obj:
+                return result_obj[peers_name]
+
+    return 0
+
+
+def main():
+    """
+    Print the peer count for the node at the given RPC url.
+    """
+
+    url = get_url(UrlKind.RPC)
+    peers = get_peers(url)
+    print(peers)
 
 
 if __name__ == '__main__':

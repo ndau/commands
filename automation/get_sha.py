@@ -1,36 +1,36 @@
 #!/usr/bin/env python3
 
-from lib.args import get_args
-from lib.services import get_services
+from lib.args import get_url, UrlKind
+from lib.fetch import fetch_url
 import json
-import requests
 
 
-def main():
+def get_sha(url):
     """
-    Dump SHA json for nodes on a network.
+    Get the SHA of the node at the given api url.
     """
-
-    network_name, node_name = get_args()
-
-    apis, rpcs = get_services(network_name, node_name)
-
-    shas = {}
 
     # Key names in response json.
     sha_name = "NdauSha"
 
-    for network in apis:
-        url = apis[network]
-        response = requests.get(f"{url}/version")
-        sha = "UNKNOWN"
-        if not response is None:
-            version_obj = json.loads(response.content)
-            if not version_obj is None and sha_name in version_obj:
-                sha = version_obj[sha_name]
-        shas[network] = sha
+    response = fetch_url(f"{url}/version")
 
-    print(json.dumps(shas))
+    if not response is None:
+        version_obj = json.loads(response.content)
+        if not version_obj is None and sha_name in version_obj:
+            return version_obj[sha_name]
+
+    return "UNKNOWN"
+
+
+def main():
+    """
+    Print the SHA for the node at the given API url.
+    """
+
+    url = get_url(UrlKind.API)
+    sha = get_sha(url)
+    print(sha)
 
 
 if __name__ == '__main__':

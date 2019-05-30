@@ -1,15 +1,45 @@
 #!/usr/bin/env python3
 
-from lib import constants
+from lib.fetch import fetch_url
+from lib.networks import Network
 import json
-import requests
 import sys
 
 
-def get_services(network_name, node_name):
+def fetch_services():
+    """
+    Fetch and return the json text from services.json.
+    """
+
+    services_url = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
+
+    services_response = fetch_url(services_url)
+    if services_response is None:
+        sys.exit(f"Unable to fetch {services_url}")
+
+    return services_response.content
+
+
+def parse_all_services(services_json):
+    """
+    Return API and RPC dictionaries with network name keys and values from parse_services().
+    """
+
+    network_apis = {}
+    network_rpcs = {}
+
+    for network in list(Network):
+        network_name = str(network)
+        network_apis[network_name], network_rpcs[network_name] = \
+            parse_services(network_name, None, services_json)
+
+    return network_apis, network_rpcs
+        
+
+def parse_services(network_name, node_name, services_json):
     """
     Return a dictionary with node name keys and protocol://domain:port for the values for the
-    given network's node from services.json.
+    given network's node from services_json.
     The dictionary will contain all urls on the given network if node_name is None.
     Two dictionaires are returned, one with ndauapi urls, one with tendermint RPC urls.
     """
@@ -20,11 +50,7 @@ def get_services(network_name, node_name):
     api_name = "api"
     rpc_name = "rpc"
 
-    services_response = requests.get(constants.SERVICES_URL)
-    if services_response is None:
-        sys.exit(f"Unable to fetch {constants.SERVICES_URL}")
-
-    services_obj = json.loads(services_response.content)
+    services_obj = json.loads(services_json)
     if services_obj is None:
         sys.exit("Unable to parse services json")
 
@@ -46,8 +72,8 @@ def get_services(network_name, node_name):
         new_node_name = f"{network_name}-5"
         if not new_node_name in nodes_obj:
             nodes_obj[new_node_name] = {
-                api_name: f"{new_node_name}.ndau.tech:3030",
-                rpc_name: f"{new_node_name}.ndau.tech:26670"
+                api_name: f"{new_node_name}.ndau.tech:303",
+                rpc_name: f"{new_node_name}.ndau.tech:2667"
             }
 
     apis = {}
