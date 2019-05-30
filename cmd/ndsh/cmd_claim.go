@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -22,6 +26,18 @@ const (
 	walletKeypath = "/44'/20036'/100/10000/%d/%d"
 )
 
+var autorecoverValidation []byte
+
+func init() {
+	var err error
+	autorecoverValidation, err = base64.StdEncoding.DecodeString("oAARiKABAiCI")
+	if err != nil {
+		panic(err)
+	}
+}
+
+const recoveryServicePath = "/tx/submit/setvalidation"
+
 // Name implements Command
 func (Claim) Name() string { return "claim set-validation" }
 
@@ -33,6 +49,7 @@ type claimargs struct {
 	WalletCompat     bool     `arg:"-C,--wallet-compat" help:"if set, generate keypaths the way the wallet does"`
 	Update           bool     `arg:"-u" help:"update this account from the blockchain before creating tx"`
 	Stage            bool     `arg:"-S" help:"stage this tx; do not send it"`
+	Autorecover      bool     `help:"send claim tx to recovery service if account looks like it might be subscribed. When true, -S may not work if recovery is attempted. Disable with --autorecover=false"`
 }
 
 func (claimargs) Description() string {
@@ -50,7 +67,8 @@ the ndau wallet, insecure keypaths can be used.
 // Run implements Command
 func (Claim) Run(argvs []string, sh *Shell) (err error) {
 	args := claimargs{
-		NumKeys: 1,
+		NumKeys:     1,
+		Autorecover: true,
 	}
 
 	err = ParseInto(argvs, &args)
@@ -138,6 +156,53 @@ func (Claim) Run(argvs []string, sh *Shell) (err error) {
 		acct.Data.Sequence+1,
 		*acct.OwnershipPrivate,
 	)
+
+	if len(acct.Data.ValidationKeys) == 2 &&
+		bytes.Equal(acct.Data.ValidationScript, autorecoverValidation) {
+		sh.VWrite(
+			"acct might be subscribed to recovery service; autorecover: %v",
+			args.Autorecover,
+		)
+		if args.Autorecover {
+			if RecoveryURL == nil {
+				return errors.New("no known recovery service for this net")
+			}
+
+			txjson, err := json.Marshal(tx)
+			if err != nil {
+				return errors.Wrap(err, "marshaling json for recovery service")
+			}
+			buf := bytes.NewBuffer(txjson)
+
+			// recovery service needs its path
+			url := RecoveryURL.String() + recoveryServicePath
+			resp, err := http.Post(url, "application/json", buf)
+			if err != nil {
+				return errors.Wrap(err, "sending request to recovery service")
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				if err != nil {
+					return fmt.Errorf(
+						"recovery service returned code %s and resp body could not be read: %s",
+						resp.Status,
+						err,
+					)
+				}
+				return fmt.Errorf(
+					"recovery service returned code %s:\n%s",
+					resp.Status,
+					string(body),
+				)
+			}
+
+			sh.Write("recovery service request returned success; watch blockchain for updates")
+			sh.VWrite(string(body))
+			return nil
+		}
+	}
 
 	err = sh.Dispatch(args.Stage, tx, acct, nil)
 	if err != nil {

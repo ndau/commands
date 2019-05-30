@@ -29,12 +29,14 @@ safe to run in secure operational environments.
 - do most things the ndau tool can do:
     - accounts
         - create new account, return address and derivation path
-        - claim account
+        - claim account (with recovery from recovery service as applicable)
         - update status from blockchain
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys
     - rfe
     - transfer
+    - transfer and lock
+    - get and set system variables
 - staged mode for transactions:
     - override any field (via JSON representation)
     - add signatures from arbitrary private keys
@@ -57,12 +59,10 @@ safe to run in secure operational environments.
         - stake
         - register node
         - claim node reward
-    - transfer and lock
     - issue
     - nominate node rewards
     - command validation change
     - record price
-    - get and set system variables
     - get sib information
     - get version information
 - arrow-pageable history for non-secret commands
