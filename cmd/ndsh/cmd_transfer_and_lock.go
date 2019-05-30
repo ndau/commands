@@ -10,30 +10,31 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Transfer claims an account, assigning its first validation keys and script
-type Transfer struct{}
+// TransferAndLock claims an account, assigning its first validation keys and script
+type TransferAndLock struct{}
 
-var _ Command = (*Transfer)(nil)
+var _ Command = (*TransferAndLock)(nil)
 
 // Name implements Command
-func (Transfer) Name() string { return "transfer" }
+func (TransferAndLock) Name() string { return "transfer-lock tnl" }
 
-type transferargs struct {
-	Qty   string `arg:"positional,required" help:"qty to transfer in ndau"`
-	From  string `arg:"positional,required" help:"account to transfer from. Use \"\" for inference"`
-	To    string `arg:"positional,required" help:"account to transfer to. Any full address is valid even if not otherwise known."`
-	Stage bool   `arg:"-S" help:"stage this tx; do not send it"`
+type transferlockargs struct {
+	Qty      string        `arg:"positional,required" help:"qty to transfer in ndau"`
+	From     string        `arg:"positional,required" help:"account to transfer from. Use \"\" for inference"`
+	To       string        `arg:"positional,required" help:"account to transfer to. Any full address is valid even if not otherwise known."`
+	Duration math.Duration `arg:"positional,required" help:"Duration of the lock"`
+	Stage    bool          `arg:"-S" help:"stage this tx; do not send it"`
 }
 
-func (transferargs) Description() string {
+func (transferlockargs) Description() string {
 	return strings.TrimSpace(`
-Transfer ndau from one account to another.
+Transfer ndau from one account to another, locking the recipient.
 	`)
 }
 
 // Run implements Command
-func (Transfer) Run(argvs []string, sh *Shell) (err error) {
-	args := transferargs{}
+func (TransferAndLock) Run(argvs []string, sh *Shell) (err error) {
+	args := transferlockargs{}
 
 	err = ParseInto(argvs, &args)
 	if err != nil {
@@ -71,10 +72,11 @@ func (Transfer) Run(argvs []string, sh *Shell) (err error) {
 
 	sh.VWrite("transfering %s ndau (%d napu) from %s to %s", qty, qty, from.Address, toaddr)
 
-	tx := ndau.NewTransfer(
+	tx := ndau.NewTransferAndLock(
 		from.Address,
 		toaddr,
 		qty,
+		args.Duration,
 		from.Data.Sequence+1,
 		from.PrivateValidationKeys...,
 	)
