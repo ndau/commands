@@ -146,8 +146,13 @@ func (Recover) Run(argvs []string, sh *Shell) (err error) {
 
 	sh.Write("Discovered %d accounts:", len(accounts))
 	for _, acct := range accounts {
+		// we're about to add by pointer.
+		// Go will reuse the same struct for each acct, though.
+		// We need to make a copy in order to ensure that all the pointers are
+		// distinct.
+		acctCopy := acct
 		sh.Write("  %s (%s)\n", acct.Address, acct.Path)
-		sh.Accts.Add(&acct)
+		sh.Accts.Add(&acctCopy)
 	}
 	// add nicknames if we've recovered exactly one account
 	if len(accounts) == 1 && len(args.Nicknames) > 0 {
