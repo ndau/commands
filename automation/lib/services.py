@@ -6,16 +6,18 @@ import json
 import sys
 
 
+# Public location of the services.json file.
+SERVICES_URL = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
+
+
 def fetch_services():
     """
     Fetch and return the json text from services.json.
     """
 
-    services_url = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
-
-    services_response = fetch_url(services_url)
+    services_response = fetch_url(SERVICES_URL)
     if services_response is None:
-        sys.exit(f"Unable to fetch {services_url}")
+        sys.exit(f"Unable to fetch {SERVICES_URL}")
 
     return services_response.content
 

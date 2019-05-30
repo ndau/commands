@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from lib.args import get_net
 from get_health import get_health
 from get_height import get_height
 from get_peers import get_peers
 from get_sha import get_sha
+from lib.args import get_net
 from lib.networks import Network
 from lib.services import fetch_services, parse_all_services
 import os
@@ -61,6 +61,7 @@ def render_hud():
     print_at(x_sha,    y_network, "SHA")
     print_at(x_height, y_network, "Height")
     print_at(x_peers,  y_network, "Peers")
+    print_at(x_node,   y_network + 1, "---------- ---------- ---------- ---------- ----------")
 
     # Fetch the api and rpc urls once.
     network_apis, network_rpcs = parse_all_services(fetch_services())

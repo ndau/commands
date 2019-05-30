@@ -30,11 +30,23 @@ def get_url(kind):
 
 def get_net():
     """
-    Return the net argument.
+    Return an optional net argument.
     """
 
     parser = ArgumentParser()
-    parser.add_argument(
-        'net', nargs="?", type=Network, choices=list(Network), help='network name')
+    parser.add_argument('net', nargs="?", type=Network, choices=list(Network), help='network name')
     args = parser.parse_args()
     return args.net
+
+
+def get_net_node_sha():
+    """
+    Return the net argument and optional node name and sha arguments.
+    """
+
+    parser = ArgumentParser()
+    parser.add_argument('net', type=Network, choices=list(Network), help='network name')
+    parser.add_argument('--node', required=False, help='node name')
+    parser.add_argument('--sha', required=True, help='ECR sc-node SHA to use')
+    args = parser.parse_args()
+    return args.net, args.node, args.sha
