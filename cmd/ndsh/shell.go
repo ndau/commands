@@ -284,6 +284,8 @@ func (sh *Shell) Dispatch(stage bool, tx metatx.Transactable, update, magic *Acc
 		return nil
 	}
 
+	sh.VWrite("sending tx with hash %s", metatx.Hash(tx))
+
 	_, err := tool.SendCommit(sh.Node, tx)
 	if err != nil {
 		sh.Staged = staged

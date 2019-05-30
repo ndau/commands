@@ -31,6 +31,7 @@ type txargs struct {
 	OverrideValue string                 `arg:"-v,--value" help:"with -k, override that key to this value"`
 	Signatures    []signature.Signature  `arg:"separate" help:"add raw signatures to this tx"`
 	SignWith      []signature.PrivateKey `arg:"separate" help:"add signatures to this tx with this private key"`
+	Hash          bool                   `arg:"-h" help:"print the tx hash and return"`
 	SignableBytes bool                   `arg:"-b,--signable-bytes" help:"print the base64 signable bytes of this tx and return"`
 	Clear         bool                   `arg:"-C" help:"clear the staged tx"`
 	Send          bool                   `help:"send this tx to the blockchain"`
@@ -131,6 +132,11 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 		}
 		s.ExtendSignatures(sigs)
 		sh.Staged.Tx = s.(metatx.Transactable)
+	}
+
+	if args.Hash {
+		sh.Write(metatx.Hash(sh.Staged.Tx))
+		return
 	}
 
 	if args.SignableBytes {
