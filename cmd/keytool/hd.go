@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/key"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/oneiro-ndev/ndaumath/pkg/words"
+	"github.com/pkg/errors"
 )
 
 func hdstr(k key.ExtendedKey) string {
@@ -148,5 +151,40 @@ func cmdHDRawSig(cmd *cli.Cmd) {
 		data, err = sig.MarshalText()
 		check(err)
 		fmt.Println(string(data))
+	}
+}
+
+func cmdHDWords(cmd *cli.Cmd) {
+	var (
+		phrasep = cmd.StringsArg("WORD", []string{}, "phrase from which to derive a root key")
+		lang    = cmd.StringOpt("l lang", "en", "language of wordlist")
+	)
+
+	cmd.Spec = "WORD... [--lang=<LANG_CODE>]"
+
+	cmd.Action = func() {
+		phrase := *phrasep
+
+		if len(phrase) != 12 {
+			fmt.Printf("WARN: ndau seed phrases are typically 12 phrase; you provided %d\n", len(phrase))
+		}
+
+		for idx := range phrase {
+			phrase[idx] = strings.ToLower(phrase[idx])
+		}
+
+		seed, err := words.ToBytes(*lang, phrase)
+		check(errors.Wrap(err, "interpreting words"))
+
+		root, err := key.NewMaster(seed)
+		check(errors.Wrap(err, "generating root key"))
+
+		nd, err := root.SPrivKey()
+		check(errors.Wrap(err, "converting to ndau fmt"))
+
+		s, err := nd.MarshalString()
+		check(errors.Wrap(err, "stringifying"))
+
+		fmt.Println(s)
 	}
 }
