@@ -494,8 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-public-interfaces"
-  digest = "1:47c33f25ec6ba1a7f16743404f73aee3cc1368eb140b1c44637b3c8745182559"
+  digest = "1:be8b19b30aaab80f892a6d09d6fd5262d864ebf6e9e61bc0b5aa0a01701dda0a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -513,7 +512,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "dcb3e8aec4043a39a85c0e693f5de5c10574a1de"
+  revision = "df5c3f46d35f76c8582e96d19d886b758f905249"
+  version = "v1.16.5"
 
 [[projects]]
   branch = "prgn-parse-kind"
