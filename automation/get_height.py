@@ -7,7 +7,7 @@ import json
 
 def get_height(url):
     """
-    Get the current height of the node at the given api url.
+    Get the current height of the node at the given API url.
     """
 
     # Key names in response json.
@@ -29,7 +29,7 @@ def get_height(url):
                 if not header_obj is None and height_name in header_obj:
                     return header_obj[height_name]
 
-    return 0
+    return 0 # Invalid height
 
 
 def main():

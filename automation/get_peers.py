@@ -18,15 +18,15 @@ def get_peers(url):
 
     if not response is None:
         try:
-            info_obj = json.loads(response.content)
+            root_obj = json.loads(response.content)
         except:
-            info_obj = None
-        if not info_obj is None and result_name in info_obj:
-            result_obj = info_obj[result_name]
+            root_obj = None
+        if not root_obj is None and result_name in root_obj:
+            result_obj = root_obj[result_name]
             if not result_obj is None and peers_name in result_obj:
                 return result_obj[peers_name]
 
-    return 0
+    return -1 # Invalid peer count
 
 
 def main():

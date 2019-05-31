@@ -36,6 +36,11 @@ To get the number of peers of node 3 on testnet:
 ./get_peers.py https://testnet-3.ndau.tech:26670
 ```
 
+To get whether node 3 is synced (not currently catching up) on testnet:
+```sh
+./get_synced.py https://testnet-3.ndau.tech:26670
+```
+
 ## HUD
 
 Ultimately we'll want a GUI published somewhere for point-and-click node management.  For now, we have a text-based HUD.  This script demonstrates fetching `services.json` once and looping over its entries to display status information about every Oneiro node on every network.

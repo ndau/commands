@@ -6,7 +6,7 @@ from lib.fetch import fetch_url
 
 def get_health(url):
     """
-    Get the health of the node at the given api url.
+    Get the health of the node at the given API url.
     """
 
     response = fetch_url(f"{url}/health")

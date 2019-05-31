@@ -7,7 +7,7 @@ import json
 
 def get_sha(url):
     """
-    Get the SHA of the node at the given api url.
+    Get the SHA of the node at the given API url.
     """
 
     # Key names in response json.

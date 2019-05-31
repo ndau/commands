@@ -2,6 +2,7 @@
 
 from get_health import get_health
 from get_sha import get_sha
+from get_synced import get_synced
 from lib.args import get_net_node_sha
 from lib.services import fetch_services, parse_services
 from lib.networks import NETWORK_LOCATIONS
@@ -13,16 +14,17 @@ import time
 
 # Number of seconds we wait between node upgrades.
 # This helps stagger the daily restart tasks so that not all nodes restart near the same time.
-WAIT_BETWEEN_NODES = 60
+MIN_WAIT_BETWEEN_NODES = 60
 
 # Repository URI for our ndauimage Docker images.
 ECR_URI = "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node"
 
 
-def upgrade_node(node_name, cluster, region, sha, url):
+def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
     """
     Upgrade the given node to the given SHA on the given cluster in the given region.
-    Uses the url to check its health before returning.
+    Uses the urls to check its health before returning.
+    Returns the amount of time that was spent waiting for the upgrade to complete after a restart.
     """
 
     print(f"Fetching latest {node_name} task definition...")
@@ -84,15 +86,24 @@ def upgrade_node(node_name, cluster, region, sha, url):
     if r.returncode != 0:
         sys.exit(f"ecs-cli configure failed with code {r.returncode}")
 
-    print(f"Waiting for {node_name} to become healthy...")
+    time_started = time.time()
 
-    for attempt in range(60):
-        time.sleep(2)
-        if get_sha(url) == sha and get_health(url) == "OK":
-            print(f"Upgrade of {node_name} is complete")
-            return
+    print(f"Waiting for {node_name} to reach steady state...")
+    for attempt in range(300):
+        time.sleep(1)
+        if get_sha(api_url) != sha:
+            continue
+        time.sleep(1)
+        if get_health(api_url) != "OK":
+            continue
+        time.sleep(1)
+        if get_synced(rpc_url) != "YES":
+            continue
+        print(f"Upgrade of {node_name} is complete")
+        return time.time() - time_started
 
-    sys.exit(f"Timed out waiting for {node_name} to become healthy")
+    sys.exit(f"Timed out waiting for {node_name} upgrade to complete")
+    return -1
 
 
 def upgrade_nodes(network_name, node_name, sha):
@@ -106,9 +117,10 @@ def upgrade_nodes(network_name, node_name, sha):
 
     apis, rpcs = parse_services(network_name, node_name, fetch_services())
 
-    upgraded_nodes = 0
+    time_spent_waiting = -1
     for node_name in sorted(apis, reverse=True):
-        url = apis[node_name]
+        api_url = apis[node_name]
+        rpc_url = rpcs[node_name]
 
         if not node_name in node_infos:
             sys.exit(f"Unknown location for node {node_name} on network {network_name}")
@@ -117,13 +129,12 @@ def upgrade_nodes(network_name, node_name, sha):
         cluster = node_info["cluster"]
         region = node_info["region"]
 
-        if upgraded_nodes > 0:
-            print(f"Waiting {WAIT_BETWEEN_NODES} seconds before upgrading {node_name}...")
-            time.sleep(WAIT_BETWEEN_NODES)
+        if time_spent_waiting >= 0 and time_spent_waiting < MIN_WAIT_BETWEEN_NODES:
+            wait_seconds = int(MIN_WAIT_BETWEEN_NODES - time_spent_waiting + 0.5)
+            print(f"Waiting {wait_seconds} more seconds before upgrading {node_name}...")
+            time.sleep(wait_seconds)
 
-        upgrade_node(node_name, cluster, region, sha, url)
-
-        upgraded_nodes += 1
+        time_spent_waiting = upgrade_node(node_name, cluster, region, sha, api_url, rpc_url)
 
 
 def main():
