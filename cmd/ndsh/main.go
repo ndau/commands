@@ -85,6 +85,7 @@ func main() {
 		CreateChild{},
 		ChangeRecourse{},
 		Delegate{},
+		NominateNodeRewards{},
 	)
 
 	shell.VWrite("initialized shell...")
