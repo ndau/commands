@@ -30,7 +30,7 @@ def get_synced(url):
                 if not sync_info_obj is None and \
                    latest_block_height_name in sync_info_obj and \
                    catching_up_name in sync_info_obj:
-                    if sync_info_obj[latest_block_height_name] > 0 and \
+                    if int(sync_info_obj[latest_block_height_name]) > 0 and \
                        not sync_info_obj[catching_up_name]:
                         return "YES"
                     return "NO"
