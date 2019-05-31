@@ -185,10 +185,24 @@ def main():
     Upgrade one or all nodes on the given network.
     """
 
-    start_time = time.time()
-
     network, node_name, sha = get_net_node_sha()
     network_name = str(network)
+
+    # Be extra careful with mainnet.
+    if network_name == "mainnet":
+        if node_name is None:
+            node_text = "ALL NODES"
+        else:
+            node_text = node_name
+        print()
+        print(f"You are about to UPGRADE {node_text} ON MAINNET to the following SHA: {sha}")
+        print("Please be sure that this SHA has been staged and tested on testnet first.")
+        print()
+        confirm = input(f"Proceed with upgrading {node_text} on mainnet now? (yes to confirm) ")
+        if confirm != "yes":
+            sys.exit("Mainnet upgrade declined")
+
+    start_time = time.time()
 
     upgrade_nodes(network_name, node_name, sha)
 
