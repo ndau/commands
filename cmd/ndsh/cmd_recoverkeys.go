@@ -95,9 +95,13 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 	if args.AccountIdx >= 0 {
 		acctidx = uint(args.AccountIdx)
 	} else {
-		_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &acctidx)
-		if err != nil {
-			return errors.Wrap(err, "getting account idx from path")
+		if acct.AcctIdx > 0 {
+			acctidx = uint(acct.AcctIdx)
+		} else {
+			_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &acctidx)
+			if err != nil {
+				return errors.Wrap(err, "getting account idx from path")
+			}
 		}
 	}
 
