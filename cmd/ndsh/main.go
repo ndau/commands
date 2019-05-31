@@ -84,6 +84,7 @@ func main() {
 		Summary{},
 		CreateChild{},
 		ChangeRecourse{},
+		Delegate{},
 	)
 
 	shell.VWrite("initialized shell...")
