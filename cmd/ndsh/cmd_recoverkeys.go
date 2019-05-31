@@ -174,7 +174,22 @@ func deriveKey(
 		return nil
 	}
 	if sh.Verbose {
-		sh.Write("  %s", pvt)
+		epub, err := k.Public()
+		if err != nil {
+			sh.Write("deriving public key: %s", err)
+			return nil
+		}
+		pub, err := epub.SPubKey()
+		if err != nil {
+			sh.Write("converting pubkey to ndau fmt: %s", err)
+			return nil
+		}
+		pubs, err := pub.MarshalString()
+		if err != nil {
+			sh.Write("serializing pubkey: %s", err)
+			return nil
+		}
+		sh.Write("  %s %s", pvt, pubs)
 	}
 
 	for pub := range remaining {
