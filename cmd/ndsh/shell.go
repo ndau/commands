@@ -305,3 +305,27 @@ func (sh *Shell) Dispatch(stage bool, tx metatx.Transactable, update, magic *Acc
 	}
 	return err
 }
+
+// AddressOf returns the address from an input string
+//
+// This extends sh.Accts.Get: it has all the same behavior,
+// plus the additional benefit that if the input isn't a known
+// account but it is a complete address, it succeeds.
+//
+// Exactly one of the address and error return values will always be nil.
+// If the account is known, it will be returned.
+func (sh *Shell) AddressOf(s string) (*address.Address, *Account, error) {
+	acct, err := sh.Accts.Get(s)
+	switch {
+	case err == nil:
+		return &acct.Address, acct, nil
+	case IsNoMatch(err):
+		addr, err := address.Validate(s)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "input must be a complete address or a suffix of a known account address or nickname")
+		}
+		return &addr, nil, nil
+	default:
+		return nil, nil, err
+	}
+}

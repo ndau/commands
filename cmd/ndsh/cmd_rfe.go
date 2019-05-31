@@ -3,6 +3,8 @@ package main
 import (
 	"strings"
 
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
+
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
@@ -54,15 +56,16 @@ func (ReleaseFromEndowment) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	var acct *Account
-	acct, err = sh.Accts.Get(args.Account)
+	var addr *address.Address
+	addr, acct, err = sh.AddressOf(args.Account)
 	if err != nil {
 		return
 	}
 
-	sh.VWrite("rfe %s ndau to %s", qty, acct.Address)
+	sh.VWrite("rfe %s ndau to %s", qty, *addr)
 
 	tx := ndau.NewReleaseFromEndowment(
-		acct.Address,
+		*addr,
 		qty,
 		rfemagic.Data.Sequence+1,
 		rfemagic.PrivateValidationKeys...,

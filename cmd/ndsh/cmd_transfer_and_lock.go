@@ -50,18 +50,10 @@ func (TransferAndLock) Run(argvs []string, sh *Shell) (err error) {
 		return
 	}
 
-	var toaddr address.Address
-	to, err = sh.Accts.Get(args.To)
-	switch {
-	case err == nil:
-		toaddr = to.Address
-	case IsNoMatch(err):
-		toaddr, err = address.Validate(args.To)
-		if err != nil {
-			return errors.Wrap(err, "To must be known address substring, nickname, or full address")
-		}
-	case err != nil:
-		return
+	var toaddr *address.Address
+	toaddr, to, err = sh.AddressOf(args.To)
+	if err != nil {
+		return errors.Wrap(err, "to")
 	}
 
 	var qty math.Ndau
@@ -70,16 +62,24 @@ func (TransferAndLock) Run(argvs []string, sh *Shell) (err error) {
 		return
 	}
 
-	sh.VWrite("transfering %s ndau (%d napu) from %s to %s", qty, qty, from.Address, toaddr)
+	sh.VWrite("transfering %s ndau (%d napu) from %s to %s and locking for %s", qty, qty, from.Address, toaddr, args.Duration)
 
 	tx := ndau.NewTransferAndLock(
 		from.Address,
-		toaddr,
+		*toaddr,
 		qty,
 		args.Duration,
 		from.Data.Sequence+1,
 		from.PrivateValidationKeys...,
 	)
 
-	return sh.Dispatch(args.Stage, tx, from, nil)
+	err = sh.Dispatch(args.Stage, tx, from, nil)
+	if err != nil {
+		return
+	}
+
+	if to != nil {
+		err = to.Update(sh, sh.Write)
+	}
+	return
 }

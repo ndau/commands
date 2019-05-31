@@ -155,8 +155,8 @@ func (CreateChild) Run(argvs []string, sh *Shell) (err error) {
 	if args.DelegationNode == "" {
 		args.DelegationNode = args.Parent
 	}
-	var delegationNode *Account
-	delegationNode, err = sh.Accts.Get(args.DelegationNode)
+	var delegateAddr *address.Address
+	delegateAddr, _, err = sh.AddressOf(args.DelegationNode)
 	if err != nil {
 		return errors.Wrap(err, "getting delegation node")
 	}
@@ -178,7 +178,7 @@ func (CreateChild) Run(argvs []string, sh *Shell) (err error) {
 		args.SettlementPeriod,
 		pubs,
 		validationScript,
-		delegationNode.Address,
+		*delegateAddr,
 		parent.Data.Sequence+1,
 		parent.PrivateValidationKeys...,
 	)

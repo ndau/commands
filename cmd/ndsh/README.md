@@ -35,6 +35,7 @@ safe to run in secure operational environments.
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys
         - change recourse period
+        - delegate
     - rfe
     - issue
     - transfer
@@ -54,7 +55,6 @@ safe to run in secure operational environments.
 - do most things the ndau tool can do:
     - accounts
         - closeout account into another account, transfering out all ndau
-        - delegate
         - send `CreditEAI` tx
         - lock
         - notify
