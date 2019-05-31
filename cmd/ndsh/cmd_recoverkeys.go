@@ -41,6 +41,7 @@ func (RecoverKeys) Name() string { return "recover-keys" }
 type recoverkeysargs struct {
 	Account     string `arg:"positional" help:"recover keys for this account"`
 	Persistence int    `help:"number of non-keys to discover before deciding there are no more in a particular derivation style"`
+	AccountIdx  int    `arg:"-i,--account-idx" help:"if >= 0, use this account index instead of discovering from account"`
 }
 
 func (recoverkeysargs) Description() string {
@@ -63,6 +64,7 @@ the root key is known.
 func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 	args := recoverkeysargs{
 		Persistence: 50,
+		AccountIdx:  -1,
 	}
 
 	err = ParseInto(argvs, &args)
@@ -85,14 +87,18 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 	if acct.root == nil {
 		return errors.New("root key is not known")
 	}
-	if acct.Path == "" {
+	if args.AccountIdx < 0 && acct.Path == "" {
 		return errors.New("account path is not known")
 	}
 
 	var acctidx uint
-	_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &acctidx)
-	if err != nil {
-		return errors.Wrap(err, "getting account idx from path")
+	if args.AccountIdx >= 0 {
+		acctidx = uint(args.AccountIdx)
+	} else {
+		_, err = fmt.Sscanf(acct.Path, defaultPathFmt, &acctidx)
+		if err != nil {
+			return errors.Wrap(err, "getting account idx from path")
+		}
 	}
 
 	remaining := make(map[*signature.PublicKey]struct{})
