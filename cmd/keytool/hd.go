@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	cli "github.com/jawher/mow.cli"
@@ -166,7 +167,7 @@ func cmdHDWords(cmd *cli.Cmd) {
 		phrase := *phrasep
 
 		if len(phrase) != 12 {
-			fmt.Printf("WARN: ndau seed phrases are typically 12 phrase; you provided %d\n", len(phrase))
+			fmt.Fprintf(os.Stderr, "WARN: ndau seed phrases are typically 12 words; you provided %d\n", len(phrase))
 		}
 
 		for idx := range phrase {
