@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+from get_catchup import get_catchup
 from get_health import get_health
 from get_height import get_height
 from get_peers import get_peers
 from get_sha import get_sha
-from get_sync import get_sync
 from lib.args import get_net
 from lib.networks import Network
 from lib.services import fetch_services, parse_all_services
@@ -50,21 +50,21 @@ def render_hud():
     os.system("clear")
 
     column_width = 11
-    x_node   = 1
-    x_health = x_node   + column_width
-    x_sha    = x_health + column_width
-    x_sync   = x_sha    + column_width
-    x_height = x_sync   + column_width
-    x_peers  = x_height + column_width
+    x_node    = 1
+    x_health  = x_node    + column_width
+    x_sha     = x_health  + column_width
+    x_catchup = x_sha     + column_width
+    x_height  = x_catchup + column_width
+    x_peers   = x_height  + column_width
 
     y_network = 2
-    print_at(x_node,   y_network, "Node")
-    print_at(x_health, y_network, "Health")
-    print_at(x_sha,    y_network, "SHA")
-    print_at(x_sync,   y_network, "Sync")
-    print_at(x_height, y_network, "Height")
-    print_at(x_peers,  y_network, "Peers")
-    print_at(x_node,   y_network + 1,
+    print_at(x_node,    y_network, "Node")
+    print_at(x_health,  y_network, "Health")
+    print_at(x_sha,     y_network, "SHA")
+    print_at(x_catchup, y_network, "Catchup")
+    print_at(x_height,  y_network, "Height")
+    print_at(x_peers,   y_network, "Peers")
+    print_at(x_node,    y_network + 1,
              "---------- ---------- ---------- ---------- ---------- ----------")
 
     # Fetch the api and rpc urls once.
@@ -85,11 +85,11 @@ def render_hud():
 
             # We poll the same thing for each node in the network, rather than all things for
             # each node.  That way we don't hit a single node hard with back-to-back requests.
-            print_node_info(x_health, y_network, get_health, apis)
-            print_node_info(x_sha,    y_network, get_sha,    apis)
-            print_node_info(x_sync,   y_network, get_sync,   rpcs)
-            print_node_info(x_height, y_network, get_height, apis)
-            print_node_info(x_peers,  y_network, get_peers,  rpcs)
+            print_node_info(x_health,  y_network, get_health,  apis)
+            print_node_info(x_sha,     y_network, get_sha,     apis)
+            print_node_info(x_catchup, y_network, get_catchup, rpcs)
+            print_node_info(x_height,  y_network, get_height,  apis)
+            print_node_info(x_peers,   y_network, get_peers,   rpcs)
 
             y_network += len(apis) + 1
 

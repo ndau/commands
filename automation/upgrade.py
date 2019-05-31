@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+from get_catchup import get_catchup
 from get_health import get_health
 from get_sha import get_sha
-from get_sync import get_sync
 from lib.args import get_net_node_sha
 from lib.services import fetch_services, parse_services
 from lib.networks import NETWORK_LOCATIONS
@@ -15,7 +15,8 @@ import time
 
 # Number of seconds we wait between node upgrades.
 # This helps stagger the daily restart tasks so that not all nodes restart near the same time.
-MIN_WAIT_BETWEEN_NODES = 60
+# Some of this time is used by a node's service restarting, before procmon starts.
+MIN_WAIT_BETWEEN_NODES = 120
 
 # Repository URI for our ndauimage Docker images.
 ECR_URI = "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node"
@@ -87,9 +88,14 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
     if r.returncode != 0:
         sys.exit(f"ecs-cli configure failed with code {r.returncode}")
 
+    # Record the time of the restart so we make sure to wait at least MIN_WAIT_BETWEEN_NODES.
+    # NOTE: It would be better to detect the old service going down first.  When we support
+    # config changes (e.g. environment variable updates without a new sha), we'll need this as
+    # well as improved wait-for-catchup logic below, since the sha, catchup and health won't be
+    # expected to change during such an upgrade.
     time_started = time.time()
 
-    print(f"Waiting for {node_name} to catch up...")
+    print(f"Waiting for {node_name} to restart and catch up...")
     for attempt in range(300):
         # Wait some time between each status request, so we don't hammer the service.
         time.sleep(1)
@@ -101,14 +107,14 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
 
         time.sleep(1)
 
-        # Once the sync (catch up) is complete, the upgraded node is happy with the network.
-        if get_sync(rpc_url) != "COMPLETE":
+        # Once the catch up is complete, the upgraded node is happy with the network.
+        if get_catchup(rpc_url) != "COMPLETE":
             continue
 
         time.sleep(1)
 
         # Once all else looks good, check the health.  It'll likely be OK at this point since
-        # an unhealthy node would certainly fail the sha and sync tests above.
+        # an unhealthy node would certainly fail the sha and catch up tests above.
         if get_health(api_url) != "OK":
             continue
 

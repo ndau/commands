@@ -5,9 +5,9 @@ from lib.fetch import fetch_url
 import json
 
 
-def get_sync(url):
+def get_catchup(url):
     """
-    Get the current sync (catch up) status of the node at the given RPC url.
+    Get the current catch up status of the node at the given RPC url.
     """
 
     # Key names in response json.
@@ -33,19 +33,19 @@ def get_sync(url):
                     if int(sync_info_obj[latest_block_height_name]) > 0 and \
                        not sync_info_obj[catching_up_name]:
                         return "COMPLETE"
-                    return "CATCHUP"
+                    return "CATCHINGUP"
 
     return "UNKNOWN"
 
 
 def main():
     """
-    Print the current sync (catch up) status of the node at the given RPC url.
+    Print the current catch up status of the node at the given RPC url.
     """
 
     url = get_url(UrlKind.RPC)
-    sync = get_sync(url)
-    print(sync)
+    catchup = get_catchup(url)
+    print(catchup)
 
 
 if __name__ == '__main__':
