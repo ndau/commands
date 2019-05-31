@@ -65,6 +65,7 @@ export GENERATE_CMD=cmd/generate
 export NDAU_CMD=cmd/ndau
 export NDAUAPI_CMD=cmd/ndauapi
 export NDAUNODE_CMD=cmd/ndaunode
+export NDSH_CMD=cmd/ndsh
 export NOMS_CMD=cmd/noms
 export TENDERMINT_CMD=cmd/tendermint
 export ETL_CMD=cmd/etl

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
+	"github.com/oneiro-ndev/ndau/pkg/version"
 )
 
 func bail(err string, context ...interface{}) {
@@ -29,15 +30,25 @@ const (
 	exitNever
 )
 
+type mainargs struct {
+	Net      string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
+	Node     int    `arg:"-n" help:"node number to which to connect"`
+	Verbose  bool   `arg:"-v" help:"emit additional debug data"`
+	Command  string `arg:"-c" help:"run this command"`
+	CMode    int    `arg:"-C" help:"when to exit after running a command. 0 (default): always; 1: if no err; 2: if err; 3: never"`
+	SysAccts string `arg:"--system-accts" help:"load system_accts.toml from this path"`
+}
+
+func (mainargs) Version() string {
+	v, err := version.Get()
+	if err != nil {
+		v = err.Error()
+	}
+	return "ndsh " + v
+}
+
 func main() {
-	args := struct {
-		Net      string `arg:"-N" help:"net to configure: ('main', 'test', 'dev', 'local', or a URL)"`
-		Node     int    `arg:"-n" help:"node number to which to connect"`
-		Verbose  bool   `arg:"-v" help:"emit additional debug data"`
-		Command  string `arg:"-c" help:"run this command"`
-		CMode    int    `arg:"-C" help:"when to exit after running a command. 0 (default): always; 1: if no err; 2: if err; 3: never"`
-		SysAccts string `arg:"--system-accts" help:"load system_accts.toml from this path"`
-	}{
+	args := mainargs{
 		Net: "mainnet",
 	}
 
@@ -69,6 +80,7 @@ func main() {
 		Transfer{},
 		TransferAndLock{},
 		Issue{},
+		Version{},
 	)
 
 	shell.VWrite("initialized shell...")
