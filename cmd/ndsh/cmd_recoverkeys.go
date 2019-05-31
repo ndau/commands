@@ -103,9 +103,9 @@ func (RecoverKeys) Run(argvs []string, sh *Shell) (err error) {
 		}
 	}
 
-	remaining := make(map[*signature.PublicKey]struct{})
+	remaining := make(map[string]struct{})
 	for _, public := range acct.Data.ValidationKeys {
-		remaining[&public] = struct{}{}
+		remaining[public.FullString()] = struct{}{}
 	}
 	if sh.Verbose {
 		sh.Write("existing validation keys on blockchain:")
@@ -156,7 +156,7 @@ func deriveKey(
 	pattern func(int, int) string,
 	acctidx uint, keyidx *int,
 	acct *Account,
-	remaining map[*signature.PublicKey]struct{},
+	remaining map[string]struct{},
 ) *signature.PrivateKey {
 	var succeeded bool
 	defer func() {
@@ -181,27 +181,23 @@ func deriveKey(
 		sh.Write("%s: %s", "getting signature-style key from key", err)
 		return nil
 	}
+	epub, err := k.Public()
+	if err != nil {
+		sh.Write("deriving public key: %s", err)
+		return nil
+	}
+	pub, err := epub.SPubKey()
+	if err != nil {
+		sh.Write("converting pubkey to ndau fmt: %s", err)
+		return nil
+	}
+	pubs := pub.FullString()
 	if sh.Verbose {
-		epub, err := k.Public()
-		if err != nil {
-			sh.Write("deriving public key: %s", err)
-			return nil
-		}
-		pub, err := epub.SPubKey()
-		if err != nil {
-			sh.Write("converting pubkey to ndau fmt: %s", err)
-			return nil
-		}
-		pubs, err := pub.MarshalString()
-		if err != nil {
-			sh.Write("serializing pubkey: %s", err)
-			return nil
-		}
 		sh.Write("  %s %s", pvt, pubs)
 	}
 
 	for pub := range remaining {
-		if signature.Match(*pub, *pvt) {
+		if pub == pubs {
 			succeeded = true
 			delete(remaining, pub)
 			if sh.Verbose {
