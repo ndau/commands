@@ -81,6 +81,7 @@ func main() {
 		TransferAndLock{},
 		Issue{},
 		Version{},
+		Summary{},
 	)
 
 	shell.VWrite("initialized shell...")

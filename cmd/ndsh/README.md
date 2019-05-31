@@ -39,6 +39,7 @@ safe to run in secure operational environments.
     - transfer and lock
     - get and set system variables
     - get version information
+    - get summary/sib information
 - staged mode for transactions:
     - override any field (via JSON representation)
     - add signatures from arbitrary private keys
@@ -64,7 +65,6 @@ safe to run in secure operational environments.
     - nominate node rewards
     - command validation change
     - record price
-    - get sib information
 - arrow-pageable history for non-secret commands
 
 ### Maybe
