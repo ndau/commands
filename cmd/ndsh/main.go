@@ -82,6 +82,7 @@ func main() {
 		Issue{},
 		Version{},
 		Summary{},
+		CreateChild{},
 	)
 
 	shell.VWrite("initialized shell...")

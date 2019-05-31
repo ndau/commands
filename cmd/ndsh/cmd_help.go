@@ -30,7 +30,7 @@ func (Help) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if args.Command != "" {
-		sh.Exec(fmt.Sprintf("%s -h", args.Command))
+		err = sh.Exec(fmt.Sprintf("%s -h", args.Command))
 	} else {
 		knownNames := make(map[string]struct{})
 		names := make([]string, 0)

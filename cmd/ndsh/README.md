@@ -30,6 +30,7 @@ safe to run in secure operational environments.
     - accounts
         - create new account, return address and derivation path
         - claim account (with recovery from recovery service as applicable)
+        - claim child account
         - update status from blockchain
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys
@@ -51,7 +52,6 @@ safe to run in secure operational environments.
 
 - do most things the ndau tool can do:
     - accounts
-        - claim child account
         - closeout account into another account, transfering out all ndau
         - change recourse period
         - delegate
