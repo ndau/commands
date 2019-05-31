@@ -517,7 +517,7 @@
 
 [[projects]]
   branch = "prgn-parse-kind"
-  digest = "1:f1137b7847c1caa2347dc3b64394c71c4dea7c60d19ef8883821f348e01753c9"
+  digest = "1:6317ab1eb13ff660d74075b6091bb53180ea31c47d60814d6f70b811b999a723"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -539,7 +539,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "a82622fac73fb1b0b4cae1336230835b355ecef5"
+  revision = "a536447250d2029207ea5307ef1f50bfe030d1f5"
 
 [[projects]]
   branch = "master"
