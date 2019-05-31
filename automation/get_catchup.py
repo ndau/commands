@@ -27,11 +27,15 @@ def get_catchup(url):
             result_obj = root_obj[result_name]
             if not result_obj is None and sync_info_name in result_obj:
                 sync_info_obj = result_obj[sync_info_name]
-                if not sync_info_obj is None and \
-                   latest_block_height_name in sync_info_obj and \
-                   catching_up_name in sync_info_obj:
-                    if int(sync_info_obj[latest_block_height_name]) > 0 and \
-                       not sync_info_obj[catching_up_name]:
+                if (
+                    not sync_info_obj is None
+                    and latest_block_height_name in sync_info_obj
+                    and catching_up_name in sync_info_obj
+                ):
+                    if (
+                        int(sync_info_obj[latest_block_height_name]) > 0
+                        and not sync_info_obj[catching_up_name]
+                    ):
                         return "COMPLETE"
                     return "CATCHINGUP"
 
@@ -48,5 +52,5 @@ def main():
     print(catchup)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

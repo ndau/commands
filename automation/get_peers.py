@@ -26,7 +26,7 @@ def get_peers(url):
             if not result_obj is None and peers_name in result_obj:
                 return result_obj[peers_name]
 
-    return -1 # Invalid peer count
+    return -1  # Invalid peer count
 
 
 def main():
@@ -39,5 +39,5 @@ def main():
     print(peers)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -32,11 +32,12 @@ def parse_all_services(services_json):
 
     for network in list(Network):
         network_name = str(network)
-        network_apis[network_name], network_rpcs[network_name] = \
-            parse_services(network_name, None, services_json)
+        network_apis[network_name], network_rpcs[network_name] = parse_services(
+            network_name, None, services_json
+        )
 
     return network_apis, network_rpcs
-        
+
 
 def parse_services(network_name, node_name, services_json):
     """
@@ -78,7 +79,7 @@ def parse_services(network_name, node_name, services_json):
         if not new_node_name in nodes_obj:
             nodes_obj[new_node_name] = {
                 api_name: f"{new_node_name}.ndau.tech:3030",
-                rpc_name: f"{new_node_name}.ndau.tech:26670"
+                rpc_name: f"{new_node_name}.ndau.tech:26670",
             }
 
     apis = {}

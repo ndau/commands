@@ -29,7 +29,7 @@ def get_height(url):
                 if not header_obj is None and height_name in header_obj:
                     return header_obj[height_name]
 
-    return 0 # Invalid height
+    return 0  # Invalid height
 
 
 def main():
@@ -42,5 +42,5 @@ def main():
     print(height)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

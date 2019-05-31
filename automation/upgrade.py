@@ -32,15 +32,19 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
     print(f"Fetching latest {node_name} task definition...")
     r = subprocess.run(
         [
-            "aws", "ecs", "describe-task-definition",
-            "--region", region,
-            "--task-definition", node_name,
+            "aws",
+            "ecs",
+            "describe-task-definition",
+            "--region",
+            region,
+            "--task-definition",
+            node_name,
         ],
         stdout=subprocess.PIPE,
     )
     if r.returncode != 0:
         sys.exit(f"aws ecs describe-task-definition failed with code {r.returncode}")
-    
+
     try:
         task_definition_json = json.loads(r.stdout)
     except:
@@ -67,24 +71,38 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
         container_definition[image_name] = f"{ECR_URI}:{sha}"
 
     print(f"Registering new {node_name} task definition...")
-    r = subprocess.run([
-        "aws", "ecs", "register-task-definition",
-        "--region", region,
-        "--family", node_name,
-        "--container-definitions",
-        json.dumps(container_definitions_obj),
-    ])
+    r = subprocess.run(
+        [
+            "aws",
+            "ecs",
+            "register-task-definition",
+            "--region",
+            region,
+            "--family",
+            node_name,
+            "--container-definitions",
+            json.dumps(container_definitions_obj),
+        ]
+    )
     if r.returncode != 0:
         sys.exit(f"aws ecs register-task-definition failed with code {r.returncode}")
 
     print(f"Updating {node_name} service...")
-    r = subprocess.run([
-        "aws", "ecs", "update-service",
-        "--cluster", cluster,
-        "--region", region,
-        "--service", node_name,
-        "--task-definition", node_name,
-    ])
+    r = subprocess.run(
+        [
+            "aws",
+            "ecs",
+            "update-service",
+            "--cluster",
+            cluster,
+            "--region",
+            region,
+            "--service",
+            node_name,
+            "--task-definition",
+            node_name,
+        ]
+    )
     if r.returncode != 0:
         sys.exit(f"ecs-cli configure failed with code {r.returncode}")
 
@@ -149,10 +167,14 @@ def upgrade_nodes(network_name, node_name, sha):
 
         if time_spent_waiting >= 0 and time_spent_waiting < MIN_WAIT_BETWEEN_NODES:
             wait_seconds = int(MIN_WAIT_BETWEEN_NODES - time_spent_waiting + 0.5)
-            print(f"Waiting {wait_seconds} more seconds before upgrading {node_name}...")
+            print(
+                f"Waiting {wait_seconds} more seconds before upgrading {node_name}..."
+            )
             time.sleep(wait_seconds)
 
-        time_spent_waiting = upgrade_node(node_name, cluster, region, sha, api_url, rpc_url)
+        time_spent_waiting = upgrade_node(
+            node_name, cluster, region, sha, api_url, rpc_url
+        )
 
 
 def register_sha(network_name, sha):
@@ -169,10 +191,9 @@ def register_sha(network_name, sha):
     with open(current_file_path, "w") as f:
         f.write(f"{sha}\n")
 
-    r = subprocess.run([
-        "aws", "s3", "cp",
-        current_file_path, f"s3://ndau-images/{current_file_name}",
-    ])
+    r = subprocess.run(
+        ["aws", "s3", "cp", current_file_path, f"s3://ndau-images/{current_file_name}"]
+    )
 
     os.remove(current_file_path)
 
@@ -195,10 +216,16 @@ def main():
         else:
             node_text = node_name
         print()
-        print(f"You are about to UPGRADE {node_text} ON MAINNET to the following SHA: {sha}")
-        print("Please be sure that this SHA has been staged and tested on testnet first.")
+        print(
+            f"You are about to UPGRADE {node_text} ON MAINNET to the following SHA: {sha}"
+        )
+        print(
+            "Please be sure that this SHA has been staged and tested on testnet first."
+        )
         print()
-        confirm = input(f"Proceed with upgrading {node_text} on mainnet now? (yes to confirm) ")
+        confirm = input(
+            f"Proceed with upgrading {node_text} on mainnet now? (type yes to confirm) "
+        )
         if confirm != "yes":
             sys.exit("Mainnet upgrade declined")
 
@@ -214,5 +241,5 @@ def main():
     print(f"Total upgrade time: {total_time} seconds")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
