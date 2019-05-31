@@ -34,6 +34,7 @@ safe to run in secure operational environments.
         - update status from blockchain
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys
+        - change recourse period
     - rfe
     - issue
     - transfer
@@ -53,7 +54,6 @@ safe to run in secure operational environments.
 - do most things the ndau tool can do:
     - accounts
         - closeout account into another account, transfering out all ndau
-        - change recourse period
         - delegate
         - send `CreditEAI` tx
         - lock
