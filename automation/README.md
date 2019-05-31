@@ -36,9 +36,9 @@ To get the number of peers of node 3 on testnet:
 ./get_peers.py https://testnet-3.ndau.tech:26670
 ```
 
-To get whether node 3 is synced (not currently catching up) on testnet:
+To get the sync (catch up) status of node 3 on testnet:
 ```sh
-./get_synced.py https://testnet-3.ndau.tech:26670
+./get_sync.py https://testnet-3.ndau.tech:26670
 ```
 
 ## HUD

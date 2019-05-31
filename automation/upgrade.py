@@ -2,11 +2,12 @@
 
 from get_health import get_health
 from get_sha import get_sha
-from get_synced import get_synced
+from get_sync import get_sync
 from lib.args import get_net_node_sha
 from lib.services import fetch_services, parse_services
 from lib.networks import NETWORK_LOCATIONS
 import json
+import os
 import subprocess
 import sys
 import time
@@ -88,22 +89,33 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
 
     time_started = time.time()
 
-    print(f"Waiting for {node_name} to reach steady state...")
+    print(f"Waiting for {node_name} to catch up...")
     for attempt in range(300):
+        # Wait some time between each status request, so we don't hammer the service.
         time.sleep(1)
+
+        # Check the sha first since that's the one that'll fail the fastest, as the first few
+        # attempts will still be polling the old service that's currently being restarted.
         if get_sha(api_url) != sha:
             continue
+
         time.sleep(1)
+
+        # Once the sync (catch up) is complete, the upgraded node is happy with the network.
+        if get_sync(rpc_url) != "COMPLETE":
+            continue
+
+        time.sleep(1)
+
+        # Once all else looks good, check the health.  It'll likely be OK at this point since
+        # an unhealthy node would certainly fail the sha and sync tests above.
         if get_health(api_url) != "OK":
             continue
-        time.sleep(1)
-        if get_synced(rpc_url) != "YES":
-            continue
+
         print(f"Upgrade of {node_name} is complete")
         return time.time() - time_started
 
     sys.exit(f"Timed out waiting for {node_name} upgrade to complete")
-    return -1
 
 
 def upgrade_nodes(network_name, node_name, sha):
@@ -137,15 +149,49 @@ def upgrade_nodes(network_name, node_name, sha):
         time_spent_waiting = upgrade_node(node_name, cluster, region, sha, api_url, rpc_url)
 
 
+def register_sha(network_name, sha):
+    """
+    Upload a new current-<network>.txt to S3 that points to the given SHA.
+    This allows our local docker scripts to know which SHA to use when connecting to the network.
+    """
+
+    print(f"Registering {sha} as the current one in use on {network_name}...")
+
+    current_file_name = f"current-{network_name}.txt"
+    current_file_path = f"./{current_file_name}"
+
+    with open(current_file_path, "w") as f:
+        f.write(f"{sha}\n")
+
+    r = subprocess.run([
+        "aws", "s3", "cp",
+        current_file_path, f"s3://ndau-images/{current_file_name}",
+    ])
+
+    os.remove(current_file_path)
+
+    if r.returncode != 0:
+        sys.exit(f"aws s3 cp failed with code {r.returncode}")
+
+
 def main():
     """
     Upgrade one or all nodes on the given network.
     """
 
+    start_time = time.time()
+
     network, node_name, sha = get_net_node_sha()
     network_name = str(network)
 
     upgrade_nodes(network_name, node_name, sha)
+
+    # Auto-register the upgraded sha, even if only one node was upgraded.  The assumption is that
+    # if we upgrade at least one node that we'll eventually upgrade all of them on the network.
+    register_sha(network_name, sha)
+
+    total_time = int(time.time() - start_time + 0.5)
+    print(f"Total upgrade time: {total_time} seconds")
 
 
 if __name__ == '__main__':
