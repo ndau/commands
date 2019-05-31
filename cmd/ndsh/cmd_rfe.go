@@ -3,14 +3,13 @@ package main
 import (
 	"strings"
 
-	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
-
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
 )
 
-// ReleaseFromEndowment changes an account's validation
+// ReleaseFromEndowment releases funds from the endowment
 type ReleaseFromEndowment struct{}
 
 var _ Command = (*ReleaseFromEndowment)(nil)
@@ -27,8 +26,6 @@ type rfeargs struct {
 func (rfeargs) Description() string {
 	return strings.TrimSpace(`
 Release funds from the endowment into an account.
-
-This depends on
 	`)
 }
 

@@ -34,6 +34,7 @@ safe to run in secure operational environments.
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys
     - rfe
+    - issue
     - transfer
     - transfer and lock
     - get and set system variables
@@ -59,7 +60,6 @@ safe to run in secure operational environments.
         - stake
         - register node
         - claim node reward
-    - issue
     - nominate node rewards
     - command validation change
     - record price

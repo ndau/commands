@@ -68,6 +68,7 @@ func main() {
 		ReleaseFromEndowment{},
 		Transfer{},
 		TransferAndLock{},
+		Issue{},
 	)
 
 	shell.VWrite("initialized shell...")

@@ -18,6 +18,7 @@ func (Watch) Name() string { return "watch" }
 type watchargs struct {
 	Address   address.Address `arg:"positional,required" help:"watch this account"`
 	Nicknames []string        `arg:"-n,separate" help:"short nicknames which can refer to this account."`
+	NewOK     bool            `arg:"-N,--new-ok" help:"don't complain if account does not yet exist on blockchain"`
 }
 
 func (watchargs) Description() string {
@@ -44,6 +45,9 @@ func (Watch) Run(argvs []string, sh *Shell) (err error) {
 		Address: args.Address,
 	}
 	err = a.Update(sh, sh.Write)
+	if args.NewOK && IsAccountDoesNotExist(err) {
+		err = nil
+	}
 	if err != nil {
 		return
 	}
