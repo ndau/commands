@@ -81,33 +81,33 @@ To upgrade node 3 on testnet to the `badf00d` SHA:
 
 Single node upgrades are useful if you would like more control over the timing and order of node upgrades on a network.  It's also useful if a rolling upgrade was interrupted for any reason.
 
-### Stop
+### Configure
 
-Stopping nodes is useful for re-deploying a network, for example, with a new genesis snapshot or non-backward-compatible image.
+This is not yet automated.
 
-To stop all nodes on testnet:
-```sh
-./stop.py testnet
-```
+Currently, upgrading (above) only supports changing which image SHA to use.  We may want to update some of the environment variables in the Task Definitions as well, regardless of whether we're changing the SHA within it.
 
-To stop node 3 on testnet:
-```sh
-./stop.py testnet --node testnet-3
-```
+We could fold this into the current upgrade script, or make a new one for changing non-SHA config (environment variables).
 
-### Start
+For now, we can use the Manual Steps (below) for editing a node's Task Definition and Updating its service.
 
-Starting nodes is only useful if they've been explicitly stopped.  Restarted nodes will catch up where they left off on the blockchain.
+### Schema Change
 
-To start all nodes on testnet:
-```sh
-./start.py testnet
-```
+This is not yet automated.
 
-To start node 3 on testnet:
-```sh
-./start.py testnet --node testnet-3
-```
+We currently have a schema change transaction, but it has never been tested on one of our networks.  We'll add support for this once we have a need for it.  We'll need to stop all validator nodes and restart them after an upgrade.
+
+Our current rolling upgrade process (above) is not suitable for a schema change, since the node software is presumably not backward compatible and we therefore cannot upgrade one node without upgrading all of them simultaneously.
+
+### Genesis
+
+This is not yet automated.
+
+Currently, devnet does a re-genesis on every deploy, so that's taken care of.  Mainnet will never start over from genesis, so that's not something we need to support.
+
+That just leaves testnet.  Since testnet is a staging network for mainnet, it should be a rare occurrence to have to start it over with a new genesis snapshot.
+
+For now, we continue to do that manually (taking a snapshot, uploading it to S3, getting the node identities and persistent peers and editing the Task Definitions on ECS, then Updating the testnet services via the AWS Management Console).
 
 ## Manual Steps
 
@@ -137,7 +137,7 @@ If there are things you'd like to change about a node that the above scripts don
 
 At this point, choose whether to update the node vs deleting and recreating it.
 
-### Update the node
+### Option 1: Update the node
 
 1. Update
 1. Select the latest Task Definition Revision
@@ -146,7 +146,7 @@ At this point, choose whether to update the node vs deleting and recreating it.
 
 After a few seconds (where the old docker container exits and a new one starts), the edits you made to the new "latest" Task Definition will be active for the given node.
 
-### Delete and Recreate the node
+### Option 2: Delete and Recreate the node
 
 This approach shouldn't be needed.  The Update approach is preferred.  But it's an option and likely doesn't result in too much more down time for the node compared to the Update approach.
 
