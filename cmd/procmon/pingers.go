@@ -47,6 +47,7 @@ func RedisPinger(address string) func() Eventer {
 	})
 
 	return func() Eventer {
+		logger.WithField("addr", address).WithField("pinger", "RedisPinger").Debug("pinging")
 		result, err := redis.Ping().Result()
 		if err != nil {
 			return NewErrorEvent(Failed, err)
