@@ -91,6 +91,7 @@ func main() {
 		Lock{},
 		Notify{},
 		Stake{},
+		SetRewardsDestination{},
 	)
 
 	shell.VWrite("initialized shell...")
