@@ -88,6 +88,7 @@ func main() {
 		NominateNodeRewards{},
 		RecordPrice{},
 		CommandValidatorChange{},
+		Lock{},
 	)
 
 	shell.VWrite("initialized shell...")

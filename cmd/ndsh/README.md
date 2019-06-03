@@ -36,6 +36,7 @@ safe to run in secure operational environments.
         - perform CRUD operations on arbitrary validation keys
         - change recourse period
         - delegate
+        - lock
     - rfe
     - issue
     - transfer
@@ -59,7 +60,6 @@ safe to run in secure operational environments.
     - accounts
         - closeout account into another account, transfering out all ndau
         - send `CreditEAI` tx
-        - lock
         - notify
         - set rewards target
         - stake
