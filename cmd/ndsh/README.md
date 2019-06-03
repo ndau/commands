@@ -42,6 +42,7 @@ safe to run in secure operational environments.
         - set rewards destination
         - register node
         - claim node reward
+        - send `CreditEAI` tx
     - rfe
     - issue
     - transfer
@@ -64,7 +65,6 @@ safe to run in secure operational environments.
 - do most things the ndau tool can do:
     - accounts
         - closeout account into another account, transfering out all ndau
-        - send `CreditEAI` tx
 - arrow-pageable history for non-secret commands
 
 ### Maybe

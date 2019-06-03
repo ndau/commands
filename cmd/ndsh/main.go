@@ -94,6 +94,7 @@ func main() {
 		SetRewardsDestination{},
 		RegisterNode{},
 		ClaimNodeReward{},
+		CreditEAI{},
 	)
 
 	shell.VWrite("initialized shell...")
