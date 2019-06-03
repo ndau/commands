@@ -37,6 +37,7 @@ safe to run in secure operational environments.
         - change recourse period
         - delegate
         - lock
+        - notify
     - rfe
     - issue
     - transfer
@@ -60,7 +61,6 @@ safe to run in secure operational environments.
     - accounts
         - closeout account into another account, transfering out all ndau
         - send `CreditEAI` tx
-        - notify
         - set rewards target
         - stake
         - register node

@@ -89,6 +89,7 @@ func main() {
 		RecordPrice{},
 		CommandValidatorChange{},
 		Lock{},
+		Notify{},
 	)
 
 	shell.VWrite("initialized shell...")
