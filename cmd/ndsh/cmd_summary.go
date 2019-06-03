@@ -7,6 +7,8 @@ import (
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndau/pkg/query"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/pkg/errors"
+	"github.com/savaki/jq"
 )
 
 // Summary displays version information
@@ -19,7 +21,9 @@ func (Summary) Name() string { return "summary sib status info" }
 
 // Run implements Command
 func (Summary) Run(argvs []string, sh *Shell) (err error) {
-	args := struct{}{}
+	args := struct {
+		JQ string `help:"filter output json by this jq expression"`
+	}{}
 
 	err = ParseInto(argvs, &args)
 	if err != nil {
@@ -81,6 +85,18 @@ func (Summary) Run(argvs []string, sh *Shell) (err error) {
 	if err != nil {
 		return
 	}
+
+	if args.JQ != "" {
+		op, err := jq.Parse(args.JQ)
+		if err != nil {
+			return errors.Wrap(err, "parsing JQ selector")
+		}
+		js, err = op.Apply(js)
+		if err != nil {
+			return errors.Wrap(err, "applying JQ selector")
+		}
+	}
+
 	sh.Write(string(js))
 	return nil
 }

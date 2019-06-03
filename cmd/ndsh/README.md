@@ -60,16 +60,7 @@ safe to run in secure operational environments.
     - add signatures directly from certain hardware keys
     - just emit the signable bytes of the current state
     - serialize the JSON out, or `send` to send to the blockchain
-
-### Planned
-
-- arrow-pageable history for non-secret commands
-
-### Maybe
-- customize prompt by (externally) setting `NDSH_PS1` with useful substitutions
-- tab-completion
-- job control
-- use https://github.com/bongole/go-jq to do builtin filters on things which return JSON
+- certain commands (`summary`, `tx`, `view`) have `--jq` option to filter the output
 
 ## Conventions
 

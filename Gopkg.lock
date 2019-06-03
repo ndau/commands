@@ -668,6 +668,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:23b2f09199abd84ffef1081b3fd1ff7e7efafcf4440a57a8418e7bca87cb53cf"
+  name = "github.com/savaki/jq"
+  packages = [
+    ".",
+    "scanner",
+  ]
+  pruneopts = ""
+  revision = "0e6baecebbf8a24a6590d3fc8232165008d6e5d8"
+
+[[projects]]
+  branch = "master"
   digest = "1:e8ba1ad18941b86ab63c33ad0e1def6ff47f6d9b55e59b5c88978c6d22667fc0"
   name = "github.com/sigurn/crc16"
   packages = ["."]
@@ -985,6 +996,7 @@
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",
     "github.com/pkg/errors",
     "github.com/rs/cors",
+    "github.com/savaki/jq",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",

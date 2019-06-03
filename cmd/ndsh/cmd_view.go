@@ -6,6 +6,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	"github.com/pkg/errors"
+	"github.com/savaki/jq"
 )
 
 // View views an account
@@ -20,8 +21,7 @@ type viewargs struct {
 	Account string `arg:"positional" help:"view this account"`
 	Update  bool   `arg:"-u" help:"update this account from the blockchain before viewing"`
 	Struct  bool   `help:"show the whole account struct, not just the account data"`
-	// TODO:
-	// JQ string `help:"filter output json by this jq expression"`
+	JQ      string `help:"filter output json by this jq expression"`
 }
 
 func (viewargs) Description() string {
@@ -30,6 +30,10 @@ View an account's data.
 
 By default, this operates only on cached data. To get current data from the
 blockchain, use the --update flag.
+
+Note that the JQ implementation used here is a pure-go reimplementation, not
+bindings to libjq. This is convenient for compilation, but it means that the
+only features actually implemented are simple selectors.
 	`)
 }
 
@@ -74,6 +78,17 @@ func (View) Run(argvs []string, sh *Shell) (err error) {
 	if err != nil {
 		err = errors.Wrap(err, "marshalling account data to json")
 		return
+	}
+
+	if args.JQ != "" {
+		op, err := jq.Parse(args.JQ)
+		if err != nil {
+			return errors.Wrap(err, "parsing JQ selector")
+		}
+		jsdata, err = op.Apply(jsdata)
+		if err != nil {
+			return errors.Wrap(err, "applying JQ selector")
+		}
 	}
 
 	sh.Write(string(jsdata))

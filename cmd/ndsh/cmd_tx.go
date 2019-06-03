@@ -12,6 +12,7 @@ import (
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
+	"github.com/savaki/jq"
 )
 
 // Tx claims an account, assigning its first validation keys and script
@@ -36,6 +37,7 @@ type txargs struct {
 	Clear         bool                   `arg:"-C" help:"clear the staged tx"`
 	Prevalidate   bool                   `arg:"-p" help:"prevalidate the tx"`
 	Send          bool                   `help:"send this tx to the blockchain"`
+	JQ            string                 `help:"filter output json by this jq expression"`
 }
 
 func (txargs) Description() string {
@@ -175,6 +177,18 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	if err != nil {
 		return errors.Wrap(err, "marshaling staged tx for display")
 	}
+
+	if args.JQ != "" {
+		op, err := jq.Parse(args.JQ)
+		if err != nil {
+			return errors.Wrap(err, "parsing JQ selector")
+		}
+		data, err = op.Apply(data)
+		if err != nil {
+			return errors.Wrap(err, "applying JQ selector")
+		}
+	}
+
 	sh.Write(string(data))
 
 	return
