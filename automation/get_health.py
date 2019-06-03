@@ -14,7 +14,9 @@ def get_health(url):
     if not response is None:
         health_content = response.content
         if not health_content is None:
-            return health_content.decode("utf-8").strip('"').rstrip('"\n')
+            health = health_content.decode("utf-8").strip('"').rstrip('"\n')
+            if len(health) != 0:
+                return health
 
     return "BAD"
 
