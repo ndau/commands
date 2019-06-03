@@ -131,6 +131,7 @@ func (ct *ConfigTask) interpolate(env map[string]string) {
 	ct.Parent = interpolate(ct.Parent, env)
 	ct.MaxShutdown = interpolate(ct.MaxShutdown, env)
 	ct.Args = interpolateAll(ct.Args, env).([]string)
+	ct.Specials = interpolateAll(ct.Specials, env).(map[string]interface{})
 	for i := range ct.Monitors {
 		ct.Monitors[i] = interpolateAll(ct.Monitors[i], env).(map[string]string)
 	}

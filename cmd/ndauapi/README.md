@@ -169,15 +169,16 @@ _**Writes:**_
           "incomingRewardsFrom": null,
           "delegationNode": null,
           "lock": null,
-          "stake": null,
           "lastEAIUpdate": "2000-01-01T00:00:00Z",
           "lastWAAUpdate": "2000-01-01T00:00:00Z",
           "weightedAverageAge": "1m",
           "sequence": 0,
-          "settlements": null,
-          "settlementSettings": {
+          "stake_rules": null,
+          "costakers": null,
+          "holds": null,
+          "recourseSettings": {
             "period": "t0s",
-            "changesAt": null,
+            "changes_at": null,
             "next": null
           },
           "currencySeatDate": null,
@@ -234,15 +235,16 @@ _**Writes:**_
             "incomingRewardsFrom": null,
             "delegationNode": null,
             "lock": null,
-            "stake": null,
             "lastEAIUpdate": "2000-01-01T00:00:00Z",
             "lastWAAUpdate": "2000-01-01T00:00:00Z",
             "weightedAverageAge": "1m",
             "sequence": 0,
-            "settlements": null,
-            "settlementSettings": {
+            "stake_rules": null,
+            "costakers": null,
+            "holds": null,
+            "recourseSettings": {
               "period": "t0s",
-              "changesAt": null,
+              "changes_at": null,
               "next": null
             },
             "currencySeatDate": null,
@@ -1265,6 +1267,7 @@ _**Writes:**_
         {
           "marketPrice": 0,
           "targetPrice": 0,
+          "floorPrice": 0,
           "totalIssued": 0,
           "totalNdau": 0,
           "totalSIB": 0,
@@ -1337,6 +1340,7 @@ _**Writes:**_
         {
           "marketPrice": 1234000000000,
           "targetPrice": 5678000000000,
+          "floorPrice": 0,
           "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
           "totalSIB": 12300000000,
@@ -1584,7 +1588,7 @@ _**Writes:**_
 
 _Returns a transaction from the blockchain given its tx hash._
 
-Transaction hash must be URL query-escaped
+
 
 
 
@@ -1642,8 +1646,12 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "fee_napu": 10,
-          "err": "only set if an error occurred"
+          "fee_napu": 100,
+          "sib_napu": 10,
+          "err": "Err and ErrCode are only set if an error occurred",
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
@@ -1656,7 +1664,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
@@ -1688,7 +1696,9 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "hash": "123abc34099f"
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 

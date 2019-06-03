@@ -7,6 +7,9 @@ LOG_LEVEL = "debug"
 # This is needed as an environment variable by the ndauapi task.  It shouldn't need overriding.
 NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
 
+# Periodic snapshot generation is off by default.
+SNAPSHOT_INTERVAL = ""
+
 [logger]
 # The format is only used for procmon logging.
 format = "$LOG_FORMAT"
@@ -204,7 +207,7 @@ output = ""
 
 
 [[task]]
-    name = "snapshot"
+    name = "snapshot-immediate"
     path = "/bin/bash"
     args = [
         "-c", "$ROOT_DIR/docker-snapshot.sh --generate",
@@ -215,6 +218,25 @@ output = ""
         onetime = true
         shutdown = true
         signal = "SIGHUP"
+        terminate = false
+
+
+[[task]]
+    name = "snapshot-periodic"
+    path = "/bin/bash"
+    args = [
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload",
+    ]
+    stdout = "$LOG_DIR/snapshot.log"
+    stderr = "$LOG_DIR/snapshot.log"
+    [task.specials]
+        onetime = true
+        shutdown = true
+        # Leave this blank/unset to disable periodic snapshot creation.
+        # Set to "4h", for example, to generate a snapshot every 4 hours.
+        # Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
+        # must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
+        periodic = "$SNAPSHOT_INTERVAL"
         terminate = false
 
 
