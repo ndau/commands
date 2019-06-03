@@ -1599,6 +1599,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
+          "BlockHeight": 0,
+          "TxOffset": 0,
           "Tx": null
         }
 ```
