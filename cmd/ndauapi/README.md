@@ -1599,9 +1599,13 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "BlockHeight": 0,
-          "TxOffset": 0,
-          "Tx": null
+          "BlockHeight": 1234,
+          "TxOffset": 3,
+          "Tx": {
+            "Nonce": null,
+            "TransactableID": 0,
+            "Transactable": null
+          }
         }
 ```
 
