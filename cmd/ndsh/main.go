@@ -93,6 +93,7 @@ func main() {
 		Stake{},
 		SetRewardsDestination{},
 		RegisterNode{},
+		ClaimNodeReward{},
 	)
 
 	shell.VWrite("initialized shell...")
