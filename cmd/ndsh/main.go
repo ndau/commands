@@ -87,6 +87,7 @@ func main() {
 		Delegate{},
 		NominateNodeRewards{},
 		RecordPrice{},
+		CommandValidatorChange{},
 	)
 
 	shell.VWrite("initialized shell...")

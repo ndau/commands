@@ -45,6 +45,7 @@ safe to run in secure operational environments.
     - get summary/sib information
     - nominate node rewards
     - record price
+    - command validation change
 - staged mode for transactions:
     - override any field (via JSON representation)
     - add signatures from arbitrary private keys
@@ -64,7 +65,6 @@ safe to run in secure operational environments.
         - stake
         - register node
         - claim node reward
-    - command validation change
 - arrow-pageable history for non-secret commands
 
 ### Maybe
