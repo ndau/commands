@@ -95,6 +95,7 @@ func main() {
 		RegisterNode{},
 		ClaimNodeReward{},
 		CreditEAI{},
+		Closeout{},
 	)
 
 	shell.VWrite("initialized shell...")
