@@ -164,6 +164,7 @@ output = ""
     ]
     stdout = "$LOG_DIR/tendermint.log"
     stderr = "$LOG_DIR/tendermint.log"
+    maxstartup = "60s"
     maxshutdown = "5s"
 
     [[task.monitors]]
