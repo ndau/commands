@@ -16,7 +16,8 @@ version = "~v1.4"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "mainnet-upgrade-3"
+#version = "mainnet-upgrade-3"
+branch = "eas-ndau-337"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
