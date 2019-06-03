@@ -34,6 +34,7 @@ type txargs struct {
 	Hash          bool                   `arg:"-h" help:"print the tx hash and return"`
 	SignableBytes bool                   `arg:"-b,--signable-bytes" help:"print the base64 signable bytes of this tx and return"`
 	Clear         bool                   `arg:"-C" help:"clear the staged tx"`
+	Prevalidate   bool                   `arg:"-p" help:"prevalidate the tx"`
 	Send          bool                   `help:"send this tx to the blockchain"`
 }
 
@@ -147,6 +148,14 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	if args.Clear {
 		sh.Staged = nil
 		return
+	}
+
+	if args.Prevalidate {
+		fee, sib, _, err := tool.Prevalidate(sh.Node, sh.Staged.Tx)
+		if err != nil {
+			return errors.Wrap(err, "prevalidating")
+		}
+		sh.Write("prevalidation estimates:\nfee: %s ndau\nsib: %s ndau", fee, sib)
 	}
 
 	if args.Send {
