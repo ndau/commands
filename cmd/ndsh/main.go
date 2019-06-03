@@ -90,6 +90,7 @@ func main() {
 		CommandValidatorChange{},
 		Lock{},
 		Notify{},
+		Stake{},
 	)
 
 	shell.VWrite("initialized shell...")

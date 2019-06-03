@@ -38,6 +38,7 @@ safe to run in secure operational environments.
         - delegate
         - lock
         - notify
+        - stake
     - rfe
     - issue
     - transfer
@@ -62,7 +63,6 @@ safe to run in secure operational environments.
         - closeout account into another account, transfering out all ndau
         - send `CreditEAI` tx
         - set rewards target
-        - stake
         - register node
         - claim node reward
 - arrow-pageable history for non-secret commands
