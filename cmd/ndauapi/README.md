@@ -1601,11 +1601,7 @@ _**Writes:**_
         {
           "BlockHeight": 1234,
           "TxOffset": 3,
-          "Tx": {
-            "Nonce": null,
-            "TransactableID": 0,
-            "Transactable": null
-          }
+          "Tx": null
         }
 ```
 
