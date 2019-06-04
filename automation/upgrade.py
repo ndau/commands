@@ -82,10 +82,19 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
             node_name,
             "--container-definitions",
             json.dumps(container_definitions_obj),
-        ]
+        ],
+        stdout=subprocess.PIPE,
     )
     if r.returncode != 0:
         sys.exit(f"aws ecs register-task-definition failed with code {r.returncode}")
+
+    # Print the useful-for-debugging json ourselves so we can collapse it all on one line.
+    try:
+        task_definition_json = json.loads(r.stdout)
+    except:
+        task_definition_json = None
+    if not task_definition_json is None:
+        print(json.dumps(task_definition_json, separators=(",", ":")))
 
     print(f"Updating {node_name} service...")
     r = subprocess.run(
@@ -101,10 +110,19 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
             node_name,
             "--task-definition",
             node_name,
-        ]
+        ],
+        stdout=subprocess.PIPE,
     )
     if r.returncode != 0:
         sys.exit(f"ecs-cli configure failed with code {r.returncode}")
+
+    # Print the useful-for-debugging json ourselves so we can collapse it all on one line.
+    try:
+        service_json = json.loads(r.stdout)
+    except:
+        service_json = None
+    if not service_json is None:
+        print(json.dumps(service_json), separators=(",", ":"))
 
     # Record the time of the restart so we make sure to wait at least MIN_WAIT_BETWEEN_NODES.
     # NOTE: It would be better to detect the old service going down first.  When we support
