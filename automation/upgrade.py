@@ -122,7 +122,7 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
     except:
         service_json = None
     if not service_json is None:
-        print(json.dumps(service_json), separators=(",", ":"))
+        print(json.dumps(service_json, separators=(",", ":")))
 
     # Record the time of the restart so we make sure to wait at least MIN_WAIT_BETWEEN_NODES.
     # NOTE: It would be better to detect the old service going down first.  When we support
