@@ -243,7 +243,7 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 		if mon["addr"] == "" {
 			mon["addr"] = "localhost:6379"
 		}
-		m := RedisPinger(mon["addr"])
+		m := RedisPinger(mon["addr"], logger)
 		return m, nil
 	case "http":
 		timeout, err := parseDuration(mon["timeout"], time.Second)
