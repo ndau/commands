@@ -18,6 +18,10 @@ import time
 # Some of this time is used by a node's service restarting, before procmon starts.
 MIN_WAIT_BETWEEN_NODES = 120
 
+# Number of times we poll an upgraded service before we give up waiting for it to become stable.
+# If we sleep 3 seconds per attempt, then 300 attempts waits for a max of 15 minutes.
+MAX_WAIT_FOR_READY_ATTEMPTS = 300
+
 # Repository URI for our ndauimage Docker images.
 ECR_URI = "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node"
 
@@ -50,7 +54,7 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
     except:
         task_definition_json = None
     if task_definition_json is None:
-        sys.exit(f"Unable to load json")
+        sys.exit(f"Unable to load json: {r.stdout}")
 
     # Key names in json.
     task_definition_name = "taskDefinition"
@@ -132,7 +136,7 @@ def upgrade_node(node_name, cluster, region, sha, api_url, rpc_url):
     time_started = time.time()
 
     print(f"Waiting for {node_name} to restart and catch up...")
-    for attempt in range(300):
+    for attempt in range(MAX_WAIT_FOR_READY_ATTEMPTS):
         # Wait some time between each status request, so we don't hammer the service.
         time.sleep(1)
 
