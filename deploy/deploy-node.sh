@@ -106,6 +106,11 @@ else
     cname="$network_name-$node_number"
     port="3030"
 fi
+
+# Give the old service some time to shut down.  If we check the health too soon after updating
+# the service, it'll come back as "OK" but it will be the old service responding.
+sleep 20
+
 for i in {1..60}; do
     printf "$node_number" # Use the number we're waiting for since this script is backgrounded.
     health=$(curl -s "https://$cname.ndau.tech:$port/health")
