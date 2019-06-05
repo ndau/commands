@@ -328,7 +328,14 @@ jobs:
             # reload saved environment variables
             source $BASH_ENV
             # build single container node image
-            ./docker/bin/buildimage.sh
+            if [ -z "$CIRCLE_BRANCH" ]
+            then
+              echo "CIRCLE_TAG = $CIRCLE_TAG"
+              ./docker/bin/buildimage.sh "$CIRCLE_TAG"
+            else
+              echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
+              ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
+            fi
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
