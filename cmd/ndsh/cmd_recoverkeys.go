@@ -25,6 +25,10 @@ var keyPatterns = []func(acctidx, keyidx int) string{
 		return fmt.Sprintf("/44'/20036'/100/10000/%d", acct)
 	},
 	func(acct, key int) string {
+		// wallet bug
+		return fmt.Sprintf("/44'/20036'/100/10000/%d", key)
+	},
+	func(acct, key int) string {
 		// ndautool bug
 		return fmt.Sprintf("/44'/20036'/100/%d/44'/20036'/100/10000/%d/%d", acct, acct, key)
 	},
