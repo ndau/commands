@@ -1601,6 +1601,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
+          "BlockHeight": 1234,
+          "TxOffset": 3,
           "Tx": null
         }
 ```
@@ -1724,10 +1726,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "ChaosVersion": "",
-          "ChaosSha": "",
           "NdauVersion": "v1.2.3",
-          "NdauSha": "3123abc35",
-          "Network": "ndau mainnet"
+          "NdauSha": "23abc35",
+          "Network": "mainnet"
         }
 ```
