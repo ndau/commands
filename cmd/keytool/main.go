@@ -28,6 +28,7 @@ func hd(cmd *cli.Cmd) {
 	cmd.Command("convert", "convert an old-format key into the new format", cmdHDConvert)
 	cmd.Command("addr", "convert HD key to address", cmdHDAddr)
 	cmd.Command("raw", "create an ndau-style secp256k1 key or signature from raw bytes", cmdHDRaw)
+	cmd.Command("from-words words", "generate a hd root key from a seed phrase", cmdHDWords)
 }
 
 // ed subcommand
