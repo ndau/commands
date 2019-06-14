@@ -17,19 +17,28 @@ In all cases, leave default settings unless specified below.
 1. Choose a Region in the upper right for where you want to set up the new node
 1. EC2 > Key Pairs
     - Import Key Pair
-    - Name it `sc-node-ec2-mainnet`
+    - Name it `sc-node-ec2-keypair`
     - Public key contents:
     ```
     ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC55zKlUU5P+iUVR++59SoPM3PKjSvVnA06swqdLc3UiNK7dun6crh3VT/8O66lOil/+LcsfYDbFeKkXRl8LYqcs/BrCZMVa0exJrcb/iUOlGKgmxkQYx0+x1+WdtEIdn/5RozdYZC7lmOMvpPD/Sg4OeqF6/kM/crdKWEYWbPEZmVFzZeSCh9ln0cqTceMCPx7NwaZki3k3ldy9rmeY6hkBa0QaqZ38aosgQJ9NNs/ls6O9WbXnhCgKP9km6GlYBkIcTBBD1za0qAzUN3s3v3ldcGSrkwwF76gLcGjoQTzmpnI+bP0u/ByJaqgZ0u6oOpDuRShUHRb7wPbA6Vyk1QH
     ```
-    - Grab the `sc-node-ec2.pem` file from 1password for later use if you want to shell into the node instance.  Use the Connect button on the EC2 > Instances page to get the ssh command to use.  You'll want to remove the `-mainnet` portion of the `.pem` file name in the command, and use `ec2-user` instead of `root`.
+    - Grab the `sc-node-ec2.pem` file from 1password for later use if you want to shell into the node instance.
+    - To SSH into the instance later, use: `ssh -i "/path/to/sc-node-ec2.pem" ec2-user@mainnet-<N>.ndau.tech`.  The "Connect" button in EC2 Instances is not useful since we block direct connections to the private instance IP.
 1. VPC > Your VPCs
     - Create VPC
         - Name tag: `mainnet-<N>`
         - IPv4 CIDR block: `<XXX>.0.0.0/16`
         - Create
+1. VPC > Network ACLs
+    - Find the Network ACL in the list associated with the new VPC
+    - Click the pencil next to the Name field and give it the name: `mainnet-<N>`
+1. VPC > Elastic IPs
+    - Allocate New Address
+    - Allocate
+    - Find it in the list and change its Name to: `mainnet-<N>`
+    - Note the Allocation ID that was assigned
 1. VPC > Security Groups
-    - Find the "default" Security Group in the list associated with the new VPC
+    - Find the Security Group in the list associated with the new VPC
     - Click the pencil next to the Name field and give it the name: `mainnet-<N>`
     - Actions > Edit inbound rules
     - Leave the "All traffic" rule alone
@@ -40,23 +49,43 @@ In all cases, leave default settings unless specified below.
     - Save rules
 1. VPC > Subnets
     - Create subnet
-    - Name tag: `mainnet-<N>`
+    - Name tag: `mainnet-<N>-public`
     - VPC: `mainnet-<N>`
     - Availability Zone: `No preference`
     - IPv4 CIDR block: `<XXX>.0.0.0/24`
     - Create
+    - Note the Availability Zone for the newly-created subnet
+    - Create subnet
+    - Name tag: `mainnet-<N>-private`
+    - VPC: `mainnet-<N>`
+    - Availability Zone: (select the same AZ that the public subnet is on)
+    - IPv4 CIDR block: `<XXX>.0.1.0/24`
+    - Create
 1. VPC > Internet Gateways
     - Create internet gateway
-    - Name tg: `mainnet-<N>`
+    - Name tag: `mainnet-<N>`
     - Create
     - Select it in the list
     - Actions > Attach to VPC
     - VPC: `mainnet-<N>`
     - Attach
+1. VPC > NAT Gateways
+    - Create NAT Gateway
+    - Subnet: `mainnet-<N>-public`
+    - Elastic IP Allocation ID: (select the Elastic IP created earlier)
+    - Create a NAT Gateway
+    - Select it in the list and give it the name `mainnet-<N>`
 1. VPC > Route Tables
-    - Find the route table in the list for the new VPC; give it the name `mainnet-<N>-main`
+    - Find the route table in the list for the new VPC; give it the name `mainnet-<N>-private`
+    - Actions > Edit routes
+    - Leave the "local" route alone
+    - Add route
+    - Destination: `0.0.0.0/0`
+    - Target: `NAT Gateway` > `mainnet-<N>`
+    - Save routes
     - Create route table
-    - Name tag: `mainnet-<N>`
+    - Leave subnet associations unset
+    - Name tag: `mainnet-<N>-public`
     - VPC: `mainnet-<N>`
     - Create
     - Select it in the list
@@ -67,16 +96,16 @@ In all cases, leave default settings unless specified below.
     - Target: `Internet Gateway` > `mainnet-<N>`
     - Save routes
     - Actions > Edit subnet associations
-    - Select `mainnet-<N>`
+    - Select `mainnet-<N>-public`
     - Save
 1. ECS > Clusters
     - Create Cluster
     - EC2 Linux + Networking
     - Next step
     - Cluster name: `mainnet-<N>`
-    - Key pair: `sc-node-ec2-mainnet`
+    - Key pair: `sc-node-ec2-keypair`
     - VPC: `mainnet-<N>`
-    - Subnets: `mainnet-<N>` (there should only be one choice)
+    - Subnets: `mainnet-<N>-private` (do not select the public one)
     - Security group: `(default)` (there should only be one choice)
     - Create
     - View Cluster
@@ -89,7 +118,8 @@ In all cases, leave default settings unless specified below.
     - Add: `TCP --- 26660 - TCP -- 26660`
     - Add: `HTTPS - 26670 - HTTP - 26670`
     - Add: `HTTPS - 3030 -- HTTP - 3030 `
-    - Select available subnets: (there should only be one choice; select it)
+    - Add: `TCP --- 22 ---- TCP -- 22   `
+    - Selected available subnets: `mainnet-<N>-public`
     - Next: Assign Security Groups
     - Select `default` (it should already be selected)
     - Next: Configure Security Settings
@@ -131,7 +161,6 @@ In all cases, leave default settings unless specified below.
     - Select "EC2"
     - Next step
     - Task Definition Name: `mainnet-<N>`
-    - Task Role: `None`
     - Skip to the bottom and click "Configure via JSON"
     - Set the JSON how you want (sample below)
     - Save
@@ -167,6 +196,7 @@ Here is the Task Definition JSON for a `mainnet-<N>` node.
     - Leave the snapshot name blank for it to use the latest
     - Set `SNAPSHOT_INTERVAL` (e.g. "4h") and the `AWS_*` variables to have periodic backups uploaded to S3
 1. Set the `BASE64_NODE_IDENTITY` and `PERSISTENT_PEERS` environment variable values (beyond the scope of this document)
+1. Set the `HONEYCOMB_KEY` field to have logs sent to honeycomb; leave it blank to log locally inside the container
 
 NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update `s3://ndau-images/current-mainnet.txt` to reference the new SHA (in this example, it's "cb8e545").
 
@@ -236,7 +266,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                 },
                 {
                     "name": "HONEYCOMB_KEY",
-                    "value": "b5d540e08c05885849ae13cd7886df04"
+                    "value": ""
                 },
                 {
                     "name": "HONEYCOMB_DATASET",

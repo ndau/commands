@@ -72,7 +72,7 @@ To upgrade all nodes on testnet to the `badf00d` SHA:
 ./upgrade.py testnet --sha badf00d
 ```
 
-This does a rolling upgrade, starting with the highest node number and working backward.  There is a deliberate delay between each node's upgrade so that the daily restart timers of each node done are somewhat staggered.
+This does a rolling upgrade, starting with the highest node number and working backward.  There is a deliberate delay between each node's upgrade so that the daily restart timers of each node are somewhat staggered.
 
 To upgrade node 3 on testnet to the `badf00d` SHA:
 ```sh
