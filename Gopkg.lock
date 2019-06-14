@@ -494,7 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:befd0fb82bdfbcac5b85d82789f2a530908902d288320e9b67d358491be8f558"
+  digest = "1:366a2913f1f32c397843c6c40991bb95d10781ef1263a62cd1731ad6bcde9e03"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,11 +512,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "d3f8b8871d0a58cea9f2543da8e2683bfe69268d"
-  version = "v1.16.8"
+  revision = "b43b27401d6669b65f28275b6a0ed264ee68289a"
+  version = "v1.16.9"
 
 [[projects]]
-  digest = "1:6317ab1eb13ff660d74075b6091bb53180ea31c47d60814d6f70b811b999a723"
+  digest = "1:4b364bfa9498b63449dac40c282980b066641f0b7aa5c3bc6e09cedae3fb3123"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -538,8 +538,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "78d8abf2eec0a1c4086573736f7e7187e4e404d0"
-  version = "v1.2.2"
+  revision = "b7044c68405abae600f73de58236fc6bfcd29b73"
+  version = "v1.2.3"
 
 [[projects]]
   branch = "master"
