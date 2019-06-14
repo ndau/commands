@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
@@ -25,7 +26,8 @@ func cmdInspect(cmd *cli.Cmd) {
 
 		fmt.Printf("%10s: %s\n", "type", ktype)
 		fmt.Printf("%10s: %s\n", "algorithm", signature.NameOf(key.Algorithm()))
-		fmt.Printf("%10s: %x\n", "key", key.KeyBytes())
+		fmt.Printf("%10s: %x\n", "key hex", key.KeyBytes())
+		fmt.Printf("%10s: %s\n", "key b64", base64.StdEncoding.EncodeToString(key.KeyBytes()))
 
 		extraBytes := key.ExtraBytes()
 
