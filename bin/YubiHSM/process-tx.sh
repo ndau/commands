@@ -7,7 +7,6 @@ SIGN="$GOPATH/src/github.com/oneiro-ndev/commands/bin/YubiHSM/sign.py"
 YUBIHSM="/usr/local/bin/yubihsm-shell"
 
 NODE='https://'$5'net-2.ndau.tech:3030'
-echo $NODE
 
 export SEQ=$(( `curl --silent --get $NODE/account/account/$1 | jq '.[].sequence'` + 1 ))
 TX=`cat $3 | jq '.sequence = (env.SEQ | tonumber)'`
