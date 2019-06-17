@@ -3,7 +3,6 @@ package main
 import (
 	"archive/tar"
 	"bytes"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
@@ -262,20 +261,6 @@ func cmdEdNodeNew(cmd *cli.Cmd) {
 	}
 }
 
-// match indicates whether or not given public and private keys match each other.
-// This should be replaced with signature.match when we can safely depend on an ndautool >1.2.1
-func match(pub signature.PublicKey, pvt signature.PrivateKey) bool {
-	// it's kind of silly, but the best way we have to tell if the keys match
-	// is just to sign some data, and then attempt to verify it
-	data := make([]byte, 64)
-	_, err := rand.Read(data)
-	if err != nil {
-		return false
-	}
-	sig := pvt.Sign(data)
-	return pub.Verify(data, sig)
-}
-
 func cmdEdNodePrivate(cmd *cli.Cmd) {
 	cmd.Spec = fmt.Sprintf(
 		"%s %s [--filename]",
@@ -291,14 +276,15 @@ func cmdEdNodePrivate(cmd *cli.Cmd) {
 	getKind := getKindClosure(cmd)
 
 	cmd.Action = func() {
-		// I'm not convinced this is the right way to go about things yet.
 		k := getKey()
+		// get a private key
 		private1, err := signature.RawPrivateKey(signature.Ed25519, k.KeyBytes(), k.ExtraBytes())
-		fmt.Println(len(k.KeyBytes()), len(k.ExtraBytes()), len(private1.KeyBytes()))
-		pubBytes := private1.KeyBytes()[32:]
+		// get a public key from the private key
+		pubBytes := signature.Ed25519.Public(private1.KeyBytes())
 		public1, err := signature.RawPublicKey(signature.Ed25519, pubBytes, nil)
 		check(err)
-		if !match(*public1, *private1) {
+		// validate that it's the right public key
+		if !signature.Match(*public1, *private1) {
 			fmt.Println("keys don't match!")
 			os.Exit(1)
 		}
