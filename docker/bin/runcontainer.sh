@@ -236,7 +236,7 @@ echo "Persistent peers: '$PERSISTENT_PEERS'"
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
 # If the image isn't present, fetch the "current" image from S3 for the given network.
-if [ "$NETWORK" = "localnet" ]; then
+if [ "$NETWORK" = "localnet" ] || [ "$USE_LOCAL_IMAGE" = 1 ]; then
     NDAU_IMAGE_NAME="ndauimage:latest"
 else
     NDAU_IMAGES_SUBDIR="ndau-images"
