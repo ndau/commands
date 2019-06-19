@@ -196,7 +196,6 @@ Here is the Task Definition JSON for a `mainnet-<N>` node.
     - Leave the snapshot name blank for it to use the latest
     - Set `SNAPSHOT_INTERVAL` (e.g. "4h") and the `AWS_*` variables to have periodic backups uploaded to S3
 1. Set the `BASE64_NODE_IDENTITY` and `PERSISTENT_PEERS` environment variable values (beyond the scope of this document)
-1. Set `NEW_FEATURE_HEIGHT` depending on any new features being deployed
 1. Set the `HONEYCOMB_KEY` field to have logs sent to honeycomb; leave it blank to log locally inside the container
 
 NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update `s3://ndau-images/current-mainnet.txt` to reference the new SHA (in this example, it's "cb8e545").
@@ -255,10 +254,6 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                 },
                 {
                     "name": "SNAPSHOT_INTERVAL",
-                    "value": ""
-                },
-                {
-                    "name": "NEW_FEATURE_HEIGHT",
                     "value": ""
                 },
                 {
