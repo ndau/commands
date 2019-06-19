@@ -11,4 +11,8 @@ SNAPSHOT="snapshot-mainnet-1"
 # Use the latest built ndauimage from the local docker environment.
 export USE_LOCAL_IMAGE=1
 
+# When testing new features for catchup-compatibility, we set this env var at node-deploy-time.
+# Set this to a height in the future.
+export NEW_FEATURE_HEIGHT=15000
+
 ../bin/runcontainer.sh "$NETWORK" "$NETWORK-test" 26666 26676 3036 "" "$SNAPSHOT"
