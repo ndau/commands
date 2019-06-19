@@ -126,8 +126,7 @@ func main() {
 	app.SetLogger(logger)
 	app.LogState()
 
-	features := ndau.NewFeatures(app)
-	app.SetFeatures(features)
+	app.InitFeatures()
 
 	server := server.NewSocketServer(*socketAddr, app)
 
