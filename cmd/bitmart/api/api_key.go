@@ -103,7 +103,17 @@ func ParseToken(message string) (*Token, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "json unmarshal")
 	}
-	t.expiry = time.Now().Add(time.Duration(t.ExpiryDuration * float64(time.Second)))
+	// tokens expire after the specified number of seconds
+	// OR midnight UTC, whichever comes first.
+	now := time.Now().UTC()
+	t.expiry = now.Add(time.Duration(t.ExpiryDuration * float64(time.Second)))
+	if t.expiry.YearDay() > now.YearDay() || (t.expiry.YearDay() == 1 && now.YearDay() >= 365) {
+		h, m, s := t.expiry.Clock()
+		t.expiry = t.expiry.Add(time.Duration(-h) * time.Hour)
+		t.expiry = t.expiry.Add(time.Duration(-m) * time.Minute)
+		t.expiry = t.expiry.Add(time.Duration(-s) * time.Second)
+	}
+
 	return t, nil
 }
 
