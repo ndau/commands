@@ -50,6 +50,7 @@ COPY --from=intermediate /image/bin /image/bin
 
 # Copy image support files needed for running the node group inside the container.
 COPY ./docker-conf.sh /image
+COPY ./docker-config.toml /image
 COPY ./docker-dns.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-procmon.toml /image

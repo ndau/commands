@@ -474,8 +474,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "3bb5efd37add7e9a0b826788538086eadfe5b432"
-  version = "v1.4.0"
+  revision = "180b6970aaf3df5cdd2ba05607e5ca36e08f5d56"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -494,7 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:40ea5a1537c2bd14c9ac1a8006a394c03bef4f90987503d28197e0cbf5da024e"
+  digest = "1:714ab45f35415fa30b53a52c3478f6aeee148cfbb7cb9e09ee31c622a8a59649"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,8 +512,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "f0bdc688c92cd7480eed5d01922a49db042f9314"
-  version = "v1.17.0"
+  revision = "30e0562dc46aaec98e14864a5ec42adabe9a53fb"
+  version = "v1.17.1"
 
 [[projects]]
   digest = "1:4b364bfa9498b63449dac40c282980b066641f0b7aa5c3bc6e09cedae3fb3123"

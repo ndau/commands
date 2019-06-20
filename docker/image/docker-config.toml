@@ -1,0 +1,11 @@
+[Features]
+  # Block heights at which features becomes active.  Add more feature heights here as needed.
+  # User code uses app.IsFeatureActive("FeatureName") to know whether a given feature is active.
+  #
+  # Typically we add new features and assign a "future" height to them.  We can change them just
+  # before deploying to mainnet.  But in no case should we change any heights in this section
+  # that are less than or equal to mainnet's current height, since those features need old logic
+  # for playback compatibility.
+  NoExchangeHoldsOnTransfer = 13000
+  NoKeysOnSetValidation = 13000
+  ResetUncreditedEAIOnCreditEAI = 13000
