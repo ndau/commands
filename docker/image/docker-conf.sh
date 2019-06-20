@@ -119,6 +119,10 @@ fi
 mkdir -p "$NODE_DATA_DIR"
 mkdir -p "$LOG_DIR"
 
+# Now that we have our ndau data directory (ndau home dir), move the config file into it.
+mkdir -p "$NDAUHOME/ndau"
+mv "$SCRIPT_DIR/docker-config.toml" "$NDAUHOME/ndau/config.toml"
+
 cd "$BIN_DIR" || exit 1
 
 echo Configuring tendermint...

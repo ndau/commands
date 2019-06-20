@@ -4,15 +4,6 @@
 LOG_FORMAT = "text"
 LOG_LEVEL = "debug"
 
-# When we upgrade mainnet nodes after implementing new features that have block height gating,
-# we must update this value to a block height in the future, just before rolling out the upgrade.
-# See further doc in ndau/pkg/ndau/app_features.go for how to set up new feature gates.  Previous
-# "future height" gates must use this value before we change it to a new future value on the next
-# mainnet upgrade.  When we deploy devnet, we can set this to "0" in its AWS Task Definitions to
-# override this value.  As for testnet, it uses the same blockchain data as mainnet, so this value
-# suits both mainnet and testnet equally well.
-NEW_FEATURE_HEIGHT = "13000"
-
 # This is needed as an environment variable by the ndauapi task.  It shouldn't need overriding.
 NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
 

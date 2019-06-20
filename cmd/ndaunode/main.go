@@ -126,8 +126,6 @@ func main() {
 	app.SetLogger(logger)
 	app.LogState()
 
-	app.InitFeatures()
-
 	server := server.NewSocketServer(*socketAddr, app)
 
 	// it's not entirely ideal that we have to generate a separate logger
