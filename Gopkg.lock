@@ -495,7 +495,7 @@
 
 [[projects]]
   branch = "prgn-node-registration"
-  digest = "1:034939ca79ad5f60278b2ed68ea76656acc666e0cc1a91adb41e909cf0beb78b"
+  digest = "1:e24e5bb42b6b73a295fd3ebe7f02ba2bd0e51199f0a093c2f997dce25951be9c"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -513,7 +513,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "dcb65f97d5ee731b7a4caf891539284249778245"
+  revision = "9cb09c50795e93ea9692e60192dc0521efc922be"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
@@ -1001,8 +1001,6 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/crypto/ed25519",
-    "github.com/tendermint/tendermint/crypto/encoding/amino",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",
