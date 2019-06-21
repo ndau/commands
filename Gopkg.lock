@@ -494,7 +494,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:714ab45f35415fa30b53a52c3478f6aeee148cfbb7cb9e09ee31c622a8a59649"
+  branch = "prgn-node-registration"
+  digest = "1:034939ca79ad5f60278b2ed68ea76656acc666e0cc1a91adb41e909cf0beb78b"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,8 +513,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "30e0562dc46aaec98e14864a5ec42adabe9a53fb"
-  version = "v1.17.1"
+  revision = "dcb65f97d5ee731b7a4caf891539284249778245"
 
 [[projects]]
   digest = "1:4b364bfa9498b63449dac40c282980b066641f0b7aa5c3bc6e09cedae3fb3123"
