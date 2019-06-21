@@ -21,7 +21,7 @@ branch = "prgn-node-registration"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.2"
+version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
