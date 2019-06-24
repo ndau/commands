@@ -189,10 +189,22 @@ workflows:
               only: /^master$/
           requires:
             - build-deps
-      - push:
+      - build-image:
           requires:
             - test
             - build
+          filters:
+            branches:
+              only: /^master$/
+      - catchup:
+          requires:
+            - build-imgae
+          filters:
+            branches:
+              only: /^master$/
+      - push:
+          requires:
+            - build-image
           filters:
             branches:
               only: /^master$/
@@ -204,6 +216,7 @@ workflows:
               only: /^master$/
       - integration:
           requires:
+            - catchup
             - deploy-devnet
           filters:
             branches:
@@ -211,36 +224,40 @@ workflows:
   tagged-build:
     jobs:
       - build-deps:
-          filters:  # required since `push` has tag filters AND requires `test, build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+          filters:
             branches:
               ignore: /^master$/
       - test:
-          filters:  # required since `push` has tag filters AND requires `test, build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+          filters:
             branches:
               ignore: /^master$/
           requires:
             - build-deps
       - build:
-          filters:  # required since `push` has tag filters AND requires `test-build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+          filters:
             branches:
               ignore: /^master$/
           requires:
             - build-deps
-      - push:
+      - build-image:
           requires:
             - test
             - build
-          filters:  # required since `deploy` has tag filters AND requires `push`
+          filters:
+            tags:
+              only: /.*-catchup|.*-push$|.*-deploy$/
+      - catchup:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-catchup|.*-deploy$/
+      - push:
+          requires:
+            - build-image
+          filters:
             tags:
               only: /.*-push$|.*-deploy$/
-            branches:
-              ignore: /.*/
       - deploy-devnet:
           requires:
             - push
@@ -249,6 +266,7 @@ workflows:
               only: /.*-deploy$/
       - integration:
           requires:
+            - catchup
             - deploy-devnet
           filters:
             tags:
@@ -316,7 +334,7 @@ jobs:
                 deps \
                 /bin/sh /root/build.sh
 
-  push:
+  build-image:
     <<: *general_config
     steps:
       - setup
@@ -336,6 +354,30 @@ jobs:
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
               ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
             fi
+
+  catchup:
+    <<: *general_config
+    steps:
+      - run:
+          name: test catchup on mainnet from genesis
+          command: |
+            USE_LOCAL_IMAGE=1 \
+            ./docker/bin/runcontainer.sh \
+            mainnet catchup-test 26660 26670 3030 "" snapshot-mainnet-1
+
+            echo "TODO: wait for catchup"
+
+            ./docker/bin/stopcontainer.sh catchup-test
+
+  push:
+    <<: *general_config
+    steps:
+      - setup
+      - run:
+          name: push the single container image
+          command: |
+            # reload saved environment variables
+            source $BASH_ENV
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
