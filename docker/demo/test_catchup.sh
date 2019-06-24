@@ -3,9 +3,8 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 cd "$SCRIPT_DIR" || exit 1
 
-# Test catchup on testnet from block 1.
-# We use the mainnet genesis snapshot for this since testnet is deployed with mainnet data.
-NETWORK="testnet"
+# Test catchup on mainnet from block 1.
+NETWORK="mainnet"
 SNAPSHOT="snapshot-mainnet-1"
 
 # Use the latest built ndauimage from the local docker environment.
