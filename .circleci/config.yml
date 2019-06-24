@@ -245,13 +245,15 @@ workflows:
             - build
           filters:
             tags:
-              only: /.*-catchup|.*-push$|.*-deploy$/
+              only: /.*-catchup$|.*-push$|.*-deploy$/
+            branches:
+              ignore: /.*/
       - catchup:
           requires:
             - build-image
           filters:
             tags:
-              only: /.*-catchup|.*-deploy$/
+              only: /.*-catchup$|.*-deploy$/
       - push:
           requires:
             - build-image
