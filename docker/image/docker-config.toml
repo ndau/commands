@@ -6,6 +6,6 @@
   # before deploying to mainnet.  But in no case should we change any heights in this section
   # that are less than or equal to mainnet's current height, since those features need old logic
   # for playback compatibility.
-  NoExchangeHoldsOnTransfer = 13000
-  NoKeysOnSetValidation = 13000
-  ResetUncreditedEAIOnCreditEAI = 13000
+  NoExchangeHoldsOnTransfer = 13510
+  NoKeysOnSetValidation = 13510
+  ResetUncreditedEAIOnCreditEAI = 13510
