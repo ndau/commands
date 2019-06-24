@@ -198,7 +198,7 @@ workflows:
               only: /^master$/
       - catchup:
           requires:
-            - build-imgae
+            - build-image
           filters:
             branches:
               only: /^master$/
