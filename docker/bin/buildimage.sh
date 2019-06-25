@@ -5,6 +5,10 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 COMMANDS_BRANCH="$1"
 if [ -z "$COMMANDS_BRANCH" ]; then
     COMMANDS_BRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
+    if [ -z "$COMMANDS_BRANCH" ]; then
+        echo "No commands branch specified"
+        exit 1
+    fi
 fi
 echo "Using commands branch/tag: $COMMANDS_BRANCH"
 
