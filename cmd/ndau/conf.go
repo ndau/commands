@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/BurntSushi/toml"
+	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+
 	cli "github.com/jawher/mow.cli"
 	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
 	"github.com/pkg/errors"
@@ -54,6 +57,22 @@ func confUpdateFrom(cmd *cli.Cmd) {
 
 		err = conf.UpdateFrom(*asscpath)
 		orQuit(errors.Wrap(err, "updating config"))
+
+		// create a normal account for the node rules account
+		var apd map[string]interface{}
+		_, err = toml.DecodeFile(*asscpath, &apd)
+		orQuit(errors.Wrap(err, "decoding associated data"))
+		sa, err := config.SysAccountFromAssc(apd, sv.NodeRulesAccount)
+		orQuit(errors.Wrap(err, "getting node rules associated data"))
+		conf.SetAccount(config.Account{
+			Name:    "node-rules",
+			Address: sa.Address,
+			Transfer: []config.Keypair{
+				config.Keypair{
+					Private: sa.Keys[0],
+				},
+			},
+		})
 
 		err = conf.Save()
 		orQuit(errors.Wrap(err, "failed to save configuration"))

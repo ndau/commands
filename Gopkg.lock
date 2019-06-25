@@ -558,7 +558,8 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"
+  branch = "prgn-node-rules-account"
+  digest = "1:5fb95ade1713af4bdc5a5892d16e1630758d8d4eff5717c55c51bc1f258be97c"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -566,8 +567,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "08dc98ae4b692dacb18b704dd106fe95d4004c3a"
-  version = "v1.2.2"
+  revision = "31051f49a0033a948c20215abd58b086e7a04746"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
