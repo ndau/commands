@@ -178,71 +178,41 @@ workflows:
             branches:
               only: /^master$/
       - test:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
       - build:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
       - build-image:
           requires:
             - test
             - build
-          filters:
-            branches:
-              only: /^master$/
       - catchup:
           requires:
             - build-image
-          filters:
-            branches:
-              only: /^master$/
       - push:
           requires:
             - build-image
-          filters:
-            branches:
-              only: /^master$/
       - deploy-devnet:
           requires:
             - push
-          filters:
-            branches:
-              only: /^master$/
       - integration:
           requires:
             - catchup
             - deploy-devnet
-          filters:
-            branches:
-              only: /^master$/
   tagged-build:
     jobs:
       - build-deps:
           filters:
             tags:
-              only: /.*/
+              # beef.js says we need this dummy ignore in order to run this job on tagged builds.
+              ignore: /.*-dummy$/
             branches:
               ignore: /^master$/
       - test:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
       - build:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
       - build-image:
@@ -252,8 +222,6 @@ workflows:
           filters:
             tags:
               only: /.*-catchup$|.*-push$|.*-deploy$/
-            branches:
-              ignore: /.*/
       - catchup:
           requires:
             - build-image
