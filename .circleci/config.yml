@@ -209,24 +209,25 @@ workflows:
               only: /.*/
             branches:
               ignore: /^master$/
-      - test:
-          requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build:
-          requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
+#      - test:
+#          requires:
+#            - build-deps
+#          filters:
+#            tags:
+#              # This causes circle to run this job on tagged non-master builds.
+#              only: /.*/
+#      - build:
+#          requires:
+#            - build-deps
+#          filters:
+#            tags:
+#              # This causes circle to run this job on tagged non-master builds.
+#              only: /.*/
       - build-image:
           requires:
-            - test
-            - build
+#            - test
+#            - build
+             - build-deps
           filters:
             tags:
               only: /.*-catchup$|.*-push$|.*-deploy$/
