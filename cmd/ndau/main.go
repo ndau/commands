@@ -30,6 +30,7 @@ func main() {
 	app.Command("nnr", "nominate node reward", getNNR(verbose, keys, emitJSON, compact))
 	app.Command("cvc", "send a command validator change", getCVC(verbose, keys, emitJSON, compact))
 	app.Command("record-price", "record the current market price of ndau", getRecordPrice(verbose, keys, emitJSON, compact))
+	app.Command("record-endowment-NAV", "record the net asset value of the endowment", getRecordEndowmentNAV(verbose, keys, emitJSON, compact))
 	app.Command("sysvar", "get and set system variables", getSysvar(verbose, keys, emitJSON, compact))
 	app.Command("summary", "emit summary information about the ndau chain", getSummary(verbose))
 	app.Command("current-sib sib", "emit information about the current SIB", getSIB(verbose))
