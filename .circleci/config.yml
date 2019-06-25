@@ -225,16 +225,22 @@ workflows:
     jobs:
       - build-deps:
           filters:
+            tags:
+              only: /.*/
             branches:
               ignore: /^master$/
       - test:
           filters:
+            tags:
+              only: /.*/
             branches:
               ignore: /^master$/
           requires:
             - build-deps
       - build:
           filters:
+            tags:
+              only: /.*/
             branches:
               ignore: /^master$/
           requires:
