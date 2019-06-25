@@ -173,49 +173,49 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - build-deps:
+      - build-deps-stub:
           filters:
             branches:
               only: /^master$/
-      - test:
+      - test-stub:
           requires:
             - build-deps
-      - build:
+      - build-stub:
           requires:
             - build-deps
-      - build-image:
+      - build-image-stub:
           requires:
             - test
             - build
-      - catchup:
+      - catchup-stub:
           requires:
             - build-image
-      - push:
+      - push-stub:
           requires:
             - build-image
-      - deploy-devnet:
+      - deploy-devnet-stub:
           requires:
             - push
-      - integration:
+      - integration-stub:
           requires:
             - catchup
             - deploy-devnet
   tagged-build:
     jobs:
-      - build-deps:
+      - build-deps-stub:
           # These filters cause circle to run this job on tagged (or untagged) non-master builds.
           filters:
             tags:
               only: /.*/
             branches:
               ignore: /^master$/
-      - test:
+      - test-stub:
           requires:
             - build-deps
-      - build:
+      - build-stub:
           requires:
             - build-deps
-      - build-image:
+      - build-image-stub:
           requires:
             - test
             - build
@@ -225,25 +225,25 @@ workflows:
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - catchup:
+      - catchup-stub:
           requires:
             - build-image
           filters:
             tags:
               only: /.*-catchup$|.*-deploy$/
-      - push:
+      - push-stub:
           requires:
             - build-image
           filters:
             tags:
               only: /.*-push$|.*-deploy$/
-      - deploy-devnet:
+      - deploy-devnet-stub:
           requires:
             - push
           filters:
             tags:
               only: /.*-deploy$/
-      - integration:
+      - integration-stub:
           requires:
             - catchup
             - deploy-devnet
@@ -264,6 +264,46 @@ general_config: &general_config
         CLUSTER_NAME: devnet
 
 jobs:
+  build-deps-stub:
+    steps:
+      - run:
+        echo "build-deps stub"
+
+  test-stub:
+    steps:
+      - run:
+        echo "test stub"
+
+  build-stub:
+    steps:
+      - run:
+        echo "build stub"
+
+  build-image-stub:
+    steps:
+      - run:
+        echo "build-image stub"
+
+  catchup-stub:
+    steps:
+      - run:
+        echo "catchup stub"
+
+  push-stub:
+    steps:
+      - run:
+        echo "push stub"
+
+  deploy-devnet-stub:
+    steps:
+      - run:
+        echo "deploy-devnet stub"
+
+  integration-stub:
+    steps:
+      - run:
+        echo "integration stub"
+
   build-deps:
     <<: *general_config
     steps:
