@@ -179,27 +179,27 @@ workflows:
               only: /^master$/
       - test-stub:
           requires:
-            - build-deps
+            - build-deps-stub
       - build-stub:
           requires:
-            - build-deps
+            - build-deps-stub
       - build-image-stub:
           requires:
-            - test
-            - build
+            - test-stub
+            - build-stub
       - catchup-stub:
           requires:
-            - build-image
+            - build-image-stub
       - push-stub:
           requires:
-            - build-image
+            - build-image-stub
       - deploy-devnet-stub:
           requires:
-            - push
+            - push-stub
       - integration-stub:
           requires:
-            - catchup
-            - deploy-devnet
+            - catchup-stub
+            - deploy-devnet-stub
   tagged-build:
     jobs:
       - build-deps-stub:
@@ -211,14 +211,14 @@ workflows:
               ignore: /^master$/
       - test-stub:
           requires:
-            - build-deps
+            - build-deps-stub
       - build-stub:
           requires:
-            - build-deps
+            - build-deps-stub
       - build-image-stub:
           requires:
-            - test
-            - build
+            - test-stub
+            - build-stub
           filters:
             tags:
               only: /.*-catchup$|.*-push$|.*-deploy$/
@@ -227,26 +227,26 @@ workflows:
               ignore: /.*/
       - catchup-stub:
           requires:
-            - build-image
+            - build-image-stub
           filters:
             tags:
               only: /.*-catchup$|.*-deploy$/
       - push-stub:
           requires:
-            - build-image
+            - build-image-stub
           filters:
             tags:
               only: /.*-push$|.*-deploy$/
       - deploy-devnet-stub:
           requires:
-            - push
+            - push-stub
           filters:
             tags:
               only: /.*-deploy$/
       - integration-stub:
           requires:
-            - catchup
-            - deploy-devnet
+            - catchup-stub
+            - deploy-devnet-stub
           filters:
             tags:
               only: /.*-deploy$/
