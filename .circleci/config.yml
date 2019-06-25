@@ -173,88 +173,88 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - build-deps-stub:
+      - build-deps:
           filters:
             branches:
               only: /^master$/
-      - test-stub:
+      - test:
           requires:
-            - build-deps-stub
-      - build-stub:
+            - build-deps
+      - build:
           requires:
-            - build-deps-stub
-      - build-image-stub:
+            - build-deps
+      - build-image:
           requires:
-            - test-stub
-            - build-stub
-      - catchup-stub:
+            - test
+            - build
+      - catchup:
           requires:
-            - build-image-stub
-      - push-stub:
+            - build-image
+      - push:
           requires:
-            - build-image-stub
-      - deploy-devnet-stub:
+            - build-image
+      - deploy-devnet:
           requires:
-            - push-stub
-      - integration-stub:
+            - push
+      - integration:
           requires:
-            - catchup-stub
-            - deploy-devnet-stub
+            - catchup
+            - deploy-devnet
   tagged-build:
     jobs:
-      - build-deps-stub:
+      - build-deps:
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
               only: /.*/
             branches:
               ignore: /^master$/
-      - test-stub:
+      - test:
           requires:
-            - build-deps-stub
+            - build-deps
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
               only: /.*/
-      - build-stub:
+      - build:
           requires:
-            - build-deps-stub
+            - build-deps
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
               only: /.*/
-      - build-image-stub:
+      - build-image:
           requires:
-            - test-stub
-            - build-stub
+            - test
+            - build
           filters:
             tags:
               only: /.*-catchup$|.*-push$|.*-deploy$/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - catchup-stub:
+      - catchup:
           requires:
-            - build-image-stub
+            - build-image
           filters:
             tags:
               only: /.*-catchup$|.*-deploy$/
-      - push-stub:
+      - push:
           requires:
-            - build-image-stub
+            - build-image
           filters:
             tags:
               only: /.*-push$|.*-deploy$/
-      - deploy-devnet-stub:
+      - deploy-devnet:
           requires:
-            - push-stub
+            - push
           filters:
             tags:
               only: /.*-deploy$/
-      - integration-stub:
+      - integration:
           requires:
-            - catchup-stub
-            - deploy-devnet-stub
+            - catchup
+            - deploy-devnet
           filters:
             tags:
               only: /.*-deploy$/
