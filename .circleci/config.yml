@@ -204,9 +204,6 @@ workflows:
     jobs:
       - build-deps:
           filters:
-            tags:
-              # beef.js says we need this dummy ignore in order to run this job on tagged builds.
-              ignore: /.*-dummy$/
             branches:
               ignore: /^master$/
       - test:
@@ -222,6 +219,9 @@ workflows:
           filters:
             tags:
               only: /.*-catchup$|.*-push$|.*-deploy$/
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
       - catchup:
           requires:
             - build-image
