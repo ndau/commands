@@ -45,6 +45,14 @@ func parseInt(s string, bitSize int) (int64, error) {
 }
 
 func parseValues(s string) ([]vm.Value, error) {
+	result, err := Parse("input", []byte(s))
+	if err != nil {
+		return nil, err
+	}
+	return result.([]vm.Value), nil
+}
+
+func parseValuesOld(s string) ([]vm.Value, error) {
 	// timestamp
 	tsp := regexp.MustCompile("^[0-9-]+T[0-9:]+Z")
 	// number is a base-10 signed integer OR a binary value starting with 0x (hex), 0b (binary), or 0 (octal)

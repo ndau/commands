@@ -1,0 +1,151 @@
+{
+    package main
+
+    import (
+        "strconv"
+
+        "github.com/oneiro-ndev/chaincode/pkg/chain"
+        "github.com/oneiro-ndev/chaincode/pkg/vm"
+        "github.com/oneiro-ndev/ndaumath/pkg/constants"
+    )
+}
+
+Result <-
+    ( v:Values EOF { return v.([]vm.Value), nil }
+    / EOF { return []vm.Value{}, nil }
+    )
+
+Values <-
+    ( Value
+    / vs:Values ','? v:Value {
+            va := append(vs.([]vm.Value), v.(vm.Value))
+            return va, nil
+        }
+    )
+
+Value <-
+    ( Timestamp
+    / Account
+    / Number
+    / Napu
+    / Ndau
+    / QuotedString
+    / HexBytes
+    / List
+    / Struct
+    )
+
+Timestamp <- _ ts:([0-9-]+ 'T' [0-9:]+ 'Z') { return vm.ParseTimestamp(ts.(string)) }
+
+Account <- _ "account" { return chain.ToValue(getRandomAccount()) }
+
+Number <-
+    ( BinaryNumber
+    / OctalNumber
+    / HexNumber
+    / DecimalNumber
+    )
+
+BinaryNumber <- _ n:("0b" [01_]+) {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+OctalNumber <- _ n:("0" [0-7_]+) {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+HexNumber <- _ n:("0x" [0-9a-fA-F_]+) {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+DecimalNumber <- _ n:('-'? [0-9_]+) {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+Napu <- _ "np" n:([0-9_]+) {
+    	// napu is a base-10 positive integer preceded with np; it is delivered as an integer number of napu
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+Ndau <- _ "nd" n:([0-9]+ ('.' [0-9]*)?) {
+    	// ndau values are a base-10 positive decimal, which is multiplied by 10^8 and converted to integer
+        x, err := strconv.ParseFloat(n.(string), 64)
+        return vm.NewNumber(int64(x*constants.QuantaPerUnit)), err
+    }
+
+QuotedString <-
+    ( TripleSingle
+    / TripleDouble
+    / DoubleQuote
+    / SingleQuote
+    )
+
+TripleSingle <- _ "'''" s:(.*) "'''" { return vm.NewBytes(s.([]byte)), nil }
+TripleDouble <- _ "\"\"\"" s:(.*) "\"\"\"" { return vm.NewBytes(s.([]byte)), nil }
+DoubleQuote <- _ '"' s:([^"]*) '"' { return vm.NewBytes(s.([]byte)), nil }
+SingleQuote <- _ "'" s:([^']*) "'" { return vm.NewBytes(s.([]byte)), nil }
+
+HexBytes <- _ "B(" bs:(([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+) ')' {
+    	// arrays of bytes are B(hex) with individual bytes as hex pairs with no 0x; embedded spaces and underscores are ignored
+        ba := []byte{}
+        pair := regexp.MustCompile("([0-9A-Fa-f][0-9A-Fa-f])")
+        for _, it := range pair.FindAllString(bs.(string), -1) {
+            b, _ := strconv.ParseInt(strings.TrimSpace(it), 16, 8)
+            ba = append(ba, byte(b))
+        }
+        return vm.NewBytes(ba), nil
+    }
+
+Struct <- StructStart fl:Fields? StructEnd {
+            str := vm.NewStruct()
+            for _, i := range(fl.([]vm.Value)) {
+                istr := i.(*vm.Struct)
+				for _, ix := range istr.Indices() {
+					v2, _ := istr.Get(ix)
+					str = str.Set(ix, v2)
+				}
+            }
+            return str, nil
+        }
+
+
+Fields <-
+    ( Field
+    / fs:Fields ','? f:Field {
+            fa := append(fs.([]vm.Value), f.(vm.Value))
+            return fa, nil
+        }
+    )
+
+Field <- _ id:( [0-9]+ / [A-Z_]+ ) _ ':' v:Value {
+        // fields for structs are fieldid:Value; they are returned as a struct with one field that
+        // is consolidated when they are enclosed in {} wrappers
+        s := id.(string)
+        if p, ok := predefined[s]; ok {
+            id = p
+        }
+        fieldid, err := strconv.ParseInt(s, 10, 8)
+        str := vm.NewStruct().Set(byte(fieldid), v.(vm.Value))
+        return str, err
+    }
+
+List <- ListStart vs:Values? ListEnd { return vm.NewList(vs.([]vm.Value)...), nil }
+
+StructStart <- _ '{'
+StructEnd <- _ '}'
+ListStart <- _ '['
+ListEnd <- _ ']'
+
+_ <- [ \t]*
+
+Comment <- ';' [^\r\n]*
+
+EOF <-
+    ( !.
+    / Comment !.
+    )
