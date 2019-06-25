@@ -206,15 +206,23 @@ workflows:
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
-              ignore: /.*-dummy$/
+              only: /.*/
             branches:
               ignore: /^master$/
       - test-stub:
           requires:
             - build-deps-stub
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
       - build-stub:
           requires:
             - build-deps-stub
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
       - build-image-stub:
           requires:
             - test-stub
