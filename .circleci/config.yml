@@ -274,51 +274,51 @@ jobs:
   test-stub:
     steps:
       - run:
-        name: test stub
-        command: |
-          echo "test stub"
+          name: test stub
+          command: |
+            echo "test stub"
 
   build-stub:
     steps:
       - run:
-        name: build stub
-        command: |
-          echo "build stub"
+          name: build stub
+          command: |
+            echo "build stub"
 
   build-image-stub:
     steps:
       - run:
-        name: build-image stub
-        command: |
-          echo "build-image stub"
+          name: build-image stub
+          command: |
+            echo "build-image stub"
 
   catchup-stub:
     steps:
       - run:
-        name: catchup stub
-        command: |
-          echo "catchup stub"
+          name: catchup stub
+          command: |
+            echo "catchup stub"
 
   push-stub:
     steps:
       - run:
-        name: push stub
-        command: |
-          echo "push stub"
+          name: push stub
+          command: |
+            echo "push stub"
 
   deploy-devnet-stub:
     steps:
       - run:
-        name: deploy-devnet stub
-        command: |
-          echo "deploy-devnet stub"
+          name: deploy-devnet stub
+          command: |
+            echo "deploy-devnet stub"
 
   integration-stub:
     steps:
       - run:
-        name: integration stub
-        command: |
-          echo "integration stub"
+          name: integration stub
+          command: |
+            echo "integration stub"
 
   build-deps:
     <<: *general_config
