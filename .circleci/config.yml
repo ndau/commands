@@ -230,16 +230,22 @@ workflows:
              - build-deps
           filters:
             tags:
-              only: /.*-catchup$|.*-push$|.*-deploy$/
-            branches:
-              # This causes circle to skip this job on untagged non-master builds.
-              ignore: /.*/
+              only: /.*/
+#          filters:
+#            tags:
+#              only: /.*-catchup$|.*-push$|.*-deploy$/
+#            branches:
+#              # This causes circle to skip this job on untagged non-master builds.
+#              ignore: /.*/
       - catchup:
           requires:
             - build-image
+#          filters:
+#            tags:
+#              only: /.*-catchup$|.*-deploy$/
           filters:
             tags:
-              only: /.*-catchup$|.*-deploy$/
+              only: /.*/
       - push:
           requires:
             - build-image
