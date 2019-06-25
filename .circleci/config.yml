@@ -265,6 +265,7 @@ general_config: &general_config
 
 jobs:
   build-deps-stub:
+    <<: *general_config
     steps:
       - run:
           name: build-deps stub
@@ -272,6 +273,7 @@ jobs:
             echo "build-deps stub"
 
   test-stub:
+    <<: *general_config
     steps:
       - run:
           name: test stub
@@ -279,6 +281,7 @@ jobs:
             echo "test stub"
 
   build-stub:
+    <<: *general_config
     steps:
       - run:
           name: build stub
@@ -286,6 +289,7 @@ jobs:
             echo "build stub"
 
   build-image-stub:
+    <<: *general_config
     steps:
       - run:
           name: build-image stub
@@ -293,6 +297,7 @@ jobs:
             echo "build-image stub"
 
   catchup-stub:
+    <<: *general_config
     steps:
       - run:
           name: catchup stub
@@ -300,6 +305,7 @@ jobs:
             echo "catchup stub"
 
   push-stub:
+    <<: *general_config
     steps:
       - run:
           name: push stub
@@ -307,6 +313,7 @@ jobs:
             echo "push stub"
 
   deploy-devnet-stub:
+    <<: *general_config
     steps:
       - run:
           name: deploy-devnet stub
@@ -314,6 +321,7 @@ jobs:
             echo "deploy-devnet stub"
 
   integration-stub:
+    <<: *general_config
     steps:
       - run:
           name: integration stub
