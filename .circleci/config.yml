@@ -409,6 +409,8 @@ jobs:
       - run:
           name: test catchup on mainnet from genesis
           command: |
+            cd /commands
+
             USE_LOCAL_IMAGE=1 \
             ./docker/bin/runcontainer.sh \
             mainnet catchup-test 26660 26670 3030 "" snapshot-mainnet-1
