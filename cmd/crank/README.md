@@ -98,11 +98,11 @@ Value syntax:
 * Timestamp - 2018-12-17T10:24:33Z
 * Quoted string -- single, double, or triplequotes of either kind, no escape characters
 * B(hex pairs) -- B(12345678abcdef)
-* [ list of the above values ] (commas or whitespace, must be alone on one line)
-* { list of values }(commas or whitespace, must be alone on one line)
+* [ list of values ] (commas or whitespace)
+* { collection of index:value pairs }(commas or whitespace)
 * account -- this single word generates a random account object and pushes it
 
-It is a known bug that you cannot create a list of structs or a struct containing a list.
+Push is a single-line command, but can parse values of arbitrary complexity.
 
 ## quit
 (also `q`)
@@ -186,6 +186,5 @@ quit
 
 ## Todo
 * Add history command since VM supports history
-* Write a better argument parser (already underway)
 * Use a more structured disassembly
 * Give chasm the ability to create an annotated listing file and use the listing instead of disassembly
