@@ -1,9 +1,9 @@
 {
     package main
-    
+
     import (
     "strconv"
-    
+
     "github.com/oneiro-ndev/chaincode/pkg/chain"
     "github.com/oneiro-ndev/chaincode/pkg/vm"
     "github.com/oneiro-ndev/ndaumath/pkg/constants"
@@ -11,16 +11,20 @@
 }
 
 Result <-
-    ( v:Values EOF                          { return v.([]vm.Value), nil }
-    / EOF                                   { return []vm.Value{}, nil }
+    ( v:Values EOF                             { return v.([]vm.Value), nil }
+    / EOF                                      { return []vm.Value{}, nil }
     )
 
 Values <-
-    ( v:Value                               { return []vm.Value{v.(vm.Value)}, nil }
-    / vs:Values ','? v:Value {
-            va := append(vs.([]vm.Value), v.(vm.Value))
+    ( v:Value ',' vs:Values {
+            va := append([]vm.Value{v.(vm.Value)}, vs.([]vm.Value)...)
             return va, nil
         }
+    / v:Value vs:Values {
+            va := append([]vm.Value{v.(vm.Value)}, vs.([]vm.Value)...)
+            return va, nil
+        }
+    / v:Value                                  { return []vm.Value{v.(vm.Value)}, nil }
     )
 
 Value <-
@@ -35,9 +39,11 @@ Value <-
     / Struct
     )
 
-Timestamp <- _ ts:([0-9-]+ 'T' [0-9:]+ 'Z') { return vm.ParseTimestamp(ts.(string)) }
+Timestamp <- _ ts:RFC3339                      { return vm.ParseTimestamp(ts.(string)) }
 
-Account <- _ "account"                      { return chain.ToValue(getRandomAccount()) }
+RFC3339 <- [0-9-]+ 'T' [0-9:]+ 'Z'             { return string(c.text), nil }
+
+Account <- _ "account"                         { return chain.ToValue(getRandomAccount()) }
 
 Number <-
     ( BinaryNumber
@@ -51,28 +57,31 @@ BinaryNumber <- _ n:BinaryValue {
         return vm.NewNumber(x), err
     }
 
-BinaryValue <- "0b" [01_]+                  { return string(c.text), nil }
+BinaryValue <- "0b" [01_]+                     { return string(c.text), nil }
 
 OctalNumber <- _ n:OctalValue {
         x, err := parseInt(n.(string), 64)
         return vm.NewNumber(x), err
     }
 
-OctalValue <- '0' [0-7_]+                   { return string(c.text), nil }
+OctalValue <- '0' [0-7_]+                      { return string(c.text), nil }
 
 HexNumber <- _ n:HexValue {
         x, err := parseInt(n.(string), 64)
         return vm.NewNumber(x), err
     }
 
-HexValue <- "0x" [0-9a-fA-F_]+              { return string(c.text), nil }
+HexValue <- "0x" [0-9a-fA-F_]+                 { return string(c.text), nil }
 
 DecimalNumber <- _ n:DecimalValue {
         x, err := parseInt(n.(string), 64)
         return vm.NewNumber(x), err
     }
 
-DecimalValue <- '-'? [0-9_]+                { return string(c.text), nil }
+DecimalValue <-
+    ( '-'? [0-9_]+                   { return string(c.text), nil }
+    / '0'                  { return string(c.text), nil }
+    )
 
 Napu <- _ "np" n:DecimalValue {
         // napu is a base-10 positive integer preceded with np; it is delivered as an integer number of napu
@@ -87,9 +96,9 @@ Ndau <- _ "nd" n:FloatValue {
     }
 
 FloatValue <-
-    ( [0-9_]* '.' [0-9_]+                   { return string(c.text), nil }
-    / [0-9_]+ '.' [0-9_]+                   { return string(c.text), nil }
-    / [0-9_]+ '.'?                          { return string(c.text), nil }
+    ( [0-9_]* '.' [0-9_]+                      { return string(c.text), nil }
+    / [0-9_]+ '.' [0-9_]+                      { return string(c.text), nil }
+    / [0-9_]+ '.'?                             { return string(c.text), nil }
     )
 
 QuotedString <-
@@ -99,10 +108,14 @@ QuotedString <-
     / SingleQuote
     )
 
-TripleSingle <- _ "'''" s:(.*) "'''"        { return vm.NewBytes(s.([]byte)), nil }
-TripleDouble <- _ "\"\"\"" s:(.*) "\"\"\""  { return vm.NewBytes(s.([]byte)), nil }
-DoubleQuote <- _ '"' s:([^"]*) '"'          { return vm.NewBytes(s.([]byte)), nil }
-SingleQuote <- _ "'" s:([^']*) "'"          { return vm.NewBytes(s.([]byte)), nil }
+TripleSingle <- _ "'''" s:Anything "'''"       { return vm.NewBytes(s.([]byte)), nil }
+TripleDouble <- _ "\"\"\"" s:Anything "\"\"\"" { return vm.NewBytes(s.([]byte)), nil }
+DoubleQuote <- _ '"' s:NotDoubleQuote '"'      { return vm.NewBytes(s.([]byte)), nil }
+SingleQuote <- _ "'" s:NotSingleQuote "'"      { return vm.NewBytes(s.([]byte)), nil }
+
+Anything <- .+                                 { return c.text, nil }
+NotDoubleQuote <- [^"]*                        { return c.text, nil }
+NotSingleQuote <- [^']*                        { return c.text, nil }
 
 HexBytes <- _ "B(" bs:(([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+) ')' {
         // arrays of bytes are B(hex) with individual bytes as hex pairs with no 0x; embedded spaces and underscores are ignored
@@ -115,24 +128,27 @@ HexBytes <- _ "B(" bs:(([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+) ')' {
         return vm.NewBytes(ba), nil
     }
 
-Struct <- StructStart fl:Fields? StructEnd {
-        str := vm.NewStruct()
-        for _, i := range fl.([]vm.Value) {
-            istr := i.(*vm.Struct)
-            for _, ix := range istr.Indices() {
-                v2, _ := istr.Get(ix)
-                str = str.Set(ix, v2)
+Struct <-
+    ( StructStart StructEnd                    { return vm.NewStruct(), nil }
+    / StructStart fl:Fields StructEnd {
+            str := vm.NewStruct()
+            for _, i := range fl.([]vm.Value) {
+                istr := i.(*vm.Struct)
+                for _, ix := range istr.Indices() {
+                    v2, _ := istr.Get(ix)
+                    str = str.Set(ix, v2)
+                }
             }
+            return str, nil
         }
-        return str, nil
-    }
+    )
 
 Fields <-
-    ( f:Field                               { return []vm.Value{f.(vm.Value)}, nil }
-    / fs:Fields ','? f:Field {
-            fa := append(fs.([]vm.Value), f.(vm.Value))
+    ( f:Field ','? fs:Fields {
+            fa := append([]vm.Value{f.(vm.Value)}, fs.([]vm.Value)...)
             return fa, nil
         }
+    / f:Field                                  { return []vm.Value{f.(vm.Value)}, nil }
     )
 
 Field <- _ id:FieldID _ ':' v:Value {
@@ -147,9 +163,12 @@ Field <- _ id:FieldID _ ':' v:Value {
         return str, err
     }
 
-FieldID <- ( [0-9]+ / [A-Z_]+ )             { return string(c.text), nil }
+FieldID <- ( [0-9]+ / [A-Z_]+ )                { return string(c.text), nil }
 
-List <- ListStart vs:Values? ListEnd        { return vm.NewList(vs.([]vm.Value)...), nil }
+List <-
+    ( ListStart ListEnd                        { return vm.NewList(), nil }
+    / ListStart vs:Values ListEnd              { return vm.NewList(vs.([]vm.Value)...), nil }
+    )
 
 StructStart <- _ '{'
 StructEnd <- _ '}'
@@ -158,9 +177,6 @@ ListEnd <- _ ']'
 
 _ <- [ \t]*
 
-Comment <- ';' [^\r\n]*
+Comment <- _ ';' .*
 
-EOF <-
-    ( !.
-    / Comment !.
-    )
+EOF <- !.
