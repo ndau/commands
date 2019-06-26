@@ -63,7 +63,7 @@ commands:
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
             #
-            docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
+            docker save -o "/opt/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
           key: << parameters.key >>
@@ -362,7 +362,7 @@ jobs:
           name: Test
           command: |
             # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
 
             # this runs a test script within the deps image
             docker run --rm \
@@ -380,7 +380,7 @@ jobs:
           name: Build
           command: |
             # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
 
             # this runs a build script within the deps image
             docker run \
@@ -408,8 +408,6 @@ jobs:
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
               ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
             fi
-
-            docker image ls
       - save_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
@@ -423,7 +421,7 @@ jobs:
       - run:
           name: test catchup on mainnet from genesis
           command: |
-            docker image ls
+            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
 
             USE_LOCAL_IMAGE=1 \
             ./docker/bin/runcontainer.sh \
@@ -442,6 +440,8 @@ jobs:
       - run:
           name: push the single container image
           command: |
+            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
+
             # reload saved environment variables
             source $BASH_ENV
             # upload the image to S3 for public access
@@ -476,7 +476,7 @@ jobs:
           name: Integration tests
           command: |
             # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
 
             # ensure go path location
             export GOPATH=/go
