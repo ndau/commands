@@ -76,7 +76,7 @@ DecimalValue <-
     / '0'                                      { return string(c.text), nil }
     )
 
-BinaryConstant <- (True/False)
+BinaryConstant <- _ k:(True/False)             { return k, nil }
 True <- [Tt][Rr][Uu][Ee]                       { return vm.NewNumber(1), nil }
 False <- [Ff][Aa][Ll][Ss][Ee]                  { return vm.NewNumber(0), nil }
 

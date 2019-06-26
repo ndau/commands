@@ -46,6 +46,10 @@ func Test_parseValues(t *testing.T) {
 		{"hex bytes", "B(4869)", []vm.Value{vm.NewBytes([]byte("Hi"))}, false},
 		{"boolean truth", "tRUE", []vm.Value{vm.NewNumber(1)}, false},
 		{"boolean falsity", "FAlsE", []vm.Value{vm.NewNumber(0)}, false},
+		{"realworld", "[{121: False, 122: True}, {121: True, 122: False}]",
+			[]vm.Value{vm.NewList(
+				vm.NewStruct().Set(121, vm.NewNumber(0)).Set(122, vm.NewNumber(1)),
+				vm.NewStruct().Set(121, vm.NewNumber(1)).Set(122, vm.NewNumber(0)))}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
