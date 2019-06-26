@@ -39,6 +39,10 @@ and paste the same expression multiple times.
 
 LAMBDAS are evaluated sequentially, so it is safe to refer to a previous lambda
 within a subsequent one. However, recursion is not supported.
+
+Because LAMBDA and VAR aggressively attempt to analyze the type of their arguments,
+it is sometimes necessary to tell VAR to simply treat them as strings. In this instance,
+you can use SVAR instead of VAR.
 """
 
 import os
@@ -83,7 +87,7 @@ def generate(fname):
     recording = False
     for l in open(fname):
         stripped = l.strip()
-        if l.startswith("VAR") or l.startswith("LAMBDA"):
+        if l.startswith("SVAR") or l.startswith("VAR") or l.startswith("LAMBDA"):
             lhs, rhs = [s.strip() for s in l.split("=")]
             # split off the keyword
             _, name = lhs.split(maxsplit=1)
@@ -91,6 +95,8 @@ def generate(fname):
                 vars[name] = [
                     (name, parse_as(s.strip(), int, float)) for s in rhs.split(",")
                 ]
+            elif lhs.startswith("SVAR"):
+                vars[name] = [(name, s.strip()) for s in rhs.split(",")]
             else:
                 lams[name] = rhs
         elif stripped == "BEGIN_TEMPLATE":
