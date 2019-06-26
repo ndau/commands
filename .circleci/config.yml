@@ -443,7 +443,7 @@ jobs:
             # Use mainnet-2 since that's in the same region as devnet.
             status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
             height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
-            if [ -z "$height" ] || [ "$height" -le 0 ]; then
+            if [ -z "$height" ] || [ $height -le 0 ]; then
               echo "Unable to get mainnet height"            
               false
             fi
@@ -453,13 +453,11 @@ jobs:
             # height of mainnet increases over time.  This is known and we'll need to deal with
             # it at some point.  For now, we've agreed to wait as long as it takes.
             printf "Catching up..."
+            ip=$(ping -c 1 $(hostname) | sed -n -e 's/^PING .* (\([0-9.]*\)).*/\1/p')
             for i in {1..360}; do
               sleep 10
-              printf "1"
-              s=$(curl -s http://localhost:26670/status)
-              printf "2"
+              s=$(curl -s http://$ip:26670/status)
               h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
-              printf "3"
               catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
               printf " $h"
               if [ "$catching_up" = "false" ] && [ ! -z "$h" ] && [ $h -ge $height ]; then
