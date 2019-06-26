@@ -44,6 +44,8 @@ func Test_parseValues(t *testing.T) {
 		{"ndau", "nd2", []vm.Value{vm.NewNumber(200000000)}, false},
 		{"napu", "np33", []vm.Value{vm.NewNumber(33)}, false},
 		{"hex bytes", "B(4869)", []vm.Value{vm.NewBytes([]byte("Hi"))}, false},
+		{"boolean truth", "tRUE", []vm.Value{vm.NewNumber(1)}, false},
+		{"boolean falsity", "FAlsE", []vm.Value{vm.NewNumber(0)}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

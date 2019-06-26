@@ -1,9 +1,9 @@
 {
     package main
-
+    
     import (
     "strconv"
-
+    
     "github.com/oneiro-ndev/chaincode/pkg/chain"
     "github.com/oneiro-ndev/chaincode/pkg/vm"
     "github.com/oneiro-ndev/ndaumath/pkg/constants"
@@ -31,6 +31,7 @@ Value <-
     ( Timestamp
     / Account
     / Number
+    / BinaryConstant
     / Napu
     / Ndau
     / QuotedString
@@ -74,6 +75,10 @@ DecimalValue <-
     ( '-'? [0-9_]+                             { return string(c.text), nil }
     / '0'                                      { return string(c.text), nil }
     )
+
+BinaryConstant <- (True/False)
+True <- [Tt][Rr][Uu][Ee]                       { return vm.NewNumber(1), nil }
+False <- [Ff][Aa][Ll][Ss][Ee]                  { return vm.NewNumber(0), nil }
 
 Napu <- _ "np" n:DecimalValue {
         // napu is a base-10 positive integer preceded with np; it is delivered as an integer number of napu
