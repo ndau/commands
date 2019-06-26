@@ -62,13 +62,25 @@ commands:
           command: |
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
-            #
             docker save -o "/opt/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
           key: << parameters.key >>
           paths:
             - /opt/docker-cache
+
+  restore_image:
+    description: "Restores a docker image from the cache"
+    parameters:
+      img_name:
+        type: string
+      key:
+        type: string
+    steps:
+      - restore_cache:
+          key: << parameters.key >>
+      - run:
+          docker load -i "/opt/docker-cache/<< parameters.img_name >>.docker"
 
   setup:
     description: "These steps should be run before any real ci/cd actions"
@@ -356,14 +368,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Test
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
-
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
@@ -374,14 +384,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Build
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
-
             # this runs a build script within the deps image
             docker run \
                 -e CI=true \
@@ -416,32 +424,54 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
           name: test catchup on mainnet from genesis
           command: |
-            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
-
+            # Run a local node connected to mainnet starting from the genesis snapshot.
             USE_LOCAL_IMAGE=1 \
             ./docker/bin/runcontainer.sh \
             mainnet catchup-test 26660 26670 3030 "" snapshot-mainnet-1
 
-            echo "TODO: wait for catchup"
+            echo
+            echo "Waiting for catchup..."
+            # Wait a long time.  Catching up on mainnet will take longer and longer as the block
+            # height of mainnet increases over time.  This is known and we'll need to deal with
+            # it at some point.  For now, we've agreed to wait as long as it takes.
+            for i in {0..3600}; do
+              sleep 1
+              s=$(curl -s http://localhost:26670/status)
+              h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+              c=$(echo $s | sed -n -e 's/.*catching_up...\(false\).*/\1/p')
+              if [ "$h" -gt 0] && [ "$c" = "false" ]; then
+                echo "Caught up after $i seconds"
+                caught_up=1
+                break
+              fi
+            done
+            echo
 
-            ./docker/bin/stopcontainer.sh catchup-test
+            # Stop and remove the container instance for the catchup test node.
+            ./docker/bin/removecontainer.sh catchup-test
+
+            if [ -z "$caught_up" ]; then
+              echo "Catchup failed"
+              # Fail this job.
+              false
+            fi
 
   push:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
           name: push the single container image
           command: |
-            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
-
             # reload saved environment variables
             source $BASH_ENV
             # upload the image to S3 for public access
@@ -470,14 +500,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Integration tests
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.docker" -exec docker load -i {} \;
-
             # ensure go path location
             export GOPATH=/go
             mkdir -p $GOPATH/bin
