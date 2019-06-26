@@ -451,16 +451,31 @@ jobs:
             # it in some way.  Either by accepting longer build times or by inventing a way to
             # validate catchup compatibility another way, perhaps external to circle workflows.
             printf "Catching up..."
+            last_h=0
             for i in {1..120}; do
               sleep 10
               s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status)
+
               h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
-              catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
+              if [ -z "$h" ]; then
+                # If we didn't get a height back, something went wrong; assume failed catchup.
+                break
+              fi
               printf " $h"
-              if [ "$catching_up" = "false" ] && [ ! -z "$h" ] && [ $h -ge $height ]; then
+
+              catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
+              if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
                 caught_up=1
                 break
               fi
+
+              if [ $h -le $last_h ]; then
+                # Fail if we didn't catch up at all since the last iteration.
+                # This indicates a stall, which likely means we're failing on full catchup.
+                break
+              fi
+
+              last_h=$h
             done
             printf "\n"
 
@@ -474,9 +489,9 @@ jobs:
             if [ -z "$caught_up" ]; then
               echo "Catchup failed"
               false
-            else
-              echo "Catchup complete"
             fi
+
+            echo "Catchup complete"
 
   push:
     <<: *general_config
