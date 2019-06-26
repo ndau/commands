@@ -433,9 +433,10 @@ jobs:
           name: test catchup on mainnet from genesis
           command: |
             # Run a local node connected to mainnet starting from the genesis snapshot.
+            nodename="catchup-test"
+            snapshot="snapshot-mainnet-1"
             USE_LOCAL_IMAGE=1 \
-            ./docker/bin/runcontainer.sh \
-            mainnet catchup-test 26660 26670 3030 "" snapshot-mainnet-1
+            ./docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
 
             echo
 
@@ -453,10 +454,9 @@ jobs:
             # height of mainnet increases over time.  This is known and we'll need to deal with
             # it at some point.  For now, we've agreed to wait as long as it takes.
             printf "Catching up..."
-            ip=$(ping -c 1 $(hostname) | sed -n -e 's/^PING .* (\([0-9.]*\)).*/\1/p')
             for i in {1..360}; do
               sleep 10
-              s=$(curl -s http://$ip:26670/status)
+              s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status)
               h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
               catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
               printf " $h"
@@ -470,7 +470,7 @@ jobs:
             echo
 
             # Stop and remove the container instance for the catchup test node.
-            ./docker/bin/removecontainer.sh catchup-test
+            ./docker/bin/removecontainer.sh "$nodename"
 
             echo
 
