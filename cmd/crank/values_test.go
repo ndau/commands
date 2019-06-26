@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -25,8 +26,8 @@ func Test_parseValues(t *testing.T) {
 		{"hex number 0x10q", "0x10q", nil, true},
 		{"string 1", "'hiya'", []vm.Value{vm.NewBytes([]byte("hiya"))}, false},
 		{"string 2", `"hiya"`, []vm.Value{vm.NewBytes([]byte("hiya"))}, false},
-		// {"string 3", `"""hiya"""`, []vm.Value{vm.NewBytes([]byte("hiya"))}, false},
-		// {"string 4", `'''hiya'''`, []vm.Value{vm.NewBytes([]byte("hiya"))}, false},
+		{"string 3", `"\"\\q\""`, []vm.Value{vm.NewBytes([]byte(`"\q"`))}, false},
+		{"string 4", `'\'\\q\''`, []vm.Value{vm.NewBytes([]byte(`'\q'`))}, false},
 		{"simple list", "[ 1 ]", []vm.Value{vm.NewList(vm.NewNumber(1))}, false},
 		{"multi-item list", "[1, 2]", []vm.Value{vm.NewList(vm.NewNumber(1), vm.NewNumber(2))}, false},
 		{"multi-item list2", "[ 1 2 3 4]", []vm.Value{vm.NewList(vm.NewNumber(1), vm.NewNumber(2), vm.NewNumber(3), vm.NewNumber(4))}, false},
@@ -59,6 +60,9 @@ func Test_parseValues(t *testing.T) {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
+				if len(got) > 0 {
+					fmt.Println("got[0]=", got[0])
+				}
 				t.Errorf("parseValues() = %#v, want %#v", got, tt.want)
 			}
 		})

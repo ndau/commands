@@ -96,7 +96,7 @@ Value syntax:
     * napu - np500 = 500 napu
     * ndau - nd2.5 = 250000000 napu
 * Timestamp - 2018-12-17T10:24:33Z
-* Quoted string -- single, double, or triplequotes of either kind, no escape characters
+* Quoted strings -- single or doublequotes with backslash escapes
 * B(hex pairs) -- B(12345678abcdef)
 * [ list of values ] (commas or whitespace)
 * { collection of index:value pairs }(commas or whitespace)
