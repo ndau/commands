@@ -1,9 +1,9 @@
 {
     package main
-
+    
     import (
     "strconv"
-
+    
     "github.com/oneiro-ndev/chaincode/pkg/chain"
     "github.com/oneiro-ndev/chaincode/pkg/vm"
     "github.com/oneiro-ndev/ndaumath/pkg/constants"
@@ -79,8 +79,8 @@ DecimalNumber <- _ n:DecimalValue {
     }
 
 DecimalValue <-
-    ( '-'? [0-9_]+                   { return string(c.text), nil }
-    / '0'                  { return string(c.text), nil }
+    ( '-'? [0-9_]+                             { return string(c.text), nil }
+    / '0'                                      { return string(c.text), nil }
     )
 
 Napu <- _ "np" n:DecimalValue {
@@ -117,7 +117,7 @@ Anything <- .+                                 { return c.text, nil }
 NotDoubleQuote <- [^"]*                        { return c.text, nil }
 NotSingleQuote <- [^']*                        { return c.text, nil }
 
-HexBytes <- _ "B(" bs:(([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+) ')' {
+HexBytes <- _ "B(" bs:HexPairs ')' {
         // arrays of bytes are B(hex) with individual bytes as hex pairs with no 0x; embedded spaces and underscores are ignored
         ba := []byte{}
         pair := regexp.MustCompile("([0-9A-Fa-f][0-9A-Fa-f])")
@@ -127,6 +127,7 @@ HexBytes <- _ "B(" bs:(([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+) ')' {
         }
         return vm.NewBytes(ba), nil
     }
+HexPairs <- ([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+     { return string(c.text), nil }
 
 Struct <-
     ( StructStart StructEnd                    { return vm.NewStruct(), nil }
@@ -177,6 +178,4 @@ ListEnd <- _ ']'
 
 _ <- [ \t]*
 
-Comment <- _ ';' .*
-
-EOF <- !.
+EOF <- _ !.

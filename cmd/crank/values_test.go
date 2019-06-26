@@ -38,6 +38,9 @@ func Test_parseValues(t *testing.T) {
 		{"list of struct", "[{ 1:2 }]", []vm.Value{vm.NewList(vm.NewStruct().Set(1, vm.NewNumber(2)))}, false},
 		{"struct of list", "{ 1:[2] }", []vm.Value{vm.NewStruct().Set(1, vm.NewList(vm.NewNumber(2)))}, false},
 		{"struct of list2", "{ ACCT_VALIDATIONKEYS: [ 1 2] }", []vm.Value{vm.NewStruct().Set(62, vm.NewList(vm.NewNumber(1), vm.NewNumber(2)))}, false},
+		{"ndau", "nd2", []vm.Value{vm.NewNumber(200000000)}, false},
+		{"napu", "np33", []vm.Value{vm.NewNumber(33)}, false},
+		{"hex bytes", "B(4869)", []vm.Value{vm.NewBytes([]byte("Hi"))}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -50,5 +53,23 @@ func Test_parseValues(t *testing.T) {
 				t.Errorf("parseValues() = %#v, want %#v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_parseValueAccount(t *testing.T) {
+	// because the "account" command returns random data, we can't test it in the table-driven test
+	got, err := parseValues("account")
+	if err != nil {
+		t.Errorf("parseValues returned error %v", err)
+	}
+	if len(got) != 1 {
+		t.Errorf("expected 1, got %d", len(got))
+	}
+	str, ok := got[0].(*vm.Struct)
+	if !ok {
+		t.Error("account was not a vm.Struct")
+	}
+	if str.Len() < 18 {
+		t.Error("account struct doesn't have enough fields.")
 	}
 }
