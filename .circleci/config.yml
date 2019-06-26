@@ -388,13 +388,14 @@ jobs:
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
             # build the ndau tool
-            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau'
+            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau && go build -o /root/keytool /go/src/github.com/oneiro-ndev/commands/cmd/keytool'
             container_id=$(docker ps -alq 2>&1)
             docker commit "$container_id" temp:latest
             docker run -d temp:latest /bin/sh -c 'sleep 60'
             container_id=$(docker ps -alq 2>&1)
             mkdir -p $ndev_dir/commands
             docker cp $container_id:/root/ndau $ndev_dir/commands/
+            docker cp $container_id:/root/keytool $ndev_dir/commands/
 
             # get ndautool.toml from the genesis repo; we use the testnet copy for devnet
             git clone git@github.com:oneiro-ndev/genesis.git
