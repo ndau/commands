@@ -30,7 +30,7 @@ func getRecordEndowmentNAV(verbose *bool, keys *int, emitJSON, compact *bool) fu
 
 			conf := getConfig()
 			if conf.RFE == nil {
-				orQuit(errors.New("RecordEndowmentNAV keys not set in config"))
+				orQuit(errors.New("RFE keys for RecordEndowmentNAV not set in config"))
 			}
 
 			// construct the RecordEndowmentNAV
