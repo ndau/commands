@@ -29,8 +29,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-# version = "~v1.2"
-branch = "prgn-node-rules-account"
+version = "~v1.2"
 
 [[override]]
 name = "github.com/attic-labs/graphql"

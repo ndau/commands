@@ -558,7 +558,6 @@
   version = "v1.3.2"
 
 [[projects]]
-  branch = "prgn-node-rules-account"
   digest = "1:5fb95ade1713af4bdc5a5892d16e1630758d8d4eff5717c55c51bc1f258be97c"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -567,7 +566,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "31051f49a0033a948c20215abd58b086e7a04746"
+  revision = "ab1df02c3bb645f9e0470891e984adf257b46fb4"
+  version = "v1.2.3"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
