@@ -387,7 +387,7 @@ jobs:
             git clone git@github.com:oneiro-ndev/integration-tests.git
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            # build the ndau tool
+            # build the ndau tool and keytool
             docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau && go build -o /root/keytool /go/src/github.com/oneiro-ndev/commands/cmd/keytool'
             container_id=$(docker ps -alq 2>&1)
             docker commit "$container_id" temp:latest
