@@ -153,7 +153,7 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if args.Prevalidate {
-		fee, sib, _, err := tool.Prevalidate(sh.Node, sh.Staged.Tx)
+		fee, sib, _, _, err := tool.Prevalidate(sh.Node, sh.Staged.Tx)
 		if err != nil {
 			return errors.Wrap(err, "prevalidating")
 		}

@@ -113,5 +113,11 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 			"claim node reward for this node",
 			getClaimNodeReward(verbose, keys, emitJSON, compact),
 		)
+
+		cmd.Command(
+			"set-stake-rules",
+			"set stake rules for this account",
+			getSetStakeRules(verbose, keys, emitJSON, compact),
+		)
 	}
 }

@@ -18,7 +18,6 @@ var _ Command = (*RegisterNode)(nil)
 func (RegisterNode) Name() string { return "register-node" }
 
 type rnargs struct {
-	RPCAddress         string `arg:"positional,required" help:"node RPC address"`
 	DistributionScript string `arg:"positional,required" help:"base64 of node distribution script"`
 	Account            string `arg:"positional" help:"account to register as node"`
 	Update             bool   `arg:"-u" help:"update this account from the blockchain before creating tx"`
@@ -54,6 +53,10 @@ func (RegisterNode) Run(argvs []string, sh *Shell) (err error) {
 		return errors.Wrap(err, "account")
 	}
 
+	if acct.OwnershipPublic == nil {
+		return errors.New("ownership public key unknown")
+	}
+
 	if acct.Data == nil || args.Update {
 		err = acct.Update(sh, sh.Write)
 		if IsAccountDoesNotExist(err) {
@@ -64,12 +67,12 @@ func (RegisterNode) Run(argvs []string, sh *Shell) (err error) {
 		}
 	}
 
-	sh.VWrite("registering %s as node with addr %s and script %s", acct.Address, args.RPCAddress, args.DistributionScript)
+	sh.VWrite("registering %s as node and script %s", acct.Address, args.DistributionScript)
 
 	tx := ndau.NewRegisterNode(
 		acct.Address,
 		distScript,
-		args.RPCAddress,
+		*acct.OwnershipPublic,
 		acct.Data.Sequence+1,
 		acct.PrivateValidationKeys...,
 	)

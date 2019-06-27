@@ -11,11 +11,10 @@ import (
 
 func getRegisterNode(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
-		cmd.Spec = "NAME RPC_ADDRESS DISTRIBUTION_SCRIPT"
+		cmd.Spec = "NAME DISTRIBUTION_SCRIPT"
 
 		var (
 			name       = cmd.StringArg("NAME", "", "Name of node to register")
-			rpcAddr    = cmd.StringArg("RPC_ADDRESS", "", "node RPC address")
 			distScript = cmd.StringArg(
 				"DISTRIBUTION_SCRIPT",
 				"",
@@ -44,7 +43,7 @@ func getRegisterNode(verbose *bool, keys *int, emitJSON, compact *bool) func(*cl
 			}
 
 			tx := ndau.NewRegisterNode(
-				acct.Address, script, *rpcAddr,
+				acct.Address, script, acct.Ownership.Public,
 				sequence(conf, acct.Address),
 				acct.TransferPrivateK(*keys)...,
 			)
