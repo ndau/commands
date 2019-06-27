@@ -62,13 +62,27 @@ commands:
           command: |
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
-            #
-            docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
+            docker save -o "/opt/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
           key: << parameters.key >>
           paths:
             - /opt/docker-cache
+
+  restore_image:
+    description: "Restores a docker image from the cache"
+    parameters:
+      img_name:
+        type: string
+      key:
+        type: string
+    steps:
+      - restore_cache:
+          key: << parameters.key >>
+      - run:
+          name: load docker image from cache
+          command: |
+            docker load -i "/opt/docker-cache/<< parameters.img_name >>.docker"
 
   setup:
     description: "These steps should be run before any real ci/cd actions"
@@ -178,69 +192,73 @@ workflows:
             branches:
               only: /^master$/
       - test:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
       - build:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
-      - push:
+      - build-image:
           requires:
             - test
             - build
-          filters:
-            branches:
-              only: /^master$/
+      - catchup:
+          requires:
+            - build-image
+      - push:
+          requires:
+            - build-image
       - deploy-devnet:
           requires:
             - push
-          filters:
-            branches:
-              only: /^master$/
       - integration:
           requires:
+            - catchup
             - deploy-devnet
-          filters:
-            branches:
-              only: /^master$/
   tagged-build:
     jobs:
       - build-deps:
-          filters:  # required since `push` has tag filters AND requires `test, build`
+          filters:
             tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
             branches:
               ignore: /^master$/
       - test:
-          filters:  # required since `push` has tag filters AND requires `test, build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
       - build:
-          filters:  # required since `push` has tag filters AND requires `test-build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
-      - push:
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
+      - build-image:
           requires:
             - test
             - build
-          filters:  # required since `deploy` has tag filters AND requires `push`
+          filters:
+            tags:
+              only: /.*-catchup$|.*-push$|.*-deploy$/
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
+      - catchup:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-catchup$|.*-deploy$/
+      - push:
+          requires:
+            - build-image
+          filters:
             tags:
               only: /.*-push$|.*-deploy$/
-            branches:
-              ignore: /.*/
       - deploy-devnet:
           requires:
             - push
@@ -249,6 +267,7 @@ workflows:
               only: /.*-deploy$/
       - integration:
           requires:
+            - catchup
             - deploy-devnet
           filters:
             tags:
@@ -267,6 +286,66 @@ general_config: &general_config
         CLUSTER_NAME: devnet
 
 jobs:
+  # The stub jobs are useful to test workflows and their job filters on the circle server
+  # without having to wait for actual work done by the jobs themselves.  The beef.js script
+  # can also help with this, but it sometimes doesn't match what circle actually does.
+  build-deps-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build-deps stub
+          command: |
+            echo "build-deps stub"
+  test-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: test stub
+          command: |
+            echo "test stub"
+  build-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build stub
+          command: |
+            echo "build stub"
+  build-image-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build-image stub
+          command: |
+            echo "build-image stub"
+  catchup-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: catchup stub
+          command: |
+            echo "catchup stub"
+  push-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: push stub
+          command: |
+            echo "push stub"
+  deploy-devnet-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: deploy-devnet stub
+          command: |
+            echo "deploy-devnet stub"
+  integration-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: integration stub
+          command: |
+            echo "integration stub"
+
   build-deps:
     <<: *general_config
     steps:
@@ -284,14 +363,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Test
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
@@ -302,21 +379,19 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Build
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a build script within the deps image
             docker run \
                 -e CI=true \
                 deps \
                 /bin/sh /root/build.sh
 
-  push:
+  build-image:
     <<: *general_config
     steps:
       - setup
@@ -336,6 +411,107 @@ jobs:
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
               ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
             fi
+      - save_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+
+  catchup:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+      - run:
+          name: test catchup on mainnet from genesis
+          command: |
+            # Run a local node connected to mainnet starting from the genesis snapshot.
+            nodename="catchup-node"
+            snapshot="snapshot-mainnet-1"
+            USE_LOCAL_IMAGE=1 \
+            ./docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+
+            echo
+
+            # Get the current height of mainnet.  We need to catch up to at least this height.
+            # Use mainnet-2 since that's in the same region as devnet.
+            status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
+            height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+            if [ -z "$height" ] || [ $height -le 0 ]; then
+              echo "Unable to get mainnet height"
+              false
+            fi
+            echo "Current mainnet height: $height"
+
+            # Catching up on mainnet will take longer and longer as the block height of mainnet
+            # increases over time.  This is known and we'll need to deal with it at some point.
+            # For now, we've agreed to wait as long as it takes.  However, it'll eventually be
+            # "too long".  Let's put a 20-minute cap on it for now.  If catchup does not complete
+            # in that amount of time, the circle job will fail and we'll be forced to deal with
+            # it in some way.  Either by accepting longer build times or by inventing a way to
+            # validate catchup compatibility another way, perhaps external to circle workflows.
+            printf "Catching up..."
+            last_h=0
+            for i in {1..120}; do
+              sleep 10
+              if ! s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status); then
+                # If we can't query node status, something went wrong; assume failed catchup.
+                printf " (status failed)"
+                break
+              fi
+
+              h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+              if [ -z "$h" ]; then
+                # If we didn't get a height back, something went wrong; assume failed catchup.
+                printf " (no height)"
+                break
+              fi
+              printf " $h"
+
+              catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
+              if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
+                caught_up=1
+                printf " (caught up)"
+                break
+              fi
+
+              if [ $h -le $last_h ]; then
+                # Fail if we didn't catch up at all since the last iteration.
+                # This indicates a stall, which likely means we're failing on full catchup.
+                printf " (stalled)"
+                break
+              fi
+
+              last_h=$h
+            done
+            printf "\n"
+
+            echo
+
+            # Stop and remove the container instance for the catchup test node.
+            ./docker/bin/removecontainer.sh "$nodename"
+
+            echo
+
+            if [ -z "$caught_up" ]; then
+              echo "Catchup failed"
+              false
+            fi
+
+            echo "Catchup complete"
+
+  push:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+      - run:
+          name: push the single container image
+          command: |
+            # reload saved environment variables
+            source $BASH_ENV
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
@@ -362,14 +538,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Integration tests
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # ensure go path location
             export GOPATH=/go
             mkdir -p $GOPATH/bin

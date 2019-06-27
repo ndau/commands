@@ -9,4 +9,5 @@
   NoExchangeHoldsOnTransfer = 13510
   NoKeysOnSetValidation = 13510
   ResetUncreditedEAIOnCreditEAI = 13510
-  NodeActiveCheck = 14000
+  # TODO: Set this more appropriately on the next mainnet upgrade (and remove this comment)
+  NodeActiveCheck = 20000
