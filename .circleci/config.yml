@@ -438,7 +438,7 @@ jobs:
             status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
             height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
             if [ -z "$height" ] || [ $height -le 0 ]; then
-              echo "Unable to get mainnet height"            
+              echo "Unable to get mainnet height"
               false
             fi
             echo "Current mainnet height: $height"
@@ -454,11 +454,16 @@ jobs:
             last_h=0
             for i in {1..120}; do
               sleep 10
-              s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status)
+              if ! s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status); then
+                # If we can't query node status, something went wrong; assume failed catchup.
+                printf " (status failed)"
+                break
+              fi
 
               h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
               if [ -z "$h" ]; then
                 # If we didn't get a height back, something went wrong; assume failed catchup.
+                printf " (no height)"
                 break
               fi
               printf " $h"
@@ -466,12 +471,14 @@ jobs:
               catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
               if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
                 caught_up=1
+                printf " (caught up)"
                 break
               fi
 
               if [ $h -le $last_h ]; then
                 # Fail if we didn't catch up at all since the last iteration.
                 # This indicates a stall, which likely means we're failing on full catchup.
+                printf " (stalled)"
                 break
               fi
 
