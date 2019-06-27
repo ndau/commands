@@ -117,8 +117,17 @@ func (rs *runtimeState) step(debug vm.Dumper) error {
 	return err
 }
 
+var p = regexp.MustCompile("[[:space:]]+")
+
 func (rs *runtimeState) dispatch(s string) error {
-	p := regexp.MustCompile("[[:space:]]+")
+	if rs.vm == nil {
+		var err error
+		rs.vm, err = vm.NewEmpty()
+		if err != nil {
+			return err
+		}
+		rs.vm.Init(0)
+	}
 	args := p.Split(s, 2)
 	for key, cmd := range commands {
 		if key == args[0] || cmd.matchesAlias(args[0]) {
