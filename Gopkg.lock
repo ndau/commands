@@ -494,7 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:714ab45f35415fa30b53a52c3478f6aeee148cfbb7cb9e09ee31c622a8a59649"
+  digest = "1:da04af38ead8416023c7b9445ec85395e82c997639f7c9500cfb015bae184a56"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,11 +512,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "30e0562dc46aaec98e14864a5ec42adabe9a53fb"
-  version = "v1.17.1"
+  revision = "6a4a00aea04b584889afdee2d44419e15ce222b6"
+  version = "v1.18.0"
 
 [[projects]]
-  digest = "1:4b364bfa9498b63449dac40c282980b066641f0b7aa5c3bc6e09cedae3fb3123"
+  digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -538,8 +538,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "b7044c68405abae600f73de58236fc6bfcd29b73"
-  version = "v1.2.3"
+  revision = "a3d5bf3ba797e8acbfcb8debfeccfb3a19b0525f"
+  version = "v1.3.1"
 
 [[projects]]
   branch = "master"
@@ -558,7 +558,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"
+  digest = "1:5fb95ade1713af4bdc5a5892d16e1630758d8d4eff5717c55c51bc1f258be97c"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -566,8 +566,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "08dc98ae4b692dacb18b704dd106fe95d4004c3a"
-  version = "v1.2.2"
+  revision = "ab1df02c3bb645f9e0470891e984adf257b46fb4"
+  version = "v1.2.3"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
@@ -1001,8 +1001,6 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/crypto/ed25519",
-    "github.com/tendermint/tendermint/crypto/encoding/amino",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",

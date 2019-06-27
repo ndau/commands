@@ -100,7 +100,7 @@ func (Closeout) Run(argvs []string, sh *Shell) (err error) {
 			acct.Data.Sequence+1,
 			acct.PrivateValidationKeys...,
 		)
-		fee, sib, _, err := tool.Prevalidate(sh.Node, tx)
+		fee, sib, _, _, err := tool.Prevalidate(sh.Node, tx)
 		if fee == 0 && sib == 0 && err != nil {
 			return errors.Wrap(err, "prevalidating")
 		}
