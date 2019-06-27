@@ -126,7 +126,10 @@ func (rs *runtimeState) dispatch(s string) error {
 		if err != nil {
 			return err
 		}
-		rs.vm.Init(0)
+		err = rs.vm.Init(0)
+		if err != nil {
+			return err
+		}
 	}
 	args := p.Split(s, 2)
 	for key, cmd := range commands {
