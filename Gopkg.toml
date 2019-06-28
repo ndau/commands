@@ -12,11 +12,13 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.4"
+# version = "~v1.4"
+branch = "prgn-update-state-multiple"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.18"
+# version = "~v1.18"
+branch = "prgn-refactor-applyTxDetails"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
