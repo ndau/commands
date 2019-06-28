@@ -141,6 +141,11 @@ func (rs *runtimeState) dispatch(s string) error {
 			return cmd.handler(rs, extra)
 		}
 	}
+	chaincode, err := vm.MiniAsmSafe(s)
+	if err == nil {
+		// aha! this is chaincode, let's inject it
+		return rs.vm.Inject(chaincode, nil)
+	}
 	return fmt.Errorf("unknown command %s - type ? for help", s)
 }
 
