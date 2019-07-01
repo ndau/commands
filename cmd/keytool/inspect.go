@@ -9,15 +9,26 @@ import (
 
 func cmdInspect(cmd *cli.Cmd) {
 	cmd.Spec = fmt.Sprintf(
-		"%s",
+		"(%s | --sig=<SIGNATURE>)",
 		getKeySpec(""),
 	)
 
 	getKey := getKeyClosure(cmd, "", "key to be inspected")
+	var (
+		sigp = cmd.StringOpt("s sig", "", "signature to inspect")
+	)
 
 	cmd.Action = func() {
-		key := getKey()
+		if sigp != nil && *sigp != "" {
+			sig, err := signature.ParseSignature(*sigp)
+			check(err)
 
+			fmt.Printf("%10s: %s\n", "algorithm", signature.NameOf(sig.Algorithm()))
+			fmt.Printf("%10s: %x\n", "data", sig.Bytes())
+			return
+		}
+
+		key := getKey()
 		ktype := "public"
 		if signature.IsPrivate(key) {
 			ktype = "private"
