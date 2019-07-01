@@ -62,7 +62,7 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if args.Name != "" && args.FromJSON != "" {
-		if sh.Staged != nil || sh.Staged.Tx != nil {
+		if sh.Staged != nil && sh.Staged.Tx != nil {
 			return errors.New("can't overwrite existing staged tx; try --clear")
 		}
 
