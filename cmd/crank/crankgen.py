@@ -88,7 +88,7 @@ def generate(fname):
     for l in open(fname):
         stripped = l.strip()
         if l.startswith("SVAR") or l.startswith("VAR") or l.startswith("LAMBDA"):
-            lhs, rhs = [s.strip() for s in l.split("=")]
+            lhs, rhs = [s.strip() for s in l.split("=", maxsplit=1)]
             # split off the keyword
             _, name = lhs.split(maxsplit=1)
             if lhs.startswith("VAR"):
