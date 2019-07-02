@@ -7,3 +7,10 @@ type = "virtual"
 
 [connections.local]
 url = "ws://localhost:20036/signer"
+
+[keys]
+
+[keys.issue]
+priv_key = "npvtayjadtcbick79eu599f8w5aaeg8iqnj8bxmpztgghnbkzatsw4be27f2at43n93pxk6e6f5ckuvpycvm8fhvk8wumnptf57esd23b75vximaknveqsipy9ev"
+pub_key = "npuba8jadtbbedcq3vxt8iqppv8m5ryh8axyr8gwimtt4u7figk62ktr44j8zztfr9m3ff8g79bu"
+type = "virtual"

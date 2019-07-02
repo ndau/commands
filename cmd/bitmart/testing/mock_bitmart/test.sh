@@ -83,12 +83,12 @@ if [ -z "$KEYTOOL" ]; then
 fi
 
 # configure the signing service
-sa=~/.localnet/genesis_files/system_accounts.toml
+sa=~/.localnet/genesis_files/system_vars.toml
 if [ ! -f "$sa" ]; then
     echo "$sa not found; aborting"
     exit 1
 fi
-rfea_local=$(toml2json $sa | jq .ReleaseFromEndowmentAddress --raw-output)
+rfea_local=$(toml2json $sa | jq .ReleaseFromEndowmentAddress.data --raw-output)
 rfea_chain=$(
     "$NDAU" sysvar get ReleaseFromEndowmentAddress |\
     jq .ReleaseFromEndowmentAddress[0]? --raw-output
@@ -113,13 +113,14 @@ if [ "$rfe_validation_public_local" != "$rfe_validation_public_chain" ]; then
     echo "ReleaseFromEndowment validation keys mismatch:"
     echo "  local: $rfe_validation_public_local"
     echo "  chain: $rfe_validation_public_chain"
-    exit 1
+#    exit 1
 fi
 rfe_validation_public=$(echo "$rfe_validation_public_chain" | jq '.[0]' --raw-output)
-rfe_validation_private=$(
-    toml2json "$sa" |\
-    jq '.ReleaseFromEndowmentValidationPrivate' --raw-output
-)
+rfe_validation_private=npvtayjadtcbick79eu599f8w5aaeg8iqnj8bxmpztgghnbkzatsw4be27f2at43n93pxk6e6f5ckuvpycvm8fhvk8wumnptf57esd23b75vximaknveqsipy9ev
+# rfe_validation_private=$(
+#     toml2json "$sa" |\
+#     jq '.ReleaseFromEndowmentValidationPrivate' --raw-output
+# )
 
 # inject the validation keys into sigconfig.toml
 sigconfig="$mock_bitmart_path/sigconfig.toml"
@@ -128,7 +129,7 @@ sigconfig_json=$(
     echo "$sigconfig_json" |\
     jq ".keys |= . + {issue: {
         type: \"virtual\",
-        pub_key: $(echo "$rfe_validation_public_local" | jq ".[0]"),
+        pub_key: $(echo "$rfe_validation_public_chain" | jq ".[0]"),
         priv_key: \"$rfe_validation_private\"
     }}"
 )
@@ -146,7 +147,7 @@ ws_addr=$(echo "$sigconfig_json" | jq .connections.local.url --raw-output)
 
 # ensure there's plenty of un-issued RFE'd ndau floating around
 # this is an arbitrary address; nobody's expected to have access to it
-"$NDAU" rfe 50000 --address ndaaiz75f4ejxp3gdxb7eqct4wuyukrj36epf245qaeifcw2
+# "$NDAU" rfe 50000 --address ndaaiz75f4ejxp3gdxb7eqct4wuyukrj36epf245qaeifcw2
 
 # let's start running things!
 # before we start: we're going to be running several background tasks,
@@ -167,10 +168,18 @@ killsubp () {
 trap killsubp EXIT
 
 echo starting mock bitmart api
+echo go run "$testing_path/mock_bitmart" &
 go run "$testing_path/mock_bitmart" &
 sleep 2
 
 echo starting issuance service
+echo go run "$bitmart_path" \
+    "$mock_bitmart_path/test.apikey.json" \
+    "$rpc" \
+    "$issuance_service_public" \
+    --priv-key "$issuance_service_private" \
+    --serve "$ws_addr" \
+    "$rfe_validation_public"
 go run "$bitmart_path" \
     "$mock_bitmart_path/test.apikey.json" \
     "$rpc" \
@@ -197,12 +206,14 @@ datafile="$testing_path/websocket.data"
 # wsta is picky about protocols
 wrpc=$(echo "$rpc" | sed -E 's/http/ws/')
 echo starting websocket transfer agent
+echo wsta "$wrpc/websocket" "$subscribe_to_txs" > "$datafile"
 wsta "$wrpc/websocket" "$subscribe_to_txs" > "$datafile" &
 sleep 2
 
 
 # start the signing service client pointing to our configuration
 echo starting signing service client
+echo go run "$signing_service_path" -c "$sigconfig"
 go run "$signing_service_path" -c "$sigconfig" &
 
 # give everything a bit to get settled
