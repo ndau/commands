@@ -77,7 +77,13 @@ def parse_as(val, *types):
             return typ(val)
         except ValueError:
             pass
-    return f'"{val}"'
+    return quote(val)
+
+
+def quote(s):
+    if len(s) < 2 or s[0] != '"' or s[-1] != '"':
+        return f'"{s}"'
+    return s
 
 
 def generate(fname):
@@ -115,7 +121,7 @@ def generate(fname):
                 combo[name] = eval(lam, combo)
                 if isinstance(combo[name], str):
                     # strings have to be re-quoted
-                    combo[name] = f'"{combo[name]}"'
+                    combo[name] = quote(combo[name])
             except Exception as e:
                 print(f"{e.__class__.__name__}: {e} at line {var_lines[name]}")
                 sys.exit(1)
