@@ -37,7 +37,7 @@ func getSetStakeRules(verbose *bool, keys *int, emitJSON, compact *bool) func(*c
 				acct.Address,
 				rules,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(*keys)...,
+				acct.ValidationPrivateK(*keys)...,
 			)
 
 			if *verbose {

@@ -11,11 +11,11 @@ import (
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-func getAccountClaim(verbose, emitJSON, compact *bool) func(*cli.Cmd) {
+func getAccountSetValidation(verbose, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = "NAME"
 
-		var name = cmd.StringArg("NAME", "", "Name of account to claim")
+		var name = cmd.StringArg("NAME", "", "Name of account")
 
 		cmd.Action = func() {
 			conf := getConfig()
@@ -24,7 +24,7 @@ func getAccountClaim(verbose, emitJSON, compact *bool) func(*cli.Cmd) {
 				orQuit(errors.New("No such account"))
 			}
 
-			newKeys, err := acct.MakeTransferKey(nil)
+			newKeys, err := acct.MakeValidationKey(nil)
 			orQuit(err)
 
 			ca := ndau.NewSetValidation(
@@ -40,12 +40,12 @@ func getAccountClaim(verbose, emitJSON, compact *bool) func(*cli.Cmd) {
 
 			// only persist this change if there was no error
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
-				acct.Transfer = []config.Keypair{*newKeys}
+				acct.Validation = []config.Keypair{*newKeys}
 				conf.SetAccount(*acct)
 				err = conf.Save()
 				orQuit(errors.Wrap(err, "saving config"))
 			}
-			finish(*verbose, resp, err, "account claim")
+			finish(*verbose, resp, err, "account set-validation")
 		}
 	}
 }

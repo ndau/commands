@@ -38,13 +38,13 @@ func getTransferAndLock(verbose *bool, keys *int, emitJSON, compact *bool) func(
 
 			conf := getConfig()
 
-			// ensure we know the private transfer key of this account
+			// ensure we know the private validation key of this account
 			fromAcct, hasAcct := conf.Accounts[from.String()]
 			if !hasAcct {
 				orQuit(fmt.Errorf("From account '%s' not found", fromAcct.Name))
 			}
-			if fromAcct.Transfer == nil {
-				orQuit(fmt.Errorf("From acct transfer key not set"))
+			if fromAcct.Validation == nil {
+				orQuit(fmt.Errorf("From acct validation key not set"))
 			}
 
 			// construct the transfer
@@ -53,7 +53,7 @@ func getTransferAndLock(verbose *bool, keys *int, emitJSON, compact *bool) func(
 				ndauQty,
 				duration,
 				sequence(conf, from),
-				fromAcct.TransferPrivateK(*keys)...,
+				fromAcct.ValidationPrivateK(*keys)...,
 			)
 
 			tresp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), transfer)

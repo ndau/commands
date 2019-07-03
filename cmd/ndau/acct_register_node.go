@@ -28,8 +28,8 @@ func getRegisterNode(verbose *bool, keys *int, emitJSON, compact *bool) func(*cl
 			if !hasAcct {
 				orQuit(fmt.Errorf("No such account: %s", *name))
 			}
-			if len(acct.Transfer) == 0 {
-				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
+			if len(acct.Validation) == 0 {
+				orQuit(fmt.Errorf("Validation key for %s not set", *name))
 			}
 
 			script, err := base64.RawStdEncoding.DecodeString(*distScript)
@@ -45,7 +45,7 @@ func getRegisterNode(verbose *bool, keys *int, emitJSON, compact *bool) func(*cl
 			tx := ndau.NewRegisterNode(
 				acct.Address, script, acct.Ownership.Public,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(*keys)...,
+				acct.ValidationPrivateK(*keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)
