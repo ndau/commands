@@ -89,3 +89,4 @@ verify
 !*/verify
 ndsh
 !*/ndsh
+Gopkg.lock
