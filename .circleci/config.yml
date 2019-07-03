@@ -204,16 +204,17 @@ workflows:
       - catchup:
           requires:
             - build-image
-      - push:
+      - integration:
           requires:
             - build-image
+      - push:
+          requires:
+            # Unlike tagged builds, master builds wait for tests to pass before pushing.
+            - catchup
+            - integration
       - deploy-devnet:
           requires:
             - push
-      - integration:
-          requires:
-            - catchup
-            - deploy-devnet
   tagged-build:
     jobs:
       - build-deps:
@@ -243,7 +244,7 @@ workflows:
             - build
           filters:
             tags:
-              only: /.*-catchup$|.*-push$|.*-deploy$/
+              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
@@ -252,26 +253,25 @@ workflows:
             - build-image
           filters:
             tags:
-              only: /.*-catchup$|.*-deploy$/
+              only: /.*-jobs_.*?(catchup).*/
+      - integration:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-jobs_.*?(integration).*/
       - push:
           requires:
             - build-image
           filters:
             tags:
-              only: /.*-push$|.*-deploy$/
+              only: /.*-jobs_.*?(push|deploy).*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
-              only: /.*-deploy$/
-      - integration:
-          requires:
-            - catchup
-            - deploy-devnet
-          filters:
-            tags:
-              only: /.*-deploy$/
+              only: /.*-jobs_.*?(deploy).*/
 
 general_config: &general_config
     working_directory: /commands
@@ -454,16 +454,16 @@ jobs:
             last_h=0
             for i in {1..120}; do
               sleep 10
-              if ! s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status); then
-                # If we can't query node status, something went wrong; assume failed catchup.
-                printf " (status failed)"
+              if ! s=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
+                # The status query is what usually fails when playback of a block fails.
+                printf " (ERROR: unable to catch up)"
                 break
               fi
 
               h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
               if [ -z "$h" ]; then
                 # If we didn't get a height back, something went wrong; assume failed catchup.
-                printf " (no height)"
+                printf " (ERROR: no height)"
                 break
               fi
               printf " $h"
@@ -478,7 +478,7 @@ jobs:
               if [ $h -le $last_h ]; then
                 # Fail if we didn't catch up at all since the last iteration.
                 # This indicates a stall, which likely means we're failing on full catchup.
-                printf " (stalled)"
+                printf " (ERROR: stalled)"
                 break
               fi
 
@@ -541,48 +541,106 @@ jobs:
       - restore_image:
           img_name: deps:latest
           key: "{{ .Revision }}-deps"
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
       - run:
           name: Integration tests
           command: |
-            # ensure go path location
-            export GOPATH=/go
-            mkdir -p $GOPATH/bin
-            ndev_dir=$GOPATH/src/github.com/oneiro-ndev
-            mkdir -p $ndev_dir
-            cd $ndev_dir
+            # In order to get two node containers talking to each other, and to get integration
+            # tests talking to them, they must each be in their own child containers within the
+            # docker "bridge" network.  Each node is in its own container automatically, then we
+            # spin up a child deps container from which integration tests will run.
 
-            # install dep
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            # Run two local nodes.
+            # Integration tests only require one, but running two exercises p2p operations.
+            echo "Starting first node..."
+            bin_dir="/commands/docker/bin"
+            # Using "*" will cause the node to generate single validator genesis data.
+            "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
-            # install sed
-            apk add sed
+            # Get the ip of the first node.
+            ip=$(docker container inspect localnet-0 | \
+                 jq -r .[0].NetworkSettings.Networks.bridge.IPAddress)
+            echo "localnet-0 ip: $ip"
 
-            # clone integration tests and ndev dep repos
-            git clone git@github.com:oneiro-ndev/integration-tests.git
-            ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
+            # Get the peer id of the first node.
+            id=$(docker exec localnet-0 curl -s http://localhost:26670/status | \
+                 jq -r .result.node_info.id)
+            echo "localnet-0 id: $id"
 
-            # build the ndau tool and keytool
-            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau && go build -o /root/keytool /go/src/github.com/oneiro-ndev/commands/cmd/keytool'
-            container_id=$(docker ps -alq 2>&1)
-            docker commit "$container_id" temp:latest
-            docker run -d temp:latest /bin/sh -c 'sleep 60'
-            container_id=$(docker ps -alq 2>&1)
-            mkdir -p $ndev_dir/commands
-            docker cp $container_id:/root/ndau $ndev_dir/commands/
-            docker cp $container_id:/root/keytool $ndev_dir/commands/
+            # Generate the snapshot.
+            echo "Taking genesis snapshot..."
+            "$bin_dir"/snapshotcontainer.sh localnet-0
 
-            # get ndautool.toml from the genesis repo; we use the testnet copy for devnet
-            git clone git@github.com:oneiro-ndev/genesis.git
-            mkdir -p $NDAUHOME/ndau
-            cp genesis/testnet-genesis/genesis_files/ndautool.toml $NDAUHOME/ndau/ndautool.toml
+            # Start the second container.  We can't use runcontainer.sh here because it tests
+            # port connectivity with peers, and localnet-0's IP isn't valid ouside of containers
+            # on the bridge network.  So we implement the meat of runcontainer.sh here:
+            echo "Starting second node..."
+            docker create \
+              --name localnet-1 \
+              -e NETWORK=localnet \
+              -e NODE_ID=localnet-1 \
+              -e PERSISTENT_PEERS="$id@$ip:26660" \
+              ndauimage
+            # The ndauimage container looks for a specially-named snapshot ending with "-0".
+            docker cp "$bin_dir"/snapshot-localnet-1.tgz localnet-1:/image/snapshot-localnet-0.tgz
+            docker start localnet-1
+            echo "Waiting for localnet-1 to fully spin up..."
+            until docker exec localnet-1 test -f /image/running 2>/dev/null
+            do
+                :
+            done
+            echo "localnet-1 is ready; dumping container logs..."
+            echo "["
+            docker container logs localnet-1
+            echo "]"
 
-            cd integration-tests
+            # Integration tests do not require a multi-node network, but we'd like to ensure that
+            # exercising p2p features at least.  Make sure both nodes have each other as peers.
+            echo "Checking peers..."
+            for i in {0..1}; do
+              num_peers=$(docker exec localnet-$i curl -s http://localhost:26670/net_info | \
+                 jq -r .result.n_peers)
+              if [ "$num_peers" != "1" ]; then
+                echo "ERROR: localnet-$i expected to have 1 peer but has $num_peers"
+                false
+              fi
+            done
 
-            # sync pipenv
-            pipenv sync
+            # Pull down a copy of integration-tests repo.  We'll copy it into the tests container.
+            echo "Cloning integration-tests..."
+            git clone git@github.com:oneiro-ndev/integration-tests.git /integration-tests
+            cd /integration-tests
+            echo "integration-tests repo at $(git rev-parse --short HEAD)"
 
-            # run tests
-            NODE_ADDRESS=https://devnet.ndau.tech \
-            NODE_0_RPC=26670 \
-            NODE_1_RPC=26671 \
-              pipenv run pytest -v --net=devnet --ndauapi=https://devnet.ndau.tech:3030
+            # Create a container that integration tests can run out of.  Use the deps image.
+            echo "Creating tests container..."
+            container=tests-container
+            docker create --name "$container" --entrypoint "/root/integration.sh" -e "IP=$ip" deps
+            docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
+            docker cp /system_accounts.toml "$container":/system_accounts.toml
+            docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \
+                      /priv_validator_key.json
+            docker cp /priv_validator_key.json "$container":/priv_validator_key.json
+            docker cp /integration-tests "$container":/integration-tests
+
+            # Run the tests.
+            echo "Running tests..."
+            docker start "$container"
+
+            # Dump this in case it's useful for debugging container problems later.
+            echo "Inspecting bridge network..."
+            docker network inspect bridge
+
+            # This serves as a "docker wait" that dumps integration-test output to circle.
+            docker container logs --follow "$container"
+
+            # Fail the circle job if the container exited with a non-zero exit code.
+            exitcode=$(docker inspect $container --format={{.State.ExitCode}})
+            if [ "$exitcode" != "0" ]; then
+              echo "Integration failed ($exitcode)"
+              false
+            fi
+
+            echo "Integration complete"

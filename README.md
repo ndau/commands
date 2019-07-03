@@ -148,3 +148,48 @@ The `help` and `help verbose` commands will dump some helpful text about how to 
 ## Other tools
 
 See the [README](bin/README.md) in the `./bin` directory for more information on the tools found there.
+
+## Circle CI
+
+We use Circle CI jobs to validate builds as they land to master.  We also have control over running them manually from a branch.
+
+The jobs are:
+* build-deps
+    - Build a `deps` Docker image that is used by other jobs
+* build
+    - Run `go build` on all `oneiro-ndev` repos
+* test
+    - Run `go test` on all `oneiro-ndev` repos
+* build-image
+    - Build the `ndauimage` Docker image that is used by the remaining jobs
+* catchup
+    - Test whether catchup-from-genesis passes against mainnet
+* integration
+    - Run all tests from the `integration-tests` repo
+* push
+    - Push `ndauimage` to AWS ECR
+* deploy
+    - Deploy `ndauimage` to devnet
+
+Master builds require the `catchup` job and the `integration` job to pass before the `push` and `deploy` jobs run.  This is an improvement since now we won't deploy "invalid" (test-failing) builds.  You can always use a tagged build if you want to manually push or deploy a test-failing build.
+
+We can control what happens on tagged builds.  We used to support tagging with suffixes: `-catchup`, `-push` and `-deploy` and they'd all require previous steps to pass before executing.  Now we have more control on exactly which jobs run on tagged builds: use the `-jobs` suffix, followed by a `_`-separated list of the job names you want to run.
+
+Examples:
+* `git tag something-jobs_push` will push the build to ECR, but will not run `cathup` or `integration` jobs first.  This is a way to push something to ECR from your branch after you've already proven to yourself that the tests pass, maybe from a previous tagged build.
+* `git tag something-jobs_catchup_deploy` will run the `catchup` job, then `push` (because `deploy` requires `push`) and finally it will `deploy` it to devnet.
+* `git tag something-jobs_deploy_catchup` will do the same thing.  The order of the `-jobs` tags doesn't matter.
+
+We can mix and match any of the following job names (occurring after the `-jobs_` suffix): `catchup`, `integration`, `push`, `deploy`.
+
+The `deploy` job relies on `push`, so a `-jobs_deploy` tag is equivalent to `-jobs_push_deploy`.
+
+The `catchup`, `integration` and `push` jobs are independent (which means you could push up a build to ECR while `integration` is running, even if it later fails).
+
+The most common use case for tagged builds is to either test-but-not-deploy or deploy-a-previously-tested-build from a branch.  Testing *and* deploying is what happens with the `master-build` workflow when your branch lands to master.
+
+Don't forget to delete your tagged-build tags after the build jobs that used them complete:
+```sh
+git tag -d something-jobs_foo
+git push origin :something-jobs_foo
+```

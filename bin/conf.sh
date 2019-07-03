@@ -141,7 +141,7 @@ if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" ]]; then
 fi
 
 # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
-# genesis files, claim bpc account, etc.
+# genesis files, etc.
 if [ "$NEEDS_UPDATE" != 0 ]; then
     for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
@@ -150,11 +150,6 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
         if [ -f "$SYSTEM_ACCOUNTS_TOML" ]; then
             NDAUHOME="$ndau_home" ./ndau conf update-from "$SYSTEM_ACCOUNTS_TOML"
         fi
-
-        # For deterministic bpc account address/keys, we recover a special account with 12 eyes.
-        # Since this is only for localnet/devnet/testnet (i.e. not mainnet), this is safe.
-        NDAUHOME="$ndau_home" ./ndau account recover "$BPC_OPS_ACCT_NAME" \
-            eye eye eye eye eye eye eye eye eye eye eye eye
 
         # Generate noms data for ndau node 0, copy from node 0 otherwise.
         data_dir="$NOMS_NDAU_DATA_DIR-$node_num"
@@ -181,10 +176,6 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
             cp -r "$NOMS_NDAU_DATA_DIR-0" "$data_dir"
         fi
     done
-
-    # The no-node-num form of the needs-update file flags that we need to claim the bpc account.
-    # It's more or less a global needs-update flag, that causes finalization code to execute.
-    touch "$NEEDS_UPDATE_FLAG_FILE"
 fi
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" && -f "$SYSTEM_ACCOUNTS_TOML" ]]; then
