@@ -29,8 +29,8 @@ safe to run in secure operational environments.
 - do most things the ndau tool can do:
     - accounts
         - create new account, return address and derivation path
-        - claim account (with recovery from recovery service as applicable)
-        - claim child account
+        - set validation rules (with recovery from recovery service as applicable)
+        - create a child account
         - update status from blockchain
         - add, remove validation script
         - perform CRUD operations on arbitrary validation keys

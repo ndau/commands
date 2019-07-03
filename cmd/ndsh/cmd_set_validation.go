@@ -16,10 +16,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Claim claims an account, assigning its first validation keys and script
-type Claim struct{}
+// SetValidation assigns an account's first validation keys and script
+type SetValidation struct{}
 
-var _ Command = (*Claim)(nil)
+var _ Command = (*SetValidation)(nil)
 
 const (
 	secureKeypath = "/44'/20036'/100/10000'/%d'/%d"
@@ -39,22 +39,22 @@ func init() {
 const recoveryServicePath = "/tx/submit/setvalidation"
 
 // Name implements Command
-func (Claim) Name() string { return "claim set-validation" }
+func (SetValidation) Name() string { return "set-validation" }
 
-type claimargs struct {
-	Account          string   `arg:"positional" help:"account to claim"`
+type validationargs struct {
+	Account          string   `arg:"positional" help:"account to modify"`
 	NumKeys          uint     `arg:"-n,--num-keys" help:"number of validation keys to set"`
 	Paths            []string `arg:"-p,separate" help:"use these keypaths"`
 	ValidationScript string   `arg:"-s,--script" help:"set this validation script (base64)"`
 	WalletCompat     bool     `arg:"-C,--wallet-compat" help:"if set, generate keypaths the way the wallet does"`
 	Update           bool     `arg:"-u" help:"update this account from the blockchain before creating tx"`
 	Stage            bool     `arg:"-S" help:"stage this tx; do not send it"`
-	Autorecover      bool     `help:"send claim tx to recovery service if account looks like it might be subscribed. When true, -S may not work if recovery is attempted. Disable with --autorecover=false"`
+	Autorecover      bool     `help:"send validation tx to recovery service if account looks like it might be subscribed. When true, -S may not work if recovery is attempted. Disable with --autorecover=false"`
 }
 
-func (claimargs) Description() string {
+func (validationargs) Description() string {
 	return strings.TrimSpace(`
-Claim an account.
+Set validation rules for an account.
 
 All paths specified will be used. If paths are not set, appropriate paths will
 be generated.
@@ -65,8 +65,8 @@ the ndau wallet, insecure keypaths can be used.
 }
 
 // Run implements Command
-func (Claim) Run(argvs []string, sh *Shell) (err error) {
-	args := claimargs{
+func (SetValidation) Run(argvs []string, sh *Shell) (err error) {
+	args := validationargs{
 		NumKeys:     1,
 		Autorecover: true,
 	}
@@ -89,10 +89,10 @@ func (Claim) Run(argvs []string, sh *Shell) (err error) {
 		return errors.New("account root unknown; can't derive keys")
 	}
 	if acct.OwnershipPublic == nil {
-		return errors.New("account public ownership key unknown; can't generate claim tx")
+		return errors.New("account public ownership key unknown; can't generate set-validation tx")
 	}
 	if acct.OwnershipPrivate == nil {
-		return errors.New("account private ownership key unknown; can't sign claim tx")
+		return errors.New("account private ownership key unknown; can't sign set-validation tx")
 	}
 
 	var validationScript []byte

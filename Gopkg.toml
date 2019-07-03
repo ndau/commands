@@ -16,8 +16,7 @@ version = "~v1.4"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.18"
-branch = "ejm-update-terminology"
+version = "~v1.18"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -29,8 +28,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-# version = "~v1.2"
-branch = "ejm-update-terminology"
+version = "~v1.2"
 
 [[override]]
 name = "github.com/attic-labs/graphql"

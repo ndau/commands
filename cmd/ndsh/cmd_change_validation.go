@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ChangeValidation changes an account's validation
+// ChangeValidation changes an account's validation rules
 type ChangeValidation struct{}
 
 var _ Command = (*ChangeValidation)(nil)
@@ -20,7 +20,7 @@ var _ Command = (*ChangeValidation)(nil)
 func (ChangeValidation) Name() string { return "change-validation" }
 
 type cvargs struct {
-	Account          string   `arg:"positional" help:"account to claim"`
+	Account          string   `arg:"positional" help:"account to modify"`
 	NumKeys          uint     `arg:"-n,--add-keys" help:"number of validation keys to add"`
 	Paths            []string `arg:"-p,--path,separate" help:"use these keypaths"`
 	RemoveKeyIdx     []uint   `arg:"-r,--remove-key,separate" help:"remove the existing validation key at this index (0-based)"`

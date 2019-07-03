@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// CreditEAI an account
+// CreditEAI  credits EAI to all accounts delegated to the specified account
 type CreditEAI struct{}
 
 var _ Command = (*CreditEAI)(nil)

@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// RegisterNode an account
+// RegisterNode registers an account as an active node
 type RegisterNode struct{}
 
 var _ Command = (*RegisterNode)(nil)
