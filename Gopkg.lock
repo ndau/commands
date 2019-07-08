@@ -494,7 +494,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:c5248a344a7ff65eb2515438eaebd5d7596b2ebb41fc714d52331ac8ebad1b38"
+  branch = "prgn-fix-stateleak-test"
+  digest = "1:19ca580ce79905da61aa0965f967e9158d80afd1a4cece7d06de76149dedf3fa"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,8 +513,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "eba95f85b9d846e2093c770a6379c260932f7694"
-  version = "v1.18.1"
+  revision = "84724797d06fd7c1301d106f9b25139ce40153d7"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"

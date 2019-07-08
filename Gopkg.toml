@@ -17,7 +17,8 @@ branch = "prgn-explicit-state-copy"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.18"
+#version = "~v1.18"
+branch = "prgn-fix-stateleak-test"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
