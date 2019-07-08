@@ -15,9 +15,9 @@ createaccount() {
     NDAUHOME="$ndau_home" "$ND" account new "$name"
 }
 
-claimaccount() {
+setvalidationaccount() {
     name=$1
-    NDAUHOME="$ndau_home" "$ND" account claim "$name"
+    NDAUHOME="$ndau_home" "$ND" account set-validation "$name"
 }
 
 rfeTo() {
@@ -73,11 +73,11 @@ issuebig() {
     issueNdau 20000
 }
 
-claim() {
-    claimaccount alice
-    claimaccount bob
-    claimaccount carol
-    claimaccount drew
+setvalidation() {
+    setvalidationaccount alice
+    setvalidationaccount bob
+    setvalidationaccount carol
+    setvalidationaccount drew
 }
 
 xfer() {

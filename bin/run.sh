@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# JSG now accepts "nofinalize" arg, which skips the claim and copy-keys at the end
+# JSG now accepts "nofinalize" arg, which skips the set-validation and copy-keys at the end
 # for example: $ bin/run.sh nofinalize
 
 initialize() {
@@ -158,7 +158,7 @@ finalize() {
     cd "$COMMANDS_DIR" || exit 1
 
     if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
-        # We only update the 0'th node's config.  This is because the account claim step below
+        # We only update the 0'th node's config.  This is because the account set-validation step below
         # affects the blockchain.  It gets propagated to the other nodes' blockchains, but their
         # ndau tool config doesn't get updated.  This is okay, since developers always
         # use the ndau-0 directory as NDAUHOME when running ndau tool commands.  The
@@ -166,11 +166,11 @@ finalize() {
         # they are not there at all, but they were needed earlier by ndau_node() for each node,
         # so we leave them there.  They are valid, but not useable for getting/setting sysvars.
         ndau_home="$NODE_DATA_DIR-0"
-        # JSG don't do the claim and copy-keys if we're simulating mainnet
+        # JSG don't do the set-validation and copy-keys if we're simulating mainnet
         if [ "$1" != "nofinalize" ]; then
-            # Claim the bpc operations account.  This puts the validation keys into ndautool.toml.
-            echo "  claiming $BPC_OPS_ACCT_NAME account"
-            NDAUHOME="$ndau_home" ./ndau account claim "$BPC_OPS_ACCT_NAME"
+            # Set validation rules for the bpc operations account.  This puts the validation keys into ndautool.toml.
+            echo "  setting validation rules for the $BPC_OPS_ACCT_NAME account"
+            NDAUHOME="$ndau_home" ./ndau account set-validation "$BPC_OPS_ACCT_NAME"
         else
             echo not finalizing due to nofinalize arg
         fi
