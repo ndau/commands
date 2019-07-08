@@ -397,7 +397,8 @@ func (c *Config) BuildLogger() logrus.FieldLogger {
 	var out io.Writer
 	var level logrus.Level
 
-	if os.Getenv("HONEYCOMB_KEY") != "" {
+	useHoneycomb := os.Getenv("HONEYCOMB_KEY") != ""
+	if useHoneycomb {
 		// Suppress local procmon logging when the HONEYCOMB_* environment variables are set.
 		// Procmon will log to honeycomb in this case, not to disk or anywhere else.
 		out = ioutil.Discard
@@ -445,11 +446,14 @@ func (c *Config) BuildLogger() logrus.FieldLogger {
 	logger.Formatter = formatter
 	logger.Level = level
 
-	if os.Getenv("HONEYCOMB_KEY") != "" {
+	if useHoneycomb {
 		logger = honeycomb.Setup(logger)
 	}
 
-	return logger.WithField("node_id", os.Getenv("NODE_ID")).WithField("bin", "procmon")
+	return logger.WithFields(logrus.Fields{
+		"bin":     "procmon",
+		"node_id": os.Getenv("NODE_ID"),
+	})
 }
 
 // Getenv returns a composite environment with the
