@@ -15,7 +15,7 @@ import (
 
 // HTTPPinger returns a function compatible with the Monitor's Test
 // parameter that pings an HTTP address with a timeout.
-func HTTPPinger(u string, timeout time.Duration, logger *logrus.Logger) func() Eventer {
+func HTTPPinger(u string, timeout time.Duration, logger logrus.FieldLogger) func() Eventer {
 	client := http.Client{Timeout: time.Duration(timeout)}
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -41,7 +41,7 @@ func HTTPPinger(u string, timeout time.Duration, logger *logrus.Logger) func() E
 
 // RedisPinger returns a function that sends a Ping to the
 // redis service at the given address and expects PONG.
-func RedisPinger(address string, logger *logrus.Logger) func() Eventer {
+func RedisPinger(address string, logger logrus.FieldLogger) func() Eventer {
 	redis := redis.NewClient(&redis.Options{
 		Addr: address,
 	})
@@ -84,7 +84,7 @@ func PortAvailable(port string) func() Eventer {
 // a given port on the local machine is being serviced by a process.
 // The port parameter may be a space-separated list of ports; this
 // will check all of them.
-func PortInUse(port string, timeout time.Duration, logger *logrus.Logger) func() Eventer {
+func PortInUse(port string, timeout time.Duration, logger logrus.FieldLogger) func() Eventer {
 	ports := strings.Fields(port)
 	return func() Eventer {
 		for _, p := range ports {
