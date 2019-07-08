@@ -464,7 +464,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:33f098f3a1eb9f9997b51e13d4adcd2af90424d2e32822754bcee2bc39d64b92"
+  branch = "prgn-explicit-state-copy"
+  digest = "1:cccb9bfd9b7fd2878d0fc1a3e72116ad319710eb4dfc0c321283882227bf1a70"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -474,8 +475,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7a5fa28a2b277377aa43f8ba886982125a20c808"
-  version = "v1.5.0"
+  revision = "43e4bc39cd760eff92c5cc93fb95f18bccf428a4"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
