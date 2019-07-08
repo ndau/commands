@@ -25,7 +25,7 @@ const (
 )
 
 type runtimeState struct {
-	vm      *vm.ChaincodeVM
+	vm      *vm.MutableChaincodeVM
 	event   byte
 	stack   *vm.Stack
 	binary  string
@@ -73,7 +73,10 @@ func (rs *runtimeState) load(filename string) error {
 		return newExitError(1, err, nil)
 	}
 	vm, err := vm.New(bin)
-	rs.vm = vm
+	if err != nil {
+		return newExitError(1, err, nil)
+	}
+	rs.vm = vm.MakeMutable()
 	rs.binary = filename
 	if err != nil {
 		return newExitError(1, err, rs)
@@ -121,11 +124,11 @@ var p = regexp.MustCompile("[[:space:]]+")
 
 func (rs *runtimeState) dispatch(s string) error {
 	if rs.vm == nil {
-		var err error
-		rs.vm, err = vm.NewEmpty()
+		vm, err := vm.NewEmpty()
 		if err != nil {
 			return err
 		}
+		rs.vm = vm.MakeMutable()
 		err = rs.vm.Init(0)
 		if err != nil {
 			return err

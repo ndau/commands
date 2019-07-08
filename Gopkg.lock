@@ -433,14 +433,14 @@
 
 [[projects]]
   branch = "prgn-crank"
-  digest = "1:9f6a353a4d8a0ab59f4f31854d331dfac3519b3905335ff749d92585e80cbf39"
+  digest = "1:826afe4eac3d3a5cc7498bfb04ae2ab317c3a2398409936cd948bd734b6d88e5"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "ebbb16f70ab5f55e956891e7cdcad8901628990e"
+  revision = "bd07980c0177891b8c35409cb84d4d402f52e361"
 
 [[projects]]
   digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
