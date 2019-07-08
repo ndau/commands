@@ -1,7 +1,6 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaincode"
-# version = "~v1.1"
-branch = "prgn-crank"
+version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
