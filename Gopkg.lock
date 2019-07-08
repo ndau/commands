@@ -464,7 +464,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:33f098f3a1eb9f9997b51e13d4adcd2af90424d2e32822754bcee2bc39d64b92"
+  branch = "eas-commands-243"
+  digest = "1:37b9ba8765ab106ebf741fb929224e41c3b36e28706301f4b7d0a803e7acc8cd"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -474,8 +475,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7a5fa28a2b277377aa43f8ba886982125a20c808"
-  version = "v1.5.0"
+  revision = "d8efb406e69cd06568b31bf0d3a44dbc55163b29"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -969,6 +969,7 @@
     "github.com/oneiro-ndev/genesis/pkg/etl",
     "github.com/oneiro-ndev/genesis/pkg/genesis",
     "github.com/oneiro-ndev/json2msgp",
+    "github.com/oneiro-ndev/metanode/pkg/meta/app",
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
