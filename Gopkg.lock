@@ -494,7 +494,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:34774b497e6ee4b7aab47769319b9ab76cd0e24e28ddcd81df086516853b25cf"
+  branch = "ejm-update-terminology"
+  digest = "1:4716e85c9eec20c07f3f4c0d8c76745e2f6c537be20d699d16cf63d8a8bd4eaa"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,8 +513,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6ab5a10dd080159fc7bf8ac984f3f8efc3c6dd57"
-  version = "v1.18.3"
+  revision = "16c44802c2cfa31f1364a13b8fb87c6d9e908e67"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
