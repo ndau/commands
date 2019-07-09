@@ -15,7 +15,7 @@ createaccount() {
     NDAUHOME="$ndau_home" "$ND" account new "$name"
 }
 
-setvalidationaccount() {
+set-validationaccount() {
     name=$1
     NDAUHOME="$ndau_home" "$ND" account set-validation "$name"
 }
@@ -73,11 +73,11 @@ issuebig() {
     issueNdau 20000
 }
 
-setvalidation() {
-    setvalidationaccount alice
-    setvalidationaccount bob
-    setvalidationaccount carol
-    setvalidationaccount drew
+set-validation() {
+    set-validationaccount alice
+    set-validationaccount bob
+    set-validationaccount carol
+    set-validationaccount drew
 }
 
 xfer() {
