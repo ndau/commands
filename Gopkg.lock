@@ -464,7 +464,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "prgn-explicit-state-copy"
   digest = "1:243368a67d26ff46af74ff26ab1d50748e793718a15ea2ff1814415ecc5d6ed6"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -475,7 +474,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "13ca82444e3f4abd9f81c4ba941d33b452b12a43"
+  revision = "b3262eb992309a7f0571dbdbf24ccea38a6dd435"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -494,7 +494,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-fix-stateleak-test"
   digest = "1:f5900e75185b6d113c51836b29639caa9176b247851ae4d5252b57c8c3e4187f"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -513,7 +512,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "d3c5688f4a36c428900f106175beea081eed7987"
+  revision = "466775f294273123b38aa268621af0aba3c535f4"
+  version = "v1.18.2"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
