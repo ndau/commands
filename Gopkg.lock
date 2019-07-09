@@ -432,15 +432,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:350c4d2de6f63277882581db732780e97b294e4bb32e56ccfab6259544cff556"
+  digest = "1:826afe4eac3d3a5cc7498bfb04ae2ab317c3a2398409936cd948bd734b6d88e5"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "98f8c65e7cda67c0c9ca7873dcde7f28c3ec7881"
-  version = "v1.1.0"
+  revision = "3a5f6c101798047bc1895854cbdd6a1f9fdee422"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
@@ -464,7 +464,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:a3e5d7efa96275348cfa156795c6b59b8fb20d0c897465d25643674b1cd9b198"
+  digest = "1:9a60afcbd7cff9c784eeb6a586a49ce4446e59e4a94cc5ec89e31ba89bc5dec6"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -474,8 +474,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "180b6970aaf3df5cdd2ba05607e5ca36e08f5d56"
-  version = "v1.4.2"
+  revision = "f5a5ea8d024f4fbe54970746e8a7cbe02ddb2be6"
+  version = "v1.5.2"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -494,8 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "ejm-update-terminology"
-  digest = "1:c76ae4999bfb5876a21d17d892d39920147d381ccd8bc9f8ebd4cfb0dd3a6739"
+  digest = "1:34774b497e6ee4b7aab47769319b9ab76cd0e24e28ddcd81df086516853b25cf"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -513,7 +512,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "2b5cd6a100b997fe3b7fd07e8f5d1cd554d3c515"
+  revision = "6ab5a10dd080159fc7bf8ac984f3f8efc3c6dd57"
+  version = "v1.18.3"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
@@ -969,6 +969,7 @@
     "github.com/oneiro-ndev/genesis/pkg/etl",
     "github.com/oneiro-ndev/genesis/pkg/genesis",
     "github.com/oneiro-ndev/json2msgp",
+    "github.com/oneiro-ndev/metanode/pkg/meta/app",
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",

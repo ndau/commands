@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -187,7 +188,7 @@ func Load(filename string, nocheck bool) (Config, error) {
 
 // RunPrologue creates and runs pingers in order to establish that everything is
 // ready to go.
-func (c *Config) RunPrologue(logger *logrus.Logger) error {
+func (c *Config) RunPrologue(logger logrus.FieldLogger) error {
 	for _, p := range c.Prologue {
 		pinger, err := BuildMonitor(p, logger)
 		if err != nil {
@@ -207,7 +208,7 @@ func (c *Config) RunPrologue(logger *logrus.Logger) error {
 
 // BuildMonitor constructs a monitor from an element in the
 // Monitors map
-func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer, error) {
+func BuildMonitor(mon map[string]string, logger logrus.FieldLogger) (func() Eventer, error) {
 	switch mon["type"] {
 	case "portavailable":
 		if mon["port"] == "" {
@@ -297,7 +298,7 @@ func fileparse(name string, def io.Writer) (io.Writer, error) {
 // BuildTasks constructs all the tasks from a loaded config
 // It returns an array of the tasks that need to be individually
 // started. All child tasks will be descendants of these.
-func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
+func (c *Config) BuildTasks(logger logrus.FieldLogger) (Tasks, error) {
 	tasks := NewTasks()
 	// taskm := make(map[string]*Task)
 	// tasks := make([]*Task, 0)
@@ -349,7 +350,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 		t.MaxShutdown = maxshutdown
 
 		// set up the logger
-		t.Logger = logger.WithField("task", t.Name).WithField("bin", "procmon")
+		t.Logger = logger.WithField("task", t.Name)
 
 		for _, prerun := range ct.Prerun {
 			if _, ok := tasks.All[prerun]; !ok {
@@ -391,12 +392,13 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 }
 
 // BuildLogger constructs a logger given the configuration info.
-func (c *Config) BuildLogger() *logrus.Logger {
+func (c *Config) BuildLogger() logrus.FieldLogger {
 	var formatter logrus.Formatter
 	var out io.Writer
 	var level logrus.Level
 
-	if os.Getenv("HONEYCOMB_KEY") != "" {
+	useHoneycomb := os.Getenv("HONEYCOMB_KEY") != ""
+	if useHoneycomb {
 		// Suppress local procmon logging when the HONEYCOMB_* environment variables are set.
 		// Procmon will log to honeycomb in this case, not to disk or anywhere else.
 		out = ioutil.Discard
@@ -443,7 +445,15 @@ func (c *Config) BuildLogger() *logrus.Logger {
 	logger.Out = out
 	logger.Formatter = formatter
 	logger.Level = level
-	return logger
+
+	if useHoneycomb {
+		logger = honeycomb.Setup(logger)
+	}
+
+	return logger.WithFields(logrus.Fields{
+		"bin":     "procmon",
+		"node_id": os.Getenv("NODE_ID"),
+	})
 }
 
 // Getenv returns a composite environment with the

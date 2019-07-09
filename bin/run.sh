@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# JSG now accepts "nofinalize" arg, which skips the set-validation and copy-keys at the end
-# for example: $ bin/run.sh nofinalize
-
 initialize() {
     CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
     # shellcheck disable=SC1090
@@ -152,35 +149,8 @@ ndau_api() {
     wait_port "$api_port"
 }
 
-finalize() {
-    echo finalizing
 
-    cd "$COMMANDS_DIR" || exit 1
-
-    if [ -e "$NEEDS_UPDATE_FLAG_FILE" ]; then
-        # We only update the 0'th node's config.  This is because the account set-validation step below
-        # affects the blockchain.  It gets propagated to the other nodes' blockchains, but their
-        # ndau tool config doesn't get updated.  This is okay, since developers always
-        # use the ndau-0 directory as NDAUHOME when running ndau tool commands.  The
-        # other nodes' config files will simply sit there, dormant.  We could even make it so
-        # they are not there at all, but they were needed earlier by ndau_node() for each node,
-        # so we leave them there.  They are valid, but not useable for getting/setting sysvars.
-        ndau_home="$NODE_DATA_DIR-0"
-        # JSG don't do the set-validation and copy-keys if we're simulating mainnet
-        if [ "$1" != "nofinalize" ]; then
-            # Set validation rules for the bpc operations account.  This puts the validation keys into ndautool.toml.
-            echo "  setting validation rules for the $BPC_OPS_ACCT_NAME account"
-            NDAUHOME="$ndau_home" ./ndau account set-validation "$BPC_OPS_ACCT_NAME"
-        else
-            echo not finalizing due to nofinalize arg
-        fi
-
-        # We've updated, remove the flag file so we don't update again on the next run.
-        rm "$NEEDS_UPDATE_FLAG_FILE"
-    fi
-}
-
-if [ -z "$1" ] || [ "$1" == "nofinalize" ]; then
+if [ -z "$1" ]; then
     initialize
 
     # Kill everything first.  It's too easy to forget the ./kill.sh between test runs.
@@ -194,8 +164,6 @@ if [ -z "$1" ] || [ "$1" == "nofinalize" ]; then
         ndau_tm "$node_num"
         ndau_api "$node_num"
     done
-
-    finalize "$1"
 else
     # We support running a single process for a given node.
     cmd="$1"
@@ -208,7 +176,6 @@ else
 
     initialize
     "$cmd" "$node_num"
-    finalize
 fi
 
 echo "done."

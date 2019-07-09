@@ -69,6 +69,17 @@ do
     :
 done
 
+# Block until we have a block height of at least 1.
+# Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
+while :
+do
+    response=$(curl -s http://localhost:$NDAUAPI_PORT/block/height/1)
+    if [ ! -z "$response" ] && [[ "$response" != *"could not get block"* ]]; then
+        break
+    fi
+    sleep 1
+done
+
 # Now that we know all data files are in place and the node group is running,
 # we can generate the node-identity file if one wasn't passed in.
 IDENTITY_FILE="$SCRIPT_DIR"/node-identity.tgz

@@ -11,3 +11,5 @@
   ResetUncreditedEAIOnCreditEAI = 13510
   # TODO: Set this more appropriately on the next mainnet upgrade (and remove this comment)
   NodeActiveCheck = 20000
+  # TODO: Set this more appropriately on the next mainnet upgrade (and remove this comment)
+  NoLeakyUpdateState = 20000

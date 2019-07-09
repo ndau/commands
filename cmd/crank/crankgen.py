@@ -77,38 +77,54 @@ def parse_as(val, *types):
             return typ(val)
         except ValueError:
             pass
-    return val
+    return quote(val)
+
+
+def quote(s):
+    if len(s) < 2 or s[0] != '"' or s[-1] != '"':
+        return f'"{s}"'
+    return s
 
 
 def generate(fname):
+    var_lines = {}
     vars = {}
     lams = OrderedDict()
     templ = []
     recording = False
-    for l in open(fname):
-        stripped = l.strip()
-        if l.startswith("SVAR") or l.startswith("VAR") or l.startswith("LAMBDA"):
-            lhs, rhs = [s.strip() for s in l.split("=")]
-            # split off the keyword
-            _, name = lhs.split(maxsplit=1)
-            if lhs.startswith("VAR"):
-                vars[name] = [
-                    (name, parse_as(s.strip(), int, float)) for s in rhs.split(",")
-                ]
-            elif lhs.startswith("SVAR"):
-                vars[name] = [(name, s.strip()) for s in rhs.split(",")]
-            else:
-                lams[name] = rhs
-        elif stripped == "BEGIN_TEMPLATE":
-            recording = True
-        elif recording is True:
-            templ.append(l)
+    with open(fname) as f:
+        for lineno, l in enumerate(f):
+            stripped = l.strip()
+            if l.startswith("SVAR") or l.startswith("VAR") or l.startswith("LAMBDA"):
+                lhs, rhs = [s.strip() for s in l.split("=", maxsplit=1)]
+                # split off the keyword
+                _, name = lhs.split(maxsplit=1)
+                var_lines[name] = lineno + 1  # use 1-based indexing
+                if lhs.startswith("VAR"):
+                    vars[name] = [
+                        (name, parse_as(s.strip(), int, float)) for s in rhs.split(",")
+                    ]
+                elif lhs.startswith("SVAR"):
+                    vars[name] = [(name, s.strip()) for s in rhs.split(",")]
+                else:
+                    lams[name] = rhs
+            elif stripped == "BEGIN_TEMPLATE":
+                recording = True
+            elif recording is True:
+                templ.append(l)
 
     values = vars.values()
     combos = [dict(x) for x in itertools.product(*values)]
     for idx, combo in enumerate(combos):
         for name, lam in lams.items():
-            combo[name] = eval(lam, combo)
+            try:
+                combo[name] = eval(lam, combo)
+                if isinstance(combo[name], str):
+                    # strings have to be re-quoted
+                    combo[name] = quote(combo[name])
+            except Exception as e:
+                print(f"{e.__class__.__name__}: {e} at line {var_lines[name]}")
+                sys.exit(1)
         combos[idx] = combo
 
     template = Template("".join(templ))

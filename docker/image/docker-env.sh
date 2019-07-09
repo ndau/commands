@@ -17,7 +17,12 @@ export NOMS_DATA_DIR="$DATA_DIR"/noms
 export REDIS_DATA_DIR="$DATA_DIR"/redis
 export TM_DATA_DIR="$DATA_DIR"/tendermint
 
+export SYSTEM_VARS_TOML="$ROOT_DIR/system_vars.toml"
+export SYSTEM_ACCOUNTS_TOML="$ROOT_DIR/system_accounts.toml"
+
 export NDAUHOME="$NODE_DATA_DIR"
 
 export SNAPSHOT_URL="https://s3.amazonaws.com"
 export SNAPSHOT_BUCKET="ndau-snapshots"
+export GENERATED_GENESIS_SNAPSHOT="*"
+export LOCAL_SNAPSHOT="$ROOT_DIR/snapshot-$NETWORK-0.tgz"
