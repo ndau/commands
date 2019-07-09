@@ -559,7 +559,7 @@
 
 [[projects]]
   branch = "ejm-update-terminology"
-  digest = "1:7a73317c0f4005d4afc6485ff32197e592c01f1cbc6ae221b8af4a20a935006f"
+  digest = "1:03e9054af8fa036bfe0c33f4e60168c3f654e03517f3c8aa6ec689a2298b3f7e"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -567,7 +567,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "1252d5aa2095f4a32135a0becbd644e9d17f8034"
+  revision = "9b63d3e6ec6beb737286e9806023ee57fef4d8ec"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
