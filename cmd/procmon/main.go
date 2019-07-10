@@ -184,7 +184,19 @@ func setupPeriodic(root *Task, tasks Tasks) {
 
 func main() {
 	cfg := loadConfig()
-	logger := cfg.BuildLogger()
+
+	// Init honeycomb filters if applicable; no-op otherwise.
+	// Do this before building the root logger and before building tasks,
+	// so that useHoneycomb is initialized.
+	filterError := initFilters()
+
+	// Create a logger even if we failed to init filters.
+	logger := cfg.BuildLogger(rootTaskName)
+
+	// Now that we have a logger, we can log any filter error that may have occurred.
+	if filterError != nil {
+		logger.WithError(filterError).Fatal("problems initializing filters")
+	}
 
 	err := cfg.RunPrologue(logger)
 	if err != nil {
@@ -198,7 +210,7 @@ func main() {
 	}
 
 	// now build a special task to act as the parent of the root tasks
-	root := NewTask("root", "")
+	root := NewTask(rootTaskName, "")
 	root.Logger = logger
 	root.Stopped = make(chan struct{})
 	for i := range tasks.Main {

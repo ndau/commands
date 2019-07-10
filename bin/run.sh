@@ -118,6 +118,7 @@ ndau_tm() {
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
+                      --log_format="json" \
                       --log_level="*:debug" \
                       >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"
