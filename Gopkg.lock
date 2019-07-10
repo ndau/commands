@@ -432,15 +432,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:826afe4eac3d3a5cc7498bfb04ae2ab317c3a2398409936cd948bd734b6d88e5"
+  branch = "prgn-crank-disasm-indent"
+  digest = "1:600a6becb4d207eb8bcff007bf1260e5a918232266882f5d718e7f7aeadeedcf"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "3a5f6c101798047bc1895854cbdd6a1f9fdee422"
-  version = "v1.2.0"
+  revision = "4b4e95aded31dd56882d3550e0fe33037d507d29"
 
 [[projects]]
   digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
