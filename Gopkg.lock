@@ -443,7 +443,8 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
+  branch = "ejm-update-terminology"
+  digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -452,16 +453,15 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "fea8d877ccab510bda10c241bd7178a311d9e6d5"
-  version = "v1.1.1"
+  revision = "b97a0f0cd63d00db611918aa5563fbdeb3fde082"
 
 [[projects]]
-  digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
+  branch = "ejm-update-terminology"
+  digest = "1:450dd5a775f9d624954c5eb1fc0718e263f29a0488c8ab1911a1d259761bd39d"
   name = "github.com/oneiro-ndev/json2msgp"
   packages = ["."]
   pruneopts = ""
-  revision = "715e97525b6d5bfcaf83127e1de6680a6a030b6d"
-  version = "v1.0.0"
+  revision = "c158832605140782af32416598924937e5eb2c70"
 
 [[projects]]
   digest = "1:7f302aa49dd3a45231f261a7a455f0c133d58d4b61c90359b0f0c75f55451ace"
@@ -495,7 +495,7 @@
 
 [[projects]]
   branch = "ejm-update-terminology"
-  digest = "1:4716e85c9eec20c07f3f4c0d8c76745e2f6c537be20d699d16cf63d8a8bd4eaa"
+  digest = "1:b7fae858a33f49328b39b362f21e15a30dd137034275548b3283408322f1bbdd"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -513,7 +513,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "16c44802c2cfa31f1364a13b8fb87c6d9e908e67"
+  revision = "32d17345e9762b2989495a672dcb6f909dd5af12"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
@@ -559,7 +559,7 @@
 
 [[projects]]
   branch = "ejm-update-terminology"
-  digest = "1:03e9054af8fa036bfe0c33f4e60168c3f654e03517f3c8aa6ec689a2298b3f7e"
+  digest = "1:22fe963b4e5495edf74d8cc82f56a506c8c577b26a44ecf4b67fea43e6b19fc4"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -567,7 +567,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "9b63d3e6ec6beb737286e9806023ee57fef4d8ec"
+  revision = "e531a7dad9c2042b115779cf939e22ad1107eded"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"

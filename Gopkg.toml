@@ -4,11 +4,13 @@ version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-version = "~v1.1"
+#version = "~v1.1"
+branch = "ejm-update-terminology"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
-version = "~v1.0"
+#version = "~v1.0"
+branch = "ejm-update-terminology"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
