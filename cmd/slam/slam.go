@@ -207,7 +207,7 @@ func (r *RequestManager) CreateAccount(initialBalance types.Ndau) (*Account, err
 	fmt.Printf("create child %s... ", a.Addr)
 
 	// claim the newly-created account
-	tx := ndau.NewClaimAccount(a.Addr, pub, []signature.PublicKey{vpub}, nil, a.Sequence+1, prv)
+	tx := ndau.NewSetValidation(a.Addr, pub, []signature.PublicKey{vpub}, nil, a.Sequence+1, prv)
 	a.Sequence++
 	err = r.Post("/tx/submit/ClaimAccount", tx, nil)
 	if err == nil {
