@@ -32,6 +32,11 @@ version = "~v1.3"
 name = "github.com/oneiro-ndev/system_vars"
 version = "~v1.2"
 
+[[constraint]]
+name = "github.com/oneiro-ndev/writers"
+#version = "~v1.0"
+branch = "eas-commands-296"
+
 [[override]]
 name = "github.com/attic-labs/graphql"
 branch = "master"

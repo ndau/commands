@@ -45,7 +45,7 @@ func newFilter(taskName string) io.Writer {
 	case redisTaskName:
 		// The redis uses a line splitter with redis line interpreter.
 		splitter = bufio.ScanLines
-		interpreter = &filter.RedisInterpreter{}
+		interpreter = filter.RedisInterpreter{}
 	case nomsTaskName:
 		// The noms uses a line splitter with no special interpreter.
 		splitter = bufio.ScanLines
@@ -56,7 +56,7 @@ func newFilter(taskName string) io.Writer {
 	case tendermintTaskName:
 		// The tendermint uses a json splitter with tendermint json interpreter.
 		splitter = filter.JSONSplit
-		interpreter = &filter.TendermintInterpreter{}
+		interpreter = filter.TendermintInterpreter{}
 	case ndauapiTaskName:
 		// The ndauapi uses a json splitter with generic json interpreter.
 		splitter = filter.JSONSplit
@@ -74,7 +74,7 @@ func newFilter(taskName string) io.Writer {
 	}
 	// Putting this one after the first interpreter will prevent tasks from overriding the values
 	// of the required fields, but we don't expect to ever want to for "node_id" and "task".
-	interpreters = append(interpreters, &filter.RequiredFieldsInterpreter{
+	interpreters = append(interpreters, filter.RequiredFieldsInterpreter{
 		// The "bin" field is added automatically by o11y and will be "procmon" for all tasks.
 		Defaults: map[string]interface{}{
 			"node_id": os.Getenv("NODE_ID"),
