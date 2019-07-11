@@ -23,9 +23,6 @@ Usage
 
 Environment variables
 
-	Log level. (default: info)
-	[NDAUAPI_LOG_LEVEL=(error|warn|info|debug)]
-
 	Port where this API will listen. (default: 3030)
 	[NDAUAPI_PORT=<3030>]
 
