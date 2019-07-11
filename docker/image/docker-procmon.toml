@@ -161,7 +161,6 @@ output = ""
         "--proxy_app", "tcp://localhost:$NODE_PORT",
         "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
         "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
-        "--log_format=$LOG_FORMAT",
         "--log_level=*:$LOG_LEVEL",
     ]
     stdout = "$LOG_DIR/tendermint.log"
