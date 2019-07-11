@@ -495,7 +495,7 @@
 
 [[projects]]
   branch = "eas-commands-296"
-  digest = "1:f532ee0f5d1760b9470791f9d9408bb42028fc16f738125f8181100aa5a7e292"
+  digest = "1:b3cbc76fdd366a4e97425591956f929a2a3f3e5e8320ab55fb7ab6153fd2e463"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -513,7 +513,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "5a1a3850fac3de2782cc5db0221ed5a9d76cd345"
+  revision = "d6d49626912d74b14c64f40329bda8fd706f0ffa"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
