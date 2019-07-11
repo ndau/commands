@@ -457,11 +457,11 @@
 
 [[projects]]
   branch = "ejm-update-terminology"
-  digest = "1:450dd5a775f9d624954c5eb1fc0718e263f29a0488c8ab1911a1d259761bd39d"
+  digest = "1:99c192bda9d5db7282d2ef1307610343d882baa134f83a1e9dc8dcfeaf114c01"
   name = "github.com/oneiro-ndev/json2msgp"
   packages = ["."]
   pruneopts = ""
-  revision = "c158832605140782af32416598924937e5eb2c70"
+  revision = "62bba2ffb206c5c48eef4075c77a2ad614202759"
 
 [[projects]]
   digest = "1:7f302aa49dd3a45231f261a7a455f0c133d58d4b61c90359b0f0c75f55451ace"
