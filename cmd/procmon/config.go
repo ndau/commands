@@ -399,7 +399,7 @@ func (c *Config) BuildLogger(rootTaskName string) logrus.FieldLogger {
 
 	if useHoneycomb {
 		// Output json format for logging from the procmon app itself.
-		formatter = new(logrus.JSONFormatter)
+		formatter = &logrus.JSONFormatter{}
 		// Filter that output through the honeycomb logger.
 		out = newFilter(rootTaskName)
 	} else {
@@ -416,11 +416,11 @@ func (c *Config) BuildLogger(rootTaskName string) logrus.FieldLogger {
 
 		switch c.Logger["format"] {
 		case "json", "":
-			formatter = new(logrus.JSONFormatter)
+			formatter = &logrus.JSONFormatter{}
 		case "text", "plain":
-			formatter = new(logrus.TextFormatter)
+			formatter = &logrus.TextFormatter{}
 		default:
-			formatter = new(logrus.JSONFormatter)
+			formatter = &logrus.JSONFormatter{}
 		}
 	}
 

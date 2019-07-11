@@ -45,7 +45,7 @@ func newFilter(taskName string) io.Writer {
 	case redisTaskName:
 		// The redis uses a line splitter with redis line interpreter.
 		splitter = bufio.ScanLines
-		interpreter = new(filter.RedisInterpreter)
+		interpreter = &filter.RedisInterpreter{}
 	case nomsTaskName:
 		// The noms uses a line splitter with no special interpreter.
 		splitter = bufio.ScanLines
@@ -56,7 +56,7 @@ func newFilter(taskName string) io.Writer {
 	case tendermintTaskName:
 		// The tendermint uses a json splitter with tendermint json interpreter.
 		splitter = filter.JSONSplit
-		interpreter = new(filter.TendermintInterpreter)
+		interpreter = &filter.TendermintInterpreter{}
 	case ndauapiTaskName:
 		// The ndauapi uses a json splitter with generic json interpreter.
 		splitter = filter.JSONSplit

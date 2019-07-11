@@ -29,7 +29,7 @@ func validateInput(dsa, dsb string) {
 func compareDS(dsa, dsb string, height int, nodeHeight int) {
 	validateInput(dsa, dsb)
 
-	log.SetFormatter(new(log.JSONFormatter))
+	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 	logger := log.WithFields(log.Fields{
 		"a dataset": dsa,
