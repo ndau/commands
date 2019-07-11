@@ -284,7 +284,7 @@ func fileparse(taskName, loggerOutput string, def io.Writer) (io.Writer, error) 
 	case LoggerOutputSuppress:
 		return ioutil.Discard, nil
 	default:
-		f, err := os.OpenFile(loggerOutput, os.O_APPEND|os.O_WRONLY, 0644)
+		f, err := os.OpenFile(loggerOutput, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return nil, err
 		}
