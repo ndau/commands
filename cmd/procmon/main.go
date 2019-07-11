@@ -9,7 +9,6 @@ import (
 	"time"
 
 	arg "github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
 )
 
 // WatchSignals can set up functions to call on various operating system signals.
