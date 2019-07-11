@@ -14,17 +14,17 @@ import (
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
+func getAccountCreateChild(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
-			"NAME CHILD_NAME [-p=<CHILD_SETTLEMENT_PERIOD>] %s [--hd]",
+			"NAME CHILD_NAME [-p=<CHILD_RECOURSE_PERIOD>] %s [--hd]",
 			getAddressSpec("DELEGATION_NODE"),
 		)
 
 		var (
 			parentName  = cmd.StringArg("NAME", "", "Name of parent account")
-			childName   = cmd.StringArg("CHILD_NAME", "", "Name of child account to claim")
-			period      = cmd.StringOpt("p period", "", "Initial settlement period for the child account (ndaumath types.ParseDuration format)")
+			childName   = cmd.StringArg("CHILD_NAME", "", "Name of child account to create")
+			period      = cmd.StringOpt("p period", "", "Initial recourse period for the child account (ndaumath types.ParseDuration format)")
 			hd          = cmd.BoolOpt("hd", false, "Generate an HD key for the child account")
 			getDelegate = getAddressClosure(cmd, "DELEGATION_NODE")
 		)
@@ -32,14 +32,14 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 		cmd.Action = func() {
 			conf := getConfig()
 
-			// Validate the child settlement period.
-			var childSettlementPeriod math.Duration
+			// Validate the child recourse period.
+			var childRecoursePeriod math.Duration
 			if period == nil || *period == "" {
-				childSettlementPeriod = -math.Duration(1) // Use the default settlement period.
+				childRecoursePeriod = -math.Duration(1) // Use the default recourse period.
 			} else {
 				dur, err := math.ParseDuration(*period)
-				orQuit(errors.Wrap(err, "Invalid child settlement period"))
-				childSettlementPeriod = dur
+				orQuit(errors.Wrap(err, "Invalid child recourse period"))
+				childRecoursePeriod = dur
 			}
 
 			// Ensure the parent account exists in the config already.
@@ -49,8 +49,8 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 			}
 
 			// Transaction validation would catch this, but it's helpful to catch it early.
-			if len(parentAcct.Transfer) == 0 {
-				orQuit(errors.New("Parent account is not yet claimed"))
+			if len(parentAcct.Validation) == 0 {
+				orQuit(errors.New("Parent account has no validation rules"))
 			}
 
 			// Ensure the child account does not exist in the config yet.
@@ -70,11 +70,11 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 			}
 
 			// Transaction validation would catch this, but it's helpful to catch it early.
-			if len(childAcct.Transfer) != 0 {
-				orQuit(errors.New("Child account is already claimed"))
+			if len(childAcct.Validation) != 0 {
+				orQuit(errors.New("Child account is already already has validation rules"))
 			}
 
-			newChildKeys, err := childAcct.MakeTransferKey(nil)
+			newChildKeys, err := childAcct.MakeValidationKey(nil)
 			orQuit(err)
 
 			cca := ndau.NewCreateChildAccount(
@@ -82,24 +82,24 @@ func getAccountClaimChild(verbose *bool, keys *int, emitJSON, compact *bool) fun
 				childAcct.Address,
 				childAcct.Ownership.Public,
 				childAcct.Ownership.Private.Sign([]byte(childAcct.Address.String())),
-				childSettlementPeriod,
+				childRecoursePeriod,
 				[]signature.PublicKey{newChildKeys.Public},
 				childAcct.ValidationScript,
 				getDelegate(),
 				sequence(conf, parentAcct.Address),
-				parentAcct.TransferPrivateK(*keys)...,
+				parentAcct.ValidationPrivateK(*keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), cca)
 
 			// Only persist this change if there was no error.
 			if err == nil && code.ReturnCode(resp.(*rpc.ResultBroadcastTxCommit).DeliverTx.Code) == code.OK {
-				childAcct.Transfer = []config.Keypair{*newChildKeys}
+				childAcct.Validation = []config.Keypair{*newChildKeys}
 				conf.SetAccount(*childAcct)
 				err = conf.Save()
 				orQuit(errors.Wrap(err, "saving config"))
 			}
-			finish(*verbose, resp, err, "account claim child")
+			finish(*verbose, resp, err, "account create child")
 		}
 	}
 }

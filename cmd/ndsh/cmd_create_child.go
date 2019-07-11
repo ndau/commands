@@ -14,13 +14,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-// CreateChild claims an account, assigning its first validation keys and script
+// CreateChild creates a child account, assigning its initial attributes
 type CreateChild struct{}
 
 var _ Command = (*CreateChild)(nil)
 
 // Name implements Command
-func (CreateChild) Name() string { return "create-child claim-child child" }
+func (CreateChild) Name() string { return "create-child child" }
 
 type createchildargs struct {
 	Parent           string        `arg:"positional" help:"parent account"`
@@ -32,7 +32,7 @@ type createchildargs struct {
 	Lang             string        `arg:"-l" help:"seed phrase language"`
 	Nicknames        []string      `arg:"-n,--nickname,separate" help:"short nicknames which can refer to this account"`
 	NumKeys          uint          `arg:"-N,--num-keys" help:"number of validation keys to set"`
-	SettlementPeriod math.Duration `arg:"-p,--settlement-period" help:"settlement period for child account"`
+	RecoursePeriod   math.Duration `arg:"-p,--recourse-period" help:"recourse period for child account"`
 	Path             string        `arg:"-P" help:"create account with this derivation path"`
 	ValidationScript string        `arg:"-s,--script" help:"set this validation script (base64)"`
 	Stage            bool          `arg:"-S" help:"stage this tx; do not send it"`
@@ -55,13 +55,13 @@ the ndau wallet, insecure keypaths can be used.
 // Run implements Command
 func (CreateChild) Run(argvs []string, sh *Shell) (err error) {
 	args := createchildargs{
-		NumKeys:          1,
-		Path:             defaultPath,
-		PathIdx:          defaultPathIdx,
-		Lang:             "en",
-		Kind:             string(address.KindUser),
-		SeedSize:         16,
-		SettlementPeriod: 1 * math.Hour,
+		NumKeys:        1,
+		Path:           defaultPath,
+		PathIdx:        defaultPathIdx,
+		Lang:           "en",
+		Kind:           string(address.KindUser),
+		SeedSize:       16,
+		RecoursePeriod: 1 * math.Hour,
 	}
 
 	err = ParseInto(argvs, &args)
@@ -175,7 +175,7 @@ func (CreateChild) Run(argvs []string, sh *Shell) (err error) {
 		child.Address,
 		*child.OwnershipPublic,
 		child.OwnershipPrivate.Sign([]byte(child.Address.String())),
-		args.SettlementPeriod,
+		args.RecoursePeriod,
 		pubs,
 		validationScript,
 		*delegateAddr,

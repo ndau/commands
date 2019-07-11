@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ClaimNodeReward an account
+// ClaimNodeReward claims node rewards for which an account has been nominated
 type ClaimNodeReward struct{}
 
 var _ Command = (*ClaimNodeReward)(nil)
