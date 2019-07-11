@@ -7,9 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
 )
 
 // parseInt parses an integer from a string. It is just like
@@ -318,14 +317,20 @@ func (n *PushOpcode) bytes() []byte {
 	case -1:
 		return []byte{byte(vm.OpNeg1)}
 	default:
+		// In order to minimize the size of generated code, we want to generate a pushN opcode
+		// of the minimal number of bytes. The VM knows how to sign-extend values, so we can
+		// suppress FF values if the preceding value has the high bit set, and we can suppress
+		// 0 values as long as the preceding value has the high bit off.
 		b := vm.ToBytes(n.arg)
-		var suppress byte
-		if n.arg < 0 {
-			suppress = 0xFF
+		for ix := len(b) - 1; ix > 0; ix-- {
+			if ((b[ix-1]&0x80 == 0x80) && b[ix] == 0xFF) ||
+				((b[ix-1]&0x80 == 0x00) && b[ix] == 0x00) {
+				b = b[:ix]
+			} else {
+				break
+			}
 		}
-		for b[len(b)-1] == suppress {
-			b = b[:len(b)-1]
-		}
+
 		nbytes := byte(len(b))
 		// All the PushN opcodes are related
 		op := byte(vm.OpPush1) + (nbytes - 1)
@@ -355,7 +360,7 @@ func newPushB(iface interface{}) (*PushB, error) {
 			// if the item is a []byte, it was a quoted string so just embed the bytes of the string
 			out = append(out, b[0])
 		} else {
-			// if the item was a string, it should be parsed as the representation of an byte,
+			// if the item was a string, it should be parsed as the representation of a value,
 			// either decimal or hex, or possibly as an address (which starts with "addr(")
 			s := item.(string)
 			if strings.HasPrefix(s, "addr(") {

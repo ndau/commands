@@ -19,9 +19,21 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
+			"addr",
+			"get the address of an account",
+			getAccountAddr(verbose),
+		)
+
+		cmd.Command(
 			"claim",
 			"claim this account on the blockchain",
 			getAccountClaim(verbose, emitJSON, compact),
+		)
+
+		cmd.Command(
+			"claim-child",
+			"claim this child account on the blockchain",
+			getAccountClaimChild(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
@@ -49,8 +61,8 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
-			"change-settlement-period",
-			"change the settlement period for outbound transfers from this account",
+			"change-recourse-period",
+			"change the recourse period for outbound transfers from this account",
 			getAccountChangeSettlement(verbose, keys, emitJSON, compact),
 		)
 
@@ -86,7 +98,7 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 
 		cmd.Command(
 			"stake",
-			"stake this account to another",
+			"stake ndau from this account to another",
 			getStake(verbose, keys, emitJSON, compact),
 		)
 
@@ -100,6 +112,12 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 			"claim-node-reward",
 			"claim node reward for this node",
 			getClaimNodeReward(verbose, keys, emitJSON, compact),
+		)
+
+		cmd.Command(
+			"set-stake-rules",
+			"set stake rules for this account",
+			getSetStakeRules(verbose, keys, emitJSON, compact),
 		)
 	}
 }

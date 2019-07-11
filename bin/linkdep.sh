@@ -36,8 +36,8 @@ done
 if [ -z "$REPO" ]; then
     echo linkdep: Link or unlink vendor directories of a repo, for build or test purposes
     echo Usage:
-    echo "  ./linkdep.sh {metanode|chaos|ndau|genesis|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
-    current="$(find vendor/github.com/oneiro-ndev -type l -depth 1 |sed 's:vendor/github.com/oneiro-ndev/:  :')"
+    echo "  ./linkdep.sh {metanode|ndau|genesis|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
+    current="$(find $CMDBIN_DIR/../vendor/github.com/oneiro-ndev -type l -depth 1 |sed 's:vendor/github.com/oneiro-ndev/:  :')"
     if [[ -n "$current" ]]; then
         echo Currently linked:
         echo "$current"
@@ -46,7 +46,7 @@ if [ -z "$REPO" ]; then
 fi
 
 if [ "$REPO" = "all" ]; then
-    repos=(metanode chaos ndau genesis)
+    repos=(metanode ndau genesis)
 else
     repos=("$REPO")
 fi

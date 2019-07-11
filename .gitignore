@@ -9,6 +9,7 @@ vendor/
 # transient files
 *.log
 *.pid
+*.tgz
 
 # Python chaff
 **/__pycache__/
@@ -22,6 +23,11 @@ DashData*
 **/github_chaos_deploy
 **/machine_user_key
 **/gomu
+*.pem
+
+# docker
+docker/ndau-images
+docker/ndau-snapshots
 
 # osx chaff
 .DS_Store
@@ -63,9 +69,23 @@ opcodes
 !*/opcodes
 peggofmt
 !*/peggofmt
+procmon
+!*/procmon
 txmobile
 !*/txmobile
 update_genesis_json
 !*/update_genesis_json
 vmtest
 !*/vmtest
+nomscompare
+!*/nomscompare
+nomsinfo
+!*/nomsinfo
+ndauaddr
+!*/ndauaddr
+procmon
+!*/procmon
+verify
+!*/verify
+ndsh
+!*/ndsh

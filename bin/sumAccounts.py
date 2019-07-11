@@ -38,25 +38,25 @@ if __name__ == "__main__":
 
     node = names[name]
 
-    page = 0
-    pgsz = 100
+    limit = 100
+    after = "-"
     balances = []
-    while True:
-        qp = dict(pagesize=pgsz, pageindex=page)
+    while after != "":
+        qp = dict(limit=limit, after=after)
         result = getData(node, "/account/list", parms=qp)
-        if not result["Accounts"]:
-            break
-        page += 1
+        after = result["NextAfter"]
 
         accts = result["Accounts"]
         resp = requests.post(f"{node}/account/accounts", json=result["Accounts"])
 
         data = resp.json()
         for k in data:
-            balances.append((k, data[k]["balance"] / 100_000_000))
+#            balances.append((k, data[k]["balance"] / 100_000_000))
+            balances.append((k, data[k]["balance"]))
 
     total = sum([b for k, b in balances])
-    print(f"total in {len(balances)} accounts is {total}")
+#    print(f"total in {len(balances)} accounts is {total}")
+    print(f"total in {len(balances)} accounts is {total / 100_000_000}")
 
     s = sorted(balances, key=lambda a: a[1])
     for t in s:

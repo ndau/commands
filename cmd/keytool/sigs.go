@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
@@ -10,9 +11,13 @@ import (
 
 func cmdSign(cmd *cli.Cmd) {
 	cmd.Spec = fmt.Sprintf(
-		"%s %s",
+		"%s %s [-r]",
 		getKeySpec("PVT"),
 		getDataSpec(false),
+	)
+
+	var (
+		raw = cmd.BoolOpt("r raw", false, "emit the signature as raw bytes instead of ndau format")
 	)
 
 	getKey := getKeyClosure(cmd, "PVT", "sign with this private key")
@@ -26,9 +31,14 @@ func cmdSign(cmd *cli.Cmd) {
 		data := getData()
 
 		sig := key.Sign(data)
-		sigb, err := sig.MarshalText()
-		check(err)
-		fmt.Println(string(sigb))
+		if *raw {
+			_, err := os.Stdout.Write(sig.Bytes())
+			check(err)
+		} else {
+			sigb, err := sig.MarshalText()
+			check(err)
+			fmt.Println(string(sigb))
+		}
 	}
 }
 

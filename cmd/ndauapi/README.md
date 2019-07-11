@@ -20,7 +20,7 @@ Testing depends on a test net to be available and as such are not very pure unit
 
 ```shell
 ./build.sh
-NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 NDAUAPI_CHAOS_RPC_URL=http://127.0.0.1:31005 ./ndauapi
+NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 ./ndauapi
 ```
 
 # Basic Usage
@@ -36,8 +36,7 @@ Please include this in your VSCode config to run individual tests. Replace the I
 
 ```json
     "go.testEnvVars": {
-        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001",
-        "NDAUAPI_CHAOS_RPC_URL": "http://127.0.0.1:31005"
+        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001"
     },
 ```
 
@@ -72,13 +71,15 @@ Each of these, in turn, has several endpoints within it.
 
 * [AccountsFromList](#accountsfromlist)
 
-* [AccountEAIRate](#accounteairate)
+* [DEPRECATEDAccountEAIRate](#deprecatedaccounteairate)
 
 * [AccountHistory](#accounthistory)
 
 * [AccountList](#accountlist)
 
 * [AccountCurrencySeats](#accountcurrencyseats)
+
+* [BlockBefore](#blockbefore)
 
 * [BlockCurrent](#blockcurrent)
 
@@ -91,16 +92,6 @@ Each of these, in turn, has several endpoints within it.
 * [BlockTransactions](#blocktransactions)
 
 * [BlockDateRange](#blockdaterange)
-
-* [ChaosBlockRange](#chaosblockrange)
-
-* [ChaosBlockDateRange](#chaosblockdaterange)
-
-* [ChaosHistory](#chaoshistory)
-
-* [ChaosNamespaceAll](#chaosnamespaceall)
-
-* [ChaosNamespaceKey](#chaosnamespacekey)
 
 * [NodeStatus](#nodestatus)
 
@@ -118,19 +109,25 @@ Each of these, in turn, has several endpoints within it.
 
 * [NodeID](#nodeid)
 
-* [OrderHash](#orderhash)
+* [DEPRECATEDOrderCurrent](#deprecatedordercurrent)
 
 * [OrderHeight](#orderheight)
 
 * [OrderHistory](#orderhistory)
 
-* [OrderCurrent](#ordercurrent)
+* [PriceInfo](#priceinfo)
 
 * [StateDelegates](#statedelegates)
 
 * [SystemAll](#systemall)
 
-* [SystemHistoryKey](#systemhistorykey)
+* [SysvarGet](#sysvarget)
+
+* [SysvarSet](#sysvarset)
+
+* [SysvarHistory](#sysvarhistory)
+
+* [AccountEAIRate](#accounteairate)
 
 * [TransactionByHash](#transactionbyhash)
 
@@ -172,18 +169,21 @@ _**Writes:**_
           "incomingRewardsFrom": null,
           "delegationNode": null,
           "lock": null,
-          "stake": null,
           "lastEAIUpdate": "2000-01-01T00:00:00Z",
           "lastWAAUpdate": "2000-01-01T00:00:00Z",
           "weightedAverageAge": "1m",
           "sequence": 0,
-          "settlements": null,
-          "settlementSettings": {
+          "stake_rules": null,
+          "costakers": null,
+          "holds": null,
+          "recourseSettings": {
             "period": "t0s",
-            "changesAt": null,
+            "changes_at": null,
             "next": null
           },
-          "currencySeatDate": null
+          "currencySeatDate": null,
+          "parent": null,
+          "progenitor": null
         }
 ```
 
@@ -235,18 +235,21 @@ _**Writes:**_
             "incomingRewardsFrom": null,
             "delegationNode": null,
             "lock": null,
-            "stake": null,
             "lastEAIUpdate": "2000-01-01T00:00:00Z",
             "lastWAAUpdate": "2000-01-01T00:00:00Z",
             "weightedAverageAge": "1m",
             "sequence": 0,
-            "settlements": null,
-            "settlementSettings": {
+            "stake_rules": null,
+            "costakers": null,
+            "holds": null,
+            "recourseSettings": {
               "period": "t0s",
-              "changesAt": null,
+              "changes_at": null,
               "next": null
             },
-            "currencySeatDate": null
+            "currencySeatDate": null,
+            "parent": null,
+            "progenitor": null
           }
         }
 ```
@@ -254,25 +257,13 @@ _**Writes:**_
 
 
 ---
-## AccountEAIRate
+## DEPRECATEDAccountEAIRate
 
 ### `POST /account/eai/rate`
 
-_Returns eai rates for a collection of account information._
-
-Accepts an array of rate requests that includes an address
-field; this field may be any string (the account information is not
-checked). It returns an array of rate responses, which includes
-the address passed so that responses may be correctly correlated
-to the input.
+_This call is deprecated -- please use /system/eai/rate._
 
 
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- body | Body |  | []routes.EAIRateRequest
 
 
 
@@ -282,17 +273,7 @@ _**Consumes:**_ `[application/json]`
 
 _**Reads:**_
 ```json
-        [
-          {
-            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
-            "weightedAverageAge": "3m",
-            "lock": {
-              "noticePeriod": "6m",
-              "unlocksOn": null,
-              "bonus": 20000000000
-            }
-          }
-        ]
+        null
 ```
 
 
@@ -301,12 +282,7 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```json
-        [
-          {
-            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
-            "eairate": 6000000
-          }
-        ]
+        null
 ```
 
 
@@ -327,8 +303,8 @@ _**Parameters:**_
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  address | Path | The address of the account for which to return history | string
- pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+ after | Query | The block height after which results should start. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -345,7 +321,8 @@ _**Writes:**_
             {
               "Balance": 123000000,
               "Timestamp": "2018-07-10T20:01:02Z",
-              "TxHash": "L4hD20bp7w4Hi19vpn46wQ"
+              "TxHash": "L4hD20bp7w4Hi19vpn46wQ",
+              "Height": 0
             }
           ]
         }
@@ -362,15 +339,15 @@ _Returns a list of account IDs._
 
 This returns a list of every account on the blockchain, sorted
 alphabetically. A maximum of 10000 accounts can be returned in a single
-request.
+request. The results are sorted by address.
 
 
 _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- pageindex | Query | The 0-based page index to get. default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=10000 | int
+ after | Query | The address after which (sorted alphabetically) results should start. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -385,8 +362,8 @@ _**Writes:**_
         {
           "NumAccounts": 1,
           "FirstIndex": 1,
-          "PageSize": 1000,
-          "PageIndex": 0,
+          "After": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+          "NextAfter": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
           "Accounts": [
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
           ]
@@ -426,10 +403,83 @@ _**Writes:**_
         {
           "NumAccounts": 1,
           "FirstIndex": 1,
-          "PageSize": 1000,
-          "PageIndex": 0,
+          "After": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+          "NextAfter": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
           "Accounts": [
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
+          ]
+        }
+```
+
+
+
+---
+## BlockBefore
+
+### `GET /block/before/:height`
+
+_Returns a (possibly filtered) sequence of block metadata for blocks of height less than last._
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ height | Path | Blocks of this height and greater will not be returned. | int
+ filter | Query | Set to 'noempty' to exclude empty blocks. | string
+ after | Query | The block height after which no more results should be returned. | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "last_height": 12345,
+          "block_metas": [
+            {
+              "block_id": {
+                "hash": "",
+                "parts": {
+                  "total": 0,
+                  "hash": ""
+                }
+              },
+              "header": {
+                "version": {
+                  "block": 0,
+                  "app": 0
+                },
+                "chain_id": "",
+                "height": 0,
+                "time": "0001-01-01T00:00:00Z",
+                "num_txs": 0,
+                "total_txs": 0,
+                "last_block_id": {
+                  "hash": "",
+                  "parts": {
+                    "total": 0,
+                    "hash": ""
+                  }
+                },
+                "last_commit_hash": "",
+                "data_hash": "",
+                "validators_hash": "",
+                "next_validators_hash": "",
+                "consensus_hash": "",
+                "app_hash": "",
+                "last_results_hash": "",
+                "evidence_hash": "",
+                "proposer_address": ""
+              }
+            }
           ]
         }
 ```
@@ -864,8 +914,8 @@ Name | Kind | Description | DataType
  first | Path | Timestamp (ISO 3339) at which to begin (inclusive) retrieval of blocks. | string
  last | Path | Timestamp (ISO 3339) at which to end (exclusive) retrieval of blocks. | string
  noempty | Query | Set to nonblank value to exclude empty blocks | string
- pageindex | Query | The 0-based page index to get; default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
+ after | Query | The timestamp after which results should start (use the last value from the previous page). | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -918,260 +968,6 @@ _**Writes:**_
             }
           ]
         }
-```
-
-
-
----
-## ChaosBlockRange
-
-### `GET /chaos/range/:first/:last`
-
-_Returns a sequence of block metadata starting at first and ending at last_
-
-
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- first | Path | Height at which to begin retrieval of blocks. | int
- last | Path | Height at which to end retrieval of blocks. | int
- noempty | Query | Set to nonblank value to exclude empty blocks | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "last_height": 12345,
-          "block_metas": [
-            {
-              "block_id": {
-                "hash": "",
-                "parts": {
-                  "total": 0,
-                  "hash": ""
-                }
-              },
-              "header": {
-                "version": {
-                  "block": 0,
-                  "app": 0
-                },
-                "chain_id": "",
-                "height": 0,
-                "time": "0001-01-01T00:00:00Z",
-                "num_txs": 0,
-                "total_txs": 0,
-                "last_block_id": {
-                  "hash": "",
-                  "parts": {
-                    "total": 0,
-                    "hash": ""
-                  }
-                },
-                "last_commit_hash": "",
-                "data_hash": "",
-                "validators_hash": "",
-                "next_validators_hash": "",
-                "consensus_hash": "",
-                "app_hash": "",
-                "last_results_hash": "",
-                "evidence_hash": "",
-                "proposer_address": ""
-              }
-            }
-          ]
-        }
-```
-
-
-
----
-## ChaosBlockDateRange
-
-### `GET /chaos/daterange/:first/:last`
-
-_Returns a sequence of block metadata starting at first date and ending at last date_
-
-
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- first | Path | Timestamp (ISO 3339) at which to begin (inclusive) retrieval of blocks. | string
- last | Path | Timestamp (ISO 3339) at which to end (exclusive) retrieval of blocks. | string
- noempty | Query | Set to nonblank value to exclude empty blocks | string
- pageindex | Query | The 0-based page index to get; default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "last_height": 12345,
-          "block_metas": [
-            {
-              "block_id": {
-                "hash": "",
-                "parts": {
-                  "total": 0,
-                  "hash": ""
-                }
-              },
-              "header": {
-                "version": {
-                  "block": 0,
-                  "app": 0
-                },
-                "chain_id": "",
-                "height": 0,
-                "time": "0001-01-01T00:00:00Z",
-                "num_txs": 0,
-                "total_txs": 0,
-                "last_block_id": {
-                  "hash": "",
-                  "parts": {
-                    "total": 0,
-                    "hash": ""
-                  }
-                },
-                "last_commit_hash": "",
-                "data_hash": "",
-                "validators_hash": "",
-                "next_validators_hash": "",
-                "consensus_hash": "",
-                "app_hash": "",
-                "last_results_hash": "",
-                "evidence_hash": "",
-                "proposer_address": ""
-              }
-            }
-          ]
-        }
-```
-
-
-
----
-## ChaosHistory
-
-### `GET /chaos/history/:namespace/:key`
-
-_Returns the history of changes to a value of a single chaos chain variable._
-
-The history includes the block height and the value of each change to the variable.
-The result is sorted chronologically.
-Namespace and key must be URL query-escaped
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
- key | Path | Base-64 (std) name of the variable. | string
- pageindex | Query | The 0-based page index to get. Use negative page numbers for getting pages from the end (later in time); default=0 | int
- pagesize | Query | The number of items to return per page. Use a positive page size, or 0 for getting max results (ignoring pageindex param); default=0, max=100 | int
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "History": [
-            {
-              "Height": 12345,
-              "Value": "dmFsdWU="
-            }
-          ]
-        }
-```
-
-
-
----
-## ChaosNamespaceAll
-
-### `GET /chaos/value/:namespace/all`
-
-_Returns the names and current values of all currently-defined variables in a given namespace on the chaos chain._
-
-Namespace must be URL query-escaped
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        ""
-```
-
-
-
----
-## ChaosNamespaceKey
-
-### `GET /chaos/value/:namespace/:key`
-
-_Returns the current value of a single namespaced variable from the chaos chain._
-
-Namespace and key must be URL query-escaped
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- namespace | Path | Base-64 (std) text of the namespace, url-encoded. | string
- key | Path | Base-64 (std) name of the variable. | string
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        ""
 ```
 
 
@@ -1235,7 +1031,7 @@ _**Writes:**_
 
 ### `GET /node/health`
 
-_Returns the health of the current ndau node and chaos node._
+_Returns the health of the current node by doing a simple test for connectivity and response._
 
 
 
@@ -1250,9 +1046,6 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "Chaos": {
-            "Status": ""
-          },
           "Ndau": {
             "Status": ""
           }
@@ -1422,20 +1215,13 @@ _**Produces:**_ `[application/json]`
 
 
 ---
-## OrderHash
+## DEPRECATEDOrderCurrent
 
-### `GET /order/hash/:ndauhash`
+### `GET /order/current`
 
-_Returns the collection of data from the order chain as of a specific ndau blockhash._
-
-
+_This is an obsolete format. Please use /price/current instead._
 
 
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- ndauhash | Path | Hash from the ndau chain. | string
 
 
 
@@ -1447,15 +1233,7 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```
-        {
-          "marketPrice": 0,
-          "targetPrice": 0,
-          "floorPrice": 0,
-          "totalIssued": 0,
-          "totalNdau": 0,
-          "sib": 0,
-          "priceUnit": ""
-        }
+        null
 ```
 
 
@@ -1463,9 +1241,9 @@ _**Writes:**_
 ---
 ## OrderHeight
 
-### `GET /order/height/:ndauheight`
+### `GET /price/height/:height`
 
-_Returns the collection of data from the order chain as of a specific ndau block height._
+_Returns the collection of price data as of a specific ndau block height._
 
 
 
@@ -1474,7 +1252,7 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- ndauheight | Path | Height from the ndau chain. | int
+ height | Path | Height from the ndau chain. | int
 
 
 
@@ -1492,8 +1270,8 @@ _**Writes:**_
           "floorPrice": 0,
           "totalIssued": 0,
           "totalNdau": 0,
-          "sib": 0,
-          "priceUnit": ""
+          "totalSIB": 0,
+          "sib": 0
         }
 ```
 
@@ -1502,7 +1280,7 @@ _**Writes:**_
 ---
 ## OrderHistory
 
-### `GET /order/history`
+### `GET /price/history`
 
 _Returns an array of data from the order chain at periodic intervals over time, sorted chronologically._
 
@@ -1534,18 +1312,19 @@ _**Writes:**_
 
 
 ---
-## OrderCurrent
+## PriceInfo
 
-### `GET /order/current`
+### `GET /price/current`
 
-_Returns current order chain data for key parameters._
+_Returns current price data for key parameters._
 
-Returns current order chain information for 5 parameters:
+Returns current price information:
 * Market price
 * Target price
-* Floor price
-* Total ndau sold from the endowment
+* Total ndau issued from the endowment
 * Total ndau in circulation
+* Total SIB burned
+* Current SIB in effect
 
 
 
@@ -1559,13 +1338,13 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "marketPrice": 16.85,
-          "targetPrice": 17,
-          "floorPrice": 2.57,
+          "marketPrice": 1234000000000,
+          "targetPrice": 5678000000000,
+          "floorPrice": 0,
           "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
-          "sib": 0,
-          "priceUnit": "USD"
+          "totalSIB": 12300000000,
+          "sib": 9876543210
         }
 ```
 
@@ -1620,24 +1399,20 @@ _**Writes:**_
 
 
 ---
-## SystemHistoryKey
+## SysvarGet
 
-### `GET /system/history/:key`
+### `GET /system/get/:sysvars`
 
-_Returns the history of changes to a value of a system variable._
+_Return the names and current values of some currently definted system variables._
 
-The history includes the timestamp, new value, and transaction ID of each change to the value.
-The result is reverse sorted chronologically from the current time, and supports paging by time.
-Key must be URL query-escaped.
+
 
 
 _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- key | Path | Name of the system variable. | string
- limit | Query | Maximum number of values to return; default=10. | string
- before | Query | Timestamp (ISO 8601) to start looking backwards; default=now. | string
+ sysvars | Path | A comma-separated list of system variables of interest. | string
 
 
 
@@ -1649,19 +1424,74 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```
-        {}
+        ""
 ```
 
 
 
 ---
-## TransactionByHash
+## SysvarSet
 
-### `GET /transaction/:txhash`
+### `POST /system/set/:sysvar`
 
-_Returns a transaction from the blockchain given its tx hash._
+_Returns a transaction which sets a system variable._
 
-Transaction hash must be URL query-escaped
+The body of the request accepts JSON and heuristically transforms
+it into the data format used internally on the blockchain. Do not use any sort
+of wrapping object. The correct structure of the object to send depends on
+the system variable in question.
+
+Returns the JSON encoding of a SetSysvar transaction. It is the caller's
+responsibility to update this transaction with appropriate sequence and
+signatures and then send it at the normal endpoint (/tx/submit/setsysvar).
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ sysvar | Path | The name of the system variable to return | string
+
+
+
+
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        null
+```
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        ""
+```
+
+
+
+---
+## SysvarHistory
+
+### `GET /system/history/:sysvar`
+
+_Returns the value history of a system variable given its name._
+
+The history includes the height and value of each change to the system variable.
+The result is sorted chronologically.
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ sysvar | Path | The name of the system variable for which to return history | string
+ after | Query | The block height after which results should start. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -1674,6 +1504,105 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
+          "history": [
+            {
+              "height": 12345,
+              "value": "VmFsdWU="
+            }
+          ]
+        }
+```
+
+
+
+---
+## AccountEAIRate
+
+### `POST /system/eai/rate`
+
+_Returns eai rates for a collection of account information._
+
+Accepts an array of rate requests that includes an address
+field; this field may be any string (the account information is not
+checked). It returns an array of rate responses, which includes
+the address passed so that responses may be correctly correlated
+to the input.
+
+It accepts a timestamp, which will be used to adjust WAA in the
+event the account is locked and has a non-nil "unlocksOn" value.
+If the timestamp field is omitted, the current time is used.
+
+EAIRate in the response is an integer equal to the fractional EAI
+rate times 10^12.
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ body | Body |  | []routes.EAIRateRequest
+
+
+
+
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        [
+          {
+            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+            "weightedAverageAge": "3m",
+            "lock": {
+              "noticePeriod": "6m",
+              "unlocksOn": null,
+              "bonus": 20000000000
+            },
+            "at": "2018-07-10T20:01:02Z"
+          }
+        ]
+```
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        [
+          {
+            "address": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+            "eairate": 60000000000
+          }
+        ]
+```
+
+
+
+---
+## TransactionByHash
+
+### `GET /transaction/:txhash`
+
+_Returns a transaction from the blockchain given its tx hash._
+
+
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "BlockHeight": 1234,
+          "TxOffset": 3,
           "Tx": null
         }
 ```
@@ -1719,8 +1648,12 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "fee_napu": 10,
-          "err": "only set if an error occurred"
+          "fee_napu": 100,
+          "sib_napu": 10,
+          "err": "Err and ErrCode are only set if an error occurred",
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
@@ -1733,7 +1666,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: ChangeSettlementPeriod, ChangeValidation, ClaimAccount, ClaimNodeReward, CommandValidatorChange, CreditEAI, Delegate, Issue, Lock, NominateNodeReward, Notify, RegisterNode, ReleaseFromEndowment, SetRewardsDestination, SidechainTx, Stake, Transfer, TransferAndLock, UnregisterNode, Unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
@@ -1765,7 +1698,9 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "hash": "123abc34099f"
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
@@ -1791,10 +1726,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "ChaosVersion": "",
-          "ChaosSha": "",
           "NdauVersion": "v1.2.3",
-          "NdauSha": "3123abc35",
-          "Network": "ndau mainnet"
+          "NdauSha": "23abc35",
+          "Network": "mainnet"
         }
 ```
