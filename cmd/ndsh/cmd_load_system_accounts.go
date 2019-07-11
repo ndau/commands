@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// LoadSystemAccounts claims an account, assigning its first validation keys and script
+// LoadSystemAccounts loads the accounts described in system_accts.toml
 type LoadSystemAccounts struct{}
 
 var _ Command = (*LoadSystemAccounts)(nil)

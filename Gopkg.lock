@@ -443,7 +443,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
+  digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -452,16 +452,16 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "fea8d877ccab510bda10c241bd7178a311d9e6d5"
-  version = "v1.1.1"
+  revision = "b42e321d3466d0ddfd338b71a339e685984f0ad9"
+  version = "v1.2.0"
 
 [[projects]]
-  digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
+  digest = "1:99c192bda9d5db7282d2ef1307610343d882baa134f83a1e9dc8dcfeaf114c01"
   name = "github.com/oneiro-ndev/json2msgp"
   packages = ["."]
   pruneopts = ""
-  revision = "715e97525b6d5bfcaf83127e1de6680a6a030b6d"
-  version = "v1.0.0"
+  revision = "5730c7aee812bc158707c1529ae68bd04f6bb617"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "eas-commands-296"
@@ -558,7 +558,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:5fb95ade1713af4bdc5a5892d16e1630758d8d4eff5717c55c51bc1f258be97c"
+  digest = "1:22fe963b4e5495edf74d8cc82f56a506c8c577b26a44ecf4b67fea43e6b19fc4"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -566,8 +566,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "ab1df02c3bb645f9e0470891e984adf257b46fb4"
-  version = "v1.2.3"
+  revision = "5605219bad1732a31f1a9e3f0cd44bb8b70fc98d"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "eas-commands-296"
