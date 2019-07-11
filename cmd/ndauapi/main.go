@@ -103,8 +103,8 @@ func main() {
 		AllowCredentials: false,
 		// Only the basic methods are implemented to date.
 		AllowedMethods: []string{"GET", "POST"},
-		// Enable Debugging for testing, consider disabling in production
-		Debug: true,
+		// Enable Debugging for testing, disabled in production
+		Debug: false,
 	})
 
 	handler := c.Handler(logmux)
