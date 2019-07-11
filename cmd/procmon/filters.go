@@ -72,6 +72,8 @@ func newFilter(taskName string) io.Writer {
 	if interpreter != nil {
 		interpreters = append(interpreters, interpreter)
 	}
+	// Putting this one after the first interpreter will prevent tasks from overriding the values
+	// of the required fields, but we don't expect to ever want to for "node_id" and "task".
 	interpreters = append(interpreters, &filter.RequiredFieldsInterpreter{
 		// The "bin" field is added automatically by o11y and will be "procmon" for all tasks.
 		Defaults: map[string]interface{}{
