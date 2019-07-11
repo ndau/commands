@@ -12,10 +12,23 @@ WORKDIR ${DIR}
 COPY ./deploy/known_hosts /root/.ssh/known_hosts
 
 # Install git and configure it to use ssh, not https.
-# install go dep
-RUN apk add --no-cache openssh-client git && \
+# Install go dep.
+# Install python, pip and other tools for integration tests.
+RUN apk add --no-cache openssh-client git bash && \
     go get -u github.com/golang/dep/cmd/dep && \
-    go install github.com/golang/dep/cmd/dep
+    go install github.com/golang/dep/cmd/dep && \
+    apk -Uuv add groff less py-pip && \
+    pip install awscli && \
+    apk add jq && \
+    apk add curl && \
+    apk add --no-cache python3 && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    pip3 install pytest pipenv && \
+    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi && \
+    if [ ! -e /usr/bin/python ]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
+    rm -r /root/.cache
 
 # Copy the source files and dep files into the container.
 COPY ./Gopkg.lock ${DIR}/Gopkg.lock
@@ -25,6 +38,7 @@ COPY ./cmd ${DIR}/cmd
 # Copy test script and build script, but do not run it right now.
 COPY ./deploy/test.sh /root/test.sh
 COPY ./deploy/build.sh /root/build.sh
+COPY ./deploy/integration.sh /root/integration.sh
 
 # Configure git to use ssh instead of https
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"

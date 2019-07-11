@@ -3,40 +3,55 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 IMAGE_BASE_URL="https://s3.amazonaws.com/ndau-images"
-SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_API_PORT=3030
 LOG_FORMAT=json
 LOG_LEVEL=info
+GENERATED_GENESIS_SNAPSHOT="*"
+
+# Leave this blank/unset to disable periodic snapshot creation.
+# Set to "4h", for example, to generate a snapshot every 4 hours.
+# Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
+# must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
+#SNAPSHOT_INTERVAL="4h"
+#AWS_ACCESS_KEY_ID=""
+#AWS_SECRET_ACCESS_KEY=""
 
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
    [ -z "$5" ]
-   # $6 $7 and $8 are optional and "" can be used for them.
+   # $6 through $9 are optional and "" can be used for any of them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
-         "CONTAINER P2P_PORT RPC_PORT API_PORT SNAPSHOT [IDENTITY] [PEERS_P2P] [PEERS_RPC]"
+         "NETWORK CONTAINER P2P_PORT RPC_PORT API_PORT" \
+         "[IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC]"
     echo
     echo "Arguments:"
+    echo "  NETWORK    Which network to join: localnet, devnet, testnet, mainnet"
     echo "  CONTAINER  Name to give to the container to run"
     echo "  P2P_PORT   External port to map to the internal P2P port for the blockchain"
     echo "  RPC_PORT   External port to map to the internal RPC port for the blockchain"
     echo "  API_PORT   External port to map to the internal ndau API port"
-    echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
     echo
     echo "Optional:"
     echo "  IDENTITY   node-identity.tgz file from a previous snaphot or initial container run"
     echo "             If present, the node will use it to configure itself when [re]starting"
     echo "             If missing, the node will generate a new identity for itself"
+    echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
+    echo "               If omitted, the latest $NETWORK snapshot will be used"
+    echo "               If it's a file, it will be used instead of pulling one from S3"
+    echo "               If it's $GENERATED_GENESIS_SNAPSHOT, genesis data is generated"
     echo "  PEERS_P2P  Comma-separated list of persistent peers on the network to join"
     echo "               Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
+    echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
     echo "  PEERS_RPC  Comma-separated list of the same peers for RPC connections"
     echo "               Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
+    echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
     echo
     echo "Environment variables:"
     echo "  BASE64_NODE_IDENTITY"
@@ -44,19 +59,28 @@ then
     echo "             The contents of the variable are a base64 encoded tarball containing:"
     echo "               - tendermint/config/priv_validator_key.json"
     echo "               - tendermint/config/node_id.json"
-    echo "  NDAU_NETWORK"
-    echo "             Set to override the PEERS_P2P and PEERS_RPC parameters"
-    echo "             Supported networks: devnet, testnet, mainnet"
     exit 1
 fi
-CONTAINER="$1"
-P2P_PORT="$2"
-RPC_PORT="$3"
-API_PORT="$4"
-SNAPSHOT="$5"
+NETWORK="$1"
+CONTAINER="$2"
+P2P_PORT="$3"
+RPC_PORT="$4"
+API_PORT="$5"
 IDENTITY="$6"
-PEERS_P2P="$7"
-PEERS_RPC="$8"
+SNAPSHOT="$7"
+PEERS_P2P="$8"
+PEERS_RPC="$9"
+
+if [ "$NETWORK" != "localnet" ] && \
+   [ "$NETWORK" != "devnet" ] && \
+   [ "$NETWORK" != "testnet" ] && \
+   [ "$NETWORK" != "mainnet" ]; then
+    echo "Unsupported network: $NETWORK"
+    echo "Supported networks: localnet, devnet, testnet, mainnet"
+    exit 1
+fi
+
+echo "Network: $NETWORK"
 
 # Validate container name (can't have slashes).
 if [[ "$CONTAINER" == *"/"* ]]; then
@@ -85,12 +109,28 @@ echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "API port: $API_PORT"
 
+if [ -z "$SNAPSHOT" ]; then
+    echo "Snapshot: (latest)"
+elif [ "$SNAPSHOT" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
+    echo "Snapshot: (generated)"
+else
+    echo "Snapshot: $SNAPSHOT"
+fi
+
+# The timeout flag on linux differs from mac.
+if [[ "$OSTYPE" == *"darwin"* ]]; then
+    # Use -G on macOS; there is no -G option on linux.
+    NC_TIMEOUT_FLAG="-G"
+else
+    # Use -w on linux; the -w option does not work on macOS.
+    NC_TIMEOUT_FLAG="-w"
+fi
+
 test_local_port() {
     port="$1"
 
-    $(nc -G 1 -z localhost "$port" 2>/dev/null)
-    if [ "$?" = 0 ]; then
-        echo "Port at $ip:$port is already in use"
+    if nc "$NC_TIMEOUT_FLAG" 5 -z localhost "$port" 2>/dev/null; then
+        echo "Port $port is already in use"
         exit 1
     fi
 }
@@ -109,8 +149,7 @@ test_peer() {
     fi
 
     echo "Testing connection to peer $ip:$port..."
-    $(nc -G 5 -z "$ip" "$port")
-    if [ "$?" != 0 ]; then
+    if ! nc "$NC_TIMEOUT_FLAG" 5 -z "$ip" "$port"; then
         echo "Could not reach peer"
         exit 1
     fi
@@ -139,16 +178,17 @@ get_peer_id() {
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
 join_by() { local IFS="$1"; shift; echo "$*"; }
 
-# If the ndau network environment variable is set, override the peers.
-if [ ! -z "$NDAU_NETWORK" ]; then
+# If no peers were given, we can get them automatically for non-localnet networks.
+# When running a localnet, the first peer can start w/o knowing any other peers.
+if [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ] && [ "$NETWORK" != "localnet" ]; then
     echo "Fetching $SERVICES_URL..."
     services_json=$(curl -s "$SERVICES_URL")
-    p2ps=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].p2p))
-    rpcs=($(echo "$services_json" | jq -r .networks.$NDAU_NETWORK.nodes[].rpc))
+    p2ps=($(echo "$services_json" | jq -r .networks.$NETWORK.nodes[].p2p))
+    rpcs=($(echo "$services_json" | jq -r .networks.$NETWORK.nodes[].rpc))
 
     len="${#rpcs[@]}"
     if [ "$len" = 0 ]; then
-        echo "No nodes published for network: $NDAU_NETWORK"
+        echo "No nodes published for network: $NETWORK"
         exit 1
     fi
 
@@ -195,46 +235,48 @@ fi
 PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
 echo "Persistent peers: '$PERSISTENT_PEERS'"
 
-echo "Snapshot: $SNAPSHOT"
-
 # Stop the container if it's running.  We can't run or restart it otherwise.
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
-# If the image isn't present, fetch the latest from S3.
-NDAU_IMAGE_NAME=ndauimage
-if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
-    echo "Unable to find $NDAU_IMAGE_NAME locally; fetching latest..."
-
-    DOCKER_DIR="$SCRIPT_DIR/.."
+# If the image isn't present, fetch the "current" image from S3 for the given network.
+if [ "$NETWORK" = "localnet" ] || [ "$USE_LOCAL_IMAGE" = 1 ]; then
+    NDAU_IMAGE_NAME="ndauimage:latest"
+else
     NDAU_IMAGES_SUBDIR="ndau-images"
-    NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
+    NDAU_IMAGES_DIR="$SCRIPT_DIR/../$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
-    VERSION_FILE="latest.txt"
-    VERSION_PATH="$NDAU_IMAGES_DIR/$VERSION_FILE"
-    echo "Fetching $VERSION_FILE..."
-    curl -o "$VERSION_PATH" "$IMAGE_BASE_URL/$VERSION_FILE"
-    if [ ! -f "$VERSION_PATH" ]; then
-        echo "Unable to fetch $IMAGE_BASE_URL/$VERSION_FILE"
+    CURRENT_FILE="current-$NETWORK.txt"
+    CURRENT_PATH="$NDAU_IMAGES_DIR/$CURRENT_FILE"
+    echo "Fetching $CURRENT_FILE..."
+    curl -o "$CURRENT_PATH" "$IMAGE_BASE_URL/$CURRENT_FILE"
+    if [ ! -f "$CURRENT_PATH" ]; then
+        echo "Unable to fetch $IMAGE_BASE_URL/$CURRENT_FILE"
         exit 1
     fi
+    SHA=$(cat $CURRENT_PATH)
+    NDAU_IMAGE_NAME="ndauimage:$SHA"
 
-    IMAGE_NAME=$(cat $VERSION_PATH)
-    IMAGE_ZIP="$IMAGE_NAME.docker.gz"
-    IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
-    echo "Fetching $IMAGE_ZIP..."
-    curl -o "$IMAGE_PATH.gz" "$IMAGE_BASE_URL/$IMAGE_ZIP"
-    if [ ! -f "$IMAGE_PATH.gz" ]; then
-        echo "Unable to fetch $IMAGE_BASE_URL/$IMAGE_ZIP"
-        exit 1
-    fi
-
-    echo "Loading $NDAU_IMAGE_NAME..."
-    gunzip -f "$IMAGE_PATH.gz"
-    docker load -i "$IMAGE_PATH"
     if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
-        echo "Unable to load $NDAU_IMAGE_NAME"
-        exit 1
+        echo "Unable to find $NDAU_IMAGE_NAME locally; fetching..."
+
+        IMAGE_NAME="ndauimage-$SHA"
+        IMAGE_ZIP="$IMAGE_NAME.docker.gz"
+        IMAGE_PATH="$NDAU_IMAGES_DIR/$IMAGE_NAME.docker"
+        echo "Fetching $IMAGE_ZIP..."
+        curl -o "$IMAGE_PATH.gz" "$IMAGE_BASE_URL/$IMAGE_ZIP"
+        if [ ! -f "$IMAGE_PATH.gz" ]; then
+            echo "Unable to fetch $IMAGE_BASE_URL/$IMAGE_ZIP"
+            exit 1
+        fi
+
+        echo "Loading $NDAU_IMAGE_NAME..."
+        gunzip -f "$IMAGE_PATH.gz"
+        docker load -i "$IMAGE_PATH"
+        if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
+            echo "Unable to load $NDAU_IMAGE_NAME"
+            exit 1
+        fi
     fi
 fi
 
@@ -247,16 +289,20 @@ docker create \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
        -p "$API_PORT":"$INTERNAL_API_PORT" \
        --name "$CONTAINER" \
+       -e "NETWORK=$NETWORK" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
+       -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
+       -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
+       -e "SNAPSHOT_INTERVAL=$SNAPSHOT_INTERVAL" \
        -e "LOG_FORMAT=$LOG_FORMAT" \
        -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
-       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
+       -e "SNAPSHOT_NAME=$SNAPSHOT" \
        --sysctl net.core.somaxconn=511 \
-       ndauimage
+       $NDAU_IMAGE_NAME
 
 IDENTITY_FILE="node-identity.tgz"
 # Copy the identity file into the container if one was specified,
@@ -264,6 +310,12 @@ IDENTITY_FILE="node-identity.tgz"
 if [ ! -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo "Copying node identity file to container..."
     docker cp "$IDENTITY" "$CONTAINER:/image/$IDENTITY_FILE"
+fi
+
+# Copy the snapshot into the container if it exists as a local file.
+if [ -f "$SNAPSHOT" ]; then
+    echo "Copying local snapshot file to container..."
+    docker cp "$SNAPSHOT" "$CONTAINER:/image/snapshot-$NETWORK-0.tgz"
 fi
 
 echo "Starting container..."
@@ -274,6 +326,11 @@ until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
 do
     :
 done
+
+echo "Node is ready; dumping container logs..."
+echo "["
+docker container logs "$CONTAINER"
+echo "]"
 
 # In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.

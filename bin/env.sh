@@ -21,9 +21,6 @@ export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 export NDAUAPI_PORT=3030
 
-# We programmatically create and claim the bpc account on localnet.  This is its name.
-export BPC_OPS_ACCT_NAME=bpc-operations
-
 # Go source path.
 GO_DIR=$(go env GOPATH)
 if [[ "$GO_DIR" == *":"* ]]; then
@@ -65,6 +62,7 @@ export GENERATE_CMD=cmd/generate
 export NDAU_CMD=cmd/ndau
 export NDAUAPI_CMD=cmd/ndauapi
 export NDAUNODE_CMD=cmd/ndaunode
+export NDSH_CMD=cmd/ndsh
 export NOMS_CMD=cmd/noms
 export TENDERMINT_CMD=cmd/tendermint
 export ETL_CMD=cmd/etl
@@ -87,8 +85,8 @@ if [ -f "$CHAIN_ID_FILE" ]; then
     export CHAIN_ID=$(cat "$CHAIN_ID_FILE")
 fi
 
-# File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
-export NEEDS_UPDATE_FLAG_FILE="$ROOT_DATA_DIR"/needs_update
+# Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
+join_by() { local IFS="$1"; shift; echo "$*"; }
 
 # Common steps to be done prior to linking for building or testing.
 prepare_for_linking() {

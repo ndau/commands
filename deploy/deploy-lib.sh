@@ -28,27 +28,23 @@ check_empty() {
 
 
 # looks up and returns a number for a network
-# This is used to determine the network digit of a port assignment.
 get_network_number() {
   case "$1" in
     devnet) echo 0
-        ;;
-    testnet) echo 1
         ;;
     *) err "Network name: $1. Not recognized."
         ;;
   esac
 }
 
-# looks up and returns a number for a service
-# This is used to determine the service digit of a port assignment.
-get_service_number() {
+# looks up and returns a port for a service
+get_service_port() {
   case "$1" in
-    rpc) echo 1
+    rpc) echo 26670
         ;;
-    p2p) echo 2
+    p2p) echo 26660
         ;;
-    ndauapi) echo 3
+    ndauapi) echo 3030
         ;;
     *) err "service name: $1. Not recognized."
         ;;
@@ -57,10 +53,8 @@ get_service_number() {
 
 # calculates the port based on a formula
 calc_port() {
-  local network_name=$1
-  local service_name=$2
-  local network_number=$(get_network_number $network_name)
-  local service_number=$(get_service_number $service_name)
-  local node_number=$3
-  echo $((BASE_PORT + (1000*network_number) + (100*service_number) + node_number))
+  local service_name=$1
+  local service_port=$(get_service_port $service_name)
+  local node_number=$2
+  echo $((service_port + node_number))
 }

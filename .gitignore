@@ -27,6 +27,7 @@ DashData*
 
 # docker
 docker/ndau-images
+docker/ndau-snapshots
 
 # osx chaff
 .DS_Store
@@ -86,3 +87,5 @@ procmon
 !*/procmon
 verify
 !*/verify
+ndsh
+!*/ndsh

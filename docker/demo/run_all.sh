@@ -9,3 +9,4 @@ cd "$SCRIPT_DIR" || exit 1
 ./run2.sh
 ./run3.sh
 ./run4.sh
+./run5.sh

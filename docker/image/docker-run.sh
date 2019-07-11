@@ -59,14 +59,25 @@ on_sigterm() {
     exit 143;
 }
 
-# Kill the last background process (`tail -f /dev/null`) then execute the specified handler.
-trap 'kill ${!}; on_sigterm' SIGTERM
+# Execute the specified handler when SIGTERM is received.
+trap 'on_sigterm' SIGTERM
 
 # Block until the entire node group is running.  Do this by checking the last task (ndauapi) port.
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
     :
+done
+
+# Block until we have a block height of at least 1.
+# Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
+while :
+do
+    response=$(curl -s http://localhost:$NDAUAPI_PORT/block/height/1)
+    if [ ! -z "$response" ] && [[ "$response" != *"could not get block"* ]]; then
+        break
+    fi
+    sleep 1
 done
 
 # Now that we know all data files are in place and the node group is running,
@@ -86,8 +97,6 @@ touch "$RUNNING_FILE"
 
 echo "Node group $NODE_ID is now running"
 
-# Wait forever to keep the container alive.
-while true
-do
-    tail -f /dev/null & wait ${!}
-done
+# Keep the container alive for as long as procmon is alive.  We want the container to stop
+# running if procmon dies for any reason.  One use case is for handling the schema change tx.
+wait "$procmon_pid"

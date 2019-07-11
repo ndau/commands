@@ -1,7 +1,8 @@
 version: 2.1
 aws_defaults: &aws_defaults
-  AWS_DEFAULT_REGION: us-east-1
-  ECR_ENDPOINT: 578681496768.dkr.ecr.us-east-1.amazonaws.com
+  AWS_ACCOUNT: "578681496768"
+  ECR_REGION: "us-east-1"
+  ECS_REGION: "us-west-1"
 
 commands:
   notify:
@@ -61,13 +62,27 @@ commands:
           command: |
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
-            #
-            docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
+            docker save -o "/opt/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
           key: << parameters.key >>
           paths:
             - /opt/docker-cache
+
+  restore_image:
+    description: "Restores a docker image from the cache"
+    parameters:
+      img_name:
+        type: string
+      key:
+        type: string
+    steps:
+      - restore_cache:
+          key: << parameters.key >>
+      - run:
+          name: load docker image from cache
+          command: |
+            docker load -i "/opt/docker-cache/<< parameters.img_name >>.docker"
 
   setup:
     description: "These steps should be run before any real ci/cd actions"
@@ -80,7 +95,7 @@ commands:
           docker_layer_caching: false
       - run:
           name: AWS ECR Login
-          command: eval $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+          command: eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
 
       - run:
           name: Checkout code
@@ -124,7 +139,7 @@ commands:
 
             # configure ecs
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
-            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_DEFAULT_REGION" --config-name "$CLUSTER_NAME"
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$ECS_REGION" --config-name "$CLUSTER_NAME"
       - run:
           name: Download node identities
           command: |
@@ -177,93 +192,86 @@ workflows:
             branches:
               only: /^master$/
       - test:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
       - build:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
-      - push:
+      - build-image:
           requires:
             - test
             - build
-          filters:
-            branches:
-              only: /^master$/
+      - catchup:
+          requires:
+            - build-image
+      - integration:
+          requires:
+            - build-image
+      - push:
+          requires:
+            # Unlike tagged builds, master builds wait for tests to pass before pushing.
+            - catchup
+            - integration
       - deploy-devnet:
           requires:
             - push
-          filters:
-            branches:
-              only: /^master$/
-      - integration:
-          requires:
-            - deploy-devnet
-          filters:
-            branches:
-              only: /^master$/
   tagged-build:
     jobs:
       - build-deps:
-          filters:  # required since `push` has tag filters AND requires `test, build`
+          filters:
             tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
             branches:
               ignore: /^master$/
       - test:
-          filters:  # required since `push` has tag filters AND requires `test, build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
       - build:
-          filters:  # required since `push` has tag filters AND requires `test-build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
-      - push:
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
+      - build-image:
           requires:
             - test
             - build
-          filters:  # required since `deploy` has tag filters AND requires `push`
+          filters:
             tags:
-              only: /.*-push$|.*-deploy$/
+              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
             branches:
+              # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
+      - catchup:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-jobs_.*?(catchup).*/
+      - integration:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-jobs_.*?(integration).*/
+      - push:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-jobs_.*?(push|deploy).*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
-              only: /.*-deploy$/
-      - deploy-testnet:
-          filters:
-            tags:
-              only: /.*-testnet$/
-            branches:
-              ignore: /.*/
-      - deploy-mainnet:
-          filters:
-            tags:
-              only: /.*-mainnet$/
-            branches:
-              ignore: /.*/
-      - integration:
-          requires:
-            - deploy-devnet
-          filters:
-            tags:
-              only: /.*-deploy$/
+              only: /.*-jobs_.*?(deploy).*/
 
 general_config: &general_config
     working_directory: /commands
@@ -273,37 +281,71 @@ general_config: &general_config
         shell: /bin/bash
         <<: *aws_defaults
         NDAUHOME: /root/.ndau
-        NETWORK_NAME: "devnet" # used for snapshots
-        PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:30200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:30201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:30202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:30203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:30204
-        CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
-
-testnet_config: &testnet_config
-    working_directory: /commands
-    docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.11
-    environment:
-        shell: /bin/bash
-        <<: *aws_defaults
-        NETWORK_NAME: "testnet" # used for snapshots
-        PERSISTENT_PEERS: 81ce8ead16c3424e46fd4fa162482ba783a333ce@p2p.ndau.tech:31200,12f375c1216dc4e64cb5560cc0f4e8a0ddc560ce@p2p.ndau.tech:31201,95ad9834ad1bee57df601b4c63660735a2400eb6@p2p.ndau.tech:31202,f3143a8eb17e0fe6b67e8d9048678dca4e57c3a3@p2p.ndau.tech:31203,eb9870620c46cd3608b875a5daa6c64380b44aaf@p2p.ndau.tech:31204
-        CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-47.tgz
-
-mainnet_config: &mainnet_config
-    working_directory: /commands
-    docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.11
-    environment:
-        shell: /bin/bash
-        <<: *aws_defaults
-        # nodes will be accessible from their release name combined with a number
-        # and the subdomain of the ELB. (e.g. node-0.main.ndau.tech)
-        S3_DEPLOY_ARCHIVE: mainnet.tgz
-        HONEYCOMB_DATASET: "mainnet"
-        NETWORK_NAME: "mainnet" # used for snapshots
+        NETWORK_NAME: devnet
+        PERSISTENT_PEERS: 88cf98107823c1ca6621a0656daeecf731870532@devnet.ndau.tech:26660,7c7a66648ca0bf152aeee0c2d358f2d9f7b18341@devnet.ndau.tech:26661,dfa5eca4f826e977379e44d19dd606c06d8f7b7c@devnet.ndau.tech:26662,595562bf12ae2ba03d522f7026d9aa653ab9707c@devnet.ndau.tech:26663,59ed8217b8ef647b7ed1439408f3de35873e65d0@devnet.ndau.tech:26664 # devnet
+        CLUSTER_NAME: devnet
 
 jobs:
+  # The stub jobs are useful to test workflows and their job filters on the circle server
+  # without having to wait for actual work done by the jobs themselves.  The beef.js script
+  # can also help with this, but it sometimes doesn't match what circle actually does.
+  build-deps-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build-deps stub
+          command: |
+            echo "build-deps stub"
+  test-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: test stub
+          command: |
+            echo "test stub"
+  build-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build stub
+          command: |
+            echo "build stub"
+  build-image-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build-image stub
+          command: |
+            echo "build-image stub"
+  catchup-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: catchup stub
+          command: |
+            echo "catchup stub"
+  push-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: push stub
+          command: |
+            echo "push stub"
+  deploy-devnet-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: deploy-devnet stub
+          command: |
+            echo "deploy-devnet stub"
+  integration-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: integration stub
+          command: |
+            echo "integration stub"
+
   build-deps:
     <<: *general_config
     steps:
@@ -321,14 +363,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Test
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
@@ -339,21 +379,19 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Build
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a build script within the deps image
             docker run \
                 -e CI=true \
                 deps \
                 /bin/sh /root/build.sh
 
-  push:
+  build-image:
     <<: *general_config
     steps:
       - setup
@@ -365,23 +403,134 @@ jobs:
             # reload saved environment variables
             source $BASH_ENV
             # build single container node image
-            ./docker/bin/buildimage.sh nosave
-            # retag built image
-            docker tag ndauimage 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
-            # push the image to ECR
-            docker push 578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:$SHA
+            if [ -z "$CIRCLE_BRANCH" ]
+            then
+              echo "CIRCLE_TAG = $CIRCLE_TAG"
+              ./docker/bin/buildimage.sh "$CIRCLE_TAG"
+            else
+              echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
+              ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
+            fi
+      - save_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
 
+  catchup:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+      - run:
+          name: test catchup on mainnet from genesis
+          command: |
+            # Run a local node connected to mainnet starting from the genesis snapshot.
+            nodename="catchup-node"
+            snapshot="snapshot-mainnet-1"
+            USE_LOCAL_IMAGE=1 \
+            ./docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+
+            echo
+
+            # Get the current height of mainnet.  We need to catch up to at least this height.
+            # Use mainnet-2 since that's in the same region as devnet.
+            status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
+            height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+            if [ -z "$height" ] || [ $height -le 0 ]; then
+              echo "Unable to get mainnet height"
+              false
+            fi
+            echo "Current mainnet height: $height"
+
+            # Catching up on mainnet will take longer and longer as the block height of mainnet
+            # increases over time.  This is known and we'll need to deal with it at some point.
+            # For now, we've agreed to wait as long as it takes.  However, it'll eventually be
+            # "too long".  Let's put a 20-minute cap on it for now.  If catchup does not complete
+            # in that amount of time, the circle job will fail and we'll be forced to deal with
+            # it in some way.  Either by accepting longer build times or by inventing a way to
+            # validate catchup compatibility another way, perhaps external to circle workflows.
+            printf "Catching up..."
+            last_h=0
+            for i in {1..120}; do
+              sleep 10
+              if ! s=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
+                # The status query is what usually fails when playback of a block fails.
+                printf " (ERROR: unable to catch up)"
+                break
+              fi
+
+              h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+              if [ -z "$h" ]; then
+                # If we didn't get a height back, something went wrong; assume failed catchup.
+                printf " (ERROR: no height)"
+                break
+              fi
+              printf " $h"
+
+              catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
+              if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
+                caught_up=1
+                printf " (caught up)"
+                break
+              fi
+
+              if [ $h -le $last_h ]; then
+                # Fail if we didn't catch up at all since the last iteration.
+                # This indicates a stall, which likely means we're failing on full catchup.
+                printf " (ERROR: stalled)"
+                break
+              fi
+
+              last_h=$h
+            done
+            printf "\n"
+
+            echo
+
+            # Stop and remove the container instance for the catchup test node.
+            ./docker/bin/removecontainer.sh "$nodename"
+
+            echo
+
+            if [ -z "$caught_up" ]; then
+              echo "Catchup failed"
+              false
+            fi
+
+            echo "Catchup complete"
+
+  push:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+      - run:
+          name: push the single container image
+          command: |
+            # reload saved environment variables
+            source $BASH_ENV
+            # upload the image to S3 for public access
+            docker tag ndauimage ndauimage:$SHA
+            docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
+            gzip -f /root/ndauimage-$SHA.docker
+            aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
+            # update the current-*.txt file for the network we're deploying to
+            # but only if we're deploying to master (e.g. don't do this for tagged pushes)
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+                echo $SHA > /root/current-$NETWORK_NAME.txt
+                aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+            fi
+            # retag built image
+            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
+            docker rmi ndauimage:$SHA
+            # push the image to ECR
+            docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
 
   deploy-devnet:
     <<: *general_config
-    steps:
-      - deploy-net
-  deploy-testnet:
-    <<: *testnet_config
-    steps:
-      - deploy-net
-  deploy-mainnet:
-    <<: *mainnet_config
     steps:
       - deploy-net
 
@@ -389,53 +538,109 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
       - run:
           name: Integration tests
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
+            # In order to get two node containers talking to each other, and to get integration
+            # tests talking to them, they must each be in their own child containers within the
+            # docker "bridge" network.  Each node is in its own container automatically, then we
+            # spin up a child deps container from which integration tests will run.
 
-            # ensure go path location
-            export GOPATH=/go
-            mkdir -p $GOPATH/bin
-            ndev_dir=$GOPATH/src/github.com/oneiro-ndev
-            mkdir -p $ndev_dir
-            cd $ndev_dir
+            # Run two local nodes.
+            # Integration tests only require one, but running two exercises p2p operations.
+            echo "Starting first node..."
+            bin_dir="/commands/docker/bin"
+            # Using "*" will cause the node to generate single validator genesis data.
+            "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
-            # install dep
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            # Get the ip of the first node.
+            ip=$(docker container inspect localnet-0 | \
+                 jq -r .[0].NetworkSettings.Networks.bridge.IPAddress)
+            echo "localnet-0 ip: $ip"
 
-            # install sed?
-            apk add sed
+            # Get the peer id of the first node.
+            id=$(docker exec localnet-0 curl -s http://localhost:26670/status | \
+                 jq -r .result.node_info.id)
+            echo "localnet-0 id: $id"
 
-            # clone integration tests and ndev dep repos
-            git clone git@github.com:oneiro-ndev/integration-tests.git
-            ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
+            # Generate the snapshot.
+            echo "Taking genesis snapshot..."
+            "$bin_dir"/snapshotcontainer.sh localnet-0
 
-            # build the ndau tool
-            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau'
-            container_id=$(docker ps -alq 2>&1)
-            docker commit "$container_id" temp:latest
-            docker run -d temp:latest /bin/sh -c 'sleep 60'
-            container_id=$(docker ps -alq 2>&1)
-            mkdir -p $ndev_dir/commands
-            docker cp $container_id:/root/ndau $ndev_dir/commands/
+            # Start the second container.  We can't use runcontainer.sh here because it tests
+            # port connectivity with peers, and localnet-0's IP isn't valid ouside of containers
+            # on the bridge network.  So we implement the meat of runcontainer.sh here:
+            echo "Starting second node..."
+            docker create \
+              --name localnet-1 \
+              -e NETWORK=localnet \
+              -e NODE_ID=localnet-1 \
+              -e PERSISTENT_PEERS="$id@$ip:26660" \
+              ndauimage
+            # The ndauimage container looks for a specially-named snapshot ending with "-0".
+            docker cp "$bin_dir"/snapshot-localnet-1.tgz localnet-1:/image/snapshot-localnet-0.tgz
+            docker start localnet-1
+            echo "Waiting for localnet-1 to fully spin up..."
+            until docker exec localnet-1 test -f /image/running 2>/dev/null
+            do
+                :
+            done
+            echo "localnet-1 is ready; dumping container logs..."
+            echo "["
+            docker container logs localnet-1
+            echo "]"
 
-            # write ndautool from bucket to a file.
-            mkdir -p $NDAUHOME/ndau
-            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
-            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$NETWORK_NAME-ndautool.toml $NDAUHOME/ndau/ndautool.toml
+            # Integration tests do not require a multi-node network, but we'd like to ensure that
+            # exercising p2p features at least.  Make sure both nodes have each other as peers.
+            echo "Checking peers..."
+            for i in {0..1}; do
+              num_peers=$(docker exec localnet-$i curl -s http://localhost:26670/net_info | \
+                 jq -r .result.n_peers)
+              if [ "$num_peers" != "1" ]; then
+                echo "ERROR: localnet-$i expected to have 1 peer but has $num_peers"
+                false
+              fi
+            done
 
-            cd integration-tests
+            # Pull down a copy of integration-tests repo.  We'll copy it into the tests container.
+            echo "Cloning integration-tests..."
+            git clone git@github.com:oneiro-ndev/integration-tests.git /integration-tests
+            cd /integration-tests
+            echo "integration-tests repo at $(git rev-parse --short HEAD)"
 
-            # sync pipenv
-            pipenv sync
+            # Create a container that integration tests can run out of.  Use the deps image.
+            echo "Creating tests container..."
+            container=tests-container
+            docker create --name "$container" --entrypoint "/root/integration.sh" -e "IP=$ip" deps
+            docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
+            docker cp /system_accounts.toml "$container":/system_accounts.toml
+            docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \
+                      /priv_validator_key.json
+            docker cp /priv_validator_key.json "$container":/priv_validator_key.json
+            docker cp /integration-tests "$container":/integration-tests
 
-            # run tests
-            NODE_ADDRESS=https://api.ndau.tech \
-            NODE_0_RPC=30100 \
-            NODE_1_RPC=30101 \
-              pipenv run pytest -v --net=devnet --ndauapi=https://api.ndau.tech:30300
+            # Run the tests.
+            echo "Running tests..."
+            docker start "$container"
+
+            # Dump this in case it's useful for debugging container problems later.
+            echo "Inspecting bridge network..."
+            docker network inspect bridge
+
+            # This serves as a "docker wait" that dumps integration-test output to circle.
+            docker container logs --follow "$container"
+
+            # Fail the circle job if the container exited with a non-zero exit code.
+            exitcode=$(docker inspect $container --format={{.State.ExitCode}})
+            if [ "$exitcode" != "0" ]; then
+              echo "Integration failed ($exitcode)"
+              false
+            fi
+
+            echo "Integration complete"

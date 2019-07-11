@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	meta "github.com/oneiro-ndev/metanode/pkg/meta/app"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/config"
 	"github.com/oneiro-ndev/ndau/pkg/version"
@@ -109,21 +110,18 @@ func main() {
 		os.Exit(0)
 	}
 
-	app, err := ndau.NewApp(getDbSpec(), getIndexAddr(), indexVersion, *conf)
-	check(err)
-
-	logger := app.GetLogger()
+	// Set up the logger before the app so that app init can log using node_id and bin fields.
+	logger := meta.NewLogger()
+	binName := "ndaunode"
 	nodeID := os.Getenv("NODE_ID")
-	if nodeID == "" {
-		// NODE_ID should be the tendermint moniker, like "node-0".  We don't know what that
-		// is now since tendermint isn't running yet, so we use a generic node name with pid.
-		nodeID = fmt.Sprintf("node-pid-%d", os.Getpid())
-	}
 	logger = logger.WithFields(logrus.Fields{
-		"bin":     "ndaunode",
+		"bin":     binName,
 		"node_id": nodeID,
 	})
-	app.SetLogger(logger)
+
+	app, err := ndau.NewAppWithLogger(getDbSpec(), getIndexAddr(), indexVersion, *conf, logger)
+	check(err)
+
 	app.LogState()
 
 	server := server.NewSocketServer(*socketAddr, app)
@@ -135,13 +133,14 @@ func main() {
 	if logwriter, err := honeycomb.NewWriter(); err != nil {
 		server.SetLogger(tmlog.NewTMLogger(os.Stderr))
 		app.GetLogger().WithFields(logrus.Fields{
-			"warning":       "Unable to initialize Honeycomb for tm server",
 			"originalError": err,
-			"bin":           "ndautendermint",
-		}).Warn("InitServerLog")
+		}).Warn("Unable to initialize Honeycomb for tm server")
 		fmt.Println("Can't init server logger for tm: ", err)
 	} else {
-		server.SetLogger(tmlog.NewTMJSONLogger(logwriter))
+		l := tmlog.NewTMJSONLogger(logwriter)
+		l = l.With("bin", binName)
+		l = l.With("node_id", nodeID)
+		server.SetLogger(l)
 	}
 
 	err = server.Start()

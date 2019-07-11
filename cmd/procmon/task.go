@@ -333,6 +333,7 @@ func (t *Task) Start(parentstop chan struct{}) {
 			// go check again
 		case <-toolong.C:
 			t.Logger.Error("took too long to start up")
+			t.Kill()
 			return
 		}
 	}

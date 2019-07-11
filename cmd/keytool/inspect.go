@@ -9,15 +9,26 @@ import (
 
 func cmdInspect(cmd *cli.Cmd) {
 	cmd.Spec = fmt.Sprintf(
-		"%s",
+		"(%s | --sig=<SIGNATURE>)",
 		getKeySpec(""),
 	)
 
 	getKey := getKeyClosure(cmd, "", "key to be inspected")
+	var (
+		sigp = cmd.StringOpt("s sig", "", "signature to inspect")
+	)
 
 	cmd.Action = func() {
-		key := getKey()
+		if sigp != nil && *sigp != "" {
+			sig, err := signature.ParseSignature(*sigp)
+			check(err)
 
+			fmt.Printf("%10s: %s\n", "algorithm", signature.NameOf(sig.Algorithm()))
+			fmt.Printf("%10s: %x\n", "data", sig.Bytes())
+			return
+		}
+
+		key := getKey()
 		ktype := "public"
 		if signature.IsPrivate(key) {
 			ktype = "private"
@@ -26,6 +37,14 @@ func cmdInspect(cmd *cli.Cmd) {
 		fmt.Printf("%10s: %s\n", "type", ktype)
 		fmt.Printf("%10s: %s\n", "algorithm", signature.NameOf(key.Algorithm()))
 		fmt.Printf("%10s: %x\n", "key", key.KeyBytes())
-		fmt.Printf("%10s: %x\n", "extra", key.ExtraBytes())
+
+		extraBytes := key.ExtraBytes()
+
+		if len(extraBytes) != 0 {
+			fmt.Printf("\n%20s: %x\n", "extended key depth", extraBytes[0])
+			fmt.Printf("%20s: %x\n", "parent fingerprint", extraBytes[1:4])
+			fmt.Printf("%20s: %x\n", "child number", extraBytes[4:8])
+			fmt.Printf("%20s: %x\n", "chain code", extraBytes[8:40])
+		}
 	}
 }

@@ -8,6 +8,7 @@ RUN apk add --no-cache bash git openssh
 
 # Arguments passed via --build-arg.
 ARG SSH_PRIVATE_KEY
+ARG COMMANDS_BRANCH
 
 # Add credentials on build.
 RUN mkdir /root/.ssh/ && \
@@ -22,7 +23,7 @@ RUN touch /root/.ssh/known_hosts && \
 # TODO: Consider caching the setup results (binary executables) in a separate image.
 COPY . /image
 ENV TENDERMINT_VER=v0.31.4
-ENV COMMANDS_BRANCH=master
+ENV COMMANDS_BRANCH=${COMMANDS_BRANCH}
 RUN /image/docker-setup.sh
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
@@ -41,13 +42,15 @@ COPY --from=redis:5.0.4-alpine [ \
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
-RUN apk add --no-cache bash bind-tools ca-certificates sed && update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed \
+    && update-ca-certificates 2>/dev/null
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
 
 # Copy image support files needed for running the node group inside the container.
 COPY ./docker-conf.sh /image
+COPY ./docker-config.toml /image
 COPY ./docker-dns.sh /image
 COPY ./docker-env.sh /image
 COPY ./docker-procmon.toml /image

@@ -1,10 +1,10 @@
 [[constraint]]
 name = "github.com/oneiro-ndev/chaincode"
-version = "~v1.0"
+version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-version = "~v1.0"
+version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
@@ -12,15 +12,15 @@ version = "~v1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.3"
+version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.13"
+version = "~v1.18"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.2"
+version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"

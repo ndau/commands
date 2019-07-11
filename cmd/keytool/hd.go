@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/key"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/oneiro-ndev/ndaumath/pkg/words"
+	"github.com/pkg/errors"
 )
 
 func hdstr(k key.ExtendedKey) string {
@@ -87,6 +91,7 @@ func cmdHDAddr(cmd *cli.Cmd) {
 
 func cmdHDRaw(cmd *cli.Cmd) {
 	cmd.Command("public", "transform a raw secp256k1 public key into ndau format", cmdHDRawPublic)
+	cmd.Command("private", "transform a raw secp256k1 private key into ndau format", cmdHDRawPrivate)
 	cmd.Command("signature", "transform a raw secp256k1 signature into ndau format", cmdHDRawSig)
 }
 
@@ -99,6 +104,32 @@ func cmdHDRawPublic(cmd *cli.Cmd) {
 		data := getData()
 
 		key, err := signature.RawPublicKey(signature.Secp256k1, data, nil)
+		check(err)
+
+		data, err = key.MarshalText()
+		check(err)
+		fmt.Println(string(data))
+	}
+}
+
+func cmdHDRawPrivate(cmd *cli.Cmd) {
+	cmd.Spec = getDataSpec(true)
+
+	getData := getDataClosure(cmd, true)
+
+	cmd.Action = func() {
+		data := getData()
+
+		base := make([]byte, 32)
+		extra := make([]byte, 40)
+
+		copy(base, data[0:32])
+		if len(data) == 72 {
+			copy(extra, data[32:72])
+		}
+
+		key, err := signature.RawPrivateKey(signature.Secp256k1, base, extra)
+
 		check(err)
 
 		data, err = key.MarshalText()
@@ -121,5 +152,40 @@ func cmdHDRawSig(cmd *cli.Cmd) {
 		data, err = sig.MarshalText()
 		check(err)
 		fmt.Println(string(data))
+	}
+}
+
+func cmdHDWords(cmd *cli.Cmd) {
+	var (
+		phrasep = cmd.StringsArg("WORD", []string{}, "phrase from which to derive a root key")
+		lang    = cmd.StringOpt("l lang", "en", "language of wordlist")
+	)
+
+	cmd.Spec = "WORD... [--lang=<LANG_CODE>]"
+
+	cmd.Action = func() {
+		phrase := *phrasep
+
+		if len(phrase) != 12 {
+			fmt.Fprintf(os.Stderr, "WARN: ndau seed phrases are typically 12 words; you provided %d\n", len(phrase))
+		}
+
+		for idx := range phrase {
+			phrase[idx] = strings.ToLower(phrase[idx])
+		}
+
+		seed, err := words.ToBytes(*lang, phrase)
+		check(errors.Wrap(err, "interpreting words"))
+
+		root, err := key.NewMaster(seed)
+		check(errors.Wrap(err, "generating root key"))
+
+		nd, err := root.SPrivKey()
+		check(errors.Wrap(err, "converting to ndau fmt"))
+
+		s, err := nd.MarshalString()
+		check(errors.Wrap(err, "stringifying"))
+
+		fmt.Println(s)
 	}
 }

@@ -187,9 +187,6 @@ func setupPeriodic(root *Task, tasks Tasks) {
 func main() {
 	cfg := loadConfig()
 	logger := cfg.BuildLogger()
-	if os.Getenv("HONEYCOMB_KEY") != "" {
-		logger = honeycomb.Setup(logger)
-	}
 
 	err := cfg.RunPrologue(logger)
 	if err != nil {
@@ -203,9 +200,8 @@ func main() {
 	}
 
 	// now build a special task to act as the parent of the root tasks
-	nodeID := cfg.Env["NODE_ID"]
 	root := NewTask("root", "")
-	root.Logger = logger.WithField("node_id", nodeID)
+	root.Logger = logger
 	root.Stopped = make(chan struct{})
 	for i := range tasks.Main {
 		root.AddDependent(tasks.Main[i])
