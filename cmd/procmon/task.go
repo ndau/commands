@@ -13,7 +13,7 @@ import (
 
 // These must match the tasks defined in the procmon toml file.
 const (
-	rootTaskName       = "root"
+	rootTaskName       = "procmon"
 	redisTaskName      = "redis"
 	nomsTaskName       = "noms"
 	ndaunodeTaskName   = "ndaunode"
