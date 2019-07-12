@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"time"
 
 	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
 	"github.com/oneiro-ndev/writers/pkg/filter"
@@ -74,14 +73,11 @@ func newFilter(taskName string) io.Writer {
 		interpreters = append(interpreters, interpreter)
 	}
 	// Putting this one after the first interpreter will prevent tasks from overriding the values
-	// of the required fields, but we don't expect to ever want to for "node_id" and "bin".
+	// of the required fields, but we don't expect to ever want to for "bin" and "node_id".
 	interpreters = append(interpreters, filter.RequiredFieldsInterpreter{
-		// We don't have a logrus entry at this point.  Each task's logging winds up as json here.
-		// So we mimic some of the fields that o11y/pkg/honeycomb/honeycomb.com::Fire() adds.
 		Defaults: map[string]interface{}{
-			"bin":      taskName,
-			"node_id":  os.Getenv("NODE_ID"),
-			"log_time": time.Now(),
+			"bin":     taskName,
+			"node_id": os.Getenv("NODE_ID"),
 		},
 	})
 	interpreters = append(interpreters, filter.LastChanceInterpreter{})
@@ -92,7 +88,9 @@ func newFilter(taskName string) io.Writer {
 	outputter := func(m map[string]interface{}) {
 		p, err := json.Marshal(m)
 		if err == nil {
-			honeycombWriter.Write(p)
+			// FIXME: testing
+			os.Stdout.Write(p)
+			//honeycombWriter.Write(p)
 		}
 	}
 
