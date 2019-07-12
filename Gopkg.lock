@@ -571,7 +571,7 @@
 
 [[projects]]
   branch = "eas-commands-296"
-  digest = "1:bb8da2bd636bab860ae7e41440df761118748544693e512ce50604387b0038f7"
+  digest = "1:0cde1d98c603094af641bc3a2287e520253ff30c8621382cbd105e446037a40e"
   name = "github.com/oneiro-ndev/writers"
   packages = [
     "pkg/filter",
@@ -580,7 +580,7 @@
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "013fd70bf3240c759eba71f79910a1576839e5e6"
+  revision = "2b72c4985e7aac771fd6e10ddbcac225b5b61cb5"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
