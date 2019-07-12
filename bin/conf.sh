@@ -142,6 +142,7 @@ fi
 
 # Use this as a flag for run.sh to know whether to update ndau conf and chain with the
 # genesis files, etc.
+
 if [ "$NEEDS_UPDATE" != 0 ]; then
     for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
@@ -176,6 +177,7 @@ if [ "$NEEDS_UPDATE" != 0 ]; then
             cp -r "$NOMS_NDAU_DATA_DIR-0" "$data_dir"
         fi
     done
+
 fi
 
 if [[ "$UPDATE_DEFAULT_NDAUHOME" != "0" && -f "$SYSTEM_ACCOUNTS_TOML" ]]; then

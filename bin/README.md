@@ -25,7 +25,7 @@ Once a localnet is up and running (using `./run.sh`), you can use the `./populat
 
 ```sh
 ./populate.sh create
-./populate.sh claim
+./populate.sh set-validation
 ./populate.sh issue
 ./populate.sh xfer
 ./populate.sh refund

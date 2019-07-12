@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// NominateNodeRewards issues released funds
+// NominateNodeRewards nominates a node account to receive rewards
 type NominateNodeRewards struct{}
 
 var _ Command = (*NominateNodeRewards)(nil)

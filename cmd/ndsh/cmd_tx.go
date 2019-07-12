@@ -15,7 +15,7 @@ import (
 	"github.com/savaki/jq"
 )
 
-// Tx claims an account, assigning its first validation keys and script
+// Tx manipulates a prepared transaction
 type Tx struct{}
 
 var _ Command = (*Tx)(nil)
