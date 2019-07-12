@@ -88,9 +88,7 @@ func newFilter(taskName string) io.Writer {
 	outputter := func(m map[string]interface{}) {
 		p, err := json.Marshal(m)
 		if err == nil {
-			// FIXME: testing
-			os.Stdout.Write(p)
-			//honeycombWriter.Write(p)
+			honeycombWriter.Write(p)
 		}
 	}
 
