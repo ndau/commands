@@ -16,7 +16,8 @@ version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.19"
+# version = "~v1.19"
+branch = "prgn-index-fees"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
