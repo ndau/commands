@@ -88,9 +88,13 @@ func newFilter(taskName string) io.Writer {
 	outputter := func(m map[string]interface{}) {
 		p, err := json.Marshal(m)
 		if err == nil {
-			honeycombWriter.Write(p)
+			// FIXME: testing
+			fixme.Write(p)
+			//honeycombWriter.Write(p)
 		}
 	}
 
 	return filter.NewFilter(splitter, outputter, nil, interpreters...)
 }
+
+var fixme, _ = os.OpenFile("/image/logs/all.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
