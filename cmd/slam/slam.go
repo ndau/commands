@@ -388,7 +388,7 @@ func main() {
 		}
 		if acct, ok := conf.Accounts[a.Name]; ok {
 			startingAddr = acct.Address
-			pks := acct.TransferPrivate()
+			pks := acct.ValidationPrivate()
 			if len(pks) != 1 {
 				log.Fatalf(
 					"Can't use named account unless it has exactly 1 private transfer key (found %d).",
