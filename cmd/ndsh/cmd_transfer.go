@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Transfer claims an account, assigning its first validation keys and script
+// Transfer transfers ndau from on account to another
 type Transfer struct{}
 
 var _ Command = (*Transfer)(nil)

@@ -5,19 +5,19 @@ branch = "prgn-crank-disasm-indent"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/genesis"
-version = "~v1.1"
+version = "~v1.2"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/json2msgp"
-version = "~v1.0"
+version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.5"
+version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.18"
+version = "~v1.19"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -29,7 +29,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-version = "~v1.2"
+version = "~v1.3"
 
 [[override]]
 name = "github.com/attic-labs/graphql"

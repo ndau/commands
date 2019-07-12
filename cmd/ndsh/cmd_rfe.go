@@ -11,7 +11,7 @@ import (
 	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
 )
 
-// ReleaseFromEndowment releases funds from the endowment
+// ReleaseFromEndowment releases ndau from the endowment
 type ReleaseFromEndowment struct{}
 
 var _ Command = (*ReleaseFromEndowment)(nil)

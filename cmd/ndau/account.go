@@ -25,15 +25,15 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		)
 
 		cmd.Command(
-			"claim",
-			"claim this account on the blockchain",
-			getAccountClaim(verbose, emitJSON, compact),
+			"set-validation",
+			"set this account's validation rules",
+			getAccountSetValidation(verbose, emitJSON, compact),
 		)
 
 		cmd.Command(
-			"claim-child",
-			"claim this child account on the blockchain",
-			getAccountClaimChild(verbose, keys, emitJSON, compact),
+			"create-child",
+			"create this child account on the blockchain",
+			getAccountCreateChild(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(
@@ -63,7 +63,7 @@ func getAccount(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd
 		cmd.Command(
 			"change-recourse-period",
 			"change the recourse period for outbound transfers from this account",
-			getAccountChangeSettlement(verbose, keys, emitJSON, compact),
+			getAccountChangeRecourse(verbose, keys, emitJSON, compact),
 		)
 
 		cmd.Command(

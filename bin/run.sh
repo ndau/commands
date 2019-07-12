@@ -149,6 +149,7 @@ ndau_api() {
     wait_port "$api_port"
 }
 
+
 if [ -z "$1" ]; then
     initialize
 

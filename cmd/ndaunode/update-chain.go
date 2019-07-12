@@ -88,7 +88,7 @@ func updateFromGenesis(gfilePath, asscpath string, conf *config.Config) {
 
 				// it would be a pain to ensure that we had system variables here,
 				// and this applies only to special accounts anyway, so the best
-				// solution is to have them simply start with a 0 settlement period.
+				// solution is to have them simply start with a 0 recourse period.
 				ad, _ := st.GetAccount(addr, now, 0)
 
 				ad.ValidationKeys = append(ad.ValidationKeys, valkey)

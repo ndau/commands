@@ -8,7 +8,7 @@ import (
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 )
 
-// ChangeRecourse claims an account, assigning its first validation keys and script
+// ChangeRecourse changes an account's recourse period
 type ChangeRecourse struct{}
 
 var _ Command = (*ChangeRecourse)(nil)

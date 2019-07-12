@@ -20,8 +20,8 @@ func getClaimNodeReward(verbose *bool, keys *int, emitJSON, compact *bool) func(
 			if !hasAcct {
 				orQuit(fmt.Errorf("No such account: %s", *name))
 			}
-			if len(acct.Transfer) == 0 {
-				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
+			if len(acct.Validation) == 0 {
+				orQuit(fmt.Errorf("Validation key for %s not set", *name))
 			}
 
 			if *verbose {
@@ -34,7 +34,7 @@ func getClaimNodeReward(verbose *bool, keys *int, emitJSON, compact *bool) func(
 			tx := ndau.NewClaimNodeReward(
 				acct.Address,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(*keys)...,
+				acct.ValidationPrivateK(*keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)

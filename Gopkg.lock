@@ -443,7 +443,7 @@
   revision = "4b4e95aded31dd56882d3550e0fe33037d507d29"
 
 [[projects]]
-  digest = "1:969611b51496894d3a68fa092537e4ad127b1f646c774c44caef6a35e3c60a4a"
+  digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
   name = "github.com/oneiro-ndev/genesis"
   packages = [
     "pkg/cli.util",
@@ -452,19 +452,19 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "fea8d877ccab510bda10c241bd7178a311d9e6d5"
-  version = "v1.1.1"
+  revision = "b42e321d3466d0ddfd338b71a339e685984f0ad9"
+  version = "v1.2.0"
 
 [[projects]]
-  digest = "1:9ae2cf28e57f55c7037d368415a5acdc3fabdd4fb5abf465d5298eb8c1cdf1f3"
+  digest = "1:99c192bda9d5db7282d2ef1307610343d882baa134f83a1e9dc8dcfeaf114c01"
   name = "github.com/oneiro-ndev/json2msgp"
   packages = ["."]
   pruneopts = ""
-  revision = "715e97525b6d5bfcaf83127e1de6680a6a030b6d"
-  version = "v1.0.0"
+  revision = "5730c7aee812bc158707c1529ae68bd04f6bb617"
+  version = "v1.1.0"
 
 [[projects]]
-  digest = "1:9a60afcbd7cff9c784eeb6a586a49ce4446e59e4a94cc5ec89e31ba89bc5dec6"
+  digest = "1:7f302aa49dd3a45231f261a7a455f0c133d58d4b61c90359b0f0c75f55451ace"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -474,8 +474,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "f5a5ea8d024f4fbe54970746e8a7cbe02ddb2be6"
-  version = "v1.5.2"
+  revision = "6e9f9dd9e77ea6411e777a3b8de334e42997b3c7"
+  version = "v1.6.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -494,7 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:34774b497e6ee4b7aab47769319b9ab76cd0e24e28ddcd81df086516853b25cf"
+  digest = "1:b7fae858a33f49328b39b362f21e15a30dd137034275548b3283408322f1bbdd"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,8 +512,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6ab5a10dd080159fc7bf8ac984f3f8efc3c6dd57"
-  version = "v1.18.3"
+  revision = "63f29bb6931137a063857c4ea2f48a9a67a8b318"
+  version = "v1.19.0"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
@@ -558,7 +558,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:5fb95ade1713af4bdc5a5892d16e1630758d8d4eff5717c55c51bc1f258be97c"
+  digest = "1:22fe963b4e5495edf74d8cc82f56a506c8c577b26a44ecf4b67fea43e6b19fc4"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -566,8 +566,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "ab1df02c3bb645f9e0470891e984adf257b46fb4"
-  version = "v1.2.3"
+  revision = "5605219bad1732a31f1a9e3f0cd44bb8b70fc98d"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
