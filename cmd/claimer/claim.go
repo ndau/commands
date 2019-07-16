@@ -34,6 +34,8 @@ func dispatch(logger *log.Entry, node string, addr address.Address, keys []signa
 	_, err = tool.SendCommit(rpc, tx)
 	if err != nil {
 		logger.WithError(err).Error("could not send claim tx")
+	} else {
+		logger.Info("successfully claimed node reward")
 	}
 }
 
@@ -64,6 +66,8 @@ func Claim(config *Config, logger *log.Entry) http.HandlerFunc {
 
 		if exists {
 			go dispatch(logger, config.NodeRPC, payload.Winner, keys)
+		} else {
+			logger.WithField("winner address", payload.Winner).Info("winner was not among configured nodes")
 		}
 
 		reqres.RespondJSON(w, reqres.OKResponse(struct {
