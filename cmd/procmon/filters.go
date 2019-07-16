@@ -3,12 +3,12 @@ package main
 // Filters for logging task output to honeycomb.
 
 import (
-	"bufio"
 	"encoding/json"
 	"io"
 	"os"
 
 	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
+	"github.com/oneiro-ndev/writers/pkg/bufio"
 	"github.com/oneiro-ndev/writers/pkg/filter"
 	"github.com/pkg/errors"
 )
