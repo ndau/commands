@@ -47,6 +47,6 @@ func main() {
 	server := rest.StandardSetup(cf, svc)
 	if server != nil {
 		rest.WatchSignals(nil, rest.FatalFunc(svc, "SIGINT"), rest.FatalFunc(svc, "SIGTERM"))
-		log.Fatal(server.ListenAndServe())
+		svc.Logger.Fatal(server.ListenAndServe())
 	}
 }

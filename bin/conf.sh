@@ -120,6 +120,20 @@ do
     ndau_rpc_addr="http://localhost:$ndau_rpc_port"
 
     NDAUHOME="$ndau_home" ./ndau conf "$ndau_rpc_addr"
+
+    # if the node configuration file does not exist or it does not contain
+    # the node reward webhook key, then inject that key into the file
+    nrw="NodeRewardWebhook"
+    confpath="$ndau_home/ndau/config.toml"
+    if [ -f "$confpath" ]; then
+        confjs=$(toml2json "$confpath")
+    else
+        confjs="{}"
+    fi
+    if [ -z "$(jq ".$nrw // empty" <(echo $confjs))" ]; then
+        confjs=$(jq -c ". + {\"$nrw\": \"http://localhost:3000/claim_winner\"}" <(echo $confjs))
+    fi
+    echo "$confjs" | json2toml > "$confpath"
 done
 
 # Make sure the genesis files exist, since steps after this require them.
