@@ -571,7 +571,7 @@
 
 [[projects]]
   branch = "eas-commands-296"
-  digest = "1:58ac3c4a3c6a916b17ef18726feba22289bcb394fafe6c2d61506022fe8200b2"
+  digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
   name = "github.com/oneiro-ndev/writers"
   packages = [
     "pkg/bufio",
@@ -581,7 +581,7 @@
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "ccb63831682f6496ad0ddd62116f35f3201f637b"
+  revision = "9628e34d68ee3516f83b2498d99115c9a61cc1bd"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"

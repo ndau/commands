@@ -40,6 +40,14 @@ func newFilter(taskName string) io.Writer {
 	// and every case gets required-fields and last-chance interpreters.
 	interpreters := make([]filter.Interpreter, 0, 4)
 
+	// Putting this one first allows tasks to override the required fields if they want.
+	interpreters = append(interpreters, filter.RequiredFieldsInterpreter{
+		Defaults: map[string]interface{}{
+			"bin":     taskName,
+			"node_id": os.Getenv("NODE_ID"),
+		},
+	})
+
 	switch taskName {
 	case rootTaskName:
 		// The root task uses a json splitter with generic json interpreter.
@@ -70,14 +78,6 @@ func newFilter(taskName string) io.Writer {
 		splitter = bufio.ScanLines
 	}
 
-	// Putting this one after the first interpreters will prevent tasks from overriding the values
-	// of the required fields, but we don't expect to ever want to for "bin" and "node_id".
-	interpreters = append(interpreters, filter.RequiredFieldsInterpreter{
-		Defaults: map[string]interface{}{
-			"bin":     taskName,
-			"node_id": os.Getenv("NODE_ID"),
-		},
-	})
 	interpreters = append(interpreters, filter.LastChanceInterpreter{})
 
 	// All filters use this simple outputter that writes json blobs to honeycomb.
