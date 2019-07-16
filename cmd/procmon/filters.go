@@ -35,43 +35,41 @@ func initFilters() error {
 // newFilter constructs a new filter.Filter for the task with the given name.
 func newFilter(taskName string) io.Writer {
 	var splitter bufio.SplitFunc
-	var interpreter filter.Interpreter
+
+	// We'll have at most two interpreters per task,
+	// and every case gets required-fields and last-chance interpreters.
+	interpreters := make([]filter.Interpreter, 0, 4)
 
 	switch taskName {
 	case rootTaskName:
 		// The root task uses a json splitter with generic json interpreter.
 		splitter = filter.JSONSplit
-		interpreter = filter.JSONInterpreter{}
+		interpreters = append(interpreters, filter.JSONInterpreter{})
 	case redisTaskName:
 		// The redis uses a line splitter with redis line interpreter.
 		splitter = bufio.ScanLines
-		interpreter = filter.RedisInterpreter{}
+		interpreters = append(interpreters, filter.RedisInterpreter{})
 	case nomsTaskName:
 		// The noms uses a line splitter with no special interpreter.
 		splitter = bufio.ScanLines
 	case ndaunodeTaskName:
 		// The ndaunode uses a json splitter with generic json interpreter.
 		splitter = filter.JSONSplit
-		interpreter = filter.JSONInterpreter{}
+		interpreters = append(interpreters, filter.JSONInterpreter{})
 	case tendermintTaskName:
 		// The tendermint uses a json splitter with tendermint json interpreter.
 		splitter = filter.JSONSplit
-		interpreter = filter.TendermintInterpreter{}
+		interpreters = append(interpreters, filter.JSONInterpreter{})
+		interpreters = append(interpreters, filter.TendermintInterpreter{})
 	case ndauapiTaskName:
 		// The ndauapi uses a json splitter with generic json interpreter.
 		splitter = filter.JSONSplit
-		interpreter = filter.JSONInterpreter{}
+		interpreters = append(interpreters, filter.JSONInterpreter{})
 	default:
 		// Generic tasks use line splitters with no special interpreters.
 		splitter = bufio.ScanLines
 	}
 
-	// We'll have at most one interpreter from above,
-	// and every case gets required-fields and last-chance interpreters.
-	interpreters := make([]filter.Interpreter, 0, 3)
-	if interpreter != nil {
-		interpreters = append(interpreters, interpreter)
-	}
 	// Putting this one after the first interpreter will prevent tasks from overriding the values
 	// of the required fields, but we don't expect to ever want to for "bin" and "node_id".
 	interpreters = append(interpreters, filter.RequiredFieldsInterpreter{
