@@ -464,7 +464,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "eas-commands-296a"
   digest = "1:4475f53c5169d41c07798487427614a8138adcf2551ec679afa561984336c319"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -476,6 +475,7 @@
   ]
   pruneopts = ""
   revision = "7f99730b41c81267b4bf1fab801be058f74518df"
+  version = "v1.6.3"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
