@@ -464,7 +464,8 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:970d8adf66572afbfe490d3385ce4a8efa660ad032826e1f4091ba5131cce649"
+  branch = "eas-commands-296a"
+  digest = "1:4475f53c5169d41c07798487427614a8138adcf2551ec679afa561984336c319"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -474,8 +475,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7b82e427b32135d919d3603ac6cd8562de117acb"
-  version = "v1.6.2"
+  revision = "7f99730b41c81267b4bf1fab801be058f74518df"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"

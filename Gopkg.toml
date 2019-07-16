@@ -12,7 +12,8 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.6"
+#version = "~v1.6"
+branch = "eas-commands-296a"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
