@@ -60,7 +60,7 @@ func newFilter(taskName string) io.Writer {
 		// The tendermint uses a json splitter with tendermint json interpreter.
 		splitter = filter.JSONSplit
 		interpreters = append(interpreters, filter.JSONInterpreter{})
-		interpreters = append(interpreters, filter.TendermintInterpreter{})
+		interpreters = append(interpreters, filter.NewTendermintInterpreter())
 	case ndauapiTaskName:
 		// The ndauapi uses a json splitter with generic json interpreter.
 		splitter = filter.JSONSplit
@@ -70,7 +70,7 @@ func newFilter(taskName string) io.Writer {
 		splitter = bufio.ScanLines
 	}
 
-	// Putting this one after the first interpreter will prevent tasks from overriding the values
+	// Putting this one after the first interpreters will prevent tasks from overriding the values
 	// of the required fields, but we don't expect to ever want to for "bin" and "node_id".
 	interpreters = append(interpreters, filter.RequiredFieldsInterpreter{
 		Defaults: map[string]interface{}{
@@ -86,13 +86,9 @@ func newFilter(taskName string) io.Writer {
 	outputter := func(m map[string]interface{}) {
 		p, err := json.Marshal(m)
 		if err == nil {
-			// FIXME: testing
-			fixme.Write(p)
-			//honeycombWriter.Write(p)
+			honeycombWriter.Write(p)
 		}
 	}
 
 	return filter.NewFilter(splitter, outputter, nil, interpreters...)
 }
-
-var fixme, _ = os.OpenFile("/image/logs/all.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
