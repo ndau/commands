@@ -8,11 +8,10 @@ import (
 
 // Config configures the claimer
 type Config struct {
-	// The Nodes map actually maps an address to a list of private keys
-	Nodes map[string][]string
-
 	// URL to the RPC address of a node
-	NodeRPC string
+	NodeRPC string `toml:"node_rpc"`
+	// The Nodes map actually maps an address to a list of private keys
+	Nodes map[string][]string `toml:"nodes"`
 }
 
 // DefaultConfigPath is the default expected path for the claimer's configuration
