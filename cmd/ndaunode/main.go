@@ -32,7 +32,8 @@ var asscfilePath = flag.String("asscfile", "", "if set, create special accounts 
 // That is why this is tied to code here, rather than a variable we pass in.
 // History:
 //   0 = initial version
-const indexVersion = 0
+//   1 = new format for indxing transaction fee/sib
+const indexVersion = 1
 
 func getNdauhome() string {
 	nh := os.ExpandEnv("$NDAUHOME")
