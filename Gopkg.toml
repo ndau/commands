@@ -12,13 +12,11 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-#version = "~v1.5"
-branch = "eas-commands-296"
+version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-#version = "~v1.18"
-branch = "eas-commands-296"
+version = "~v1.19"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -34,8 +32,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/writers"
-#version = "~v1.0"
-branch = "eas-commands-296"
+version = "~v1.1"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
