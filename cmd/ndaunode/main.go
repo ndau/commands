@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/config"
@@ -145,9 +144,6 @@ func main() {
 
 	// This gives us a mechanism to kill off the server with an OS signal (for example, Ctrl-C)
 	app.App.WatchSignals()
-
-	time.Sleep(60 * time.Second)
-	panic("FIXME: testing panic logging")
 
 	// This runs forever until a signal happens
 	<-server.Quit()
