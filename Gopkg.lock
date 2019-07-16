@@ -464,7 +464,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:7f302aa49dd3a45231f261a7a455f0c133d58d4b61c90359b0f0c75f55451ace"
+  digest = "1:4475f53c5169d41c07798487427614a8138adcf2551ec679afa561984336c319"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -474,8 +474,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "6e9f9dd9e77ea6411e777a3b8de334e42997b3c7"
-  version = "v1.6.0"
+  revision = "7f99730b41c81267b4bf1fab801be058f74518df"
+  version = "v1.6.3"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -494,7 +494,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:b7fae858a33f49328b39b362f21e15a30dd137034275548b3283408322f1bbdd"
+  digest = "1:30386bfa6023969244f1eb06e447ef0c8618ef90a9f0e9a37436cf1cd661c71d"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,8 +512,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "63f29bb6931137a063857c4ea2f48a9a67a8b318"
-  version = "v1.19.0"
+  revision = "08501411bd4d164d8202cba541ffe4296cc363d4"
+  version = "v1.19.2"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
@@ -570,15 +570,18 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
+  digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
   name = "github.com/oneiro-ndev/writers"
   packages = [
+    "pkg/bufio",
+    "pkg/filter",
     "pkg/linewriter",
+    "pkg/ringbuffer",
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "a874325e4c132628c1a8c15f056cccc9b82d6ff9"
-  version = "v1.0.0"
+  revision = "568ee76f66a0111c44ce029e484900224db01340"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
@@ -969,7 +972,6 @@
     "github.com/oneiro-ndev/genesis/pkg/etl",
     "github.com/oneiro-ndev/genesis/pkg/genesis",
     "github.com/oneiro-ndev/json2msgp",
-    "github.com/oneiro-ndev/metanode/pkg/meta/app",
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
@@ -995,6 +997,8 @@
     "github.com/oneiro-ndev/system_vars/pkg/genesis.generator",
     "github.com/oneiro-ndev/system_vars/pkg/genesisfile",
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",
+    "github.com/oneiro-ndev/writers/pkg/bufio",
+    "github.com/oneiro-ndev/writers/pkg/filter",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/savaki/jq",
