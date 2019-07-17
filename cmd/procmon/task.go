@@ -128,8 +128,6 @@ func NewTask(name string, path string, args ...string) *Task {
 		Ready:        func() Eventer { return OK },
 		Monitors:     make([]*FailMonitor, 0),
 		RestartDelay: time.Second,
-		Status:       make(chan Eventer, 1),
-		Stopped:      make(chan struct{}),
 	}
 }
 
@@ -348,6 +346,12 @@ func (t *Task) Start(parentstop chan struct{}) {
 		}
 	}
 	t.Logger.WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
+
+	// Set up channels here vs during construction to prevent double-close()ing them.
+	// now we need the Status channel
+	t.Status = make(chan Eventer, 1)
+	// make a Stopped channel
+	t.Stopped = make(chan struct{})
 
 	if !t.skipStartMonitors {
 		// run the masterMonitor
