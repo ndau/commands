@@ -23,9 +23,6 @@ Usage
 
 Environment variables
 
-	Log level. (default: info)
-	[NDAUAPI_LOG_LEVEL=(error|warn|info|debug)]
-
 	Port where this API will listen. (default: 3030)
 	[NDAUAPI_PORT=<3030>]
 
@@ -106,8 +103,8 @@ func main() {
 		AllowCredentials: false,
 		// Only the basic methods are implemented to date.
 		AllowedMethods: []string{"GET", "POST"},
-		// Enable Debugging for testing, consider disabling in production
-		Debug: true,
+		// Enable Debugging for testing, disabled in production
+		Debug: false,
 	})
 
 	handler := c.Handler(logmux)

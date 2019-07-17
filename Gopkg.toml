@@ -30,6 +30,10 @@ version = "~v1.3"
 name = "github.com/oneiro-ndev/system_vars"
 version = "~v1.3"
 
+[[constraint]]
+name = "github.com/oneiro-ndev/writers"
+version = "~v1.1"
+
 [[override]]
 name = "github.com/attic-labs/graphql"
 branch = "master"

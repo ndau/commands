@@ -7,8 +7,6 @@ SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_API_PORT=3030
-LOG_FORMAT=json
-LOG_LEVEL=info
 GENERATED_GENESIS_SNAPSHOT="*"
 
 # Leave this blank/unset to disable periodic snapshot creation.
@@ -295,8 +293,6 @@ docker create \
        -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
        -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
        -e "SNAPSHOT_INTERVAL=$SNAPSHOT_INTERVAL" \
-       -e "LOG_FORMAT=$LOG_FORMAT" \
-       -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \

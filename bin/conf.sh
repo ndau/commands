@@ -40,6 +40,7 @@ do
         -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
         -e 's/^(addr_book_strict =) (.*)/\1 false/' \
         -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
+        -e 's/^(log_format =) (.*)/\1 "json"/' \
         -e 's/^(moniker =) (.*)/\1 \"'"$MONIKER_PREFIX"'-'"$node_num"'\"/' \
         "$tm_ndau_home/config/config.toml"
 done

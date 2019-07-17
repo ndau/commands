@@ -6,11 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	meta "github.com/oneiro-ndev/metanode/pkg/meta/app"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/config"
 	"github.com/oneiro-ndev/ndau/pkg/version"
-	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
 	"github.com/sirupsen/logrus"
 	"github.com/tendermint/tendermint/abci/server"
 	tmlog "github.com/tendermint/tendermint/libs/log"
@@ -34,7 +32,8 @@ var asscfilePath = flag.String("asscfile", "", "if set, create special accounts 
 // That is why this is tied to code here, rather than a variable we pass in.
 // History:
 //   0 = initial version
-const indexVersion = 0
+//   1 = new format for indxing transaction fee/sib
+const indexVersion = 1
 
 func getNdauhome() string {
 	nh := os.ExpandEnv("$NDAUHOME")
@@ -110,43 +109,28 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Set up the logger before the app so that app init can log using node_id and bin fields.
-	logger := meta.NewLogger()
-	binName := "ndaunode"
-	nodeID := os.Getenv("NODE_ID")
-	logger = logger.WithFields(logrus.Fields{
-		"bin":     binName,
-		"node_id": nodeID,
-	})
-
-	app, err := ndau.NewAppWithLogger(getDbSpec(), getIndexAddr(), indexVersion, *conf, logger)
+	app, err := ndau.NewApp(getDbSpec(), getIndexAddr(), indexVersion, *conf)
 	check(err)
 
 	app.LogState()
 
 	server := server.NewSocketServer(*socketAddr, app)
 
-	// it's not entirely ideal that we have to generate a separate logger
-	// here, but tendermint loggers have an interface incompatible with
-	// logrus loggers
-	// server.SetLogger(tmlog.NewTMLogger(os.Stderr))
-	if logwriter, err := honeycomb.NewWriter(); err != nil {
-		server.SetLogger(tmlog.NewTMLogger(os.Stderr))
-		app.GetLogger().WithFields(logrus.Fields{
-			"originalError": err,
-		}).Warn("Unable to initialize Honeycomb for tm server")
-		fmt.Println("Can't init server logger for tm: ", err)
-	} else {
-		l := tmlog.NewTMJSONLogger(logwriter)
-		l = l.With("bin", binName)
-		l = l.With("node_id", nodeID)
-		server.SetLogger(l)
+	var tmLogger tmlog.Logger
+	switch os.Getenv("LOG_FORMAT") {
+	case "json", "":
+		tmLogger = tmlog.NewTMJSONLogger(os.Stdout)
+	case "text", "plain":
+		tmLogger = tmlog.NewTMLogger(os.Stdout)
+	default:
+		tmLogger = tmlog.NewTMJSONLogger(os.Stdout)
 	}
+	server.SetLogger(tmLogger)
 
 	err = server.Start()
 	check(err)
 
-	entry := logger.WithFields(logrus.Fields{
+	entry := app.GetLogger().WithFields(logrus.Fields{
 		"address": *socketAddr,
 		"name":    server.String(),
 	})

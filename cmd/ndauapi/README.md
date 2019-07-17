@@ -1603,6 +1603,8 @@ _**Writes:**_
         {
           "BlockHeight": 1234,
           "TxOffset": 3,
+          "Fee": 0,
+          "SIB": 0,
           "Tx": null
         }
 ```
