@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	claimer "github.com/oneiro-ndev/commands/cmd/claimer/claimerlib"
 	"github.com/oneiro-ndev/rest"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,29 +25,25 @@ func check(err error, context string, formatters ...interface{}) {
 
 func main() {
 	cf := rest.DefaultConfig()
-	cf.AddString(configPathS, DefaultConfigPath)
+	cf.AddString(configPathS, claimer.DefaultConfigPath)
 	cf.Load()
 
-	config, err := LoadConfig(cf.GetString(configPathS))
+	config, err := claimer.LoadConfig(cf.GetString(configPathS))
 	check(err, "loading configuration")
 
-	svc := &claimService{
-		Logger: log.New().WithField("bin", "claimer"),
-		Config: config,
-	}
-
-	svc.Logger.WithField("node address", svc.Config.NodeRPC).Info("using RPC address")
+	svc := claimer.NewClaimService(config, log.New().WithField("bin", "claimer"))
+	svc.GetLogger().WithField("node address", svc.Config.NodeRPC).Info("using RPC address")
 	{
 		fields := log.Fields{}
 		for addr, keys := range svc.Config.Nodes {
 			fields[addr] = len(keys)
 		}
-		svc.Logger.WithFields(fields).Info("qty keys known per known node")
+		svc.GetLogger().WithFields(fields).Info("qty keys known per known node")
 	}
 
 	server := rest.StandardSetup(cf, svc)
 	if server != nil {
 		rest.WatchSignals(nil, rest.FatalFunc(svc, "SIGINT"), rest.FatalFunc(svc, "SIGTERM"))
-		svc.Logger.Fatal(server.ListenAndServe())
+		svc.GetLogger().Fatal(server.ListenAndServe())
 	}
 }

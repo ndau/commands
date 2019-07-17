@@ -1,4 +1,4 @@
-package main
+package claimer
 
 import (
 	"github.com/kentquirk/boneful"
@@ -9,6 +9,14 @@ import (
 type claimService struct {
 	Logger *log.Entry
 	Config *Config
+}
+
+// NewClaimService constructs a new claim service
+func NewClaimService(config *Config, logger *log.Entry) *claimService {
+	return &claimService{
+		Logger: logger,
+		Config: config,
+	}
 }
 
 var _ rest.Builder = (*claimService)(nil)

@@ -1,4 +1,4 @@
-package main
+package claimer
 
 import (
 	"github.com/BurntSushi/toml"
