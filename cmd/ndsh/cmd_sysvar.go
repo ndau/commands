@@ -15,7 +15,7 @@ import (
 	"github.com/tinylib/msgp/msgp"
 )
 
-// Sysvar changes an account's validation
+// Sysvar changes a system variable
 type Sysvar struct{}
 
 var _ Command = (*Sysvar)(nil)

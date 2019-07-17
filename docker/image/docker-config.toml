@@ -9,9 +9,7 @@
   NoExchangeHoldsOnTransfer = 13510
   NoKeysOnSetValidation = 13510
   ResetUncreditedEAIOnCreditEAI = 13510
-  # TODO: Set this more appropriately on the next mainnet upgrade (and remove this comment)
-  NodeActiveCheck = 20000
-  # TODO: Set this more appropriately on the next mainnet upgrade (and remove this comment)
-  NoLeakyUpdateState = 20000
-  # TODO: Set this more appropriately on the next mainnet upgrade (and remove this comment)
-  SequenceIncrementProtection = 20000
+  # TODO: Set these more appropriately on the next mainnet upgrade (and remove this comment)
+  NodeActiveCheck = 1000000
+  NoLeakyUpdateState = 1000000
+  SequenceIncrementProtection = 1000000

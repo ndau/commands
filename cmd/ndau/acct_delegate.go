@@ -24,8 +24,8 @@ func getAccountDelegate(verbose *bool, keys *int, emitJSON, compact *bool) func(
 			if !hasAcct {
 				orQuit(fmt.Errorf("No such account: %s", *name))
 			}
-			if acct.Transfer == nil {
-				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
+			if acct.Validation == nil {
+				orQuit(fmt.Errorf("Validation key for %s not set", *name))
 			}
 
 			node := getNode()
@@ -40,7 +40,7 @@ func getAccountDelegate(verbose *bool, keys *int, emitJSON, compact *bool) func(
 			tx := ndau.NewDelegate(
 				acct.Address, node,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(*keys)...,
+				acct.ValidationPrivateK(*keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)

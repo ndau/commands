@@ -9,14 +9,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getAccountChangeSettlement(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
+func getAccountChangeRecourse(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {
 	return func(cmd *cli.Cmd) {
 		cmd.Spec = fmt.Sprintf(
 			"NAME %s",
 			getDurationSpec(),
 		)
 
-		var name = cmd.StringArg("NAME", "", "Name of account of which to change settlement period")
+		var name = cmd.StringArg("NAME", "", "Name of account of which to change recourse period")
 		getDuration := getDurationClosure(cmd)
 
 		cmd.Action = func() {
@@ -27,20 +27,20 @@ func getAccountChangeSettlement(verbose *bool, keys *int, emitJSON, compact *boo
 			if !hasAd {
 				orQuit(errors.New("No such account found"))
 			}
-			if ad.Transfer == nil {
-				orQuit(errors.New("Address transfer key not set"))
+			if ad.Validation == nil {
+				orQuit(errors.New("Address validation key not set"))
 			}
 
 			cep := ndau.NewChangeRecoursePeriod(
 				ad.Address,
 				duration,
 				sequence(config, ad.Address),
-				ad.TransferPrivateK(*keys)...,
+				ad.ValidationPrivateK(*keys)...,
 			)
 
 			if *verbose {
 				fmt.Printf(
-					"Change Escrow Period for %s (%s) to %s\n",
+					"Change Recourse Period for %s (%s) to %s\n",
 					*name,
 					ad.Address,
 					duration,
@@ -48,7 +48,7 @@ func getAccountChangeSettlement(verbose *bool, keys *int, emitJSON, compact *boo
 			}
 
 			resp, err := tool.SendCommit(tmnode(config.Node, emitJSON, compact), cep)
-			finish(*verbose, resp, err, "change-settlement-period")
+			finish(*verbose, resp, err, "change-recourse-period")
 		}
 	}
 }

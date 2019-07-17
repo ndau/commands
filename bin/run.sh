@@ -17,6 +17,33 @@ wait_port() {
     done
 }
 
+
+#---------- ndau claimer -------------
+ndau_claimer() {
+    config="$COMMANDS_DIR/$CLAIMER_CMD/claimer_conf.toml"
+    if [ ! -f "$config" ]; then
+        echo "claimer config not found; skipping"
+        return
+    fi
+    if [ ! -x "$COMMANDS_DIR/claimer" ]; then
+        echo "claimer executable nout found; skipping"
+        return
+    fi
+
+    echo running claimer
+
+    output_name="$CMDBIN_DIR/claimer"
+
+    "$COMMANDS_DIR/claimer" \
+        --config-path="$config" \
+        --port="$CLAIMER_PORT" \
+        >"$output_name.log" 2>&1 &
+
+    echo $! >"$output_name.pid"
+    wait_port "$CLAIMER_PORT"
+    echo "  claimer is up at localhost:$CLAIMER_PORT"
+}
+
 #---------- redis for ndau -------------
 ndau_redis() {
     node_num="$1"
@@ -149,12 +176,14 @@ ndau_api() {
     wait_port "$api_port"
 }
 
+
 if [ -z "$1" ]; then
     initialize
 
     # Kill everything first.  It's too easy to forget the ./kill.sh between test runs.
     "$CMDBIN_DIR"/kill.sh
 
+    ndau_claimer
     for node_num in $(seq 0 "$HIGH_NODE_NUM");
     do
         ndau_redis "$node_num"

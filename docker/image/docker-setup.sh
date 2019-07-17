@@ -25,10 +25,6 @@ cd tendermint || exit 1
 git fetch --prune
 git checkout "$TENDERMINT_VER"
 
-echo Patching tendermint...
-patch -i "$SCRIPT_DIR"/Gopkg.toml.patch Gopkg.toml
-patch -i "$SCRIPT_DIR"/root.go.patch cmd/tendermint/commands/root.go
-
 echo "Getting commands $COMMANDS_BRANCH branch..."
 mkdir -p "$NDEV_DIR"
 cd "$NDEV_DIR" || exit 1

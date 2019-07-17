@@ -1,8 +1,8 @@
 [env]
 # Most environment variables are exported from docker-env.sh, or passed in using -e with
 # `docker run` or `docker create`.  Here are some defaults.
-LOG_FORMAT = "text"
-LOG_LEVEL = "debug"
+LOG_FORMAT = "json"
+LOG_LEVEL = "info"
 
 # This is needed as an environment variable by the ndauapi task.  It shouldn't need overriding.
 NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
@@ -17,7 +17,7 @@ SNAPSHOT_INTERVAL = "24h"
 format = "$LOG_FORMAT"
 # The level is used for procmon and tendermint logging.
 level = "$LOG_LEVEL"
-# Possible values for this are: STDOUT, STDERR, SUPPRESS, HONEYCOMB.
+# Possible values for this are: STDOUT, STDERR, SUPPRESS.
 # "" means we log to stderr by default.
 # If the HONEYCOMB_* env vars are set, all logging from procmon itself is redirected to honeycomb.
 output = ""
@@ -78,14 +78,13 @@ output = ""
         "--port", "$REDIS_PORT",
         "--save", "60", "1",
     ]
+    # paths to log files for caputuring this task's stdout and stderr,
     # special values are:
     # "SUPPRESS" meaning "discard this stream"
     # "STDOUT" means "send to stdout"
     # "STDERR" means "send to stderr"
-    # "HONEYCOMB" sends the message to honeycomb
     # If omitted or "", it'll use the default (i.e. stdout = "STDOUT", stderr = "STDERR").
-    # If the HONEYCOMB_* env vars are set, all logging from this task is redirected to honeycomb,
-    # but only if the app observes and handles those env vars.  Otherwise, logging is suppressed.
+    # If the HONEYCOMB_* env vars are set, all logging from this task is redirected to honeycomb.
     stdout = "$LOG_DIR/redis.log"
     stderr = "$LOG_DIR/redis.log"
     # durations are done as time.Duration

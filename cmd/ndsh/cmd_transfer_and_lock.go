@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TransferAndLock claims an account, assigning its first validation keys and script
+// TransferAndLock transfers ndau to a newly-created account and locks it
 type TransferAndLock struct{}
 
 var _ Command = (*TransferAndLock)(nil)

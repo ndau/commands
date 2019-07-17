@@ -20,8 +20,8 @@ func getSetRewardsDestination(verbose *bool, keys *int, emitJSON, compact *bool)
 			if !hasAcct {
 				orQuit(fmt.Errorf("No such account: %s", *name))
 			}
-			if acct.Transfer == nil {
-				orQuit(fmt.Errorf("Transfer key for %s not set", *name))
+			if acct.Validation == nil {
+				orQuit(fmt.Errorf("Validation key for %s not set", *name))
 			}
 
 			dest := getAddress()
@@ -38,7 +38,7 @@ func getSetRewardsDestination(verbose *bool, keys *int, emitJSON, compact *bool)
 				acct.Address,
 				dest,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(*keys)...,
+				acct.ValidationPrivateK(*keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)

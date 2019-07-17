@@ -28,8 +28,8 @@ func getStake(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) 
 			if !hasAcct {
 				orQuit(fmt.Errorf("No such account: %s", *acctName))
 			}
-			if len(acct.Transfer) == 0 {
-				orQuit(fmt.Errorf("Transfer key for %s not set", *acctName))
+			if len(acct.Validation) == 0 {
+				orQuit(fmt.Errorf("Validation key for %s not set", *acctName))
 			}
 
 			rules := getRules()
@@ -52,7 +52,7 @@ func getStake(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) 
 				staketo,
 				qty,
 				sequence(conf, acct.Address),
-				acct.TransferPrivateK(*keys)...,
+				acct.ValidationPrivateK(*keys)...,
 			)
 
 			resp, err := tool.SendCommit(tmnode(conf.Node, emitJSON, compact), tx)

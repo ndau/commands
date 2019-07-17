@@ -39,7 +39,7 @@ func TestParseSample(t *testing.T) {
 	conf, err := Load("sample.toml", false)
 	require.NoError(t, err)
 
-	logger := conf.BuildLogger()
+	logger := conf.BuildLogger("test")
 	tasks, err := conf.BuildTasks(logger)
 	require.NoError(t, err)
 	require.NotNil(t, tasks)

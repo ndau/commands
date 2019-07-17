@@ -9,7 +9,7 @@ import (
 	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
 )
 
-// Issue issues released funds
+// Issue issues ndau from the Endowment
 type Issue struct{}
 
 var _ Command = (*Issue)(nil)

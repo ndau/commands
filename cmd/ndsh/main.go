@@ -71,7 +71,7 @@ func main() {
 		View{},
 		New{},
 		RecoverKeys{},
-		Claim{},
+		SetValidation{},
 		Tx{},
 		ChangeValidation{},
 		LoadSystemAccounts{},

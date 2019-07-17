@@ -11,6 +11,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// These must match the tasks defined in the procmon toml file.
+const (
+	rootTaskName       = "procmon"
+	redisTaskName      = "redis"
+	nomsTaskName       = "noms"
+	ndaunodeTaskName   = "ndaunode"
+	tendermintTaskName = "tendermint"
+	ndauapiTaskName    = "ndauapi"
+)
+
 // Task is a restartable process; it can be monitored and
 // restarted.
 //
