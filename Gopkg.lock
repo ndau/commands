@@ -10,6 +10,14 @@
   version = "v0.3.1"
 
 [[projects]]
+  digest = "1:22c4f2d6b662f9496d264b2ff3460956e7d8b606e08b17e621118bafabdca6fb"
+  name = "github.com/akrylysov/algnhsa"
+  packages = ["."]
+  pruneopts = ""
+  revision = "05b3d192e9a7c7e3e64ecfd4be490a6771a05b3f"
+  version = "v0.11"
+
+[[projects]]
   digest = "1:d1b7be319f318156e7e49696c5cd86636c63680c9317c6167123b4c09f96583a"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
@@ -74,6 +82,20 @@
   pruneopts = ""
   revision = "186e0939a5044b182bce9e60dea910bd6bcb5cd9"
   source = "github.com/oneiro-ndev/noms"
+
+[[projects]]
+  digest = "1:deba4f4561cc7490127f599626c78cbfe972ffacc8edfaf77710de8922e0ae77"
+  name = "github.com/aws/aws-lambda-go"
+  packages = [
+    "events",
+    "lambda",
+    "lambda/handlertrace",
+    "lambda/messages",
+    "lambdacontext",
+  ]
+  pruneopts = ""
+  revision = "4c210d7623089d36b6bb6febf5a5e553bf73fbfb"
+  version = "v1.11.1"
 
 [[projects]]
   digest = "1:06a3d6c930263524e16e4c0b4b6cf461f83ffcb468864a18f537ce19a44e5de4"
@@ -1002,6 +1024,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/BurntSushi/toml",
+    "github.com/akrylysov/algnhsa",
     "github.com/alexflint/go-arg",
     "github.com/attic-labs/noms/go/datas",
     "github.com/attic-labs/noms/go/hash",
