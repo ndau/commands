@@ -104,9 +104,6 @@ fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git fetch --prune
 git checkout "$TENDERMINT_VER"
-echo SETUP: Patching tendermint...
-patch -i "$COMMANDS_DIR"/docker/image/Gopkg.toml.patch Gopkg.toml
-patch -i "$COMMANDS_DIR"/docker/image/root.go.patch cmd/tendermint/commands/root.go
 echo SETUP: Ensuring dependencies for tendermint...
 run_dep_ensure
 
