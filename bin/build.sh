@@ -40,6 +40,7 @@ build_ndau() {
     VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
 
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAU_CMD"
+    go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDSH_CMD"
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAUNODE_CMD"
     go build ./"$NDAUAPI_CMD"
 

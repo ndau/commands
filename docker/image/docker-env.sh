@@ -18,3 +18,6 @@ export REDIS_DATA_DIR="$DATA_DIR"/redis
 export TM_DATA_DIR="$DATA_DIR"/tendermint
 
 export NDAUHOME="$NODE_DATA_DIR"
+
+export SNAPSHOT_URL="https://s3.amazonaws.com"
+export SNAPSHOT_BUCKET="ndau-snapshots"

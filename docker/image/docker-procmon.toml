@@ -7,6 +7,11 @@ LOG_LEVEL = "debug"
 # This is needed as an environment variable by the ndauapi task.  It shouldn't need overriding.
 NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
 
+# Periodic snapshot generation is on by default for the purpose of daily restarts.
+# If the AWS_* env vars are not set, the snapshot won't get uploaded, which is fine.
+# It might come in handy for the container to always have a copy of its own snapshot.
+SNAPSHOT_INTERVAL = "24h"
+
 [logger]
 # The format is only used for procmon logging.
 format = "$LOG_FORMAT"
@@ -161,6 +166,7 @@ output = ""
     ]
     stdout = "$LOG_DIR/tendermint.log"
     stderr = "$LOG_DIR/tendermint.log"
+    maxstartup = "60s"
     maxshutdown = "5s"
 
     [[task.monitors]]
@@ -204,7 +210,7 @@ output = ""
 
 
 [[task]]
-    name = "snapshot"
+    name = "snapshot-immediate"
     path = "/bin/bash"
     args = [
         "-c", "$ROOT_DIR/docker-snapshot.sh --generate",
@@ -219,15 +225,21 @@ output = ""
 
 
 [[task]]
-    # Restart periodically to combat memory leaks.
-    # This also causes a re-dns for converting persistent peer domain names to IP addresses.
-    name = "restart"
+    # The periodic snapshot task doubles as a restart task to combat memory leaks.
+    # It also does a re-dns for converting persistent peer domain names to IP addresses.
+    name = "snapshot-periodic"
     path = "/bin/bash"
     args = [
-        "-c", "$ROOT_DIR/docker-dns.sh",
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload && $ROOT_DIR/docker-dns.sh",
     ]
+    stdout = "$LOG_DIR/snapshot.log"
+    stderr = "$LOG_DIR/snapshot.log"
     [task.specials]
         onetime = true
-        periodic = "24h"
         shutdown = true
+        # Leave this blank/unset to disable periodic snapshot creation.
+        # Set to "4h", for example, to generate a snapshot every 4 hours.
+        # Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
+        # must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
+        periodic = "$SNAPSHOT_INTERVAL"
         terminate = false

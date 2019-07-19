@@ -1,7 +1,8 @@
 version: 2.1
 aws_defaults: &aws_defaults
   AWS_ACCOUNT: "578681496768"
-  AWS_REGION: "us-east-1"
+  ECR_REGION: "us-east-1"
+  ECS_REGION: "us-west-1"
 
 commands:
   notify:
@@ -61,13 +62,27 @@ commands:
           command: |
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
-            #
-            docker save -o "/opt/docker-cache/<< parameters.img_name >>.tar" "<< parameters.img_name >>"
+            docker save -o "/opt/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
           key: << parameters.key >>
           paths:
             - /opt/docker-cache
+
+  restore_image:
+    description: "Restores a docker image from the cache"
+    parameters:
+      img_name:
+        type: string
+      key:
+        type: string
+    steps:
+      - restore_cache:
+          key: << parameters.key >>
+      - run:
+          name: load docker image from cache
+          command: |
+            docker load -i "/opt/docker-cache/<< parameters.img_name >>.docker"
 
   setup:
     description: "These steps should be run before any real ci/cd actions"
@@ -80,7 +95,7 @@ commands:
           docker_layer_caching: false
       - run:
           name: AWS ECR Login
-          command: eval $(aws ecr get-login --no-include-email --region ${AWS_REGION})
+          command: eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
 
       - run:
           name: Checkout code
@@ -124,7 +139,7 @@ commands:
 
             # configure ecs
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
-            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$AWS_REGION" --config-name "$CLUSTER_NAME"
+            ecs-cli configure --cluster "$CLUSTER_NAME" --region "$ECS_REGION" --config-name "$CLUSTER_NAME"
       - run:
           name: Download node identities
           command: |
@@ -177,83 +192,82 @@ workflows:
             branches:
               only: /^master$/
       - test:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
       - build:
-          filters:
-            branches:
-              only: /^master$/
           requires:
             - build-deps
-      - push:
+      - build-image:
           requires:
             - test
             - build
-          filters:
-            branches:
-              only: /^master$/
+      - catchup:
+          requires:
+            - build-image
+      - push:
+          requires:
+            - build-image
       - deploy-devnet:
           requires:
             - push
-          filters:
-            branches:
-              only: /^master$/
       - integration:
           requires:
+            - catchup
             - deploy-devnet
-          filters:
-            branches:
-              only: /^master$/
   tagged-build:
     jobs:
       - build-deps:
-          filters:  # required since `push` has tag filters AND requires `test, build`
+          filters:
             tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
             branches:
               ignore: /^master$/
       - test:
-          filters:  # required since `push` has tag filters AND requires `test, build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
       - build:
-          filters:  # required since `push` has tag filters AND requires `test-build`
-            tags:
-              ignore: /.*-testnet$|.*-mainnet$/ # only run job for these tags
-            branches:
-              ignore: /^master$/
           requires:
             - build-deps
-      - push:
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
+      - build-image:
           requires:
             - test
             - build
-          filters:  # required since `deploy` has tag filters AND requires `push`
+          filters:
+            tags:
+              only: /.*-catchup$|.*-push$|.*-deploy$/
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
+      - catchup:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-catchup$|.*-deploy$/
+      - push:
+          requires:
+            - build-image
+          filters:
             tags:
               only: /.*-push$|.*-deploy$/
-            branches:
-              ignore: /.*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
               only: /.*-deploy$/
-      - deploy-testnet:
-          filters:
-            tags:
-              only: /.*-testnet$/
-            branches:
-              ignore: /.*/
       - integration:
           requires:
+            - catchup
             - deploy-devnet
           filters:
             tags:
@@ -267,24 +281,71 @@ general_config: &general_config
         shell: /bin/bash
         <<: *aws_defaults
         NDAUHOME: /root/.ndau
-        NETWORK_NAME: "devnet" # used for snapshots
-        PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:30200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:30201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:30202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:30203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:30204 # devnet
-        CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
-
-testnet_config: &testnet_config
-    working_directory: /commands
-    docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
-    environment:
-        shell: /bin/bash
-        <<: *aws_defaults
-        NETWORK_NAME: "testnet" # used for snapshots
-        PERSISTENT_PEERS: 6cc80202fdfcc05ab8e1e2dbff6053f83ad1026e@p2p.ndau.tech:31200,91a090c05db0d49b2d09d879f4b513ec450fc3b6@p2p.ndau.tech:31201,fa77fe34ad9e315fb0104686ee3d22dfe4e4e126@p2p.ndau.tech:31202,6ddf04b622c63875452456458164bf4f0ec21206@p2p.ndau.tech:31203,a040a64fd4a5a2f77148ca2190784216334a928b@p2p.ndau.tech:31204 # testnet
-        CLUSTER_NAME: sc-node-cluster
-        SNAPSHOT_URL: https://s3.amazonaws.com/ndau-snapshots/snapshot-testnet-49.tgz
+        NETWORK_NAME: devnet
+        PERSISTENT_PEERS: 88cf98107823c1ca6621a0656daeecf731870532@devnet.ndau.tech:26660,7c7a66648ca0bf152aeee0c2d358f2d9f7b18341@devnet.ndau.tech:26661,dfa5eca4f826e977379e44d19dd606c06d8f7b7c@devnet.ndau.tech:26662,595562bf12ae2ba03d522f7026d9aa653ab9707c@devnet.ndau.tech:26663,59ed8217b8ef647b7ed1439408f3de35873e65d0@devnet.ndau.tech:26664 # devnet
+        CLUSTER_NAME: devnet
 
 jobs:
+  # The stub jobs are useful to test workflows and their job filters on the circle server
+  # without having to wait for actual work done by the jobs themselves.  The beef.js script
+  # can also help with this, but it sometimes doesn't match what circle actually does.
+  build-deps-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build-deps stub
+          command: |
+            echo "build-deps stub"
+  test-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: test stub
+          command: |
+            echo "test stub"
+  build-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build stub
+          command: |
+            echo "build stub"
+  build-image-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: build-image stub
+          command: |
+            echo "build-image stub"
+  catchup-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: catchup stub
+          command: |
+            echo "catchup stub"
+  push-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: push stub
+          command: |
+            echo "push stub"
+  deploy-devnet-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: deploy-devnet stub
+          command: |
+            echo "deploy-devnet stub"
+  integration-stub:
+    <<: *general_config
+    steps:
+      - run:
+          name: integration stub
+          command: |
+            echo "integration stub"
+
   build-deps:
     <<: *general_config
     steps:
@@ -302,14 +363,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Test
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a test script within the deps image
             docker run --rm \
                 -e CI=true \
@@ -320,21 +379,19 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Build
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # this runs a build script within the deps image
             docker run \
                 -e CI=true \
                 deps \
                 /bin/sh /root/build.sh
 
-  push:
+  build-image:
     <<: *general_config
     steps:
       - setup
@@ -346,27 +403,134 @@ jobs:
             # reload saved environment variables
             source $BASH_ENV
             # build single container node image
-            ./docker/bin/buildimage.sh
+            if [ -z "$CIRCLE_BRANCH" ]
+            then
+              echo "CIRCLE_TAG = $CIRCLE_TAG"
+              ./docker/bin/buildimage.sh "$CIRCLE_TAG"
+            else
+              echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
+              ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
+            fi
+      - save_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+
+  catchup:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+      - run:
+          name: test catchup on mainnet from genesis
+          command: |
+            # Run a local node connected to mainnet starting from the genesis snapshot.
+            nodename="catchup-node"
+            snapshot="snapshot-mainnet-1"
+            USE_LOCAL_IMAGE=1 \
+            ./docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+
+            echo
+
+            # Get the current height of mainnet.  We need to catch up to at least this height.
+            # Use mainnet-2 since that's in the same region as devnet.
+            status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
+            height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+            if [ -z "$height" ] || [ $height -le 0 ]; then
+              echo "Unable to get mainnet height"
+              false
+            fi
+            echo "Current mainnet height: $height"
+
+            # Catching up on mainnet will take longer and longer as the block height of mainnet
+            # increases over time.  This is known and we'll need to deal with it at some point.
+            # For now, we've agreed to wait as long as it takes.  However, it'll eventually be
+            # "too long".  Let's put a 20-minute cap on it for now.  If catchup does not complete
+            # in that amount of time, the circle job will fail and we'll be forced to deal with
+            # it in some way.  Either by accepting longer build times or by inventing a way to
+            # validate catchup compatibility another way, perhaps external to circle workflows.
+            printf "Catching up..."
+            last_h=0
+            for i in {1..120}; do
+              sleep 10
+              if ! s=$(docker exec -it "$nodename" curl -s http://localhost:26670/status); then
+                # If we can't query node status, something went wrong; assume failed catchup.
+                printf " (status failed)"
+                break
+              fi
+
+              h=$(echo $s | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
+              if [ -z "$h" ]; then
+                # If we didn't get a height back, something went wrong; assume failed catchup.
+                printf " (no height)"
+                break
+              fi
+              printf " $h"
+
+              catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
+              if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
+                caught_up=1
+                printf " (caught up)"
+                break
+              fi
+
+              if [ $h -le $last_h ]; then
+                # Fail if we didn't catch up at all since the last iteration.
+                # This indicates a stall, which likely means we're failing on full catchup.
+                printf " (stalled)"
+                break
+              fi
+
+              last_h=$h
+            done
+            printf "\n"
+
+            echo
+
+            # Stop and remove the container instance for the catchup test node.
+            ./docker/bin/removecontainer.sh "$nodename"
+
+            echo
+
+            if [ -z "$caught_up" ]; then
+              echo "Catchup failed"
+              false
+            fi
+
+            echo "Catchup complete"
+
+  push:
+    <<: *general_config
+    steps:
+      - setup
+      - restore_image:
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
+      - run:
+          name: push the single container image
+          command: |
+            # reload saved environment variables
+            source $BASH_ENV
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
             gzip -f /root/ndauimage-$SHA.docker
             aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
             # update the current-*.txt file for the network we're deploying to
-            echo $SHA > /root/current-$NETWORK_NAME.txt
-            aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+            # but only if we're deploying to master (e.g. don't do this for tagged pushes)
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+                echo $SHA > /root/current-$NETWORK_NAME.txt
+                aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+            fi
             # retag built image
-            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
+            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
             docker rmi ndauimage:$SHA
             # push the image to ECR
-            docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/sc-node:$SHA
+            docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
 
   deploy-devnet:
     <<: *general_config
-    steps:
-      - deploy-net
-  deploy-testnet:
-    <<: *testnet_config
     steps:
       - deploy-net
 
@@ -374,14 +538,12 @@ jobs:
     <<: *general_config
     steps:
       - setup
-      - restore_cache:
+      - restore_image:
+          img_name: deps:latest
           key: "{{ .Revision }}-deps"
       - run:
           name: Integration tests
           command: |
-            # load previously cached containers
-            find /opt/docker-cache -name "*.tar" -exec docker load -i {} \;
-
             # ensure go path location
             export GOPATH=/go
             mkdir -p $GOPATH/bin
@@ -392,27 +554,27 @@ jobs:
             # install dep
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
-            # install sed?
+            # install sed
             apk add sed
 
             # clone integration tests and ndev dep repos
             git clone git@github.com:oneiro-ndev/integration-tests.git
             ( cd integration-tests && echo "integration-tests repo at $(git rev-parse --short HEAD)" )
 
-            # build the ndau tool
-            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau'
+            # build the ndau tool and keytool
+            docker run deps /bin/sh -c 'go build -o /root/ndau /go/src/github.com/oneiro-ndev/commands/cmd/ndau && go build -o /root/keytool /go/src/github.com/oneiro-ndev/commands/cmd/keytool'
             container_id=$(docker ps -alq 2>&1)
             docker commit "$container_id" temp:latest
             docker run -d temp:latest /bin/sh -c 'sleep 60'
             container_id=$(docker ps -alq 2>&1)
             mkdir -p $ndev_dir/commands
             docker cp $container_id:/root/ndau $ndev_dir/commands/
+            docker cp $container_id:/root/keytool $ndev_dir/commands/
 
-            # write ndautool from bucket to a file.
+            # get ndautool.toml from the genesis repo; we use the testnet copy for devnet
+            git clone git@github.com:oneiro-ndev/genesis.git
             mkdir -p $NDAUHOME/ndau
-            AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
-            AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
-              aws s3 cp s3://ndau-deploy-secrets/$NETWORK_NAME-ndautool.toml $NDAUHOME/ndau/ndautool.toml
+            cp genesis/testnet-genesis/genesis_files/ndautool.toml $NDAUHOME/ndau/ndautool.toml
 
             cd integration-tests
 
@@ -420,7 +582,7 @@ jobs:
             pipenv sync
 
             # run tests
-            NODE_ADDRESS=https://api.ndau.tech \
-            NODE_0_RPC=30100 \
-            NODE_1_RPC=30101 \
-              pipenv run pytest -v --net=devnet --ndauapi=https://api.ndau.tech:30300
+            NODE_ADDRESS=https://devnet.ndau.tech \
+            NODE_0_RPC=26670 \
+            NODE_1_RPC=26671 \
+              pipenv run pytest -v --net=devnet --ndauapi=https://devnet.ndau.tech:3030

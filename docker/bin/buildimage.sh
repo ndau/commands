@@ -2,6 +2,16 @@
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+COMMANDS_BRANCH="$1"
+if [ -z "$COMMANDS_BRANCH" ]; then
+    COMMANDS_BRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
+    if [ -z "$COMMANDS_BRANCH" ]; then
+        echo "No commands branch specified"
+        exit 1
+    fi
+fi
+echo "Using commands branch/tag: $COMMANDS_BRANCH"
+
 DOCKER_DIR="$SCRIPT_DIR/.."
 COMMANDS_DIR="$DOCKER_DIR/.."
 SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
@@ -28,6 +38,7 @@ echo "Building $NDAU_IMAGE_NAME..."
 docker build \
        --no-cache \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
+       --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        "$DOCKER_DIR"/image \
        --tag="$NDAU_IMAGE_NAME"
 echo "done"

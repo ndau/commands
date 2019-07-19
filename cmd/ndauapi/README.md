@@ -1601,6 +1601,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
+          "BlockHeight": 1234,
+          "TxOffset": 3,
           "Tx": null
         }
 ```
@@ -1646,8 +1648,12 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "fee_napu": 10,
-          "err": "only set if an error occurred"
+          "fee_napu": 100,
+          "sib_napu": 10,
+          "err": "Err and ErrCode are only set if an error occurred",
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
@@ -1660,7 +1666,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
@@ -1692,7 +1698,9 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         {
-          "hash": "123abc34099f"
+          "hash": "123abc34099f",
+          "msg": "only set if additional information is available",
+          "code": 0
         }
 ```
 
@@ -1718,10 +1726,8 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         {
-          "ChaosVersion": "",
-          "ChaosSha": "",
           "NdauVersion": "v1.2.3",
-          "NdauSha": "3123abc35",
-          "Network": "ndau mainnet"
+          "NdauSha": "23abc35",
+          "Network": "mainnet"
         }
 ```

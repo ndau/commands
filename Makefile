@@ -189,6 +189,9 @@ $(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go
 ###################################
 ### The crank debugger/runtime
 
+cmd/crank/crankvalues.go: cmd/crank/crankvalues.peggo
+	pigeon -o ./cmd/crank/crankvalues.go ./cmd/crank/crankvalues.peggo
+
 $(CRANK): cmd/crank/*.go
 	go build -o $(CRANK) ./cmd/crank
 

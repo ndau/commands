@@ -10,7 +10,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PEERS=()
 tarballs=()
 
-BASE_PORT=30000
 source "$DIR/deploy-lib.sh"
 
 network_name=$1
@@ -33,7 +32,12 @@ for node_number in $( seq 0 9 ); do # automatically deploy up to 10 nodes
         mkdir "$rnd_dir"
         tar xzvf "$tarball" -C "$rnd_dir" 2> /dev/null
         node_id=$(TMHOME="$rnd_dir/tendermint" tendermint show_node_id)
-        PEERS+=("$node_id@_IP_:$(calc_port $network_name p2p $node_number)")
+        cname="$network_name"
+        # Only devnet nodes are all on the same instance.
+        if [ "$network_name" != "devnet" ]; then
+            cname="$cname-$node_number"
+        fi
+        PEERS+=("$node_id@$cname.ndau.tech:$(calc_port p2p $node_number)")
         echo "node_id $node_number: $node_id"
         rm -rf "$rnd_dir"
     fi

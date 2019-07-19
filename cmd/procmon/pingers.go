@@ -41,12 +41,13 @@ func HTTPPinger(u string, timeout time.Duration, logger *logrus.Logger) func() E
 
 // RedisPinger returns a function that sends a Ping to the
 // redis service at the given address and expects PONG.
-func RedisPinger(address string) func() Eventer {
+func RedisPinger(address string, logger *logrus.Logger) func() Eventer {
 	redis := redis.NewClient(&redis.Options{
 		Addr: address,
 	})
 
 	return func() Eventer {
+		logger.WithField("addr", address).WithField("pinger", "RedisPinger").Debug("pinging")
 		result, err := redis.Ping().Result()
 		if err != nil {
 			return NewErrorEvent(Failed, err)

@@ -45,6 +45,7 @@ func updateFromGenesis(gfilePath, asscpath string, conf *config.Config) {
 
 			for _, sa := range []sv.SysAcct{
 				sv.CommandValidatorChange,
+				sv.NodeRulesAccount,
 				sv.NominateNodeReward,
 				sv.ReleaseFromEndowment,
 				sv.RecordPrice,

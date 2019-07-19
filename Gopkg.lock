@@ -293,6 +293,14 @@
   version = "v0.0.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:d0899ec7c2f61fd5e4ccba7dbefe72e366a3ecce23ecdb982c768fa1d38812fb"
+  name = "github.com/google/shlex"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c34317bd91bf98fab745d77b03933cf8769299fe"
+
+[[projects]]
   digest = "1:ec5262e6c65f9fcedc01d7789ee4e18ad429dde822cfd50e57e3fd77c4d70c73"
   name = "github.com/gorilla/mux"
   packages = ["."]
@@ -474,8 +482,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "3bb5efd37add7e9a0b826788538086eadfe5b432"
-  version = "v1.4.0"
+  revision = "180b6970aaf3df5cdd2ba05607e5ca36e08f5d56"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -494,7 +502,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:ffcb4bc4e9f277c66e416a8a33babb29da7c2ac3cebeade7b6acbfb51488ac87"
+  digest = "1:da04af38ead8416023c7b9445ec85395e82c997639f7c9500cfb015bae184a56"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -512,11 +520,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "15d7430307722a095bee380b5296a91277e7d9c5"
-  version = "v1.16"
+  revision = "6a4a00aea04b584889afdee2d44419e15ce222b6"
+  version = "v1.18.0"
 
 [[projects]]
-  digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
+  digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -538,8 +546,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "65e5600e601abfb67fb7697d04043466d89e8265"
-  version = "v1.2.0"
+  revision = "a3d5bf3ba797e8acbfcb8debfeccfb3a19b0525f"
+  version = "v1.3.1"
 
 [[projects]]
   branch = "master"
@@ -559,17 +567,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7d00d04a9afd24c1322aba8e6c1bc18df36706dd472b7cd1145732cf8509426c"
+  digest = "1:779ecd52c9f98a9684aa87e53914ac9f9e06e3ddab8d6c50c1785fa274974a8d"
   name = "github.com/oneiro-ndev/recovery"
   packages = [
     "pkg/message",
     "pkg/signer",
   ]
   pruneopts = ""
-  revision = "8ff46887cf29f0f2829730bac473a3a88efe431f"
+  revision = "86ae0fc166fbb8e9b6683a32296a72a65da13aae"
 
 [[projects]]
-  digest = "1:9f4e88a151a8ff24cc8cd5d52f163b0ab6ee0d654cac2eea7e17a74be9430a33"
+  digest = "1:5fb95ade1713af4bdc5a5892d16e1630758d8d4eff5717c55c51bc1f258be97c"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -577,8 +585,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "08dc98ae4b692dacb18b704dd106fe95d4004c3a"
-  version = "v1.2.2"
+  revision = "ab1df02c3bb645f9e0470891e984adf257b46fb4"
+  version = "v1.2.3"
 
 [[projects]]
   digest = "1:478d348a3b450b2951b2ad155bf12d0beaef59fcf0d66c2d78b010dc7418e8e7"
@@ -676,6 +684,17 @@
   pruneopts = ""
   revision = "9a47f48565a795472d43519dd49aac781f3034fb"
   version = "v1.6.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:23b2f09199abd84ffef1081b3fd1ff7e7efafcf4440a57a8418e7bca87cb53cf"
+  name = "github.com/savaki/jq"
+  packages = [
+    ".",
+    "scanner",
+  ]
+  pruneopts = ""
+  revision = "0e6baecebbf8a24a6590d3fc8232165008d6e5d8"
 
 [[projects]]
   branch = "master"
@@ -958,10 +977,12 @@
     "github.com/attic-labs/noms/go/spec",
     "github.com/attic-labs/noms/go/types",
     "github.com/go-redis/redis",
+    "github.com/google/shlex",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
     "github.com/jawher/mow.cli",
     "github.com/kentquirk/rewriter/pkg/rewriter",
+    "github.com/mitchellh/go-homedir",
     "github.com/oneiro-ndev/chaincode/pkg/chain",
     "github.com/oneiro-ndev/chaincode/pkg/vm",
     "github.com/oneiro-ndev/genesis/pkg/cli.util",
@@ -979,6 +1000,7 @@
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes",
     "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
+    "github.com/oneiro-ndev/ndau/pkg/query",
     "github.com/oneiro-ndev/ndau/pkg/tool",
     "github.com/oneiro-ndev/ndau/pkg/tool.config",
     "github.com/oneiro-ndev/ndau/pkg/version",
@@ -998,12 +1020,11 @@
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",
     "github.com/pkg/errors",
     "github.com/rs/cors",
+    "github.com/savaki/jq",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/tendermint/tendermint/abci/server",
-    "github.com/tendermint/tendermint/crypto/ed25519",
-    "github.com/tendermint/tendermint/crypto/encoding/amino",
     "github.com/tendermint/tendermint/libs/log",
     "github.com/tendermint/tendermint/rpc/client",
     "github.com/tendermint/tendermint/rpc/core/types",

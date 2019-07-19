@@ -131,6 +131,7 @@ func (ct *ConfigTask) interpolate(env map[string]string) {
 	ct.Parent = interpolate(ct.Parent, env)
 	ct.MaxShutdown = interpolate(ct.MaxShutdown, env)
 	ct.Args = interpolateAll(ct.Args, env).([]string)
+	ct.Specials = interpolateAll(ct.Specials, env).(map[string]interface{})
 	for i := range ct.Monitors {
 		ct.Monitors[i] = interpolateAll(ct.Monitors[i], env).(map[string]string)
 	}
@@ -242,7 +243,7 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 		if mon["addr"] == "" {
 			mon["addr"] = "localhost:6379"
 		}
-		m := RedisPinger(mon["addr"])
+		m := RedisPinger(mon["addr"], logger)
 		return m, nil
 	case "http":
 		timeout, err := parseDuration(mon["timeout"], time.Second)

@@ -5,10 +5,27 @@ source "$SCRIPT_DIR"/docker-env.sh
 
 SNAPSHOT_DIR="$SCRIPT_DIR/snapshot"
 mkdir -p "$SNAPSHOT_DIR"
-SNAPSHOT_FILE="${SNAPSHOT_URL##*/}"
+
+# No snapshot given means "use the latest".
+if [ -z "$SNAPSHOT_NAME" ]; then
+    LATEST_FILE="latest-$NETWORK.txt"
+    LATEST_PATH="$SNAPSHOT_DIR/$LATEST_FILE"
+
+    echo "Fetching $LATEST_FILE..."
+    rm -f "$LATEST_PATH"
+    curl -s -o "$LATEST_PATH" "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$LATEST_FILE"
+    if [ ! -f "$LATEST_PATH" ]; then
+        echo "Unable to fetch $SNAPSHOT_URL/$SNAPSHOT_BUCKET/$LATEST_FILE"
+        exit 1
+    fi
+
+    SNAPSHOT_NAME=$(cat $LATEST_PATH)
+fi
+
+SNAPSHOT_FILE="$SNAPSHOT_NAME.tgz"
 
 echo "Fetching $SNAPSHOT_FILE..."
-wget -O "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL"
+curl -s -o "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$SNAPSHOT_FILE"
 
 echo "Extracting $SNAPSHOT_FILE..."
 cd "$SNAPSHOT_DIR" || exit 1
@@ -101,6 +118,10 @@ fi
 # Make directories that don't get created elsewhere.
 mkdir -p "$NODE_DATA_DIR"
 mkdir -p "$LOG_DIR"
+
+# Now that we have our ndau data directory (ndau home dir), move the config file into it.
+mkdir -p "$NDAUHOME/ndau"
+mv "$SCRIPT_DIR/docker-config.toml" "$NDAUHOME/ndau/config.toml"
 
 cd "$BIN_DIR" || exit 1
 

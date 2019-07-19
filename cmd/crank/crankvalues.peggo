@@ -1,0 +1,204 @@
+{
+    package main
+
+    import (
+    "strconv"
+
+    "github.com/oneiro-ndev/chaincode/pkg/chain"
+    "github.com/oneiro-ndev/chaincode/pkg/vm"
+    "github.com/oneiro-ndev/ndaumath/pkg/constants"
+    )
+}
+
+Result <-
+    ( v:Values EOF                            { return v.([]vm.Value), nil }
+    / EOF                                     { return []vm.Value{}, nil }
+    )
+
+Values <-
+    ( v:Value ',' vs:Values {
+            va := append([]vm.Value{v.(vm.Value)}, vs.([]vm.Value)...)
+            return va, nil
+        }
+    / v:Value vs:Values {
+            va := append([]vm.Value{v.(vm.Value)}, vs.([]vm.Value)...)
+            return va, nil
+        }
+    / v:Value                                 { return []vm.Value{v.(vm.Value)}, nil }
+    )
+
+Value <-
+    ( Timestamp
+    / Account
+    / Number
+    / BinaryConstant
+    / Napu
+    / Ndau
+    / QuotedString
+    / HexBytes
+    / List
+    / Struct
+    )
+
+Timestamp <- _ ts:RFC3339                     { return vm.ParseTimestamp(ts.(string)) }
+
+RFC3339 <- [0-9-]+ 'T' [0-9:]+ 'Z'            { return string(c.text), nil }
+
+Account <- _ "account"                        { return chain.ToValue(getRandomAccount()) }
+
+Number <-
+    ( BinaryNumber
+    / HexNumber
+    / DecimalNumber
+    )
+
+BinaryNumber <- _ n:BinaryValue {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+BinaryValue <- "0b" [01_]+                    { return string(c.text), nil }
+
+HexNumber <- _ n:HexValue {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+HexValue <- "0x" [0-9a-fA-F_]+                { return string(c.text), nil }
+
+DecimalNumber <- _ n:DecimalValue {
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+DecimalValue <-
+    ( '-'? [0-9_]+                            { return string(c.text), nil }
+    / '0'                                     { return string(c.text), nil }
+    )
+
+BinaryConstant <- _ k:(True/False)            { return k, nil }
+True <- [Tt][Rr][Uu][Ee]                      { return vm.NewNumber(1), nil }
+False <- [Ff][Aa][Ll][Ss][Ee]                 { return vm.NewNumber(0), nil }
+
+Napu <- _ "np" n:DecimalValue {
+        // napu is a base-10 positive integer preceded with np; it is delivered as an integer number of napu
+        x, err := parseInt(n.(string), 64)
+        return vm.NewNumber(x), err
+    }
+
+Ndau <- _ "nd" n:FloatValue {
+        // ndau values are a base-10 positive decimal, which is multiplied by 10^8 and converted to integer
+        x, err := strconv.ParseFloat(n.(string), 64)
+        return vm.NewNumber(int64(x * constants.QuantaPerUnit)), err
+    }
+
+FloatValue <-
+    ( [0-9_]* '.' [0-9_]+                     { return string(c.text), nil }
+    / [0-9_]+ '.' [0-9_]+                     { return string(c.text), nil }
+    / [0-9_]+ '.'?                            { return string(c.text), nil }
+    )
+
+QuotedString <-
+    ( DoubleQuote
+    / SingleQuote
+    )
+
+DoubleQuote <- _ '"' b:Escaped2QuotedText '"' { return vm.NewBytes(b.([]byte)), nil }
+SingleQuote <- _ "'" b:Escaped1QuotedText "'" { return vm.NewBytes(b.([]byte)), nil }
+
+Escaped2QuotedText <- t:Escaped2QuotedRun* {
+        ba := make([][]byte, len(t.([]interface{})))
+        for _, b := range t.([]interface{}) {
+            ba = append(ba, b.([]byte))
+        }
+        return bytes.Join(ba, nil), nil
+    }
+
+Escaped2QuotedRun <-
+    ( [^"\\]+                                 { return c.text, nil }
+    / "\\n"                                   { return []byte("\n"), nil }
+    / "\\r"                                   { return []byte("\r"), nil }
+    / "\\t"                                   { return []byte("\t"), nil }
+    / "\\\""                                  { return []byte("\""), nil }
+    / "\\\\"                                  { return []byte("\\"), nil }
+    )
+
+Escaped1QuotedText <- t:Escaped1QuotedRun* {
+        ba := make([][]byte, len(t.([]interface{})))
+        for _, b := range t.([]interface{}) {
+            ba = append(ba, b.([]byte))
+        }
+        return bytes.Join(ba, nil), nil
+    }
+
+Escaped1QuotedRun <-
+    ( [^'\\]+                                 { return c.text, nil }
+    / "\\n"                                   { return []byte("\n"), nil }
+    / "\\r"                                   { return []byte("\r"), nil }
+    / "\\t"                                   { return []byte("\t"), nil }
+    / "\\'"                                   { return []byte("'"), nil }
+    / "\\\\"                                  { return []byte("\\"), nil }
+    )
+
+HexBytes <- _ "B(" bs:HexPairs ')' {
+        // arrays of bytes are B(hex) with individual bytes as hex pairs with no 0x; embedded spaces and underscores are ignored
+        ba := []byte{}
+        pair := regexp.MustCompile("([0-9A-Fa-f][0-9A-Fa-f])")
+        for _, it := range pair.FindAllString(bs.(string), -1) {
+            b, _ := strconv.ParseInt(strings.TrimSpace(it), 16, 8)
+            ba = append(ba, byte(b))
+        }
+        return vm.NewBytes(ba), nil
+    }
+HexPairs <- ([0-9A-Fa-f][0-9A-Fa-f][_ ]*)+    { return string(c.text), nil }
+
+Struct <-
+    ( StructStart StructEnd                   { return vm.NewStruct(), nil }
+    / StructStart fl:Fields StructEnd {
+            str := vm.NewStruct()
+            for _, i := range fl.([]vm.Value) {
+                istr := i.(*vm.Struct)
+                for _, ix := range istr.Indices() {
+                    v2, _ := istr.Get(ix)
+                    str = str.Set(ix, v2)
+                }
+            }
+            return str, nil
+        }
+    )
+
+Fields <-
+    ( f:Field ','? fs:Fields {
+            fa := append([]vm.Value{f.(vm.Value)}, fs.([]vm.Value)...)
+            return fa, nil
+        }
+    / f:Field                                 { return []vm.Value{f.(vm.Value)}, nil }
+    )
+
+Field <- _ id:FieldID _ ':' v:Value {
+        // fields for structs are fieldid:Value; they are returned as a struct with one field that
+        // is consolidated when they are enclosed in {} wrappers
+        s := id.(string)
+        if p, ok := predefined[s]; ok {
+            s = p
+        }
+        fieldid, err := strconv.ParseInt(s, 10, 8)
+        str := vm.NewStruct().Set(byte(fieldid), v.(vm.Value))
+        return str, err
+    }
+
+FieldID <- ( [0-9]+ / [A-Z_]+ )               { return string(c.text), nil }
+
+List <-
+    ( ListStart ListEnd                       { return vm.NewList(), nil }
+    / ListStart vs:Values ListEnd             { return vm.NewList(vs.([]vm.Value)...), nil }
+    )
+
+StructStart <- _ '{'
+StructEnd <- _ '}'
+ListStart <- _ '['
+ListEnd <- _ ']'
+
+_ <- [ \t]*
+
+EOF <- _ !.

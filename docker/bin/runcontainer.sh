@@ -3,13 +3,20 @@
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 IMAGE_BASE_URL="https://s3.amazonaws.com/ndau-images"
-SNAPSHOT_BASE_URL="https://s3.amazonaws.com/ndau-snapshots"
 SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_API_PORT=3030
 LOG_FORMAT=json
 LOG_LEVEL=info
+
+# Leave this blank/unset to disable periodic snapshot creation.
+# Set to "4h", for example, to generate a snapshot every 4 hours.
+# Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
+# must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
+#SNAPSHOT_INTERVAL="4h"
+#AWS_ACCESS_KEY_ID=""
+#AWS_SECRET_ACCESS_KEY=""
 
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
@@ -99,27 +106,11 @@ echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "API port: $API_PORT"
 
-DOCKER_DIR="$SCRIPT_DIR/.."
-
-# No snapshot given means "use the latest".
 if [ -z "$SNAPSHOT" ]; then
-    NDAU_SNAPSHOTS_SUBDIR="ndau-snapshots"
-    NDAU_SNAPSHOTS_DIR="$DOCKER_DIR/$NDAU_SNAPSHOTS_SUBDIR"
-    mkdir -p "$NDAU_SNAPSHOTS_DIR"
-
-    LATEST_FILE="latest-$NETWORK.txt"
-    LATEST_PATH="$NDAU_SNAPSHOTS_DIR/$LATEST_FILE"
-    echo "Fetching $LATEST_FILE..."
-    curl -o "$LATEST_PATH" "$SNAPSHOT_BASE_URL/$LATEST_FILE"
-    if [ ! -f "$LATEST_PATH" ]; then
-        echo "Unable to fetch $SNAPSHOT_BASE_URL/$LATEST_FILE"
-        exit 1
-    fi
-
-    SNAPSHOT=$(cat $LATEST_PATH)
+    echo "Snapshot: (latest)"
+else
+    echo "Snapshot: $SNAPSHOT"
 fi
-
-echo "Snapshot: $SNAPSHOT"
 
 # The timeout flag on linux differs from mac.
 if [[ "$OSTYPE" == *"darwin"* ]]; then
@@ -245,11 +236,11 @@ echo "Persistent peers: '$PERSISTENT_PEERS'"
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
 # If the image isn't present, fetch the "current" image from S3 for the given network.
-if [ "$NETWORK" = "localnet" ]; then
+if [ "$NETWORK" = "localnet" ] || [ "$USE_LOCAL_IMAGE" = 1 ]; then
     NDAU_IMAGE_NAME="ndauimage:latest"
 else
     NDAU_IMAGES_SUBDIR="ndau-images"
-    NDAU_IMAGES_DIR="$DOCKER_DIR/$NDAU_IMAGES_SUBDIR"
+    NDAU_IMAGES_DIR="$SCRIPT_DIR/../$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
 
     CURRENT_FILE="current-$NETWORK.txt"
@@ -295,14 +286,18 @@ docker create \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
        -p "$API_PORT":"$INTERNAL_API_PORT" \
        --name "$CONTAINER" \
+       -e "NETWORK=$NETWORK" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
+       -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
+       -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
+       -e "SNAPSHOT_INTERVAL=$SNAPSHOT_INTERVAL" \
        -e "LOG_FORMAT=$LOG_FORMAT" \
        -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
-       -e "SNAPSHOT_URL=$SNAPSHOT_BASE_URL/$SNAPSHOT.tgz" \
+       -e "SNAPSHOT_NAME=$SNAPSHOT" \
        --sysctl net.core.somaxconn=511 \
        $NDAU_IMAGE_NAME
 

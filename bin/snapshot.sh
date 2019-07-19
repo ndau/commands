@@ -149,6 +149,7 @@ SNAPSHOT_PATH="$NDAU_SNAPSHOTS_DIR/$SNAPSHOT_NAME.tgz"
 echo "  bundling $SNAPSHOT_NAME..."
 cd "$SNAPSHOT_TEMP_DIR" || exit 1
 tar -czf "$SNAPSHOT_PATH" data
+cd .. || exit 1
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
 # Make the "latest" file.
@@ -162,13 +163,12 @@ if [ "$MODIFY_CONFIG_YML" = true ]; then
     persistent_peers=$(join_by , "${PERSISTENT_PEERS[@]}")
     sed -i '' -E \
         -e 's|^( *PERSISTENT_PEERS: )(.*)( # '"$NETWORK"')$|\1'"$persistent_peers"'\3|' \
-        -e 's|^( *SNAPSHOT_URL: .*/)(snapshot-'"$NETWORK"'-.*\.tgz)$|\1'"$SNAPSHOT_NAME.tgz"'|' \
         "$CONFIG_YML_PATH"
 else
     # If this happens, it could mean that the anchor comment is missing, e.g. "... # mainnet",
     # or the number of nodes in the snapshot differs from the number of peers found in the yml.
     # It's non-fatal; anyone wanting to re-deploy will have to take care of it manually.
-    echo "Unable to modify PERSISTENT_PEERS and SNAPSHOT_URL for $NETWORK in $CONFIG_YML_PATH"
+    echo "Unable to modify PERSISTENT_PEERS for $NETWORK in $CONFIG_YML_PATH"
 fi
 
 # These can be used for uploading the snapshot to S3.
@@ -195,7 +195,7 @@ echo "       $UPLOAD_LATEST_CMD"
 if [ "$MODIFY_CONFIG_YML" = true ]; then
     echo "  4. Your copy of $CONFIG_YML_NAME has been modified; commit it if desired"
 else
-    echo "  4. The $CONFIG_YML_NAME file might need its PERSISTENT_PEERS and SNAPSHOT_URL updated"
+    echo "  4. The $CONFIG_YML_NAME file might need PERSISTENT_PEERS updated"
 fi
 
 echo
