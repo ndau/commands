@@ -54,44 +54,86 @@ import (
     "testing"
 
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code"
+    metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
     metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
     "github.com/oneiro-ndev/ndau/pkg/ndau/backing"
     "github.com/oneiro-ndev/ndaumath/pkg/address"
     "github.com/oneiro-ndev/ndaumath/pkg/constants"
     "github.com/oneiro-ndev/ndaumath/pkg/eai"
+    "github.com/oneiro-ndev/ndaumath/pkg/signature"
     math "github.com/oneiro-ndev/ndaumath/pkg/types"
     "github.com/stretchr/testify/require"
-    "github.com/tinylib/msgp/msgp"
 )
 
-
-func makeTx(t *testing.T, id int, data string) metatx.Transactable {
-    datab, err := base64.StdEncoding.DecodeString(data)
-    require.NoError(t, err)
-    mtx := metatx.Transaction{
-        Nonce: []byte{},
-        TransactableID: metatx.TxID(id),
-        Transactable: msgp.Raw(datab),
+func makeVKs(t *testing.T, keys ...string) []signature.PublicKey {
+    vks := make([]signature.PublicKey, 0, len(keys))
+    for _, ks := range keys {
+        vk, err := signature.ParsePublicKey(ks)
+        require.NoError(t, err)
+        vks = append(vks, *vk)
     }
-    tx, err := mtx.AsTransactable(TxIDs)
-    require.NoError(t, err)
-    return tx
+    return vks
 }
 """
 
 TEST_TX_TEMPLATE = """
     {
-        tx := makeTx(t, $id, "$data")
+        data, err := base64.StdEncoding.DecodeString("$data")
+        require.NoError(t, err)
+        tx, err := metatx.Unmarshal(data, TxIDs)
+        require.NoError(t, err)
         resp := deliverTxAt(t, app, tx, $timestamp)
         require.Equal(t, code.OK, code.ReturnCode(resp.Code))
         acct, _ := app.getAccount(addr)
         require.Equal(t, math.Ndau($balance), acct.Balance)
     }
-"""
+""".strip(
+    "\n"
+)
 
 TEST_TEMPLATE = """
 func Test_${address}_History(t *testing.T) {
     app, _ := initApp(t)
+
+
+    node1, err := address.Validate("ndarw5i7rmqtqstw4mtnchmfvxnrq4k3e2ytsyvsc7nxt2y7")
+    require.NoError(t, err)
+    modify(t, node1.String(), app, func(ad *backing.AccountData) {
+        ad.ValidationKeys = makeVKs(t,
+            "npuba8jadtbbeamn89h5zgr5cmjggcwkchbsgqhf5m7zb58xe7rwqwvzif23ebfqz4wh224ve2qw",
+            "npuba8jadtbbeabmk869zakhpzmiv2xvzc7yyxrzcmfu6eqbw9ttyi9bwrcpiz7jqki9pwsw7vsp",
+            "npuba8jadtbbebivxyxnve83n7rwdmdzg3k3mpv7ed9y5jptgsnd5qf3uu9fx7sbddf63b636s3i",
+            "npuba8jadtbbed6uj93t6c8hn72bt4ypw2rxx6zmfpcfkqmmxxt5m2e7ydit3gtfpt4quxzfcmkr",
+        )
+    })
+    err = app.UpdateStateImmediately(func(stI metast.State) (metast.State, error) {
+        st := stI.(*backing.State)
+        st.Nodes[node1.String()] = backing.Node{
+            Active: true,
+        }
+        return st, nil
+    })
+    require.NoError(t, err)
+
+
+    node2, err := address.Validate("ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa")
+    require.NoError(t, err)
+    modify(t, node2.String(), app, func(ad *backing.AccountData) {
+        ad.ValidationKeys = makeVKs(t,
+            "npuba8jadtbbea97bcz4v2c4gtcntx53cgjpv92hscm95gg2m6tntwysawxkahkse4bcdpp5dm24",
+            "npuba8jadtbbeabmk869zakhpzmiv2xvzc7yyxrzcmfu6eqbw9ttyi9bwrcpiz7jqki9pwsw7vsp",
+            "npuba8jadtbbebivxyxnve83n7rwdmdzg3k3mpv7ed9y5jptgsnd5qf3uu9fx7sbddf63b636s3i",
+            "npuba8jadtbbed6uj93t6c8hn72bt4ypw2rxx6zmfpcfkqmmxxt5m2e7ydit3gtfpt4quxzfcmkr",
+        )
+    })
+    err = app.UpdateStateImmediately(func(stI metast.State) (metast.State, error) {
+        st := stI.(*backing.State)
+        st.Nodes[node2.String()] = backing.Node{
+            Active: true,
+        }
+        return st, nil
+    })
+    require.NoError(t, err)
 
     ts := math.Timestamp($creation)
     // create the account
@@ -103,7 +145,7 @@ func Test_${address}_History(t *testing.T) {
         ad.CurrencySeatDate = &ts
         ad.Lock = backing.NewLock($creation + math.Year, eai.DefaultLockBonusEAI)
         ad.Lock.Notify($creation, 0)
-        ad.DelegationNode = &nodeAddress
+        ad.DelegationNode = &$node
         ad.RecourseSettings.Period = math.Hour
     })
 
@@ -119,7 +161,7 @@ def generate_tests():
     print(HEADER_TEMPLATE)
     tx_template = Template(TEST_TX_TEMPLATE)
     test_template = Template(TEST_TEMPLATE)
-    for account in ACCOUNTS:
+    for account, node in zip(ACCOUNTS, ["node1", "node2"]):
         acct = Acct(account)
         tx_tests = []
         for event in acct.history:
@@ -136,6 +178,7 @@ def generate_tests():
                 address=account,
                 creation=timestamp_ms("2018-04-05T00:00:00Z"),
                 txs="\n".join(tx_tests),
+                node=node,
             )
         )
 
