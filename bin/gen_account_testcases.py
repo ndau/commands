@@ -18,8 +18,13 @@ EPOCH = dateutil.parser.parse("2000-01-01T00:00:00Z")
 
 
 def timestamp_ms(time):
-    "Number of milliseconds since the epoch; ndau-style"
-    return (dateutil.parser.parse(time) - EPOCH) // timedelta(milliseconds=1)
+    "Number of microseconds since the epoch; ndau-style"
+    return (dateutil.parser.parse(time) - EPOCH) // timedelta(microseconds=1)
+
+
+def unts_ms(ms):
+    "Convert ndau-style microseconds past the epoch into a timestamp"
+    return EPOCH + timedelta(microseconds=ms)
 
 
 def getjs(endpoint):
@@ -141,8 +146,8 @@ func Test_${address}_History(t *testing.T) {
         ad.LastEAIUpdate = ts
         ad.LastWAAUpdate = ts
         ad.CurrencySeatDate = &ts
-        ad.Lock = backing.NewLock($creation + math.Year, eai.DefaultLockBonusEAI)
-        ad.Lock.Notify($creation, 0)
+        ad.Lock = backing.NewLock(math.Year, eai.DefaultLockBonusEAI)
+        ad.Lock.Notify(ts, 0)
         ad.RecourseSettings.Period = math.Hour
     })
 
