@@ -503,7 +503,7 @@
 
 [[projects]]
   branch = "prgn-eai-test"
-  digest = "1:0456a1764a6a01b3563d7d5ccfa36ef4d36c731a3aa22ff99f5513e738eecd73"
+  digest = "1:1a9f938f7828c1b484bb6a0fdb41b090e0f4d2a73dee4b58e70b39c7ead3b22c"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -521,7 +521,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "704823a981940c4502df5f150f2e2c854d0cb929"
+  revision = "71d8e694dea17fefc65ba33caaf8f8874ebaba64"
 
 [[projects]]
   digest = "1:8856adc24486b6d662a5d929eae67314c26da2e6202e68f9b02b230f4a9810d8"
