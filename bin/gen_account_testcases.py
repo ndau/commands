@@ -95,7 +95,6 @@ TEST_TEMPLATE = """
 func Test_${address}_History(t *testing.T) {
     app, _ := initApp(t)
 
-
     node1, err := address.Validate("ndarw5i7rmqtqstw4mtnchmfvxnrq4k3e2ytsyvsc7nxt2y7")
     require.NoError(t, err)
     modify(t, node1.String(), app, func(ad *backing.AccountData) {
@@ -114,7 +113,6 @@ func Test_${address}_History(t *testing.T) {
         return st, nil
     })
     require.NoError(t, err)
-
 
     node2, err := address.Validate("ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa")
     require.NoError(t, err)
@@ -145,11 +143,12 @@ func Test_${address}_History(t *testing.T) {
         ad.CurrencySeatDate = &ts
         ad.Lock = backing.NewLock($creation + math.Year, eai.DefaultLockBonusEAI)
         ad.Lock.Notify($creation, 0)
-        ad.DelegationNode = &$node
         ad.RecourseSettings.Period = math.Hour
     })
 
     addr, err := address.Validate("$address")
+    require.NoError(t, err)
+    err = app.UpdateStateImmediately(app.Delegate(addr, $node))
     require.NoError(t, err)
 
     $txs
