@@ -472,7 +472,8 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:4475f53c5169d41c07798487427614a8138adcf2551ec679afa561984336c319"
+  branch = "prgn-eai-test"
+  digest = "1:2475a2020231086f2bf0df833066d3568f01aca7d2347e28f885fe9504e7b949"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -482,8 +483,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7f99730b41c81267b4bf1fab801be058f74518df"
-  version = "v1.6.3"
+  revision = "f949dff721b152c6bf2ab0dd8a10a1e142a43ca1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
