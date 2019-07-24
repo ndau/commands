@@ -25,7 +25,7 @@ echo "Converting persistent peer domain names to IP addresses..."
 
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
-if [ -z "$HONEYCOMB_KEY" ]; then
+if [ -z "$HONEYCOMB_KEY" ] || [ -z "$HONEYCOMB_DATASET" ]; then
     # Honeycomb not configured, we'll dump everything locally from procmon itself.
     ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
 else
@@ -43,15 +43,6 @@ on_sigterm() {
     kill "$procmon_pid"
     wait "$procmon_pid"
 
-    # Logs start over next time.  Save a copy of them all.  Having the "last run" might be useful.
-    # Only needed if honeycomb isn't in use.  No logs are written in that case.
-    if [ -z "$HONEYCOMB_KEY" ]; then
-        lastrun_dir="$LOG_DIR/lastrun"
-        rm -rf "$lastrun_dir"
-        mkdir -p "$lastrun_dir"
-        mv "$LOG_DIR"/*.log "$lastrun_dir"
-    fi
-
     # For completeness, mark the container as not running.
     rm -f "$RUNNING_FILE"
 
@@ -67,6 +58,17 @@ echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
     :
+done
+
+# Block until we have a block height of at least 1.
+# Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
+while :
+do
+    response=$(curl -s http://localhost:$NDAUAPI_PORT/block/height/1)
+    if [ ! -z "$response" ] && [[ "$response" != *"could not get block"* ]]; then
+        break
+    fi
+    sleep 1
 done
 
 # Now that we know all data files are in place and the node group is running,

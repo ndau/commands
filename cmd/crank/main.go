@@ -119,12 +119,12 @@ func main() {
 			log.Fatalf("Unable to parse bytes input: %s", err)
 		}
 
-		rs.vm, err = vm.New(vm.ChasmBinary{
-			Data: vm.ConvertToOpcodes(bytes),
-		})
+		var cvm *vm.ChaincodeVM
+		cvm, err = vm.NewChaincode(vm.ToChaincode(bytes))
 		if err != nil {
 			log.Fatalf("Unable to construct raw vm: %s", err)
 		}
+		rs.vm = cvm.MakeMutable()
 
 		if a.Verbose {
 			rs.dispatch("dis")

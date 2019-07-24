@@ -16,6 +16,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// LoggerOutput string constants.
+const (
+	LoggerOutputSuppress = "SUPPRESS"
+	LoggerOutputStdout   = "STDOUT"
+	LoggerOutputStderr   = "STDERR"
+)
+
 // Config is the overall structure for a procmon TOML config file
 // It looks like sample.toml.
 // These are the major sections
@@ -187,7 +194,7 @@ func Load(filename string, nocheck bool) (Config, error) {
 
 // RunPrologue creates and runs pingers in order to establish that everything is
 // ready to go.
-func (c *Config) RunPrologue(logger *logrus.Logger) error {
+func (c *Config) RunPrologue(logger logrus.FieldLogger) error {
 	for _, p := range c.Prologue {
 		pinger, err := BuildMonitor(p, logger)
 		if err != nil {
@@ -207,7 +214,7 @@ func (c *Config) RunPrologue(logger *logrus.Logger) error {
 
 // BuildMonitor constructs a monitor from an element in the
 // Monitors map
-func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer, error) {
+func BuildMonitor(mon map[string]string, logger logrus.FieldLogger) (func() Eventer, error) {
 	switch mon["type"] {
 	case "portavailable":
 		if mon["port"] == "" {
@@ -257,36 +264,27 @@ func BuildMonitor(mon map[string]string, logger *logrus.Logger) (func() Eventer,
 	}
 }
 
-func fileparse(name string, def io.Writer) (io.Writer, error) {
-	// When honeycomb is activated, all logging goes to it.
-	if os.Getenv("HONEYCOMB_KEY") != "" {
-		// Suppress local task-specific logging.  Each task in a node group will do its own
-		// honeycomb logging in this case.  Those tasks that don't have honeycomb support
-		// (e.g. redis, noms) will simply not log.  But they don't log much we care about anyway.
-		return ioutil.Discard, nil
+// Pass in one of the LoggerOutput* contants.
+// If blank, the given default is used.
+// Otherwise, the logger output is assumed to be a file name.
+// If the HONEYCOMB_* env vars are set, then all logging goes to honeycomb.
+func fileparse(taskName, loggerOutput string, def io.Writer) (io.Writer, error) {
+	if useHoneycomb {
+		// Route all output from a given task to its own honeycomb filter.
+		return newFilter(taskName), nil
 	}
-	
-	// If name == "", the def param is returned
-	// "SUPPRESS" meaning "discard this stream"
-	// "STDOUT" means "send to stdout"
-	// "STDERR" means "send to stderr"
-	// "HONEYCOMB" sends the message to honeycomb
-	// Anything else is a named file
-	switch name {
+
+	switch loggerOutput {
 	case "":
 		return def, nil
-	case "STDOUT":
+	case LoggerOutputStdout:
 		return os.Stdout, nil
-	case "STDERR":
+	case LoggerOutputStderr:
 		return os.Stderr, nil
-	case "SUPPRESS":
+	case LoggerOutputSuppress:
 		return ioutil.Discard, nil
-	case "HONEYCOMB":
-		// This would be useful for those apps that don't have honeycomb support built in.
-		// For example, redis and noms.  However, those apps don't log much we care about anyway.
-		return nil, errors.New("honeycomb is not currently supported as a log destination")
 	default:
-		f, err := os.Create(name)
+		f, err := os.OpenFile(loggerOutput, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return nil, err
 		}
@@ -297,7 +295,7 @@ func fileparse(name string, def io.Writer) (io.Writer, error) {
 // BuildTasks constructs all the tasks from a loaded config
 // It returns an array of the tasks that need to be individually
 // started. All child tasks will be descendants of these.
-func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
+func (c *Config) BuildTasks(logger logrus.FieldLogger) (Tasks, error) {
 	tasks := NewTasks()
 	// taskm := make(map[string]*Task)
 	// tasks := make([]*Task, 0)
@@ -323,12 +321,12 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 			}
 		}
 		// check for stdout/err assignments
-		stdout, err := fileparse(ct.Stdout, os.Stdout)
+		stdout, err := fileparse(t.Name, ct.Stdout, os.Stdout)
 		if err != nil {
 			return tasks, err
 		}
 		t.Stdout = stdout
-		stderr, err := fileparse(ct.Stderr, os.Stderr)
+		stderr, err := fileparse(t.Name, ct.Stderr, os.Stderr)
 		if err != nil {
 			return tasks, err
 		}
@@ -349,7 +347,7 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 		t.MaxShutdown = maxshutdown
 
 		// set up the logger
-		t.Logger = logger.WithField("task", t.Name).WithField("bin", "procmon")
+		t.Logger = logger
 
 		for _, prerun := range ct.Prerun {
 			if _, ok := tasks.All[prerun]; !ok {
@@ -391,39 +389,39 @@ func (c *Config) BuildTasks(logger *logrus.Logger) (Tasks, error) {
 }
 
 // BuildLogger constructs a logger given the configuration info.
-func (c *Config) BuildLogger() *logrus.Logger {
+// The returned logger is used by all tasks including the root task.  Tasks can apply additional
+// logger.WithField()s, but if honeycomb logging is enabled, then all tasks will log to honeycomb
+// regardless of their logger output configuration.
+func (c *Config) BuildLogger(rootTaskName string) logrus.FieldLogger {
 	var formatter logrus.Formatter
 	var out io.Writer
 	var level logrus.Level
 
-	if os.Getenv("HONEYCOMB_KEY") != "" {
-		// Suppress local procmon logging when the HONEYCOMB_* environment variables are set.
-		// Procmon will log to honeycomb in this case, not to disk or anywhere else.
-		out = ioutil.Discard
+	if useHoneycomb {
+		// Output json format for logging from the procmon app itself.
+		formatter = &logrus.JSONFormatter{}
+		// Filter that output through the honeycomb logger.
+		out = newFilter(rootTaskName)
 	} else {
 		switch c.Logger["output"] {
-		case "STDOUT":
+		case LoggerOutputStdout:
 			out = os.Stdout
-		case "STDERR", "":
+		case LoggerOutputStderr, "":
 			out = os.Stderr
-		case "SUPPRESS":
-			out = ioutil.Discard
-		case "HONEYCOMB":
-			// This would be useful for procmon itself to log to honeycomb, without having the
-			// global honeycomb logging behavior we get by setting the HONEYCOMB_* env vars.
+		case LoggerOutputSuppress:
 			out = ioutil.Discard
 		default:
 			out = ioutil.Discard
 		}
-	}
 
-	switch c.Logger["format"] {
-	case "json", "":
-		formatter = new(logrus.JSONFormatter)
-	case "text":
-		formatter = new(logrus.TextFormatter)
-	default:
-		formatter = new(logrus.JSONFormatter)
+		switch c.Logger["format"] {
+		case "json", "":
+			formatter = &logrus.JSONFormatter{}
+		case "text", "plain":
+			formatter = &logrus.TextFormatter{}
+		default:
+			formatter = &logrus.JSONFormatter{}
+		}
 	}
 
 	switch c.Logger["level"] {

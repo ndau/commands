@@ -1603,6 +1603,8 @@ _**Writes:**_
         {
           "BlockHeight": 1234,
           "TxOffset": 3,
+          "Fee": 0,
+          "SIB": 0,
           "Tx": null
         }
 ```
@@ -1666,7 +1668,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changesettlementperiod, changevalidation, claim, claim-child, claimaccount, claimchildaccount, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_

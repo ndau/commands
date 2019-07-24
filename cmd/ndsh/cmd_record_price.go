@@ -9,7 +9,7 @@ import (
 	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
 )
 
-// RecordPrice issues released funds
+// RecordPrice records the current market price of ndau (in USD)
 type RecordPrice struct{}
 
 var _ Command = (*RecordPrice)(nil)

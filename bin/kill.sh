@@ -53,7 +53,7 @@ check_killed() {
 initialize
 
 if [ -z "$1" ]; then
-    cmds=(ndauapi ndau_tm ndau_node ndau_noms ndau_redis)
+    cmds=(ndauapi ndau_tm ndau_node ndau_noms ndau_redis claimer)
     while IFS=$'\n' read -r line; do node_nums+=("$line"); done < <(seq "$HIGH_NODE_NUM" 0)
 else
     # We support killing a single process for a given node.
@@ -71,8 +71,19 @@ fi
 for node_num in "${node_nums[@]}";
 do
     for cmd in "${cmds[@]}"; do
+        if [ "$cmd" == "claimer" ]; then
+            continue
+        fi
         try_kill "$cmd-$node_num"
     done
+done
+
+# kill the claimer after everything else
+# there's only one; it's not separated by node num
+for cmd in "${cmds[@]}"; do
+    if [ "$cmd" == "claimer" ]; then
+        try_kill claimer
+    fi
 done
 
 # Give them all a chance to shutdown before we force-kill anything.
@@ -83,6 +94,9 @@ fi
 for node_num in "${node_nums[@]}";
 do
     for cmd in "${cmds[@]}"; do
+        if [ "$cmd" == "claimer" ]; then
+            continue
+        fi
         force_kill "$cmd-$node_num"
     done
 done
@@ -92,4 +106,11 @@ do
     for cmd in "${cmds[@]}"; do
         check_killed "$cmd-$node_num"
     done
+done
+
+for cmd in "${cmds[@]}"; do
+    if [ "$cmd" == "claimer" ]; then
+        force_kill claimer
+        check_killed claimer
+    fi
 done

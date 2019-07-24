@@ -7,8 +7,7 @@ SERVICES_URL="https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
 INTERNAL_P2P_PORT=26660
 INTERNAL_RPC_PORT=26670
 INTERNAL_API_PORT=3030
-LOG_FORMAT=json
-LOG_LEVEL=info
+GENERATED_GENESIS_SNAPSHOT="*"
 
 # Leave this blank/unset to disable periodic snapshot creation.
 # Set to "4h", for example, to generate a snapshot every 4 hours.
@@ -43,6 +42,8 @@ then
     echo "             If missing, the node will generate a new identity for itself"
     echo "  SNAPSHOT   Name of the snapshot to use as a starting point for the node group"
     echo "               If omitted, the latest $NETWORK snapshot will be used"
+    echo "               If it's a file, it will be used instead of pulling one from S3"
+    echo "               If it's $GENERATED_GENESIS_SNAPSHOT, genesis data is generated"
     echo "  PEERS_P2P  Comma-separated list of persistent peers on the network to join"
     echo "               Each peer should be of the form IP_OR_DOMAIN_NAME:PORT"
     echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
@@ -108,6 +109,8 @@ echo "API port: $API_PORT"
 
 if [ -z "$SNAPSHOT" ]; then
     echo "Snapshot: (latest)"
+elif [ "$SNAPSHOT" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
+    echo "Snapshot: (generated)"
 else
     echo "Snapshot: $SNAPSHOT"
 fi
@@ -124,9 +127,8 @@ fi
 test_local_port() {
     port="$1"
 
-    nc "$NC_TIMEOUT_FLAG" 5 -z localhost "$port" 2>/dev/null
-    if [ "$?" = 0 ]; then
-        echo "Port at $ip:$port is already in use"
+    if nc "$NC_TIMEOUT_FLAG" 5 -z localhost "$port" 2>/dev/null; then
+        echo "Port $port is already in use"
         exit 1
     fi
 }
@@ -145,8 +147,7 @@ test_peer() {
     fi
 
     echo "Testing connection to peer $ip:$port..."
-    nc "$NC_TIMEOUT_FLAG" 5 -z "$ip" "$port"
-    if [ "$?" != 0 ]; then
+    if ! nc "$NC_TIMEOUT_FLAG" 5 -z "$ip" "$port"; then
         echo "Could not reach peer"
         exit 1
     fi
@@ -292,8 +293,6 @@ docker create \
        -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
        -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
        -e "SNAPSHOT_INTERVAL=$SNAPSHOT_INTERVAL" \
-       -e "LOG_FORMAT=$LOG_FORMAT" \
-       -e "LOG_LEVEL=$LOG_LEVEL" \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
@@ -309,6 +308,12 @@ if [ ! -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     docker cp "$IDENTITY" "$CONTAINER:/image/$IDENTITY_FILE"
 fi
 
+# Copy the snapshot into the container if it exists as a local file.
+if [ -f "$SNAPSHOT" ]; then
+    echo "Copying local snapshot file to container..."
+    docker cp "$SNAPSHOT" "$CONTAINER:/image/snapshot-$NETWORK-0.tgz"
+fi
+
 echo "Starting container..."
 docker start "$CONTAINER"
 
@@ -317,6 +322,11 @@ until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
 do
     :
 done
+
+echo "Node is ready; dumping container logs..."
+echo "["
+docker container logs "$CONTAINER"
+echo "]"
 
 # In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.

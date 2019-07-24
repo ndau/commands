@@ -67,7 +67,7 @@ func confUpdateFrom(cmd *cli.Cmd) {
 		conf.SetAccount(config.Account{
 			Name:    "node-rules",
 			Address: sa.Address,
-			Transfer: []config.Keypair{
+			Validation: []config.Keypair{
 				config.Keypair{
 					Private: sa.Keys[0],
 				},

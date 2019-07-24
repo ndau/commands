@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// SetRewardsDestination an account
+// SetRewardsDestination sets an account's destination for EAI and node rewards
 type SetRewardsDestination struct{}
 
 var _ Command = (*SetRewardsDestination)(nil)

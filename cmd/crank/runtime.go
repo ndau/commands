@@ -25,7 +25,7 @@ const (
 )
 
 type runtimeState struct {
-	vm      *vm.ChaincodeVM
+	vm      *vm.MutableChaincodeVM
 	event   byte
 	stack   *vm.Stack
 	binary  string
@@ -73,7 +73,10 @@ func (rs *runtimeState) load(filename string) error {
 		return newExitError(1, err, nil)
 	}
 	vm, err := vm.New(bin)
-	rs.vm = vm
+	if err != nil {
+		return newExitError(1, err, nil)
+	}
+	rs.vm = vm.MakeMutable()
 	rs.binary = filename
 	if err != nil {
 		return newExitError(1, err, rs)
@@ -117,8 +120,20 @@ func (rs *runtimeState) step(debug vm.Dumper) error {
 	return err
 }
 
+var p = regexp.MustCompile("[[:space:]]+")
+
 func (rs *runtimeState) dispatch(s string) error {
-	p := regexp.MustCompile("[[:space:]]+")
+	if rs.vm == nil {
+		vm, err := vm.NewEmpty()
+		if err != nil {
+			return err
+		}
+		rs.vm = vm.MakeMutable()
+		err = rs.vm.Init(0)
+		if err != nil {
+			return err
+		}
+	}
 	args := p.Split(s, 2)
 	for key, cmd := range commands {
 		if key == args[0] || cmd.matchesAlias(args[0]) {
@@ -128,6 +143,11 @@ func (rs *runtimeState) dispatch(s string) error {
 			}
 			return cmd.handler(rs, extra)
 		}
+	}
+	chaincode, err := vm.MiniAsmSafe(s)
+	if err == nil {
+		// aha! this is chaincode, let's inject it
+		return rs.vm.Inject(chaincode, nil)
 	}
 	return fmt.Errorf("unknown command %s - type ? for help", s)
 }

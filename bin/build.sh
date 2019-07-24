@@ -46,7 +46,7 @@ build_ndau() {
 
     # generate api documentation
     api_doc="$(escape_newlines "$(./ndauapi -docs)")"
-    tmpl="$(escape_newlines "$(cat $NDAUAPI_CMD/README-template.md)")"
+    tmpl="$(escape_newlines "$(cat "$NDAUAPI_CMD/README-template.md")")"
 
     # generate new readme with api documentation
     readme="${tmpl/api_replacement_token/$api_doc}"
@@ -61,6 +61,7 @@ build_tools() {
     go build ./"$GENERATE_CMD"
     go build ./"$KEYTOOL_CMD"
     go build ./"$PROCMON_CMD"
+    go build ./"$CLAIMER_CMD"
 }
 
 build_tm() {

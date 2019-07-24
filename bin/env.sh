@@ -20,9 +20,7 @@ export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 export NDAUAPI_PORT=3030
-
-# We programmatically create and claim the bpc account on localnet.  This is its name.
-export BPC_OPS_ACCT_NAME=bpc-operations
+export CLAIMER_PORT=3000
 
 # Go source path.
 GO_DIR=$(go env GOPATH)
@@ -71,6 +69,7 @@ export TENDERMINT_CMD=cmd/tendermint
 export ETL_CMD=cmd/etl
 export KEYTOOL_CMD=cmd/keytool
 export PROCMON_CMD=cmd/procmon
+export CLAIMER_CMD=cmd/claimer
 
 # The localnet data directory is created by setup.sh and is not modified by any other script.
 # We use it for storing meta info about the local nodes we manage.
@@ -87,9 +86,6 @@ if [ -f "$CHAIN_ID_FILE" ]; then
     # shellcheck disable=SC2155
     export CHAIN_ID=$(cat "$CHAIN_ID_FILE")
 fi
-
-# File used by conf.sh to tell run.sh to import genesis data on first run after a reset.
-export NEEDS_UPDATE_FLAG_FILE="$ROOT_DATA_DIR"/needs_update
 
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
 join_by() { local IFS="$1"; shift; echo "$*"; }
