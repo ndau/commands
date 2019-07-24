@@ -67,6 +67,7 @@ import (
     "github.com/oneiro-ndev/ndaumath/pkg/eai"
     "github.com/oneiro-ndev/ndaumath/pkg/signature"
     math "github.com/oneiro-ndev/ndaumath/pkg/types"
+    sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
     "github.com/stretchr/testify/require"
 )
 
@@ -87,7 +88,7 @@ TEST_TX_TEMPLATE = """
         require.NoError(t, err)
         tx, err := metatx.Unmarshal(data, TxIDs)
         require.NoError(t, err)
-        resp := deliverTxAt(t, app, tx, $timestamp)
+        resp, _ := deliverTxContext(t, app, tx, context.at($timestamp))
         require.Equal(t, code.OK, code.ReturnCode(resp.Code))
         acct, _ := app.getAccount(addr)
         require.Equal(t, math.Ndau($balance), acct.Balance)
@@ -155,6 +156,13 @@ func Test_${address}_History(t *testing.T) {
     require.NoError(t, err)
     err = app.UpdateStateImmediately(app.Delegate(addr, $node))
     require.NoError(t, err)
+
+    // set the EAI overtime system var above what we need
+    overtime, err := math.Duration(10 * math.Year).MarshalMsg(nil)
+    require.NoError(t, err)
+    context := ddc(t).with(func(svs map[string][]byte) {
+        svs[sv.EAIOvertime] = overtime
+    })
 
     $txs
 }
