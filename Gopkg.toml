@@ -22,7 +22,8 @@ branch = "prgn-eai-test"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
-version = "~v1.3"
+# version = "~v1.3"
+branch = "prgn-eai-test"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"

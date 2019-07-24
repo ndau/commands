@@ -147,7 +147,10 @@ func Test_${address}_History(t *testing.T) {
         ad.LastEAIUpdate = ts
         ad.LastWAAUpdate = ts
         ad.CurrencySeatDate = &ts
-        ad.Lock = backing.NewLock(math.Year, eai.DefaultLockBonusEAI)
+        ad.Lock = backing.NewLock(
+            math.Year + (2*math.Month) + (22*math.Day),
+            eai.DefaultLockBonusEAI,
+        )
         ad.Lock.Notify(ts, 0)
         ad.RecourseSettings.Period = math.Hour
     })
