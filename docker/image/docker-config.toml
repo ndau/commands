@@ -10,6 +10,7 @@
   NoKeysOnSetValidation = 13510
   ResetUncreditedEAIOnCreditEAI = 13510
   # TODO: Set these more appropriately on the next mainnet upgrade (and remove this comment)
-  NodeActiveCheck = 1000000
-  NoLeakyUpdateState = 1000000
-  SequenceIncrementProtection = 1000000
+  NodeActiveCheck = 1_000_000
+  NoLeakyUpdateState = 1_000_000
+  SequenceIncrementProtection = 1_000_000
+  CreditEAIUnlocksAccounts = 1_000_000
