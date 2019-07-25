@@ -11,6 +11,7 @@ ACCOUNTS = [
     "ndadyrd7u7kyjkq9nwcz3rgyi3m6fyeexwwi6hy6giwby7wy",
 ]
 
+ACCOUNT = "http://localhost:3032/account/account/{address}"
 HISTORY = "http://localhost:3032/account/history/{address}"
 TRANSACTION = "http://localhost:3032/transaction/{txhash}"
 
@@ -50,6 +51,13 @@ class Acct:
             txhash = self.history[idx]["TxHash"]
             self.history[idx]["tx"] = Transaction(txhash)
 
+        self.validation_keys = ", ".join(
+            f'"{k}"'
+            for k in getjs(ACCOUNT.format(address=self.address))[self.address][
+                "validationKeys"
+            ]
+        )
+
 
 HEADER_TEMPLATE = """
 package ndau
@@ -58,6 +66,7 @@ import (
     "encoding/base64"
     "testing"
 
+    "github.com/oneiro-ndev/chaincode/pkg/vm"
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code"
     metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
     metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
@@ -104,6 +113,7 @@ func Test_${address}_History(t *testing.T) {
     node1, err := address.Validate("ndarw5i7rmqtqstw4mtnchmfvxnrq4k3e2ytsyvsc7nxt2y7")
     require.NoError(t, err)
     modify(t, node1.String(), app, func(ad *backing.AccountData) {
+        ad.Balance = 1500 * constants.NapuPerNdau
         ad.ValidationKeys = makeVKs(t,
             "npuba8jadtbbeamn89h5zgr5cmjggcwkchbsgqhf5m7zb58xe7rwqwvzif23ebfqz4wh224ve2qw",
             "npuba8jadtbbeabmk869zakhpzmiv2xvzc7yyxrzcmfu6eqbw9ttyi9bwrcpiz7jqki9pwsw7vsp",
@@ -123,6 +133,7 @@ func Test_${address}_History(t *testing.T) {
     node2, err := address.Validate("ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa")
     require.NoError(t, err)
     modify(t, node2.String(), app, func(ad *backing.AccountData) {
+        ad.Balance = 1500 * constants.NapuPerNdau
         ad.ValidationKeys = makeVKs(t,
             "npuba8jadtbbea97bcz4v2c4gtcntx53cgjpv92hscm95gg2m6tntwysawxkahkse4bcdpp5dm24",
             "npuba8jadtbbeabmk869zakhpzmiv2xvzc7yyxrzcmfu6eqbw9ttyi9bwrcpiz7jqki9pwsw7vsp",
@@ -153,6 +164,7 @@ func Test_${address}_History(t *testing.T) {
         )
         ad.Lock.Notify(ts, 0)
         ad.RecourseSettings.Period = math.Hour
+        ad.ValidationKeys = makeVKs(t, $validation_keys)
     })
 
     addr, err := address.Validate("$address")
@@ -163,8 +175,15 @@ func Test_${address}_History(t *testing.T) {
     // set the EAI overtime system var above what we need
     overtime, err := math.Duration(10 * math.Year).MarshalMsg(nil)
     require.NoError(t, err)
+    // set the real transaction fee script
+    txFeeScript, err := base64.StdEncoding.DecodeString("oAAlAIhSanSIoA0UEwkXFhANDgYIBwUEIyChB4igAxIMCyQA4fUFiKADFQIKgQCIoAEDIugDgQGIoAEBIugDgQGIoAEPIugDgQEjIKEHQIiAAAIJIhAnQiMgoQdAiIABAwlgCwlDgQKIgAIBBSMgoQfAiiMgoQcQjwUkgPD6AsSKJIDw+gIQj4g=")
+    require.NoError(t, err)
+    txFeeCC := vm.ToChaincode(txFeeScript)
+    txFeeSV, err := txFeeCC.MarshalMsg(nil)
+    require.NoError(t, err)
     context := ddc(t).with(func(svs map[string][]byte) {
         svs[sv.EAIOvertime] = overtime
+        svs[sv.TxFeeScriptName] = txFeeSV
     })
 
     $txs
@@ -194,6 +213,7 @@ def generate_tests():
                 creation=timestamp_ms("2018-04-05T00:00:00Z"),
                 txs="\n".join(tx_tests),
                 node=node,
+                validation_keys=acct.validation_keys,
             )
         )
 
