@@ -15,3 +15,4 @@
   SequenceIncrementProtection = 1_000_000
   CreditEAIUnlocksAccounts = 1_000_000
   ApplyUncreditedEAI = 1_000_000
+  FixEAIUnlockBug = 1_000_000
