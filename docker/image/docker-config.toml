@@ -14,3 +14,4 @@
   NoLeakyUpdateState = 1_000_000
   SequenceIncrementProtection = 1_000_000
   CreditEAIUnlocksAccounts = 1_000_000
+  ApplyUncreditedEAI = 1_000_000
