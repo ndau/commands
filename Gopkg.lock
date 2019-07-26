@@ -508,7 +508,7 @@
   version = "mainnet-upgrade-9"
 
 [[projects]]
-  digest = "1:03d56b18c702dca949f96cf1fa6e635733a3b85262a1a9c21b94c4eeff9be7cd"
+  digest = "1:97bde202e2a3ea45638fe3f87af38dc73bb547df4e0b22d181a8e8ea16736e1d"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -530,8 +530,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "65e5600e601abfb67fb7697d04043466d89e8265"
-  version = "v1.2.0"
+  revision = "761d744fc19b51d92ded05d8a0995a44a5d10712"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
