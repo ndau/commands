@@ -503,7 +503,7 @@
 
 [[projects]]
   branch = "prgn-eai-test"
-  digest = "1:e08a778071e079d28a9e9175d77ab50e629b09105e580d10363ee1e03a4a92bf"
+  digest = "1:405ecc8e14e56441f09d937150b52ad1b99cefdfdf23e0172af5a60caeecaae9"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -521,11 +521,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "0310a75f6407cc4a9a8bef3fb36d26c3d05610b5"
+  revision = "c09ed4fd50591e64b5841c8ba1b9d153ae773e9a"
 
 [[projects]]
   branch = "prgn-eai-test"
-  digest = "1:f71d84d52ea716cf09556f7a8c8e1ec027b8fea1c67a0dc1aee875b9587b6a8b"
+  digest = "1:2375be5205501b622b25f0ec4ad092a65762ef50efbb2e7bdd1d8ca02da2219f"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -547,7 +547,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "eb1f0ec883061205471e3a9b6ad404639c1f9e46"
+  revision = "dbcc037f91bd601ad4a77f9e9491719e56bf3784"
 
 [[projects]]
   branch = "master"
