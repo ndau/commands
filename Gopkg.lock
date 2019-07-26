@@ -440,15 +440,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:600a6becb4d207eb8bcff007bf1260e5a918232266882f5d718e7f7aeadeedcf"
+  branch = "prgn-handle-high-precision-timestamps"
+  digest = "1:89318707e4589101dcfc0c9ac004aab743b664c18e0d81ede70c953fa23f4ac9"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "f0588e04a5e8ce7479f879ddbe5fca0376604193"
-  version = "v1.2.1"
+  revision = "93b6166aa07de1dabf56100870605286d89dbee3"
 
 [[projects]]
   digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
