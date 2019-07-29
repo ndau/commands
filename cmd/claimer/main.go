@@ -35,7 +35,7 @@ func main() {
 		Config: config,
 	}
 
-	svc.Logger.WithField("node address", svc.Config.NodeRPC).Info("using RPC address")
+	svc.Logger.WithField("nodeAddress", svc.Config.NodeRPC).Info("using RPC address")
 	{
 		fields := log.Fields{}
 		for addr, keys := range svc.Config.Nodes {
