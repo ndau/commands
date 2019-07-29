@@ -1,14 +1,15 @@
 #! /usr/bin/env python3
 
 import argparse
-import json
-import requests
+import csv
+import datetime
 import itertools
+import json
+import re
+import requests
+import sys
 import textwrap
 import time
-import re
-import sys
-import csv
 
 
 def getData(base, path, parms=None):
@@ -49,9 +50,9 @@ allFields = {
     "rewardsTarget": ("rewardsTarget", "rewards"),
     "incomingRewardsFrom": ("incomingRewardsFrom", "incoming"),
     "delegationNode": ("delegationNode", "delegation"),
-    "haslock": ("haslock",),
+    "islocked": ("islocked",),
     "lock": ("lock",),
-    "lock.noticePeriod": ("lock.noticePeriod", "notice", "noticeperiod"),
+    "lock.noticePeriod": ("lock.noticePeriod", "notice", "noticeperiod", "lockperiod"),
     "lock.unlocksOn": ("lock.unlocksOn", "unlock", "unlockson"),
     "lock.bonus": ("lock.bonus", "bonus"),
     "lastEAIUpdate": ("lastEAIUpdate", "lasteai"),
@@ -211,7 +212,7 @@ def comparator(field, op, value):
         elif op == ">":
             return f > v
         elif op == "%":
-            return re.match(v, f)
+            return re.search(v, f)
 
     return cmp
 
@@ -246,7 +247,7 @@ def setupArgs():
          * flattens the account data so that there are no nested structures
          * injects three additional fields:
              * id (the ndau account address)
-             * haslock (true if the lock value is non-empty)
+             * islocked (true if the lock exists and has not yet expired)
              * hasrecourse (true if recourseSettings is non-empty)
 
     """
@@ -255,7 +256,7 @@ def setupArgs():
             """
         Examples:
             # print the number of accounts with more than 1000 ndau that are unlocked
-            forAllAccounts.py --network=test --count --constraints "balance>=100000000000" "haslock == false"
+            forAllAccounts.py --network=test --count --constraints "balance>=100000000000" "islocked == false"
 
             # print the account IDs and balances of accounts with a balance of less than 10000 napu
             forAllAccounts.py --network=test --csv --constraints "balance<10000" --fields id balance
@@ -263,14 +264,14 @@ def setupArgs():
             # print the account IDs and balances of the top 10 largest accounts
             forAllAccounts.py --network=test --csv  --fields id balance --sort /bal --max 10
 
-            # print the 3 largest accounts that are delegated
-            forAllAccounts.py --network=test --csv --constraint "delegation=ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa"  --fields id  --sort /bal --max 3
+            # print the 3 largest accounts that are delegated to a specific node that ends with a given string
+            forAllAccounts.py --network=test --csv --constraint "delegation%vuzhqxa"  --fields id  --sort /bal --max 3
 
             # count the number of accounts that are locked with the maximum lock bonus of 5%
-            forAllAccounts.py --network=test --count --constraints "haslock==true" "bonus=50000000000"
+            forAllAccounts.py --network=test --count --constraints "islocked==true" "bonus=50000000000"
 
             # count the number of accounts that are locked for less than one year
-            forAllAccounts.py --network=test --count --constraints "haslock==true" "notice<1y"
+            forAllAccounts.py --network=test --count --constraints "islocked==true" "notice<1y"
 
     """  # noqa: E501
         ),
@@ -386,6 +387,7 @@ if __name__ == "__main__":
     limit = 100
     after = "-"
     output = []
+    timeNow = datetime.datetime.now().isoformat("T")
     while after != "":
         qp = dict(limit=limit, after=after)
         result = getData(node, "/account/list", parms=qp)
@@ -398,7 +400,13 @@ if __name__ == "__main__":
         for k in data:
             # add some manufactured fields to the account data
             data[k]["id"] = k
-            data[k]["haslock"] = data[k]["lock"] is not None
+            # we're unlocked if there's no lock object, OR if
+            # the current time is after the "unlocksOn" time.
+            unlocked = data[k].get("lock") is None or (
+                data[k]["lock"].get("unlocksOn") is not None
+                and data[k]["lock"]["unlocksOn"] < timeNow
+            )
+            data[k]["islocked"] = not unlocked
             data[k]["hasrecourse"] = data[k]["recourseSettings"] is not None
             # now flatten it
             flat = flatten(data[k])
