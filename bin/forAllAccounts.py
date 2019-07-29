@@ -12,6 +12,7 @@ import csv
 
 
 def getData(base, path, parms=None):
+    """ this is a general-purpose query helper function for the blockchain """
     u = base + path
     try:
         r = requests.get(u, timeout=3, params=parms)
@@ -27,7 +28,9 @@ def getData(base, path, parms=None):
     return {}
 
 
-names = {
+# All of the predefined network names. Note that you can also use the entire
+# URL explicitly if # you have something other than one of these.
+networks = {
     "local": "http://localhost:3030",
     "main": "https://mainnet-0.ndau.tech:3030",
     "mainnet": "https://mainnet-0.ndau.tech:3030",
@@ -37,6 +40,8 @@ names = {
     "testnet": "https://testnet-0.ndau.tech:3030",
 }
 
+# This is a list of the main fieldnames in the account data structure, along with
+# various aliases we've defined.
 allFields = {
     "balance": ("balance", "bal"),
     "validationKeys": ("validationKeys", "keys"),
@@ -71,40 +76,119 @@ allFields = {
     "id": ("id", "address"),
 }
 
-# invert the allfields list into something we can look up
+# invert the allfields list into something we can can use to look up user input.
 fieldnames = dict(
-    [
-        x
-        for x in itertools.chain(
-            *[[(s.lower(), k) for s in v] for k, v in allFields.items()]
-        )
-    ]
+    itertools.chain.from_iterable(
+        ((alias.lower(), k) for alias in aliases) for k, aliases in allFields.items()
+    )
 )
 
 
 def printFieldNames():
+    """ Walk the allfields dictionary and print a nicely formatted version """
     names = [(v[0], ", ".join(v[1:])) for v in allFields.values()]
     print(f"{'name':28}  aliases")
     for n in names:
         print(f"{n[0]:28}  {n[1]}")
 
 
+# these are the names of time units and their duration in microseconds
+timeConstants = {
+    "year": 365 * 24 * 60 * 60 * 1_000_000,
+    "month": 30 * 24 * 60 * 60 * 1_000_000,
+    "day": 24 * 60 * 60 * 1_000_000,
+    "hour": 60 * 60 * 1_000_000,
+    "min": 60 * 1_000_000,
+    "sec": 1_000_000,
+    "usec": 1,
+}
+
+
+def usec(x, unit):
+    """ helper function to look up time units and do the multiplication """
+    if x is None:
+        return 0
+    t = int(x)
+    return timeConstants[unit] * t
+
+
+def parseDuration(s):
+    """
+    parse a duration and return an integer number of microseconds
+    """
+
+    # this uses a tagged regexp to parse strings that we believe are already
+    # durations (this isn't perfect because the t is optional and without it
+    # the m is ambiguous).
+    p = re.compile(
+        "("
+        "((?P<year>[0-9]+)y)?"
+        "((?P<month>[0-9]+)m)?"
+        "((?P<day>[0-9]+)d)?)?"
+        "t?"
+        "(((?P<hour>[0-9]+)h)?"
+        "((?P<min>[0-9]+)m)?"
+        "((?P<sec>[0-9]+)s)?"
+        "((?P<usec>[0-9]+)us?"
+        ")?"
+        ")?"
+    )
+    m = p.match(s)
+
+    t = 0
+    # the usec function deals with missing parts of the expression
+    for u in timeConstants:
+        t += usec(m.group(u), u)
+    return t
+
+
 def comparator(field, op, value):
+    """
+    returns a comparator function that binds the parameters so they can
+    later be used to compare the value against the data in an account
+    """
+
+    durpat = re.compile(
+        "(([0-9+][ymd])*(t((h|m|s|us)[0-9]+)+)+)|"
+        "(([0-9+][ymd])+(t((h|m|s|us)[0-9]+)+)*)"
+    )
+
     def cmp(x):
+        # if the field doesn't exist, it's None
         f = x.get(field, None)
+
+        # we might have to special-case the value depending on
+        # what the type of f is. Note that we don't worry about
+        # timestamps because they're directly comparable as strings,
+        # but we do need to convert things that look like
+        # durations.
+
         v = value
-        if isinstance(f, bool):
-            if value.lower() == "true" or value.lower() == "t":
+        vl = value.lower()
+
+        if isinstance(f, str):
+            m = durpat.match(f)
+            # if f is a duration, also parse the value as a duration
+            if m:
+                f = parseDuration(f)
+                v = parseDuration(vl)
+        elif isinstance(f, bool):
+            # for bools, we convert value strings into booleans
+            if vl == "true" or vl == "t":
                 v = True
             else:
                 v = False
         elif isinstance(f, int):
+            # for ints we convert the value into integers so we can
+            # compare numerically (we never deal with floats)
             v = int(value)
 
-        if value == "null" or value == "None" or value == "nil":
+        # anything that looks like None is None.
+        if vl == "null" or vl == "none" or vl == "nil":
             v = None
 
-        # special case empty fields
+        # special case empty field comparisons, because
+        # None is special and can't be ordered.
         if f is None or v is None:
             if op == "==" or op == "=":
                 return f == v
@@ -113,6 +197,7 @@ def comparator(field, op, value):
             else:
                 return False
 
+        # finally we can actually just do the comparison
         if op == "==" or op == "=":
             return f == v
         elif op == "!=":
@@ -155,6 +240,8 @@ def setupArgs():
          to select a subset of fields for each account, and to select a subset
          of accounts according to the values of their fields.
 
+         If multiple constraints are applied they must all be satisfied.
+
          Note that compared to the ndau API, this application:
          * flattens the account data so that there are no nested structures
          * injects three additional fields:
@@ -180,7 +267,10 @@ def setupArgs():
             forAllAccounts.py --network=test --csv --constraint "delegation=ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa"  --fields id  --sort /bal --max 3
 
             # count the number of accounts that are locked with the maximum lock bonus of 5%
-            forAllAccounts.py --network=test --count --fields id bonus --constraints "haslock==true" "bonus=50000000000"
+            forAllAccounts.py --network=test --count --constraints "haslock==true" "bonus=50000000000"
+
+            # count the number of accounts that are locked for less than one year
+            forAllAccounts.py --network=test --count --constraints "haslock==true" "notice<1y"
 
     """  # noqa: E501
         ),
@@ -268,8 +358,8 @@ if __name__ == "__main__":
         exit(1)
 
     name = args.network
-    if name in names:
-        node = names[name]
+    if name in networks:
+        node = networks[name]
     else:
         node = name
 
