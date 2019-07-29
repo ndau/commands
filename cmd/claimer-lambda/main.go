@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/akrylysov/algnhsa"
@@ -58,6 +57,6 @@ func main() {
 	server := rest.StandardSetup(cf, svc)
 	if server != nil {
 		rest.WatchSignals(nil, rest.FatalFunc(svc, "SIGINT"), rest.FatalFunc(svc, "SIGTERM"))
-		algnhsa.ListenAndServe(http.DefaultServeMux, nil)
+		algnhsa.ListenAndServe(server.Handler, nil)
 	}
 }
