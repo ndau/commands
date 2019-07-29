@@ -154,13 +154,21 @@ def setupArgs():
          accounts. However, it also supports the ability to generate CSV files,
          to select a subset of fields for each account, and to select a subset
          of accounts according to the values of their fields.
+
+         Note that compared to the ndau API, this application:
+         * flattens the account data so that there are no nested structures
+         * injects three additional fields:
+             * id (the ndau account address)
+             * haslock (true if the lock value is non-empty)
+             * hasrecourse (true if recourseSettings is non-empty)
+
     """
         ),
         epilog=textwrap.dedent(
             """
         Examples:
             # print the number of accounts with more than 1000 ndau that are unlocked
-            forAllAccounts.py --network=test --count --constraints "balance>=100000000000" "lock != null"
+            forAllAccounts.py --network=test --count --constraints "balance>=100000000000" "haslock == false"
 
             # print the account IDs and balances of accounts with a balance of less than 10000 napu
             forAllAccounts.py --network=test --csv --constraints "balance<10000" --fields id balance
@@ -168,8 +176,8 @@ def setupArgs():
             # print the account IDs and balances of the top 10 largest accounts
             forAllAccounts.py --network=test --csv  --fields id balance --sort /bal --max 10
 
-            # print the largest accounts that are delegated
-            forAllAccounts.py --network=test --csv --constraint "delegation=ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa"  --fields id  --sort /bal --max 10
+            # print the 3 largest accounts that are delegated
+            forAllAccounts.py --network=test --csv --constraint "delegation=ndam75fnjn7cdues7ivi7ccfq8f534quieaccqibrvuzhqxa"  --fields id  --sort /bal --max 3
 
             # count the number of accounts that are locked with the maximum lock bonus of 5%
             forAllAccounts.py --network=test --count --fields id bonus --constraints "haslock==true" "bonus=50000000000"
