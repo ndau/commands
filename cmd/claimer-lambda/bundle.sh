@@ -41,7 +41,7 @@ update_net() {
                     \"Variables\": {
                         \"PORT\": \"80\",
                         \"S3_CONFIG_BUCKET\": \"claimer-service-config\",
-                        \"S3_CONFIG_PATH\": \"claimer-conf-${net}.toml\"
+                        \"S3_CONFIG_PATH\": \"claimer_conf_${net}.toml\"
                     }
                 }"
     )
@@ -64,6 +64,19 @@ update_net() {
             --function-version "$version"
     )
     revision=$(echo "$data" | jq -r .RevisionId)
+
+    echo "  adding stage permission..."
+    data=$(
+        aws lambda add-permission \
+            --function-name "arn:aws:lambda:us-east-1:578681496768:function:claimer-service:${net}" \
+            --source-arn "arn:aws:execute-api:us-east-1:578681496768:7ovwffck3i/*/POST/claim_winner" \
+            --principal apigateway.amazonaws.com \
+            --statement-id "$(uuidgen)" \
+            --action lambda:InvokeFunction \
+            --revision-id "$revision"
+    )
+    revision=$(echo "$data" | jq -r .RevisionId)
+
 
     echo "  done!"
 }
