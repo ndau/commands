@@ -38,12 +38,13 @@ COPY --from=redis:5.0.4-alpine [ \
     "usr/local/bin/redis-check-rdb", \
     "usr/local/bin/redis-check-aof", \
     "/usr/local/bin/" \
-]
+    ]
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed \
-    && update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 \
+    && update-ca-certificates 2>/dev/null \
+    && python3 -m pip install remarshal
 
 # Copy the output from the intermediate image.
 COPY --from=intermediate /image/bin /image/bin
