@@ -18,8 +18,8 @@ import (
 // and dispatch it to the configured node.
 func dispatch(logger *log.Entry, node string, addr address.Address, keys []signature.PrivateKey) {
 	logger = logger.WithFields(log.Fields{
-		"node url":       node,
-		"winner address": addr.String(),
+		"nodeURL":       node,
+		"winnerAddress": addr.String(),
 	})
 
 	rpc := client.NewHTTP(node, "/websocket")
@@ -67,7 +67,7 @@ func Claim(config *Config, logger *log.Entry) http.HandlerFunc {
 		if exists {
 			go dispatch(logger, config.NodeRPC, payload.Winner, keys)
 		} else {
-			logger.WithField("winner address", payload.Winner).Info("winner was not among configured nodes")
+			logger.WithField("winnerAddress", payload.Winner).Info("winner was not among configured nodes")
 		}
 
 		reqres.RespondJSON(w, reqres.OKResponse(struct {
