@@ -494,7 +494,8 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:2475a2020231086f2bf0df833066d3568f01aca7d2347e28f885fe9504e7b949"
+  branch = "prgn-tx-logging"
+  digest = "1:7942bb2f07558d7b6b0e6b186f32fb4119544d695b1769e75710b90848ef9276"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -504,8 +505,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7863e064087bb2872bd2b46e2cf7510b9d1f4ddf"
-  version = "v1.6.4"
+  revision = "4630380e82cfd938f30552b35232444b0ee03046"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
