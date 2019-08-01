@@ -12,13 +12,13 @@ import (
 )
 
 // WatchSignals can set up functions to call on various operating system signals.
-func WatchSignals(sigs map[os.Signal]func()) {
+func WatchSignals(sigs map[os.Signal]func()) chan<- os.Signal {
 	signals := make([]os.Signal, 0)
 	for s := range sigs {
 		signals = append(signals, s)
 	}
+	sigchan := make(chan os.Signal, 1)
 	go func() {
-		sigchan := make(chan os.Signal, 1)
 		signal.Notify(sigchan, signals...)
 		for {
 			sig := <-sigchan
@@ -32,6 +32,7 @@ func WatchSignals(sigs map[os.Signal]func()) {
 			}
 		}
 	}()
+	return sigchan
 }
 
 // loads the arguments and the configuration and returns the loaded
@@ -147,7 +148,7 @@ func waitForTasksToDie(root *Task, mainTasks []*Task) int {
 	}
 }
 
-func setupSighandlers(root *Task, tasks Tasks) {
+func setupSighandlers(root *Task, tasks Tasks) chan<- os.Signal {
 	// define some default sighandlers; they can be overridden in the
 	// config file and additional ones can be defined
 	sighandlers := map[os.Signal]func(){
@@ -157,7 +158,7 @@ func setupSighandlers(root *Task, tasks Tasks) {
 	for sig, task := range tasks.Signals {
 		sighandlers[sig] = runfunc(task, root, tasks.Main)
 	}
-	WatchSignals(sighandlers)
+	return WatchSignals(sighandlers)
 }
 
 func setupPeriodic(root *Task, tasks Tasks) {
@@ -218,7 +219,11 @@ func main() {
 	}
 	root.StartChildren()
 
-	setupSighandlers(root, tasks)
+	sigchan := setupSighandlers(root, tasks)
+	for _, task := range tasks.All {
+		task.Sigchan = sigchan
+	}
+
 	setupPeriodic(root, tasks)
 
 	// and run almost forever
