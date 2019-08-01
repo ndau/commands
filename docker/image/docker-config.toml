@@ -1,3 +1,5 @@
+NodeRewardWebhookDelay = 10
+
 [Features]
   # Block heights at which features becomes active.  Add more feature heights here as needed.
   # User code uses app.IsFeatureActive("FeatureName") to know whether a given feature is active.

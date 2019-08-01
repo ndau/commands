@@ -525,7 +525,7 @@
 
 [[projects]]
   branch = "prgn-nrw-logs"
-  digest = "1:44555d4e3f447995dec278b43ad6d6f09cbb31d5e00ca4f6c3b29fc19d16799b"
+  digest = "1:0331cc8e05e60c801e488abbaf3b2192786b30a0090a784f7fb5209111a9088d"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -543,7 +543,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "48483d99b47a9ce8dd5c411270beddbcc818fed5"
+  revision = "257e34c28f3ab93fab471bd0ad1cd6f911e77f52"
 
 [[projects]]
   digest = "1:7583999b73782fedeeb3ad79fdd3a5ceabeae5aadf0c20abb297dd3809e6ef15"
