@@ -180,7 +180,7 @@ commands:
               fi # no else break in case some nodes are updated and others are not
             done
 
-            wait
+            wait -n
 
 
 workflows:
