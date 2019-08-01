@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile
 # For securely using the machine ssh key to access the private oneiro-ndev repos.
-FROM golang:1.11-alpine3.8 AS intermediate
+FROM golang:1.12-alpine3.9 AS intermediate
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the intermediate image.

@@ -75,7 +75,7 @@ func (m *FailMonitor) Listen(done chan struct{}) {
 		case <-done:
 			return
 		case stat := <-m.Child.Status:
-			if stat == Failed || stat == Stop {
+			if stat.Code() == Failed || stat.Code() == Stop {
 				m.Status <- Stop
 			}
 		}
@@ -111,7 +111,7 @@ func NewRetryMonitor(m *Monitor, retries int) *RetryMonitor {
 	// the system worked
 	m.Test = func() Eventer {
 		e := rm.test()
-		if e == OK {
+		if e.Code() == OK {
 			rm.failCount = 0
 		}
 		return e

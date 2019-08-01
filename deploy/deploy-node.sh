@@ -122,5 +122,5 @@ for i in {1..60}; do
     sleep 2
 done
 
-echo "Timed out waiting for node to become healthy"
+echo "Timed out waiting for $network_name-$node_number to become healthy"
 exit 1
