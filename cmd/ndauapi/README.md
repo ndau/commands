@@ -169,8 +169,8 @@ _**Writes:**_
           "incomingRewardsFrom": null,
           "delegationNode": null,
           "lock": null,
-          "lastEAIUpdate": "2000-01-01T00:00:00Z",
-          "lastWAAUpdate": "2000-01-01T00:00:00Z",
+          "lastEAIUpdate": "2000-01-01T00:00:00.000000Z",
+          "lastWAAUpdate": "2000-01-01T00:00:00.000000Z",
           "weightedAverageAge": "1m",
           "sequence": 0,
           "stake_rules": null,
@@ -235,8 +235,8 @@ _**Writes:**_
             "incomingRewardsFrom": null,
             "delegationNode": null,
             "lock": null,
-            "lastEAIUpdate": "2000-01-01T00:00:00Z",
-            "lastWAAUpdate": "2000-01-01T00:00:00Z",
+            "lastEAIUpdate": "2000-01-01T00:00:00.000000Z",
+            "lastWAAUpdate": "2000-01-01T00:00:00.000000Z",
             "weightedAverageAge": "1m",
             "sequence": 0,
             "stake_rules": null,
@@ -1560,7 +1560,7 @@ _**Reads:**_
               "unlocksOn": null,
               "bonus": 20000000000
             },
-            "at": "2018-07-10T20:01:02Z"
+            "at": "2018-07-10T20:01:02.000000Z"
           }
         ]
 ```
@@ -1605,7 +1605,8 @@ _**Writes:**_
           "TxOffset": 3,
           "Fee": 0,
           "SIB": 0,
-          "Tx": null
+          "Tx": null,
+          "TxBytes": null
         }
 ```
 

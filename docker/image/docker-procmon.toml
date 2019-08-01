@@ -137,7 +137,10 @@ output = ""
     ]
     stdout = "$LOG_DIR/ndaunode.log"
     stderr = "$LOG_DIR/ndaunode.log"
-    maxstartup = "5s"
+    # Wait a long time for startup in case we bump indexVersion for an initial re-index.
+    # If procmon times waiting for ndaunode to do an initial re-index, it could mean we're
+    # starting from an excessively old snapshot.
+    maxstartup = "5m"
     maxshutdown = "5s"
 
     [[task.monitors]]

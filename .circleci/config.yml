@@ -180,8 +180,11 @@ commands:
               fi # no else break in case some nodes are updated and others are not
             done
 
-            wait
+            # This will wait for all backgrounded deploy-node processes to complete.
+            # It will fail and exit the overall deploy job if any one of them failed.
+            wait -n
 
+            echo "Deploy of $NETWORK_NAME is complete"
 
 workflows:
   version: 2
