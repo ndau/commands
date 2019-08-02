@@ -324,13 +324,7 @@ docker start "$CONTAINER"
 echo "Waiting for the node to fully spin up..."
 until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
 do
-    logs=$(docker logs "$CONTAINER")
-    if [ "$logs" == "$oldlogs" ]; then
-        echo "docker logs remained unchanged for 30 seconds; that's a bad sign"
-        echo "$logs" | sed -e 's/^/> /'
-    fi
-    oldlogs="$logs"
-    sleep 30
+    :
 done
 
 echo "Node is ready; dumping container logs..."

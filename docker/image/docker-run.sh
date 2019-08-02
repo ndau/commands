@@ -63,27 +63,12 @@ trap 'on_sigterm' SIGTERM
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
-    if compgen -G "$LOG_DIR/*.log" >/dev/null; then
-        logs=$(md5sum "$LOG_DIR"/*.log)
-        if [ "$logs" == "$oldlogs" ]; then
-            echo "logs remained unchanged for 10 seconds; that's a bad sign"
-            for logfile in "$LOG_DIR"/*.log; do
-                echo "$logfile:"
-                sed -e 's/^/> /' "$logfile"
-                echo
-            done
-        fi
-        oldlogs="$logs"
-        sleep 10
-    else
-        echo "no log files in $LOG_DIR; waiting and hoping"
-    fi
+    :
 done
-
-echo "node group is running but block height is not yet 1"
 
 # Block until we have a block height of at least 1.
 # Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
+echo "Waiting for valid block height..."
 while :
 do
     response=$(curl -s "http://localhost:$NDAUAPI_PORT/block/height/1")
