@@ -327,7 +327,7 @@ do
     logs=$(docker logs "$CONTAINER")
     if [ "$logs" == "$oldlogs" ]; then
         echo "docker logs remained unchanged for 30 seconds; that's a bad sign"
-        echo "$logs"
+        echo "$logs" | sed -e 's/^/> /'
         exit 1
     fi
     oldlogs="$logs"

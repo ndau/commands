@@ -61,8 +61,21 @@ trap 'on_sigterm' SIGTERM
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
-    :
+    logs=$(md5sum "$LOG_DIR"/*.log)
+    if [ "$logs" == "$oldlogs" ]; then
+        echo "logs remained unchanged for 10 seconds; that's a bad sign"
+        for logfile in "$LOG_DIR"/*.log; do
+            echo "$logfile:"
+            sed -e 's/^/> /' "$logfile"
+            echo
+        done
+        exit 1
+    fi
+    oldlogs="$logs"
+    sleep 10
 done
+
+echo "node group is running but block height is not yet 1"
 
 # Block until we have a block height of at least 1.
 # Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
