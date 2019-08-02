@@ -95,6 +95,7 @@ type Task struct {
 	MaxStartup   time.Duration
 	Status       chan Eventer
 	Stopped      chan struct{}
+	Sigchan      chan<- os.Signal
 	Ready        func() Eventer
 	Stdout       io.Writer
 	Stderr       io.Writer
@@ -104,9 +105,15 @@ type Task struct {
 	Monitors     []*FailMonitor
 	Prerun       []*Task
 	Dependents   []*Task
+	ExitSignals  map[int]os.Signal
 
 	cmd   *exec.Cmd
 	dying bool
+
+	// this should never be true in general use, but we need the ability in
+	// order to run the monitors externally for testing. Without this, we
+	// run into a bunch of errors of the form "exec: Wait was already called"
+	skipStartMonitors bool
 }
 
 // NewTask creates a Task (but does not start it)
@@ -158,13 +165,29 @@ func (t *Task) exitMonitor() {
 	// if it gets recreated we don't send a message on
 	// the new one by mistake
 	status := t.Status
-	err := t.cmd.Wait()
-	if err != nil {
-		t.Logger.WithError(err).Error("task terminated")
+
+	// find out what happened to the task
+	term := TerminateEvent{t.cmd.Wait()}
+
+	code := term.ExitCode()
+	logger := t.Logger.WithField("exit.code", code)
+
+	// does this task generate a particular signal on this exit code?
+	// if so, just pass along that signal
+	// (reading from a nil map is safe in go)
+	if signal, ok := t.ExitSignals[code]; ok {
+		logger.WithField("exit.type", "magic exit code").Warn("task terminated")
+		if t.Sigchan != nil {
+			t.Sigchan <- signal
+		}
+	} else if code < 0 {
+		logger.WithError(term.Err).WithField("exit.type", "unexpected exit error").Error("task terminated")
+	} else if code > 0 {
+		logger.WithError(term.Err).WithField("exit.type", "nonzero exit code").Error("task terminated")
 	} else {
-		t.Logger.Warn("terminated")
+		logger.WithField("exit.type", "success").Warn("task terminated")
 	}
-	status <- Stop
+	status <- term
 }
 
 // The childMonitor is given a child task;
@@ -324,19 +347,22 @@ func (t *Task) Start(parentstop chan struct{}) {
 	}
 	t.Logger.WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
 
+	// Set up channels here vs during construction to prevent double-close()ing them.
 	// now we need the Status channel
 	t.Status = make(chan Eventer, 1)
 	// make a Stopped channel
 	t.Stopped = make(chan struct{})
 
-	// run the masterMonitor
-	go t.masterMonitor(parentstop)
-	// spin off a goroutine that will tell us if it dies
-	go t.exitMonitor()
-	// finally, we need to start a monitor to listen to the status channel
-	go t.stopMonitor()
-	// the task is running now, start all the behavior monitors
-	t.startBehaviorMonitors()
+	if !t.skipStartMonitors {
+		// run the masterMonitor
+		go t.masterMonitor(parentstop)
+		// spin off a goroutine that will tell us if it dies
+		go t.exitMonitor()
+		// finally, we need to start a monitor to listen to the status channel
+		go t.stopMonitor()
+		// the task is running now, start all the behavior monitors
+		t.startBehaviorMonitors()
+	}
 	// now we can start any dependent children
 	t.StartChildren()
 }

@@ -23,7 +23,7 @@ fi
 SSH_PRIVATE_KEY=$(cat "$SSH_PRIVATE_KEY_FILE")
 
 NDAU_IMAGE_NAME=ndauimage
-if [ ! -z "$(docker container ls -a -q -f ancestor=$NDAU_IMAGE_NAME)" ]; then
+if [ -n "$(docker container ls -a -q -f ancestor=$NDAU_IMAGE_NAME)" ]; then
     echo "-------"
     echo "WARNING: containers exist based on an old $NDAU_IMAGE_NAME; they should be removed"
     echo "-------"

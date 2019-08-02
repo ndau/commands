@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"syscall"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func Test_parseBool(t *testing.T) {
 	type args struct {
@@ -27,4 +32,35 @@ func Test_parseBool(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParseSample(t *testing.T) {
+	// go test suite always sets CWD to the dir containing the test file
+	conf, err := Load("sample.toml", false)
+	require.NoError(t, err)
+
+	logger := conf.BuildLogger("test")
+	tasks, err := conf.BuildTasks(logger)
+	require.NoError(t, err)
+	require.NotNil(t, tasks)
+
+	// ensure that we have parsed the exit signal map properly
+	require.NotNil(t, tasks.All)
+	mi := tasks.All["MAYBE_INT"]
+	require.NotNil(t, mi)
+	require.NotNil(t, mi.ExitSignals)
+	require.NotContains(t, mi.ExitSignals, 0)
+	require.Contains(t, mi.ExitSignals, 1)
+	require.Equal(t, mi.ExitSignals[1], syscall.SIGHUP)
+
+	mi = tasks.All["MAYBE_INT_2"]
+	require.NotNil(t, mi)
+	require.NotNil(t, mi.ExitSignals)
+	require.Equal(t, mi.ExitSignals[0xfe], syscall.SIGHUP)
+	require.Equal(t, mi.ExitSignals[0xff], syscall.SIGINT)
+	require.Equal(t, mi.ExitSignals[0777], syscall.SIGTERM)
+
+	i := tasks.All["INT"]
+	require.NotNil(t, i)
+	require.Nil(t, i.ExitSignals)
 }
