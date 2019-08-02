@@ -546,7 +546,7 @@
   version = "v1.19.4"
 
 [[projects]]
-  digest = "1:7aed7181cb5783b27f9cf53e46222ceacd46f81351f00016f5109a8ed657eefa"
+  digest = "1:a269ccc1c9f16b26638a4f5c27b9f94fd70433a66de2ee2d783dbf53fdb2fec1"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -568,8 +568,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "fcf28b3801fba5f24531c20a553ba64f9e8e8af3"
-  version = "v1.3.3"
+  revision = "a4fe10d785e8c04f183d7601e149b789f71648bb"
+  version = "v1.3.4"
 
 [[projects]]
   branch = "master"
