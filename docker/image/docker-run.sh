@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+# shellcheck source=docker-env.sh
 source "$SCRIPT_DIR"/docker-env.sh
 
 echo "Running $NODE_ID node group..."
@@ -60,15 +61,22 @@ trap 'on_sigterm' SIGTERM
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
-    :
+    logs=$(docker logs "$NODE_ID")
+    if [ "$logs" == "$oldlogs" ]; then
+        echo "docker logs remained unchanged for 30 seconds; that's a bad sign"
+        echo "$logs"
+        exit 1
+    fi
+    oldlogs="$logs"
+    sleep 30
 done
 
 # Block until we have a block height of at least 1.
 # Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
 while :
 do
-    response=$(curl -s http://localhost:$NDAUAPI_PORT/block/height/1)
-    if [ ! -z "$response" ] && [[ "$response" != *"could not get block"* ]]; then
+    response=$(curl -s "http://localhost:$NDAUAPI_PORT/block/height/1")
+    if [ -n "$response" ] && [[ "$response" != *"could not get block"* ]]; then
         break
     fi
     sleep 1
