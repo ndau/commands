@@ -135,6 +135,9 @@ fi
 mkdir -p "$NODE_DATA_DIR"
 mkdir -p "$LOG_DIR"
 
+echo "Webhook config pre-copy:"
+sed -e 's/^/  /' <(grep Webhook "$SCRIPT_DIR/docker-config.toml")
+
 # Now that we have our ndau data directory (ndau home dir), move the config file into it,
 # injecting the appropriate node webhook if so configured
 mkdir -p "$NDAUHOME/ndau"
@@ -144,6 +147,19 @@ else
     toml2json "$SCRIPT_DIR/docker-config.toml" |\
     jq ". + {\"NodeRewardWebhook\": \"$WEBHOOK_URL\"}" |\
     json2toml > "$NDAUHOME/ndau/config.toml"
+fi
+
+echo "Webhook config post-copy:"
+sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
+
+if grep -q '^\s*NodeRewardWebhookDelay' "$NDAUHOME/ndau/config.toml"; then
+    # configured value is present
+    if ! grep -q '^\s*NodeRewardWebhookDelay.*\.0$'; then
+        # configured value is not a float
+        sed -i '' -e '/NodeRewardWebhookDelay.*/s//&.0/' "$NDAUHOME/ndau/config.toml"
+        echo "Webhook config post-sed:"
+        sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
+    fi
 fi
 
 cd "$BIN_DIR" || exit 1
