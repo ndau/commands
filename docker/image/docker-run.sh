@@ -31,9 +31,11 @@ mkdir -p "$LOG_DIR"
 cd "$BIN_DIR" || exit 1
 if [ -z "$HONEYCOMB_KEY" ] || [ -z "$HONEYCOMB_DATASET" ]; then
     # Honeycomb not configured, we'll dump everything locally from procmon itself.
+    echo "logging to $LOG_DIR"
     ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
 else
     # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
+    echo "logging to honeycomb: $HONEYCOMB_DATASET"
     ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
 fi
 procmon_pid="$!"
@@ -61,18 +63,22 @@ trap 'on_sigterm' SIGTERM
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
-    logs=$(md5sum "$LOG_DIR"/*.log)
-    if [ "$logs" == "$oldlogs" ]; then
-        echo "logs remained unchanged for 10 seconds; that's a bad sign"
-        for logfile in "$LOG_DIR"/*.log; do
-            echo "$logfile:"
-            sed -e 's/^/> /' "$logfile"
-            echo
-        done
-        exit 1
+    if compgen -G "$LOG_DIR/*.log" >/dev/null; then
+        logs=$(md5sum "$LOG_DIR"/*.log)
+        if [ "$logs" == "$oldlogs" ]; then
+            echo "logs remained unchanged for 10 seconds; that's a bad sign"
+            for logfile in "$LOG_DIR"/*.log; do
+                echo "$logfile:"
+                sed -e 's/^/> /' "$logfile"
+                echo
+            done
+            exit 1
+        fi
+        oldlogs="$logs"
+        sleep 10
+    else
+        echo "no log files in $LOG_DIR; waiting and hoping"
     fi
-    oldlogs="$logs"
-    sleep 10
 done
 
 echo "node group is running but block height is not yet 1"
