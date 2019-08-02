@@ -89,7 +89,7 @@ fi
 
 echo "Container: $CONTAINER"
 
-if [ ! -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
+if [ -n "$(docker container ls -a -q -f name="$CONTAINER")" ]; then
     echo "Container already exists: $CONTAINER"
     echo "Use restartcontainer.sh to restart it, or use removecontainer.sh to remove it first"
     exit 1
@@ -98,7 +98,7 @@ fi
 # If we're not overriding the identity parameter,
 # and an identity file was specified,
 # but the file doesn't exist...
-if [ -z "$BASE64_NODE_IDENTITY" ] && [ ! -z "$IDENTITY" ] && [ ! -f "$IDENTITY" ]; then
+if [ -z "$BASE64_NODE_IDENTITY" ] && [ -n "$IDENTITY" ] && [ ! -f "$IDENTITY" ]; then
     echo "Cannot find node identity file: $IDENTITY"
     exit 1
 fi
@@ -181,8 +181,12 @@ join_by() { local IFS="$1"; shift; echo "$*"; }
 if [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ] && [ "$NETWORK" != "localnet" ]; then
     echo "Fetching $SERVICES_URL..."
     services_json=$(curl -s "$SERVICES_URL")
-    p2ps=($(echo "$services_json" | jq -r .networks.$NETWORK.nodes[].p2p))
-    rpcs=($(echo "$services_json" | jq -r .networks.$NETWORK.nodes[].rpc))
+    # shellcheck disable=SC2207
+    # it works well enough for now
+    p2ps=($(echo "$services_json" | jq -r ".networks.$NETWORK.nodes[].p2p"))
+    # shellcheck disable=SC2207
+    # it works well enough for now
+    rpcs=($(echo "$services_json" | jq -r ".networks.$NETWORK.nodes[].rpc"))
 
     len="${#rpcs[@]}"
     if [ "$len" = 0 ]; then
@@ -252,10 +256,10 @@ else
         echo "Unable to fetch $IMAGE_BASE_URL/$CURRENT_FILE"
         exit 1
     fi
-    SHA=$(cat $CURRENT_PATH)
+    SHA=$(cat "$CURRENT_PATH")
     NDAU_IMAGE_NAME="ndauimage:$SHA"
 
-    if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
+    if [ -z "$(docker image ls -q "$NDAU_IMAGE_NAME")" ]; then
         echo "Unable to find $NDAU_IMAGE_NAME locally; fetching..."
 
         IMAGE_NAME="ndauimage-$SHA"
@@ -271,7 +275,7 @@ else
         echo "Loading $NDAU_IMAGE_NAME..."
         gunzip -f "$IMAGE_PATH.gz"
         docker load -i "$IMAGE_PATH"
-        if [ -z "$(docker image ls -q $NDAU_IMAGE_NAME)" ]; then
+        if [ -z "$(docker image ls -q "$NDAU_IMAGE_NAME")" ]; then
             echo "Unable to load $NDAU_IMAGE_NAME"
             exit 1
         fi
@@ -298,12 +302,12 @@ docker create \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
        --sysctl net.core.somaxconn=511 \
-       $NDAU_IMAGE_NAME
+       "$NDAU_IMAGE_NAME"
 
 IDENTITY_FILE="node-identity.tgz"
 # Copy the identity file into the container if one was specified,
 # but not if the base64 environment variable is being used to effectively override the file.
-if [ ! -z "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
+if [ -n "$IDENTITY" ] && [ -z "$BASE64_NODE_IDENTITY" ]; then
     echo "Copying node identity file to container..."
     docker cp "$IDENTITY" "$CONTAINER:/image/$IDENTITY_FILE"
 fi
@@ -320,7 +324,14 @@ docker start "$CONTAINER"
 echo "Waiting for the node to fully spin up..."
 until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
 do
-    :
+    logs=$(docker logs "$CONTAINER")
+    if [ "$logs" == "$oldlogs" ]; then
+        echo "docker logs remained unchanged for 30 seconds; that's a bad sign"
+        echo "$logs"
+        exit 1
+    fi
+    oldlogs="$logs"
+    sleep 30
 done
 
 echo "Node is ready; dumping container logs..."
