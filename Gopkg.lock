@@ -494,7 +494,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "prgn-tx-logging"
   digest = "1:7942bb2f07558d7b6b0e6b186f32fb4119544d695b1769e75710b90848ef9276"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -505,7 +504,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "4630380e82cfd938f30552b35232444b0ee03046"
+  revision = "75dbeb9897cac6d52485c42d1bb295bd5de95380"
+  version = "v1.6.5"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -524,8 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-nrw-logs"
-  digest = "1:0331cc8e05e60c801e488abbaf3b2192786b30a0090a784f7fb5209111a9088d"
+  digest = "1:01d3230c3d46c6c93d2dab667c098b703c74667fd52afaafc9101987621b1e5f"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -543,10 +542,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "257e34c28f3ab93fab471bd0ad1cd6f911e77f52"
+  revision = "014478938d19defc2848df2f1c350f9c55504ddf"
+  version = "v1.19.4"
 
 [[projects]]
-  digest = "1:7583999b73782fedeeb3ad79fdd3a5ceabeae5aadf0c20abb297dd3809e6ef15"
+  digest = "1:7aed7181cb5783b27f9cf53e46222ceacd46f81351f00016f5109a8ed657eefa"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -568,8 +568,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "2d123c108f7ddc38a1c317f575941119cf7a66a4"
-  version = "v1.3.2"
+  revision = "fcf28b3801fba5f24531c20a553ba64f9e8e8af3"
+  version = "v1.3.3"
 
 [[projects]]
   branch = "master"
