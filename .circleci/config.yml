@@ -180,8 +180,11 @@ commands:
               fi # no else break in case some nodes are updated and others are not
             done
 
-            wait
+            # This will wait for all backgrounded deploy-node processes to complete.
+            # It will fail and exit the overall deploy job if any one of them failed.
+            wait -n
 
+            echo "Deploy of $NETWORK_NAME is complete"
 
 workflows:
   version: 2
@@ -276,7 +279,7 @@ workflows:
 general_config: &general_config
     working_directory: /commands
     docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.9
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.11
     environment:
         shell: /bin/bash
         <<: *aws_defaults
