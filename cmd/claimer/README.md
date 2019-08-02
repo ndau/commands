@@ -42,6 +42,8 @@ INFO[0000] qty keys known per known node                 bin=claimer ndah7rywpmw
 INFO[0000] server listening                              port=8080 rootpath=/
 ```
 
+Note that when using the argument form, the `=` sign in the assignment is _not_ optional.
+
 You can also specify the path via an environment variable:
 
 ```sh
@@ -52,4 +54,3 @@ INFO[0000] qty keys known per known node                 bin=claimer ndah7rywpmw
 INFO[0001] server listening                              port=8080 rootpath=/
 ```
 
-Note that when using the argument form, the `=` sign in the assignment is _not_ optional.
