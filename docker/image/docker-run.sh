@@ -72,7 +72,6 @@ do
                 sed -e 's/^/> /' "$logfile"
                 echo
             done
-            exit 1
         fi
         oldlogs="$logs"
         sleep 10
