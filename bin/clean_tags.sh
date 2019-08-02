@@ -11,7 +11,7 @@ unixify() {
 today=$(date -ju "+$datefmt")
 today_unix=$(unixify "$today")
 
-for tag in $(git tag | grep -v '^v' | grep -v '^mainnet'); do
+for tag in $(git tag | grep -Ev '^v[0-9]{1,}' | grep -v '^mainnet'); do
     tag_date=$(git log "$tag" -1 --pretty=format:"%ad" --date=short)
     tag_unix=$(unixify "$tag_date")
     age_days=$(((today_unix-tag_unix)/(24*60*60)))
