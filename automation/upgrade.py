@@ -18,10 +18,6 @@ import time
 # Some of this time is used by a node's service restarting, before procmon starts.
 MIN_WAIT_BETWEEN_NODES = 120
 
-# Number of times we poll an upgraded service before we give up waiting for it to become stable.
-# If we sleep 3 seconds per attempt, then 300 attempts waits for a max of 15 minutes.
-MAX_WAIT_FOR_READY_ATTEMPTS = 300
-
 # Repository URI for our ndauimage Docker images.
 ECR_URI = "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node"
 
@@ -135,13 +131,15 @@ def update_service(node_name, region, cluster):
         print(json.dumps(service_json, separators=(",", ":")))
 
 
-def wait_for_service(api_url, rpc_url):
+def wait_for_service(node_name, sha, api_url, rpc_url):
     """
     Wait for a node's service to become healthy and fully caught up on its network.
     Uses the urls to check its health before returning.
     """
 
-    for attempt in range(MAX_WAIT_FOR_READY_ATTEMPTS):
+    # Wait forever.  When doing an upgrade with full reindex, each node can take a long time to
+    # catch up.  The higher the network blockchain height, the longer it'll take.  It's unbounded.
+    while True:
         # Wait some time between each status request, so we don't hammer the service.
         time.sleep(1)
 
@@ -166,6 +164,7 @@ def wait_for_service(api_url, rpc_url):
         print(f"Upgrade of {node_name} is complete")
         return
 
+    # Will never happen (but leaving it here in case we ever do impose a max wait time).
     sys.exit(f"Timed out waiting for {node_name} upgrade to complete")
 
 
@@ -239,7 +238,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     time_started = time.time()
 
     print(f"Waiting for {node_name} to restart and catch up...")
-    wait_for_service(api_url, rpc_url)
+    wait_for_service(node_name, sha, api_url, rpc_url)
 
     if len(snapshot) > 0:
         # Undo the specified snapshot in the container definition so that if there's a restart of

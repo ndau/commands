@@ -47,7 +47,7 @@ def get_net_node_sha_snapshot():
     """
 
     parser = ArgumentParser()
-    parser.add_argument("network", type=Network, choices=list(Network), help="network name")
+    parser.add_argument("net", type=Network, choices=list(Network), help="network name")
     parser.add_argument("--node", required=False, help="node name (defaults to all nodes)")
     parser.add_argument("--sha", required=True, help="ECR sc-node SHA to use")
     parser.add_argument(
