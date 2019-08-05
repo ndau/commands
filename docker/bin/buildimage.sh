@@ -13,6 +13,7 @@ fi
 echo "Using commands branch/tag: $COMMANDS_BRANCH"
 
 DOCKER_DIR="$SCRIPT_DIR/.."
+IMAGE_DIR="$DOCKER_DIR/image"
 COMMANDS_DIR="$DOCKER_DIR/.."
 SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
 if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
@@ -33,12 +34,22 @@ echo "Removing $NDAU_IMAGE_NAME..."
 docker image rm "$NDAU_IMAGE_NAME" 2>/dev/null
 echo "done"
 
+# update shas for cache-busting when appropriate
+curl -s https://api.github.com/repos/oneiro-ndev/noms/git/refs/heads/master |\
+    jq -r .object.sha > "$IMAGE_DIR/noms_sha"
+git rev-parse HEAD > "$IMAGE_DIR/commands_sha"
+if [ -n "$(git status --porcelain)" ]; then
+    echo "WARN: uncommitted changes"
+    echo "docker image contains only committed work ($(git rev-parse --short HEAD))"
+fi
+
+# update dependencies for cache-busting when appropriate
+cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
+
 echo "Building $NDAU_IMAGE_NAME..."
-# Use --no-cache since we likely have new source code we want built that docker can't detect.
 docker build \
-       --no-cache \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
-       "$DOCKER_DIR"/image \
+       "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME"
 echo "done"
