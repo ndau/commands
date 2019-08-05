@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
+
+	"github.com/go-redis/redis"
 )
 
 // HTTPPinger returns a function compatible with the Monitor's Test

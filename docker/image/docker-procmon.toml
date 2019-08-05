@@ -154,9 +154,6 @@ output = ""
         type = "portinuse"
         port = "$NODE_PORT"
 
-    [task.specials.exit_signals]
-        "0xdd" = "SIGINT"
-
 [[task]]
     name = "tendermint"
     parent = "ndaunode"

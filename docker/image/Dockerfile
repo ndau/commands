@@ -38,7 +38,7 @@ COPY --from=redis:5.0.4-alpine [ \
     "usr/local/bin/redis-check-rdb", \
     "usr/local/bin/redis-check-aof", \
     "/usr/local/bin/" \
-    ]
+]
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.
