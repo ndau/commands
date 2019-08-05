@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile
 # For securely using the machine ssh key to access the private oneiro-ndev repos.
-FROM golang:1.12-alpine3.9 AS intermediate
+FROM golang:1.11-alpine3.8 AS intermediate
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the intermediate image.
@@ -38,7 +38,7 @@ COPY --from=redis:5.0.4-alpine [ \
     "usr/local/bin/redis-check-rdb", \
     "usr/local/bin/redis-check-aof", \
     "/usr/local/bin/" \
-    ]
+]
 
 # Install extra tools.
 # TODO: Consider combining/caching this with the above FROM to make the build image.

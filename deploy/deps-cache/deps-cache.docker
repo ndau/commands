@@ -1,5 +1,5 @@
 # This image downloads dependencies and only installs what is necessary to do so.
-FROM golang:1.12-alpine3.9 as dep-cache
+FROM golang:1.11-alpine3.8 as dep-cache
 
 # Bump this, rebuild and push if the cache is getting out of date, and
 # the builds in circleci are getting too long.
