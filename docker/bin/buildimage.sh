@@ -51,5 +51,5 @@ docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        "$IMAGE_DIR" \
-       --tag="$NDAU_IMAGE_NAME"
+       --tag="$NDAU_IMAGE_NAME:$(git rev-parse --short HEAD)"
 echo "done"
