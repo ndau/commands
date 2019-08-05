@@ -1,6 +1,30 @@
 # Multi-stage Dockerfile
 # For securely using the machine ssh key to access the private oneiro-ndev repos.
 
+# This stage has all purely external dependencies we'll want in the final image.
+# Nothing here will ever change based on ndev code changes, so it's safe to
+# build/cache it all right up top.
+FROM alpine:3.9 AS combined_node_base
+
+# Install extra tools.
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 \
+    && update-ca-certificates 2>/dev/null \
+    && python3 -m pip install remarshal
+
+# Use a specific version of redis.
+COPY --from=redis:5.0.4-alpine [ \
+    "usr/local/bin/redis-server", \
+    "usr/local/bin/redis-sentinel", \
+    "usr/local/bin/redis-cli", \
+    "usr/local/bin/redis-benchmark", \
+    "usr/local/bin/redis-check-rdb", \
+    "usr/local/bin/redis-check-aof", \
+    "/usr/local/bin/" \
+    ]
+
+# Use pre-built tendermint image
+COPY --from=tendermint/tendermint:v0.31.4 /usr/bin/tendermint /image/bin/
+
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
@@ -75,26 +99,7 @@ RUN /image/docker-build.sh
 
 
 # Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
-FROM alpine:3.8 AS combined_node
-
-# Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 \
-    && update-ca-certificates 2>/dev/null \
-    && python3 -m pip install remarshal
-
-# Use a specific version of redis.
-COPY --from=redis:5.0.4-alpine [ \
-    "usr/local/bin/redis-server", \
-    "usr/local/bin/redis-sentinel", \
-    "usr/local/bin/redis-cli", \
-    "usr/local/bin/redis-benchmark", \
-    "usr/local/bin/redis-check-rdb", \
-    "usr/local/bin/redis-check-aof", \
-    "/usr/local/bin/" \
-    ]
-
-# Use pre-built tendermint image
-COPY --from=tendermint/tendermint:v0.31.4 /usr/bin/tendermint /image/bin/
+FROM combined_node_base AS combined_node
 
 # Copy the noms image we built
 COPY --from=build_noms /bin/noms /image/bin/

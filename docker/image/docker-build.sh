@@ -23,5 +23,3 @@ mv generate "$BIN_DIR"
 echo Building procmon...
 go build ./cmd/procmon
 mv procmon "$BIN_DIR"
-
-echo Setup complete
