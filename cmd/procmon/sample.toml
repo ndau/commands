@@ -27,7 +27,7 @@ level = "$LOGLEVEL"
     path = "/bin/sh"
     args = [
         "-c",
-        "echo hup hup hooray > $HOME/hup.txt"
+        "echo hup hup hooray"
     ]
     stdout = "HUP.log"
     [task.specials]
@@ -86,35 +86,10 @@ level = "$LOGLEVEL"
         signal = "SIGINT"
         terminate = true
 
-[[task]]
-    # This is a way to convert particular exit codes into signals for the master task
-    name = "MAYBE_INT"
-    path = "/bin/maybe_int"
-    [task.specials]
-        onetime = true
-        signal = "SIGUSR2"
-        # If maybe_int returns 0 (or anything else not in the table),
-        # no signal is processed.
-        # If it returns 1, the master task reacts per a SIGHUP.
-        # If it returns 2, the master task reacts per a SIGTERM.
-        exit_signals = {1 = "SIGHUP", 2 = "SIGTERM"}
-
-[[task]]
-    # Alternate syntax for exit signals
-    name = "MAYBE_INT_2"
-    path = "/bin/maybe_int"
-    [task.specials]
-        onetime = true
-        signal = "SIGUSR2"
-
-    [task.specials.exit_signals]
-        "0xFE" = "SIGHUP"
-        0xff = "SIGINT"
-        0777 = "SIGTERM"
 
 [[task]]
     name = "$TASK_A"
-    path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_A"
     ]
@@ -144,7 +119,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_B"
-    path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_B"
     ]
@@ -171,7 +146,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_C"
-    path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_C"
     ]
@@ -198,7 +173,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_D"
-    path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_D"
     ]
@@ -225,7 +200,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_E"
-    path = "$GOPATH/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_E"
     ]
