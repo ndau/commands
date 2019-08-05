@@ -30,10 +30,6 @@ if [ -n "$(docker container ls -a -q -f ancestor=$NDAU_IMAGE_NAME)" ]; then
     echo "-------"
 fi
 
-echo "Removing $NDAU_IMAGE_NAME..."
-docker image rm "$NDAU_IMAGE_NAME" 2>/dev/null
-echo "done"
-
 # update shas for cache-busting when appropriate
 curl -s https://api.github.com/repos/oneiro-ndev/noms/git/refs/heads/master |\
     jq -r .object.sha > "$IMAGE_DIR/noms_sha"
@@ -51,5 +47,6 @@ docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        "$IMAGE_DIR" \
-       --tag="$NDAU_IMAGE_NAME:$(git rev-parse --short HEAD)"
+       --tag="$NDAU_IMAGE_NAME:$(git rev-parse --short HEAD)" \
+       --tag="$NDAU_IMAGE_NAME:latest"
 echo "done"
