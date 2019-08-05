@@ -31,8 +31,7 @@ RUN cd "$ATTICLABS_DIR"
 # This copy exists to bust the cache if we ever push commits to noms
 COPY ./noms_sha /
 RUN git clone git@github.com:oneiro-ndev/noms.git "$ATTICLABS_DIR"/noms
-RUN cd /bin
-RUN go build "$ATTICLABS_DIR"/noms/cmd/noms
+RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 
 
 # The get_commands_deps stage gets the dependencies used to build the commands
@@ -55,8 +54,12 @@ FROM go_build AS build_commands
 
 # Arguments passed via --build-arg.
 ARG COMMANDS_BRANCH
+ENV COMMANDS_BRANCH=${COMMANDS_BRANCH}
 ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
+
+# this shouldn't normally bust the cache
+COPY docker-build.sh /image/
 
 # bust the cache when the commands repo has changed
 COPY commands_sha /image/
@@ -68,7 +71,6 @@ RUN git clone git@github.com:oneiro-ndev/commands.git \
 COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 
 # Perform custom setup steps from inside the intermediate image.
-ENV COMMANDS_BRANCH=${COMMANDS_BRANCH}
 RUN /image/docker-build.sh
 
 
