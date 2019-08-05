@@ -524,7 +524,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:01d3230c3d46c6c93d2dab667c098b703c74667fd52afaafc9101987621b1e5f"
+  branch = "prgn-height-gate-pricecurve"
+  digest = "1:d638d1126babaef82ba4a27d9acd5929746ff0345564ee526a875af28e5755e5"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,11 +543,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "014478938d19defc2848df2f1c350f9c55504ddf"
-  version = "v1.19.4"
+  revision = "cd7b9a3174dda92f61b99157a45ec87e351bc58b"
 
 [[projects]]
-  digest = "1:a269ccc1c9f16b26638a4f5c27b9f94fd70433a66de2ee2d783dbf53fdb2fec1"
+  branch = "prgn-height-gate-pricecurve"
+  digest = "1:224df94345cdf12aeb68775387b6f86d167dfdc1a844a4d923bc95ac6d3018ae"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -568,8 +569,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "a4fe10d785e8c04f183d7601e149b789f71648bb"
-  version = "v1.3.4"
+  revision = "c57f41dc0aa43a7c254c3fca29a3d959554a3314"
 
 [[projects]]
   branch = "master"

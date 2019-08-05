@@ -17,3 +17,5 @@ NodeRewardWebhookDelay = 10.0
   CreditEAIUnlocksAccounts = 25_000
   ApplyUncreditedEAI = 25_000
   FixEAIUnlockBug = 25_000
+  # Before the next deploy, this feature should be adjusted to an appropriate height
+  TargetPrice9999 = 1_000_000
