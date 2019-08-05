@@ -7,9 +7,9 @@
 FROM alpine:3.9 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3
-RUN python3 -m pip install remarshal
-RUN update-ca-certificates 2>/dev/null
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 && \
+    python3 -m pip install remarshal && \
+    update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
 COPY --from=redis:5.0.4-alpine [ \
@@ -102,13 +102,14 @@ RUN /image/docker-build.sh
 FROM combined_node_base AS combined_node
 
 # Copy image support files needed for running the node group inside the container.
-COPY ./docker-conf.sh /image
-COPY ./docker-config.toml /image
-COPY ./docker-dns.sh /image
-COPY ./docker-env.sh /image
-COPY ./docker-procmon.toml /image
-COPY ./docker-run.sh /image
-COPY ./docker-snapshot.sh /image
+COPY ./docker-conf.sh \
+    ./docker-config.toml \
+    ./docker-dns.sh \
+    ./docker-env.sh \
+    ./docker-procmon.toml \
+    ./docker-run.sh \
+    ./docker-snapshot.sh \
+    /image/
 
 # Copy the noms image we built
 COPY --from=build_noms /bin/noms /image/bin/
