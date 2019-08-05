@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+# shellcheck source=docker-env.sh
 source "$SCRIPT_DIR"/docker-env.sh
 
 echo "Running $NODE_ID node group..."
@@ -23,13 +24,18 @@ fi
 echo "Converting persistent peer domain names to IP addresses..."
 "$SCRIPT_DIR"/docker-dns.sh
 
+# ensure the log directory exists
+mkdir -p "$LOG_DIR"
+
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
 if [ -z "$HONEYCOMB_KEY" ] || [ -z "$HONEYCOMB_DATASET" ]; then
     # Honeycomb not configured, we'll dump everything locally from procmon itself.
+    echo "logging to $LOG_DIR"
     ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
 else
     # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
+    echo "logging to honeycomb: $HONEYCOMB_DATASET"
     ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
 fi
 procmon_pid="$!"
@@ -62,10 +68,11 @@ done
 
 # Block until we have a block height of at least 1.
 # Useful for taking snapshots immediately (and safely) after genesis snapshot has been generated.
+echo "Waiting for valid block height..."
 while :
 do
-    response=$(curl -s http://localhost:$NDAUAPI_PORT/block/height/1)
-    if [ ! -z "$response" ] && [[ "$response" != *"could not get block"* ]]; then
+    response=$(curl -s "http://localhost:$NDAUAPI_PORT/block/height/1")
+    if [ -n "$response" ] && [[ "$response" != *"could not get block"* ]]; then
         break
     fi
     sleep 1

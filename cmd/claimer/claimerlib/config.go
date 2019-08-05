@@ -1,6 +1,8 @@
-package main
+package claimer
 
 import (
+	"io"
+
 	"github.com/BurntSushi/toml"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
@@ -23,6 +25,15 @@ const DefaultConfigPath = "claimer_conf.toml"
 func LoadConfig(path string) (*Config, error) {
 	config := new(Config)
 	_, err := toml.DecodeFile(path, config)
+	return config, err
+}
+
+// LoadConfigData loads the configuration data from a streaming reader
+//
+// This is useful if for example the data is not stored in the local filesystem
+func LoadConfigData(data io.Reader) (*Config, error) {
+	config := new(Config)
+	_, err := toml.DecodeReader(data, config)
 	return config, err
 }
 

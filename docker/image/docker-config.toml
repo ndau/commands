@@ -1,3 +1,5 @@
+NodeRewardWebhookDelay = 10.0
+
 [Features]
   # Block heights at which features becomes active.  Add more feature heights here as needed.
   # User code uses app.IsFeatureActive("FeatureName") to know whether a given feature is active.
@@ -6,13 +8,12 @@
   # before deploying to mainnet.  But in no case should we change any heights in this section
   # that are less than or equal to mainnet's current height, since those features need old logic
   # for playback compatibility.
-  NoExchangeHoldsOnTransfer = 13510
-  NoKeysOnSetValidation = 13510
-  ResetUncreditedEAIOnCreditEAI = 13510
-  # TODO: Set these more appropriately on the next mainnet upgrade (and remove this comment)
-  NodeActiveCheck = 1_000_000
-  NoLeakyUpdateState = 1_000_000
-  SequenceIncrementProtection = 1_000_000
-  CreditEAIUnlocksAccounts = 1_000_000
-  ApplyUncreditedEAI = 1_000_000
-  FixEAIUnlockBug = 1_000_000
+  NoExchangeHoldsOnTransfer = 13_510
+  NoKeysOnSetValidation = 13_510
+  ResetUncreditedEAIOnCreditEAI = 13_510
+  NodeActiveCheck = 25_000
+  NoLeakyUpdateState = 25_000
+  SequenceIncrementProtection = 25_000
+  CreditEAIUnlocksAccounts = 25_000
+  ApplyUncreditedEAI = 25_000
+  FixEAIUnlockBug = 25_000

@@ -10,6 +10,14 @@
   version = "v0.3.1"
 
 [[projects]]
+  digest = "1:22c4f2d6b662f9496d264b2ff3460956e7d8b606e08b17e621118bafabdca6fb"
+  name = "github.com/akrylysov/algnhsa"
+  packages = ["."]
+  pruneopts = ""
+  revision = "05b3d192e9a7c7e3e64ecfd4be490a6771a05b3f"
+  version = "v0.11"
+
+[[projects]]
   digest = "1:d1b7be319f318156e7e49696c5cd86636c63680c9317c6167123b4c09f96583a"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
@@ -74,6 +82,20 @@
   pruneopts = ""
   revision = "186e0939a5044b182bce9e60dea910bd6bcb5cd9"
   source = "github.com/oneiro-ndev/noms"
+
+[[projects]]
+  digest = "1:deba4f4561cc7490127f599626c78cbfe972ffacc8edfaf77710de8922e0ae77"
+  name = "github.com/aws/aws-lambda-go"
+  packages = [
+    "events",
+    "lambda",
+    "lambda/handlertrace",
+    "lambda/messages",
+    "lambdacontext",
+  ]
+  pruneopts = ""
+  revision = "4c210d7623089d36b6bb6febf5a5e553bf73fbfb"
+  version = "v1.11.1"
 
 [[projects]]
   digest = "1:06a3d6c930263524e16e4c0b4b6cf461f83ffcb468864a18f537ce19a44e5de4"
@@ -472,7 +494,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:2475a2020231086f2bf0df833066d3568f01aca7d2347e28f885fe9504e7b949"
+  digest = "1:7942bb2f07558d7b6b0e6b186f32fb4119544d695b1769e75710b90848ef9276"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -482,8 +504,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7863e064087bb2872bd2b46e2cf7510b9d1f4ddf"
-  version = "v1.6.4"
+  revision = "75dbeb9897cac6d52485c42d1bb295bd5de95380"
+  version = "v1.6.5"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -502,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:6db79b91cd0fb68fafcc2a3842db54719a4396be06684ba11cad83b8ddd4631c"
+  digest = "1:01d3230c3d46c6c93d2dab667c098b703c74667fd52afaafc9101987621b1e5f"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -520,11 +542,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "00c6e56b02cb0ee27c2d3e22bf345ec65aa768ba"
-  version = "v1.19.3"
+  revision = "014478938d19defc2848df2f1c350f9c55504ddf"
+  version = "v1.19.4"
 
 [[projects]]
-  digest = "1:7583999b73782fedeeb3ad79fdd3a5ceabeae5aadf0c20abb297dd3809e6ef15"
+  digest = "1:a269ccc1c9f16b26638a4f5c27b9f94fd70433a66de2ee2d783dbf53fdb2fec1"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -546,8 +568,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "2d123c108f7ddc38a1c317f575941119cf7a66a4"
-  version = "v1.3.2"
+  revision = "a4fe10d785e8c04f183d7601e149b789f71648bb"
+  version = "v1.3.4"
 
 [[projects]]
   branch = "master"
@@ -1002,11 +1024,15 @@
   analyzer-version = 1
   input-imports = [
     "github.com/BurntSushi/toml",
+    "github.com/akrylysov/algnhsa",
     "github.com/alexflint/go-arg",
     "github.com/attic-labs/noms/go/datas",
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
     "github.com/attic-labs/noms/go/types",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/s3",
     "github.com/go-redis/redis",
     "github.com/google/shlex",
     "github.com/jawher/mow.cli",
