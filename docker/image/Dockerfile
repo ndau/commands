@@ -7,9 +7,9 @@
 FROM alpine:3.9 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 \
-    && update-ca-certificates 2>/dev/null \
-    && python3 -m pip install remarshal
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3
+RUN python3 -m pip install remarshal
+RUN update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
 COPY --from=redis:5.0.4-alpine [ \
@@ -98,14 +98,8 @@ COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 RUN /image/docker-build.sh
 
 
-# Build the final image.  This will abandon the previous image and leave no trace of the ssh key.
+# Build the final image.  If published, this should leave no trace of earlier stages.
 FROM combined_node_base AS combined_node
-
-# Copy the noms image we built
-COPY --from=build_noms /bin/noms /image/bin/
-
-# Copy the output from the intermediate image.
-COPY --from=build_commands /image/bin/* /image/bin/
 
 # Copy image support files needed for running the node group inside the container.
 COPY ./docker-conf.sh /image
@@ -115,6 +109,12 @@ COPY ./docker-env.sh /image
 COPY ./docker-procmon.toml /image
 COPY ./docker-run.sh /image
 COPY ./docker-snapshot.sh /image
+
+# Copy the noms image we built
+COPY --from=build_noms /bin/noms /image/bin/
+
+# Copy the output from the intermediate image.
+COPY --from=build_commands /image/bin/* /image/bin/
 
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
