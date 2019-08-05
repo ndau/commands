@@ -12,7 +12,7 @@ test_ndau() {
 
     echo
     echo testing ndau
-    go test ./... -v
+    go test ./...
     echo
 
     unlink_vendor_for_test ndau
