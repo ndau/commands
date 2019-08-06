@@ -589,14 +589,11 @@ jobs:
             # The ndauimage container looks for a specially-named snapshot ending with "-0".
             docker cp "$bin_dir"/snapshot-localnet-1.tgz localnet-1:/image/snapshot-localnet-0.tgz
             docker start localnet-1
-            "$bin_dir"/watchcontainer.sh localnet-1 &
-            watcher_pid="$!"
             echo "Waiting for localnet-1 to fully spin up..."
             until docker exec localnet-1 test -f /image/running 2>/dev/null
             do
                 sleep 1
             done
-            kill "$watcher_pid" && wait "$watcher_pid" 2>/dev/null
             echo "localnet-1 is ready; dumping container logs..."
             docker container logs localnet-1 2>/dev/null | sed -e 's/^/> /'
             # --- end of code adapted from runcontainer.sh ---
