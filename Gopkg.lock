@@ -1075,7 +1075,6 @@
     "github.com/oneiro-ndev/system_vars/pkg/system_vars",
     "github.com/oneiro-ndev/writers/pkg/bufio",
     "github.com/oneiro-ndev/writers/pkg/filter",
-    "github.com/oneiro-ndev/writers/pkg/testwriter",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/savaki/jq",
