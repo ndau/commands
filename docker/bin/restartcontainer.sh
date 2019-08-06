@@ -25,7 +25,9 @@ sleep 1
 echo "Waiting for the node to fully spin up..."
 until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
 do
-    :
+    # It usually takes a second or two to start up, so checking once per second doesn't cause too
+    # much extra wait time and it also frees up CPU for the node to consume while starting up.
+    sleep 1
 done
 
 echo "done"
