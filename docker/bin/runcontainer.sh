@@ -328,9 +328,7 @@ do
 done
 
 echo "Node is ready; dumping container logs..."
-echo "["
-docker container logs "$CONTAINER"
-echo "]"
+docker container logs "$CONTAINER" | sed -e 's/^/> /'
 
 # In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.
