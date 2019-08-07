@@ -440,7 +440,6 @@ jobs:
             # Use mainnet-2 since that's in the same region as devnet.
             status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
             height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
-            height=24000 # FIXME: undo this once we're ready to deploy to mainnet
             if [ -z "$height" ] || [ $height -le 0 ]; then
               echo "Unable to get mainnet height"
               false
@@ -473,9 +472,7 @@ jobs:
               printf " $h"
 
               catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
-              # FIXME: put this 'if' back after we've got network-specific height gates.
-              #if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
-              if [ $h -ge $height ]; then
+              if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
                 caught_up=1
                 printf " (caught up)"
                 break
