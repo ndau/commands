@@ -592,12 +592,11 @@ jobs:
             echo "Waiting for localnet-1 to fully spin up..."
             until docker exec localnet-1 test -f /image/running 2>/dev/null
             do
-                :
+                sleep 1
             done
             echo "localnet-1 is ready; dumping container logs..."
-            echo "["
-            docker container logs localnet-1
-            echo "]"
+            docker container logs localnet-1 2>/dev/null | sed -e 's/^/> /'
+            # --- end of code adapted from runcontainer.sh ---
 
             # Integration tests do not require a multi-node network, but we'd like to ensure that
             # exercising p2p features at least.  Make sure both nodes have each other as peers.

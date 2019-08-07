@@ -215,7 +215,7 @@ output = ""
     name = "snapshot-immediate"
     path = "/bin/bash"
     args = [
-        "-c", "$ROOT_DIR/docker-snapshot.sh --generate",
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload",
     ]
     stdout = "$LOG_DIR/snapshot.log"
     stderr = "$LOG_DIR/snapshot.log"
