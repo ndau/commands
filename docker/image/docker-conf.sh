@@ -140,6 +140,7 @@ NDAU_CONFIG_TOML="$SCRIPT_DIR/docker-config-$NETWORK.toml"
 if [ ! -f "$NDAU_CONFIG_TOML" ]; then
     NDAU_CONFIG_TOML="$SCRIPT_DIR/docker-config-default.toml"
 fi
+echo "Using ndau config file: $NDAU_CONFIG_TOML"
 
 echo "Webhook config pre-copy:"
 sed -e 's/^/  /' <(grep Webhook "$NDAU_CONFIG_TOML")
