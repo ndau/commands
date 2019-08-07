@@ -473,7 +473,7 @@ jobs:
               printf " $h"
 
               catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
-			  # FIXME: put this 'if' back after we've got network-specific height gates.
+              # FIXME: put this 'if' back after we've got network-specific height gates.
               #if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
               if [ $h -ge $height ]; then
                 caught_up=1
