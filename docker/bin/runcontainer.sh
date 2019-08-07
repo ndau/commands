@@ -321,14 +321,23 @@ fi
 echo "Starting container..."
 docker start "$CONTAINER"
 
+# Run the hang monitor while we wait for the node to spin up.
+"$SCRIPT_DIR"/watchcontainer.sh "$CONTAINER" &
+watcher_pid="$!"
+
 echo "Waiting for the node to fully spin up..."
 until docker exec "$CONTAINER" test -f /image/running 2>/dev/null
 do
-    :
+    # It usually takes a second or two to start up, so checking once per second doesn't cause too
+    # much extra wait time and it also frees up CPU for the node to consume while starting up.
+    sleep 1
 done
 
+# Done waiting; kill the watcher.
+kill "$watcher_pid" && wait "$watcher_pid" 2>/dev/null
+
 echo "Node is ready; dumping container logs..."
-docker container logs "$CONTAINER" | sed -e 's/^/> /'
+docker container logs "$CONTAINER" 2>/dev/null | sed -e 's/^/> /'
 
 # In the case no node identity was passed in, wait for it to generate one then copy it out.
 # It's important that node operators keep the node-identity.tgz file secure.
