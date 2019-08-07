@@ -16,7 +16,8 @@ version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.19"
+# version = "~v1.19"
+branch = "prgn-sv-validation"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -28,7 +29,8 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-version = "~v1.3"
+# version = "~v1.3"
+branch = "prgn-sv-validation"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/writers"
