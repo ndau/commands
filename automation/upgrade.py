@@ -6,6 +6,8 @@ from get_sha import get_sha
 from lib.args import get_net_node_sha_snapshot
 from lib.services import fetch_services, parse_services
 from lib.networks import NETWORK_LOCATIONS
+from snapshot_node import get_container_id
+from snapshot_node import snapshot_node
 import json
 import os
 import subprocess
@@ -186,14 +188,16 @@ def set_snapshot(snapshot, container_definition):
 
     found = False
     for environment_variable in environment_variables:
-        if key_name in environment_variable and environment_variable[key_name] == snapshot_key:
+        if (
+            key_name in environment_variable
+            and environment_variable[key_name] == snapshot_key
+        ):
             environment_variable[value_name] = snapshot
-            found = True # We could break, but letting the loop run handles (unlikely) dupes.
+            found = (
+                True
+            )  # We could break, but letting the loop run handles (unlikely) dupes.
     if not found:
-        environment_variable = {
-            key_name:   snapshot_key,
-            value_name: snapshot,
-        }
+        environment_variable = {key_name: snapshot_key, value_name: snapshot}
         environment_variables.append(environment_variable)
 
 
@@ -203,11 +207,13 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     given snapshot name ("" means "latest snapshot") from which to catch up.
     Uses the urls to check its health before returning.
     Returns the amount of time that was spent waiting for the upgrade to complete after a restart.
+    Also returns the container id of the node if a snapshot is to be taken after the upgrade.
     """
 
-    # If no snapshot was given, use the latest.
-    if snapshot is None:
-        snapshot = ""
+    container_id = None
+    if len(snapshot) > 0:
+        # Make sure we can SSH into the node to take a snapshot before we do anything.
+        container_id = get_container_id(node_name)
 
     print(f"Fetching latest {node_name} task definition...")
     container_definitions = fetch_container_definitions(node_name, region)
@@ -249,7 +255,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
         print(f"Registering {node_name} task definition again without a snapshot...")
         register_task_definition(node_name, region, container_definitions)
 
-    return time.time() - time_started
+    return time.time() - time_started, container_id
 
 
 def upgrade_nodes(network_name, node_name, sha, snapshot):
@@ -282,9 +288,19 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
             )
             time.sleep(wait_seconds)
 
-        time_spent_waiting = upgrade_node(
+        time_spent_waiting, container_id = upgrade_node(
             node_name, region, cluster, sha, snapshot, api_url, rpc_url
         )
+
+        # If we just upgraded a node with a snapshot, the node has now caught up and regenerated
+        # all its data from that snapshot.  Have it generate a new snapshot and make it the new
+        # latest snapshot, so that all remaining nodes can catch up from that and save time.
+        if len(snapshot) > 0:
+            if not snapshot_node(node_name, container_id):
+                sys.exit(f"Unable to take a snapshot on {node_name}")
+
+            # All remaining nodes can upgrade using the latest snapshot.
+            snapshot = ""
 
 
 def register_sha(network_name, sha):
@@ -318,6 +334,10 @@ def main():
 
     network, node_name, sha, snapshot = get_net_node_sha_snapshot()
     network_name = str(network)
+
+    # If no snapshot was given, use the latest.
+    if snapshot is None:
+        snapshot = ""
 
     # Be extra careful with mainnet.
     if network_name == "mainnet":
