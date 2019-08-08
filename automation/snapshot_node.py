@@ -27,12 +27,27 @@ def run_ssh_command(node_name, command):
     )
 
 
+def test_ssh_access(node_name):
+    """
+    SSH into the given node's AWS instance and perform a docker command to test access.
+    """
+
+    print(f"Testing {node_name} SSH access...")
+    r = run_ssh_command(node_name, f"docker container ls -f name={node_name}")
+    if r.returncode != 0:
+        sys.exit(f"ssh failed to test access with code {r.returncode}")
+
+    output = r.stdout.decode("utf-8").rstrip("\n")
+
+    print(output)
+
+
 def get_container_id(node_name):
     """
     SSH into the given node's AWS instance to get the name of its container within.
     """
 
-    print("Getting container id...")
+    print(f"Getting {node_name} container id...")
     r = run_ssh_command(node_name, f"docker container ls -q -f name={node_name}")
     if r.returncode != 0:
         sys.exit(f"ssh failed to get container id with code {r.returncode}")
@@ -43,16 +58,20 @@ def get_container_id(node_name):
     if not all(c in string.hexdigits for c in container_id):
         sys.exit(f"Invalid container id: {container_id}")
 
+    print(f"Container id: {container_id}")
+
     return container_id
 
 
-def snapshot_node(node_name, container_id):
+def snapshot_node(node_name):
     """
     Cause the given node to take a snapshot and upload it to S3 and register it as the latest.
     Only works for nodes on AWS that have been configured with S3 creds, like testnet-5 and
     mainnet-5.  Otherwise, the snapshot will get generated inside the node's container, but
     not uploaded.
     """
+
+    container_id = get_container_id(node_name)
 
     print("Creating snapshot...")
     r = run_ssh_command(
@@ -66,6 +85,7 @@ def snapshot_node(node_name, container_id):
     # It shouldn't take more than a few seconds to generate the snapshot.
     # We do this polling loop outside the container exec command.
     # Using an "until" loop inside the container was causing the ssh command to return error 126.
+    print("Waiting for snapshot...")
     for i in range(60):
         r = run_ssh_command(
             node_name, f"docker exec {container_id} test -f /image/snapshot_result"
@@ -79,7 +99,6 @@ def snapshot_node(node_name, container_id):
         if r.returncode != 1:
             sys.exit(f"ssh failed to detect snapshot with code {r.returncode}")
 
-        print("Waiting for snapshot...")
         time.sleep(1)
 
     return False
@@ -92,8 +111,7 @@ def main():
     """
 
     node_name = get_node()
-    container_id = get_container_id(node_name)
-    if not snapshot_node(node_name, container_id):
+    if not snapshot_node(node_name):
         sys.exit(f"An error occurred attempting to take a snapshot on {node_name}")
 
 

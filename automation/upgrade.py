@@ -6,7 +6,7 @@ from get_sha import get_sha
 from lib.args import get_net_node_sha_snapshot
 from lib.services import fetch_services, parse_services
 from lib.networks import NETWORK_LOCATIONS
-from snapshot_node import get_container_id
+from snapshot_node import test_ssh_access
 from snapshot_node import snapshot_node
 import json
 import os
@@ -111,6 +111,8 @@ def register_task_definition(node_name, region, container_definitions):
         sys.exit(f"Cannot find {task_definition_arn_name} in {task_definition_obj}")
     task_definition_arn = task_definition_obj[task_definition_arn_name]
 
+    print(f"Task definition: {task_definition_arn}")
+
     return task_definition_arn
 
 
@@ -180,21 +182,31 @@ def is_service_running(node_name, region, cluster, task_definition_arn):
     # Key names in json.
     services_name = "services"
     service_name = "serviceName"
+    deployments_name = "deployments"
+    status_name = "status"
     task_definition_name = "taskDefinition"
     running_count_name = "runningCount"
 
     if services_name in services_json:
         services = services_json[services_name]
         for service in services:
-            if service_name in service and service[service_name] == node_name:
-                # Service was found; return whether it's currently running with the
-                # desired task definition revision.
-                return (
-                    task_definition_name in service
-                    and service[task_definition_name] == task_definition_arn
-                    and running_count_name in service
-                    and service[running_count_name] > 0
-                )
+            if (
+                service_name in service
+                and service[service_name] == node_name
+                and deployments_name in service
+            ):
+                deployments = service[deployments_name]
+                # We want only the new deployment present, not any other old ones still draining.
+                if len(deployments) == 1:
+                    deployment = deployments[0]
+                    return (
+                        status_name in deployment
+                        and deployment[status_name] == "PRIMARY"
+                        and task_definition_name in deployment
+                        and deployment[task_definition_name] == task_definition_arn
+                        and running_count_name in service
+                        and service[running_count_name] == 1
+                    )
 
     # The service wasn't found and so is not running.
     return False
@@ -275,13 +287,11 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     given snapshot name ("" means "latest snapshot") from which to catch up.
     Uses the urls to check its health before returning.
     Returns the amount of time that was spent waiting for the upgrade to complete after a restart.
-    Also returns the container id of the node if a snapshot is to be taken after the upgrade.
     """
 
-    container_id = None
     if len(snapshot) > 0:
         # Make sure we can SSH into the node to take a snapshot before we do anything.
-        container_id = get_container_id(node_name)
+        test_ssh_access(node_name)
 
     print(f"Fetching latest {node_name} task definition...")
     container_definitions = fetch_container_definitions(node_name, region)
@@ -318,7 +328,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
         node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn
     )
 
-    return time.time() - time_started, container_id
+    return time.time() - time_started
 
 
 def upgrade_nodes(network_name, node_name, sha, snapshot):
@@ -351,7 +361,7 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
             )
             time.sleep(wait_seconds)
 
-        time_spent_waiting, container_id = upgrade_node(
+        time_spent_waiting = upgrade_node(
             node_name, region, cluster, sha, snapshot, api_url, rpc_url
         )
 
@@ -359,7 +369,7 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
         # all its data from that snapshot.  Have it generate a new snapshot and make it the new
         # latest snapshot, so that all remaining nodes can catch up from that and save time.
         if len(snapshot) > 0:
-            if not snapshot_node(node_name, container_id):
+            if not snapshot_node(node_name):
                 sys.exit(f"Unable to take a snapshot on {node_name}")
 
             # All remaining nodes can upgrade using the latest snapshot.
@@ -369,7 +379,7 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
             # That way, if the node goes down for any reason, AWS will restart it and not
             # have to catch up from the original snapshot like it just did.
             print(f"Redeploying {node_name} at the latest snapshot...")
-            time_spent_waiting, container_id = upgrade_node(
+            time_spent_waiting = upgrade_node(
                 node_name, region, cluster, sha, snapshot, api_url, rpc_url
             )
 
