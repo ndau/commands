@@ -448,7 +448,7 @@ jobs:
 
             # Catching up on mainnet will take longer and longer as the block height of mainnet
             # increases over time.  This is known and we'll need to deal with it at some point.
-	    # https://github.com/oneiro-ndev/commands/issues/354
+            # https://github.com/oneiro-ndev/commands/issues/354
             printf "Catching up..."
             last_h=0
             while : ; do
