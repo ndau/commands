@@ -135,16 +135,23 @@ fi
 mkdir -p "$NODE_DATA_DIR"
 mkdir -p "$LOG_DIR"
 
+# Choose the appropriate ndau config file for the current network.
+NDAU_CONFIG_TOML="$SCRIPT_DIR/docker-config-$NETWORK.toml"
+if [ ! -f "$NDAU_CONFIG_TOML" ]; then
+    NDAU_CONFIG_TOML="$SCRIPT_DIR/docker-config-default.toml"
+fi
+echo "Using ndau config file: $NDAU_CONFIG_TOML"
+
 echo "Webhook config pre-copy:"
-sed -e 's/^/  /' <(grep Webhook "$SCRIPT_DIR/docker-config.toml")
+sed -e 's/^/  /' <(grep Webhook "$NDAU_CONFIG_TOML")
 
 # Now that we have our ndau data directory (ndau home dir), move the config file into it,
 # injecting the appropriate node webhook if so configured
 mkdir -p "$NDAUHOME/ndau"
 if [ -z "$WEBHOOK_URL" ]; then
-    mv "$SCRIPT_DIR/docker-config.toml" "$NDAUHOME/ndau/config.toml"
+    mv "$NDAU_CONFIG_TOML" "$NDAUHOME/ndau/config.toml"
 else
-    toml2json "$SCRIPT_DIR/docker-config.toml" |\
+    toml2json "$NDAU_CONFIG_TOML" |\
     jq ". + {\"NodeRewardWebhook\": \"$WEBHOOK_URL\"}" |\
     json2toml > "$NDAUHOME/ndau/config.toml"
 fi
