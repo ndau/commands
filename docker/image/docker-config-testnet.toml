@@ -12,4 +12,4 @@ NodeRewardWebhookDelay = 10.0
   ApplyUncreditedEAI = 25_000
   FixEAIUnlockBug = 25_000
   TargetPrice9999 = 25_000
-  SysvarValidityCheck = 25_000
+  SysvarValidityCheck = 26_300

@@ -462,15 +462,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:89318707e4589101dcfc0c9ac004aab743b664c18e0d81ede70c953fa23f4ac9"
+  digest = "1:78dd095f4966b8b018d00f6e60af8b44f7ada205d60ee0a6a9c5b76b798a58d3"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "cac781082954576d73d4eb514171586c0a08d978"
-  version = "v1.2.2"
+  revision = "a66f3e5f25cb650cb7b0d055245b2854aa1e020a"
+  version = "v1.2.3"
 
 [[projects]]
   digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
@@ -524,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:6961814306ae0350bcf7738ba2e22a0d53de7743ae60d8a3d9106bfa9e62ec35"
+  digest = "1:d44ce054724d0a1c0af18295e6c8068cf0d4cc6f85d93198dc7966f17dde07ba"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,11 +542,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "8c5d3d054c8ecaa8ea7772706eb5000a4b4beeb8"
-  version = "v1.20.0"
+  revision = "5657e8ba58545fc4dd1aa6aa0b963a69ba6b0393"
+  version = "v1.20.1"
 
 [[projects]]
-  digest = "1:224df94345cdf12aeb68775387b6f86d167dfdc1a844a4d923bc95ac6d3018ae"
+  digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -568,8 +568,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "96d239d94f072daeab8851235a9e58593d63cbf2"
-  version = "v1.3.5"
+  revision = "de5a90c45d3f079f1a263819493d2f7a70bb4b8b"
+  version = "v1.3.6"
 
 [[projects]]
   branch = "master"
