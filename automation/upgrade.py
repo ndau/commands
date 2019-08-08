@@ -306,15 +306,6 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     print(f"Waiting for {node_name} to restart and catch up...")
     wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn)
 
-    if len(snapshot) > 0:
-        # Undo the specified snapshot in the container definition so that if there's a restart of
-        # this node for any reason, it'll go back to using the latest snapshot.
-        for container_definition in container_definitions:
-            set_snapshot("", container_definition)
-
-        print(f"Registering {node_name} task definition again without a snapshot...")
-        register_task_definition(node_name, region, container_definitions)
-
     return time.time() - time_started, container_id
 
 
