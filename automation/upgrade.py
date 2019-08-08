@@ -362,6 +362,14 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
             # All remaining nodes can upgrade using the latest snapshot.
             snapshot = ""
 
+            # Re-deploy the node that just deployed, so that it uses the latest snapshot.
+            # That way, if the node goes down for any reason, AWS will restart it and not
+            # have to catch up from the original snapshot like it just did.
+            print(f"Redeploying {node_name} at the latest snapshot...")
+            time_spent_waiting, container_id = upgrade_node(
+                node_name, region, cluster, sha, snapshot, api_url, rpc_url
+            )
+
 
 def register_sha(network_name, sha):
     """
