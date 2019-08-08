@@ -524,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:07e9f164a9b666873c956e19b6232b5be7c73e75554433af9058df62641e7df7"
+  digest = "1:6961814306ae0350bcf7738ba2e22a0d53de7743ae60d8a3d9106bfa9e62ec35"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,8 +542,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "c184340c3f1899bb794d689aad2bb8da05a47830"
-  version = "v1.19.7"
+  revision = "8c5d3d054c8ecaa8ea7772706eb5000a4b4beeb8"
+  version = "v1.20.0"
 
 [[projects]]
   digest = "1:224df94345cdf12aeb68775387b6f86d167dfdc1a844a4d923bc95ac6d3018ae"
@@ -596,7 +596,7 @@
   revision = "abad8f201243e4fd813d0f8b4102c3083f501960"
 
 [[projects]]
-  digest = "1:22fe963b4e5495edf74d8cc82f56a506c8c577b26a44ecf4b67fea43e6b19fc4"
+  digest = "1:0f52f5994abc186c32e54fd6e1ef96951fbf4f2f31567f2521826ca95fff2bb0"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -604,8 +604,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "5605219bad1732a31f1a9e3f0cd44bb8b70fc98d"
-  version = "v1.3.0"
+  revision = "246e85c0e747fe7026a3de06c23ec2793716e30d"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
