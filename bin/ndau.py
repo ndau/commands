@@ -6,6 +6,8 @@
 
 """
 
+import collections
+import datetime
 import itertools
 import re
 import requests
@@ -107,6 +109,95 @@ def printAccountFieldHelp():
         print(f"{n[0]:28}  {n[1]}")
 
 
+# ----- Transaction information
+
+
+class Transactions(object):
+    def __init__(self):
+        self.transactions = []
+        self._addTx("Transfer", 1, tags=["all", "account"])
+        self._addTx("ChangeValidation", 2, tags=["all", "account"])
+        self._addTx("ReleaseFromEndowment", 3, aliases=["rfe"], tags=["all", "system"])
+        self._addTx("ChangeRecoursePeriod", 4, tags=["all", "account"])
+        self._addTx("Delegate", 5, tags=["all", "account"])
+        self._addTx("CreditEAI", 6, tags=["all", "nodeops"])
+        self._addTx("Lock", 7, tags=["all", "account", "lock"])
+        self._addTx("Notify", 8, tags=["all", "account", "lock"])
+        self._addTx(
+            "SetRewardsDestination", 9, aliases=["srd"], tags=["all", "account"]
+        )
+        self._addTx("SetValidation", 10, tags=["all", "account"])
+        self._addTx("Stake", 11, tags=["all", "staking"])
+        self._addTx(
+            "RegisterNode", 12, aliases=["register", "reg"], tags=["all", "nodeops"]
+        )
+        self._addTx("NominateNodeReward", 13, aliases=["nnr"], tags=["all", "system"])
+        self._addTx("ClaimNodeReward", 14, tags=["all", "nodeops"])
+        self._addTx("TransferAndLock", 15, tags=["all", "account", "lock"])
+        self._addTx(
+            "CommandValidatorChange", 16, aliases=["cvc"], tags=["all", "system"]
+        )
+        self._addTx(
+            "UnregisterNode",
+            18,
+            aliases=["unregister", "unreg"],
+            tags=["all", "nodeops"],
+        )
+        self._addTx("Unstake", 19, tags=["all", "staking"])
+        self._addTx("Issue", 20, tags=["all", "system", "price"])
+        self._addTx("CreateChildAccount", 21, aliases=["cca"], tags=["all", "account"])
+        self._addTx("RecordPrice", 22, tags=["all", "system", "price"])
+        self._addTx("SetSysvar", 23, tags=["all", "system"])
+        self._addTx("SetStakeRules", 24, aliases=["ssr"], tags=["all", "staking"])
+        self._addTx(
+            "RecordEndowmentNAV",
+            25,
+            aliases=["ren", "renav", "nav"],
+            tags=["all", "system", "price"],
+        )
+        self._addTx("ResolveStake", 26, tags=["all", "staking"])
+        self._addTx("ChangeSchema", 30, tags=["all", "system"])
+
+    def _addTx(self, name, index, aliases=[], tags=[]):
+        tx = {
+            "name": name,
+            "index": index,
+            "aliases": aliases,
+            "tags": tags,
+            "_lookup": set([name.lower()]),
+        }
+        tx["_lookup"].update(set(aliases))
+        tx["_lookup"].update(set(["#" + t for t in tags]))
+        self.transactions.append(tx)
+
+    def getMatchIndexes(self, text):
+        p = re.compile("[a-z#]+")
+        sa = set(p.findall(text))
+        results = set()
+        for tx in self.transactions:
+            if len(sa.intersection(tx["_lookup"])) > 0:
+                results.add(tx["index"])
+        return results
+
+    def getTxFor(self, index):
+        for tx in self.transactions:
+            if index == tx["index"]:
+                return tx
+        return None
+
+    def print(self):
+        tags = collections.defaultdict(list)
+        print("Transactions            Aliases               Tags")
+        print("------------            -------               ----")
+        for tx in self.transactions:
+            print(
+                f"{tx['name']:22}  {', '.join(tx['aliases']):20}"
+                f"  {', '.join(['#'+t for t in tx['tags']])}"
+            )
+            for t in tx["tags"]:
+                tags[t].append(tx["name"])
+
+
 # ----- Duration processing ------------------------------------------
 
 # these are the names of time units and their duration in microseconds
@@ -157,6 +248,29 @@ def parseDuration(s):
     for u in timeConstants:
         t += usec(m.group(u), u)
     return t
+
+
+def timestamp(s):
+    """ validates and canonicalizes a timestamp """
+    RFC3339 = "%Y-%m-%dT%H:%M:%S.%f"
+    formats = [
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%dT%H:%M:%S",
+        RFC3339,
+        RFC3339 + "Z",
+    ]
+    ts = None
+    for f in formats:
+        try:
+            ts = datetime.datetime.strptime(s, f)
+            break
+        except ValueError:
+            continue
+
+        if ts is None:
+            raise ValueError
+    return ts.strftime(RFC3339 + "Z")
 
 
 # ----- general-purpose functions
