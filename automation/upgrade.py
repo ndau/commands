@@ -190,17 +190,19 @@ def is_service_running(node_name, region, cluster, task_definition_arn):
                 # Service was found; return whether it's currently running with the
                 # desired task definition revision.
                 return (
-                    task_definition_name in service and
-                    service[task_definition_name] == task_definition_arn and
-                    running_count_name in service and
-                    service[running_count_name] > 0
+                    task_definition_name in service
+                    and service[task_definition_name] == task_definition_arn
+                    and running_count_name in service
+                    and service[running_count_name] > 0
                 )
 
     # The service wasn't found and so is not running.
     return False
 
 
-def wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn):
+def wait_for_service(
+    node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn
+):
     """
     Wait for a node's service to become healthy and fully caught up on its network.
     Uses the urls to check its health before returning.
@@ -297,7 +299,9 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
         set_snapshot(snapshot, container_definition)
 
     print(f"Registering new {node_name} task definition...")
-    task_definition_arn = register_task_definition(node_name, region, container_definitions)
+    task_definition_arn = register_task_definition(
+        node_name, region, container_definitions
+    )
 
     print(f"Updating {node_name} service...")
     update_service(node_name, region, cluster)
@@ -310,7 +314,9 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     time_started = time.time()
 
     print(f"Waiting for {node_name} to restart and catch up...")
-    wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn)
+    wait_for_service(
+        node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn
+    )
 
     return time.time() - time_started, container_id
 
