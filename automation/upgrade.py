@@ -28,6 +28,7 @@ def fetch_container_definitions(node_name, region):
     """
     Fetch the json object (list) representing the given node's container definitions (there
     should only be one) in the given region.
+    Also returns the corresponding task definition arn.
     """
 
     r = subprocess.run(
@@ -55,6 +56,7 @@ def fetch_container_definitions(node_name, region):
     # Key names in json.
     task_definition_name = "taskDefinition"
     container_definitions_name = "containerDefinitions"
+    arn_name = "taskDefinitionArn"
 
     if task_definition_name not in task_definition_json:
         sys.exit(f"Cannot find {task_definition_name} in {task_definition_json}")
@@ -64,7 +66,11 @@ def fetch_container_definitions(node_name, region):
         sys.exit(f"Cannot find {container_definitions_name} in {task_definition_obj}")
     container_definitions = task_definition_obj[container_definitions_name]
 
-    return container_definitions
+    if arn_name not in task_definition_obj:
+        sys.exit(f"Cannot find {arn_name} in {task_definition_obj}")
+    task_definition_arn = task_definition_obj[arn_name]
+
+    return container_definitions, task_definition_arn
 
 
 def register_task_definition(node_name, region, container_definitions):
@@ -133,7 +139,59 @@ def update_service(node_name, region, cluster):
         print(json.dumps(service_json, separators=(",", ":")))
 
 
-def wait_for_service(node_name, sha, api_url, rpc_url):
+def is_service_running(node_name, region, cluster, task_definition_arn):
+    """
+    Return whether the given service is currently running with the given task definition on AWS.
+    """
+
+    r = subprocess.run(
+        [
+            "aws",
+            "ecs",
+            "describe-services",
+            "--cluster",
+            cluster,
+            "--region",
+            region,
+            "--services",
+            node_name,
+        ],
+        stdout=subprocess.PIPE,
+    )
+    if r.returncode != 0:
+        sys.exit(f"aws ecs describe-services failed with code {r.returncode}")
+
+    try:
+        services_json = json.loads(r.stdout)
+    except:
+        services_json = None
+    if services_json is None:
+        sys.exit(f"Unable to load json: {r.stdout}")
+
+    # Key names in json.
+    services_name = "services"
+    service_name = "serviceName"
+    task_definition_name = "taskDefinition"
+    running_count_name = "runningCount"
+
+    if services_name in services_json:
+        services = services_json[services_name]
+        for service in services:
+            if service_name in service and service[service_name] == node_name:
+                # Service was found; return whether it's currently running with the
+                # desired task definition revision.
+                return (
+                    task_definition_name in service and
+                    service[task_definition_name] == task_definition_arn and
+                    running_count_name in service and
+                    service[running_count_name] > 0
+                )
+
+    # The service wasn't found and so is not running.
+    return False
+
+
+def wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn):
     """
     Wait for a node's service to become healthy and fully caught up on its network.
     Uses the urls to check its health before returning.
@@ -145,11 +203,13 @@ def wait_for_service(node_name, sha, api_url, rpc_url):
         # Wait some time between each status request, so we don't hammer the service.
         time.sleep(1)
 
-        # Check the sha first since that's the one that'll fail the fastest, as the first few
-        # attempts will still be polling the old service that's currently being restarted.
-        if get_sha(api_url) != sha:
-            continue
+        # Make sure we're not polling the old service that still might be draining.
+        if is_service_running(node_name, region, cluster, task_definition_arn):
+            break
 
+    # Do the remaining waiting in a separate loop.  We don't need to continually check whether
+    # the new service is running.  We did that above and the tests below continue to imply that.
+    while True:
         time.sleep(1)
 
         # Once the catch up is complete, the upgraded node is happy with the network.
@@ -159,7 +219,7 @@ def wait_for_service(node_name, sha, api_url, rpc_url):
         time.sleep(1)
 
         # Once all else looks good, check the health.  It'll likely be OK at this point since
-        # an unhealthy node would certainly fail the sha and catch up tests above.
+        # an unhealthy node would certainly fail the catch up test above.
         if get_health(api_url) != "OK":
             continue
 
@@ -216,7 +276,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
         container_id = get_container_id(node_name)
 
     print(f"Fetching latest {node_name} task definition...")
-    container_definitions = fetch_container_definitions(node_name, region)
+    container_definitions, task_definition_arn = fetch_container_definitions(node_name, region)
 
     # Key names in json.
     image_name = "image"
@@ -244,7 +304,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     time_started = time.time()
 
     print(f"Waiting for {node_name} to restart and catch up...")
-    wait_for_service(node_name, sha, api_url, rpc_url)
+    wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn)
 
     if len(snapshot) > 0:
         # Undo the specified snapshot in the container definition so that if there's a restart of
