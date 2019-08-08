@@ -19,3 +19,4 @@ NodeRewardWebhookDelay = 10.0
   FixEAIUnlockBug = 30_000
   # Before the next deploy, this feature should be adjusted to an appropriate height
   TargetPrice9999 = 1_000_000
+  SysvarValidityCheck = 1_000_000

@@ -525,7 +525,7 @@
 
 [[projects]]
   branch = "prgn-sv-validation"
-  digest = "1:556af910329dffc983c1879f03005afe751c81bfde323cbb1521343f3c44a1ce"
+  digest = "1:c43c11122b57012fd087f70f8ce0cc0704005bc567dcc3e30239f783f5adc3af"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -543,7 +543,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "c119fafa46a4612cb9882e7b6419b4c72b872d2a"
+  revision = "bdb70bf97c78a267b819dea6638606a96e129449"
 
 [[projects]]
   digest = "1:224df94345cdf12aeb68775387b6f86d167dfdc1a844a4d923bc95ac6d3018ae"
