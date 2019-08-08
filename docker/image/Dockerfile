@@ -103,7 +103,9 @@ FROM combined_node_base AS combined_node
 
 # Copy image support files needed for running the node group inside the container.
 COPY ./docker-conf.sh \
-    ./docker-config.toml \
+    ./docker-config-default.toml \
+    ./docker-config-mainnet.toml \
+    ./docker-config-testnet.toml \
     ./docker-dns.sh \
     ./docker-env.sh \
     ./docker-procmon.toml \
