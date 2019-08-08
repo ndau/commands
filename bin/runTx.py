@@ -203,6 +203,7 @@ if __name__ == "__main__":
         node = ndau.networks[net]
     else:
         node = net
+    hashname = f"{net}_hash"
 
     password = args.password
     yubi = None
@@ -222,7 +223,7 @@ if __name__ == "__main__":
         n += 1
         if n <= args.skip:
             continue
-        if t[f"submitted_{net}"]:
+        if t.get(hashname, None):
             continue
         txtype, body, sigs = prepTx(t)
         if txtype is None:
@@ -270,7 +271,7 @@ if __name__ == "__main__":
             # if the tx worked, record its hash
             respdata = json.loads(resp.text)
             print(f"{resp.text}")
-            t[f"{net}_hash"] = respdata["hash"]
+            t[hashname] = respdata["hash"]
 
             # don't submit tx too fast; leave time for a block between
             time.sleep(2)
