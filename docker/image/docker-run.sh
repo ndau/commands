@@ -63,7 +63,9 @@ trap 'on_sigterm' SIGTERM
 echo "Waiting for node group..."
 until nc -z localhost "$NDAUAPI_PORT" 2>/dev/null
 do
-    :
+    # It usually takes a second or two to start up, so checking once per second doesn't cause too
+    # much extra wait time and it also frees up CPU for the node to consume while starting up.
+    sleep 1
 done
 
 # Block until we have a block height of at least 1.
