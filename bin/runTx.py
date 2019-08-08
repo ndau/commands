@@ -34,7 +34,10 @@ def setupArgs():
             decorated with the signable bytes as well.
 
             Finally, use this program with the --prevalidate and/or --submit
-            flags to submit the tx to the blockchain.
+            flags to submit the tx to the blockchain. The output file from this
+            stage is decorated with the tx hashes of succesful submissions. These
+            transactions are skipped if this output file is used as a source (makes
+            it easier to resubmit after a failure).
 
             To use a yubikey, the yubihsm-connector must be running on port 12345.
             """
@@ -195,11 +198,11 @@ if __name__ == "__main__":
 
     # look up the network; if we don't find it, assume that the
     # network value is an API URL
-    name = args.network
-    if name in ndau.networks:
-        node = ndau.networks[name]
+    net = args.network
+    if net in ndau.networks:
+        node = ndau.networks[net]
     else:
-        node = name
+        node = net
 
     password = args.password
     yubi = None
@@ -219,6 +222,8 @@ if __name__ == "__main__":
         n += 1
         if n <= args.skip:
             continue
+        if t[f"submitted_{net}"]:
+            continue
         txtype, body, sigs = prepTx(t)
         if txtype is None:
             print("skipping", file=sys.stderr)
@@ -236,11 +241,11 @@ if __name__ == "__main__":
                 sig = yubi.sign(b)
                 ndausig = getNdauSignature(sig)
             if ndausig:
+                # setvalidation tx have only one signature, while others have an array
                 if t["txtype"] == "setvalidation":
                     t["txbody"]["signature"] = ndausig
                 elif ndausig not in body["signatures"]:
                     t["txbody"]["signatures"].append(ndausig)
-        output_txs.append(t)
 
         if args.prevalidate or args.submit:
             print(f"prevalidating {t['txtype']}")
@@ -250,7 +255,7 @@ if __name__ == "__main__":
                     f"{t['txtype']} prevalidate failed with "
                     f"{resp.status_code}: {resp.text}"
                 )
-                exit(1)
+                break
             print(f"{resp.text}")
             print(f"submitting {t['txtype']}")
             if args.submit:
@@ -260,11 +265,19 @@ if __name__ == "__main__":
                         f"{t['txtype']} submit failed with "
                         f"{resp.status_code}: {resp.text}"
                     )
-                    exit(1)
-            print(f"{resp.text}")
+                    break
 
+            # if the tx worked, record its hash
+            respdata = json.loads(resp.text)
+            print(f"{resp.text}")
+            t[f"{net}_hash"] = respdata["hash"]
+
+            # don't submit tx too fast; leave time for a block between
             time.sleep(2)
 
+        # now that we're done, write the updated tx to the output
+        output_txs.append(t)
+
     print(" done", file=sys.stderr)
-    json.dump(output_txs, args.output)
+    json.dump(output_txs, args.output, indent=2)
     args.output.close()
