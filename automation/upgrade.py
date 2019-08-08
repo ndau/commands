@@ -28,7 +28,6 @@ def fetch_container_definitions(node_name, region):
     """
     Fetch the json object (list) representing the given node's container definitions (there
     should only be one) in the given region.
-    Also returns the corresponding task definition arn.
     """
 
     r = subprocess.run(
@@ -56,7 +55,6 @@ def fetch_container_definitions(node_name, region):
     # Key names in json.
     task_definition_name = "taskDefinition"
     container_definitions_name = "containerDefinitions"
-    arn_name = "taskDefinitionArn"
 
     if task_definition_name not in task_definition_json:
         sys.exit(f"Cannot find {task_definition_name} in {task_definition_json}")
@@ -66,17 +64,14 @@ def fetch_container_definitions(node_name, region):
         sys.exit(f"Cannot find {container_definitions_name} in {task_definition_obj}")
     container_definitions = task_definition_obj[container_definitions_name]
 
-    if arn_name not in task_definition_obj:
-        sys.exit(f"Cannot find {arn_name} in {task_definition_obj}")
-    task_definition_arn = task_definition_obj[arn_name]
-
-    return container_definitions, task_definition_arn
+    return container_definitions
 
 
 def register_task_definition(node_name, region, container_definitions):
     """
     Register an updated version of the latest task definition for the given node in the given
     region using the given container definitions (typically a list of length one).
+    Returns the new task definition arn.
     """
 
     r = subprocess.run(
@@ -103,6 +98,20 @@ def register_task_definition(node_name, region, container_definitions):
         task_definition_json = None
     if not task_definition_json is None:
         print(json.dumps(task_definition_json, separators=(",", ":")))
+
+    # Key names in json.
+    task_definition_name = "taskDefinition"
+    task_definition_arn_name = "taskDefinitionArn"
+
+    if task_definition_name not in task_definition_json:
+        sys.exit(f"Cannot find {task_definition_name} in {task_definition_json}")
+    task_definition_obj = task_definition_json[task_definition_name]
+
+    if task_definition_arn_name not in task_definition_obj:
+        sys.exit(f"Cannot find {task_definition_arn_name} in {task_definition_obj}")
+    task_definition_arn = task_definition_obj[task_definition_arn_name]
+
+    return task_definition_arn
 
 
 def update_service(node_name, region, cluster):
@@ -197,19 +206,16 @@ def wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_def
     Uses the urls to check its health before returning.
     """
 
+    # First, make sure we're not polling the old service that still might be draining.
+    while not is_service_running(node_name, region, cluster, task_definition_arn):
+        time.sleep(1)
+
+    print(f"Restart of {node_name} is complete")
+
     # Wait forever.  When doing an upgrade with full reindex, each node can take a long time to
     # catch up.  The higher the network blockchain height, the longer it'll take.  It's unbounded.
     while True:
         # Wait some time between each status request, so we don't hammer the service.
-        time.sleep(1)
-
-        # Make sure we're not polling the old service that still might be draining.
-        if is_service_running(node_name, region, cluster, task_definition_arn):
-            break
-
-    # Do the remaining waiting in a separate loop.  We don't need to continually check whether
-    # the new service is running.  We did that above and the tests below continue to imply that.
-    while True:
         time.sleep(1)
 
         # Once the catch up is complete, the upgraded node is happy with the network.
@@ -223,7 +229,7 @@ def wait_for_service(node_name, region, cluster, sha, api_url, rpc_url, task_def
         if get_health(api_url) != "OK":
             continue
 
-        print(f"Upgrade of {node_name} is complete")
+        print(f"Catchup of {node_name} is complete and node is healthy")
         return
 
     # Will never happen (but leaving it here in case we ever do impose a max wait time).
@@ -276,7 +282,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
         container_id = get_container_id(node_name)
 
     print(f"Fetching latest {node_name} task definition...")
-    container_definitions, task_definition_arn = fetch_container_definitions(node_name, region)
+    container_definitions = fetch_container_definitions(node_name, region)
 
     # Key names in json.
     image_name = "image"
@@ -291,7 +297,7 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
         set_snapshot(snapshot, container_definition)
 
     print(f"Registering new {node_name} task definition...")
-    register_task_definition(node_name, region, container_definitions)
+    task_definition_arn = register_task_definition(node_name, region, container_definitions)
 
     print(f"Updating {node_name} service...")
     update_service(node_name, region, cluster)
