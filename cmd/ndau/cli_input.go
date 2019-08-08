@@ -128,7 +128,7 @@ func getInputClosure(cmd *cli.Cmd, name string, singleton bool, verbose *bool) f
 			orQuit(err)
 			out := outbuf.Bytes()
 			if *verbose {
-				fmt.Printf("%s input is %d bytes long\n", name, len(out))
+				fmt.Printf("%s input is %d bytes long\n%x\n", name, len(out), out)
 			}
 			return out
 		default:
