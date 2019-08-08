@@ -88,11 +88,11 @@ Single node upgrades are useful if you would like more control over the timing a
 
 ### Snapshot
 
-We can cause a node to take a snapshot of its data files and upload it to S3.  We can optionally flag it as the new latest.
+We can cause a node to take a snapshot of its data files then upload it to S3 and register it as the latest snapshot for its network.
 
-To cause node 5 on testnet to take a snapshot and mark it as the latest:
+To cause node 5 on testnet to take a snapshot:
 ```sh
-./snapshot_node.py testnet-5 --latest
+./snapshot_node.py testnet-5
 ```
 
 ### Configure
