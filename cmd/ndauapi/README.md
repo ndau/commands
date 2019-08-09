@@ -38,8 +38,6 @@ Each of these, in turn, has several endpoints within it.
 
 * [AccountCurrencySeats](#accountcurrencyseats)
 
-* [DEPRECATED:AccountEAIRate](#deprecated:accounteairate)
-
 * [BlockBefore](#blockbefore)
 
 * [BlockCurrent](#blockcurrent)
@@ -337,37 +335,6 @@ _**Writes:**_
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
           ]
         }
-```
-
-
-
----
-## DEPRECATED:AccountEAIRate
-
-### `POST /account/eai/rate`
-
-_This call is deprecated -- please use /system/eai/rate._
-
-
-
-
-
-
-_**Consumes:**_ `[application/json]`
-
-
-_**Reads:**_
-```json
-        null
-```
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```json
-        null
 ```
 
 
