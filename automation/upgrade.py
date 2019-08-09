@@ -96,7 +96,7 @@ def register_task_definition(node_name, region, container_definitions):
         task_definition_json = json.loads(r.stdout)
     except:
         task_definition_json = None
-    if not task_definition_json is None:
+    if task_definition_json is not None:
         print(json.dumps(task_definition_json, separators=(",", ":")))
 
     # Key names in json.
@@ -146,7 +146,7 @@ def update_service(node_name, region, cluster):
         service_json = json.loads(r.stdout)
     except:
         service_json = None
-    if not service_json is None:
+    if service_json is not None:
         print(json.dumps(service_json, separators=(",", ":")))
 
 
@@ -226,8 +226,9 @@ def wait_for_service(
 
     print(f"Restart of {node_name} is complete")
 
-    # Wait forever.  When doing an upgrade with full reindex, each node can take a long time to
-    # catch up.  The higher the network blockchain height, the longer it'll take.  It's unbounded.
+    # Wait forever.  When doing an upgrade with full reindex, the first node can take a long
+    # time to catch up.  The higher the blockchain height, the longer it'll take.  It's unbounded.
+    # After the node catches up, upgrade_nodes() triggers a snapshot for the other nodes to use.
     while True:
         # Wait some time between each status request, so we don't hammer the service.
         time.sleep(1)
@@ -273,9 +274,8 @@ def set_snapshot(snapshot, container_definition):
             and environment_variable[key_name] == snapshot_key
         ):
             environment_variable[value_name] = snapshot
-            found = (
-                True
-            )  # We could break, but letting the loop run handles (unlikely) dupes.
+            found = True
+            # We could break, but letting the loop run handles (unlikely) dupes.
     if not found:
         environment_variable = {key_name: snapshot_key, value_name: snapshot}
         environment_variables.append(environment_variable)
