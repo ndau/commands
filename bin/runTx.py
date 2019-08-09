@@ -217,7 +217,7 @@ if __name__ == "__main__":
         yubi = YubiSession(password, keynum=args.keynum)
 
     txs = json.load(args.input)
-    output_txs = []
+    output_txs = txs[:]
     n = 0
     for t in txs:
         n += 1
@@ -229,7 +229,15 @@ if __name__ == "__main__":
         if txtype is None:
             print("skipping", file=sys.stderr)
             continue
+
+        existingSB = t.get("signable_bytes", None)
         sb = getSignableBytes(txtype, body)
+        if existingSB:
+            if sb != existingSB:
+                print(
+                    f"signable bytes disagreement:\n  existing: {existingSB}\n       new: {sb}",
+                    file=sys.stderr,
+                )
         t["signable_bytes"] = sb
         print(n, file=sys.stderr)
         for s in sigs:
@@ -252,14 +260,20 @@ if __name__ == "__main__":
             print(f"prevalidating {t['txtype']}")
             resp = ndau.post(f"{node}/tx/prevalidate/{txtype}", json=t["txbody"])
             if resp.status_code != 200:
-                print(
-                    f"{t['txtype']} prevalidate failed with "
-                    f"{resp.status_code}: {resp.text}"
-                )
-                break
+                if resp.status_code == 202:
+                    print(
+                        f"{t['txtype']} prevalidate: tx already committed. "
+                        f"{resp.status_code}: {resp.text}"
+                    )
+                else:
+                    print(
+                        f"{t['txtype']} prevalidate failed with "
+                        f"{resp.status_code}: {resp.text}"
+                    )
+                    break
             print(f"{resp.text}")
-            print(f"submitting {t['txtype']}")
-            if args.submit:
+            if args.submit and resp.status_code == 200:
+                print(f"submitting {t['txtype']}")
                 resp = ndau.post(f"{node}/tx/submit/{txtype}", json=t["txbody"])
                 if resp.status_code != 200:
                     print(
@@ -277,7 +291,7 @@ if __name__ == "__main__":
             time.sleep(2)
 
         # now that we're done, write the updated tx to the output
-        output_txs.append(t)
+        output_txs[n - 1] = t
 
     print(" done", file=sys.stderr)
     json.dump(output_txs, args.output, indent=2)
