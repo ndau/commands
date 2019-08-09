@@ -87,7 +87,7 @@ if [ "$network_name" = "devnet" ] && { "$node_number" = "4" }; then
         aws_secret_access_key=""
         echo "Unable to find AWS env vars for taking snapshots on $network_name-$node_number"
     else
-        snapshot_interval="1h"
+        snapshot_interval="4h"
         echo "Snapshots every $snapshot_interval will be done on $network_name-$node_number"
     fi
 else

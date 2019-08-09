@@ -77,7 +77,7 @@ def snapshot_node(node_name):
     r = run_ssh_command(
         node_name,
         f"docker exec {container_id} rm -f /image/snapshot_result; "
-        f"docker exec {container_id} killall -HUP procmon; ",
+        f"docker exec {container_id} killall -HUP procmon",
     )
     if r.returncode != 0:
         sys.exit(f"ssh failed to create snapshot with code {r.returncode}")
