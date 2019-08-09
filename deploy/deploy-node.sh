@@ -71,6 +71,29 @@ else
   b64_opts=""
 fi
 
+# Make devnet-4 the one that takes periodic snapshots.
+snapshot_interval=""
+aws_access_key_id=""
+aws_secret_access_key=""
+if [ "$network_name" = "devnet" ] && { "$node_number" = "4" }; then
+    # These environment variables are defined on Circle.
+    aws_access_key_id="$AWS_ACCESS_KEY_ID"
+    aws_secret_access_key="$AWS_SECRET_ACCESS_KEY"
+
+    # If they aren't set, log a warning and continue without snapshots set up on the node.
+    if [ -z "$aws_access_key_id" ] or [ -z "$aws_secret_access_key" ]; then
+        # Make sure they're both unset.
+        aws_access_key_id=""
+        aws_secret_access_key=""
+        echo "Unable to find AWS env vars for taking snapshots on $network_name-$node_number"
+    else
+        snapshot_interval="1h"
+        echo "Snapshots every $snapshot_interval will be done on $network_name-$node_number"
+    fi
+else
+    echo "Snapshots are disabled on $network_name-$node_number"
+fi
+
 cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{TAG}}/${SHA}/g" \
@@ -82,6 +105,9 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{P2P_PORT}}/${p2p_port}/g" \
     -e "s/{{NDAUAPI_PORT}}/${ndauapi_port}/g" \
     -e "s/{{NETWORK_NAME}}/${network_name}/g" \
+    -e "s/{{AWS_ACCESS_KEY_ID}}/${aws_access_key_id}/g" \
+    -e "s/{{AWS_SECRET_ACCESS_KEY}}/${aws_secret_access_key}/g" \
+    -e "s/{{SNAPSHOT_INTERVAL}}/${snapshot_interval}/g" \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 

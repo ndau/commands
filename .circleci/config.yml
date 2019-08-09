@@ -172,6 +172,16 @@ commands:
             # get bash environment variables from previous steps
             source $BASH_ENV
 
+            # If we're running a tagged build for deploying with reset data,
+            # point it to the network's genesis snapshot.
+            if [ "$NETWORK_NAME" == "devnet" ] && [[ "$CIRCLE_TAG" == *"-jobs_"*"reset"* ]]; then
+                # We have a very specific and known devnet genesis snapshot (at height 27).
+                # If we ever regenerate it (which is currently a manual process), and it winds
+                # up with a different height postfix, we'll need to update this to match.
+                echo "snapshot-devnet-27" > /root/latest-devnet.txt
+                aws s3 cp /root/latest-devnet.txt s3://ndau-snapshots/latest-devnet.txt
+            fi
+
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
@@ -247,7 +257,7 @@ workflows:
             - build
           filters:
             tags:
-              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
+              only: /.*-jobs_.*?(catchup|integration|push|deploy|reset).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
@@ -268,13 +278,13 @@ workflows:
             - build-image
           filters:
             tags:
-              only: /.*-jobs_.*?(push|deploy).*/
+              only: /.*-jobs_.*?(push|deploy|reset).*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
-              only: /.*-jobs_.*?(deploy).*/
+              only: /.*-jobs_.*?(deploy|reset).*/
 
 general_config: &general_config
     working_directory: /commands
