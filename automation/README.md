@@ -41,6 +41,11 @@ To get the catch up status of node 3 on testnet:
 ./get_catchup.py https://testnet-3.ndau.tech:26670
 ```
 
+To get the version tag of node 3 on testnet:
+```sh
+./get_version.py https://testnet-3.ndau.tech:26670
+```
+
 ## HUD
 
 Ultimately we'll want a GUI published somewhere for point-and-click node management.  For now, we have a text-based HUD.  This script demonstrates fetching `services.json` once and looping over its entries to display status information about every Oneiro node on every network.
@@ -80,6 +85,15 @@ To upgrade node 3 on testnet to the `badf00d` SHA:
 ```
 
 Single node upgrades are useful if you would like more control over the timing and order of node upgrades on a network.  It's also useful if a rolling upgrade was interrupted for any reason.
+
+### Snapshot
+
+We can cause a node to take a snapshot of its data files then upload it to S3 and register it as the latest snapshot for its network.
+
+To cause node 5 on testnet to take a snapshot:
+```sh
+./snapshot_node.py testnet-5
+```
 
 ### Configure
 

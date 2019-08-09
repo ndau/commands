@@ -448,14 +448,10 @@ jobs:
 
             # Catching up on mainnet will take longer and longer as the block height of mainnet
             # increases over time.  This is known and we'll need to deal with it at some point.
-            # For now, we've agreed to wait as long as it takes.  However, it'll eventually be
-            # "too long".  Let's put a 20-minute cap on it for now.  If catchup does not complete
-            # in that amount of time, the circle job will fail and we'll be forced to deal with
-            # it in some way.  Either by accepting longer build times or by inventing a way to
-            # validate catchup compatibility another way, perhaps external to circle workflows.
+            # https://github.com/oneiro-ndev/commands/issues/354
             printf "Catching up..."
             last_h=0
-            for i in {1..120}; do
+            while : ; do
               sleep 10
               if ! s=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
                 # The status query is what usually fails when playback of a block fails.
