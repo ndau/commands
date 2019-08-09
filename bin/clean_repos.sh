@@ -39,7 +39,7 @@ if [ -s "$errs" ]; then
     rv=1
     echo
     echo "Errors encountered:"
-    sed -e 's/^/ /' "$errs"
+    sed -e 's|^(./)?| |' "$errs"
 fi
 rm -f "$errs"
 
