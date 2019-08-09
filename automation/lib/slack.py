@@ -22,9 +22,11 @@ def post_to_slack(message):
     url = f"https://hooks.slack.com/services/{slack_key_value}"
     body = {"text": message}
     r = requests.post(url, json=body)
-    if r.status_code == 200 and r.content.decode("utf-8") == "ok":
-        print(f"Posted to slack: '{message}'")
-    else:
+    if r.status_code != 200:
         print(
             f"Got {r.status_code} when posting to slack because {r.reason}: '{message}'"
         )
+    elif r.content.decode("utf-8") != "ok":
+        print(f"Posted to slack but got back non-ok response: '{message}'")
+    else:
+        print(f"Posted to slack: '{message}'")
