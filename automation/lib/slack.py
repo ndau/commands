@@ -10,15 +10,16 @@ def post_to_slack(message):
     Must have SLACK_KEY environment variable set.
     """
 
+    slack_key_name = "SLACK_DEPLOYS_KEY"
     try:
-        slack_key = os.environ["SLACK_KEY"]
+        slack_key_value = os.environ[slack_key_name]
     except:
-        slack_key = ""
-    if len(slack_key) == 0:
-        print(f"Unable to post to slack without SLACK_KEY env var: '{message}'")
+        slack_key_value = ""
+    if len(slack_key_value) == 0:
+        print(f"Unable to post to slack without {slack_key_name} env var: '{message}'")
         return
 
-    url = f"https://hooks.slack.com/services/{slack_key}"
+    url = f"https://hooks.slack.com/services/{slack_key_value}"
     body = {"text": message}
     r = requests.post(url, json=body)
     if r.status_code == 200:
