@@ -5,6 +5,7 @@ from get_health import get_health
 from get_sha import get_sha
 from lib.args import get_net_node_sha_snapshot
 from lib.services import fetch_services, parse_services
+from lib.slack import post_to_slack
 from lib.networks import NETWORK_LOCATIONS
 from snapshot_node import test_ssh_access
 from snapshot_node import snapshot_node
@@ -447,6 +448,11 @@ def main():
     # Auto-register the upgraded sha, even if only one node was upgraded.  The assumption is that
     # if we upgrade at least one node that we'll eventually upgrade all of them on the network.
     register_sha(network_name, sha)
+
+    # Post a message to slack, similar to what the Circle workflow posts after a devnet deploy.
+    post_to_slack(
+        f"Upgrade complete; nodes for {network_name} are now running and healthy."
+    )
 
     total_time = int(time.time() - start_time + 0.5)
     print(f"Total upgrade time: {total_time} seconds")

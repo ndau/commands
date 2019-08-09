@@ -160,7 +160,7 @@ commands:
           msg: Start deploy for build $CIRCLE_BUILD_NUM
       - ecs_deploy
       - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
+          msg: Deploy complete; nodes for $NETWORK_NAME are now running and healthy.
 
   ecs_deploy:
     description: Deploy using ECS
