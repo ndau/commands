@@ -235,7 +235,9 @@ if __name__ == "__main__":
         if existingSB:
             if sb != existingSB:
                 print(
-                    f"signable bytes disagreement:\n  existing: {existingSB}\n       new: {sb}",
+                    f"signable bytes disagreement:\n"
+                    f"  existing: {existingSB}\n"
+                    f"       new: {sb}",
                     file=sys.stderr,
                 )
         t["signable_bytes"] = sb
