@@ -1,66 +1,27 @@
-# ndauapi
+# ndau API
 
-This tool provides an http interface to an ndau node.
+> This API reference is automatically generated: do not edit it. Make changes in `README-template.md`.
 
-# Design
-
-This tool uses a [boneful](https://github.com/kentquirk/boneful) service, based on the [bone router](https://github.com/go-zoo/bone).
-
-Configuration is provided with environment variables specifying the following
-
-  * How much logging you want (error, warn, info, debug).
-  * The protocol, host and port of the ndau node's rpc port. Required.
-  * And the port to listen on.
-
-Communication between this program and tendermint is firstly done with the tool pkg and indirectly with [Tendermint's RPC client](https://github.com/tendermint/tendermint/tree/master/rpc/client), which is based on JSON RPC.
-
-Testing depends on a test net to be available and as such are not very pure unit tests. A TODO is to find a suitable mock.
-
-# Getting started
-
-```shell
-./build.sh
-NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 ./ndauapi
-```
-
-# Basic Usage
-
-```shell
-# get node status
-curl localhost:3030/status
-```
-
-# Testing in VSCode
-
-Please include this in your VSCode config to run individual tests. Replace the IP and port with your ndau node's IP and Tendermint RPC port.
-
-```json
-    "go.testEnvVars": {
-        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001"
-    },
-```
-
-# API
-
-The following is automatically generated. Please do not edit the README.md file. Any changes above this section should go in (README-template.md).
-
-> TODO: Please note that this documentation implementation is incomplete and is missing complete responses.
+The ndau API provides an http interface to an ndau node. It is used to prevalidate and submit transactions, and to retrieve information about the ndau blockchain's system variables, price information, transactions, blocks, and accounts.
 
 
 ---
 # `/`
 
-This service provides the API for Tendermint and Chaos/Order/ndau blockchain data.
+This service provides the ndau API, used to retrieve information about and manage the ndau blockchain and
+its Tendermint consensus engine.
 
 It is organized into several sections:
 
 * /account returns data about specific accounts
 * /block returns information about blocks on the blockchain
-* /chaos returns information from the chaos chain
 * /node provides information about node operations
-* /order returns information from the order chain
-* /transaction allows querying individual transactions on the blockchain
-* /tx provides tools to build and submit transactions
+* /price returns information related to the ndau monetary system
+* /state provides dynamic system state information
+* /system rqueries or sets system variables
+* /transaction queries individual transactions on the blockchain
+* /tx provides tools to build, prevalidate, and submit transactions
+* /version returns current system version information
 
 Each of these, in turn, has several endpoints within it.
 
@@ -71,13 +32,13 @@ Each of these, in turn, has several endpoints within it.
 
 * [AccountsFromList](#accountsfromlist)
 
-* [DEPRECATEDAccountEAIRate](#deprecatedaccounteairate)
-
 * [AccountHistory](#accounthistory)
 
 * [AccountList](#accountlist)
 
 * [AccountCurrencySeats](#accountcurrencyseats)
+
+* [DEPRECATED:AccountEAIRate](#deprecated:accounteairate)
 
 * [BlockBefore](#blockbefore)
 
@@ -109,25 +70,23 @@ Each of these, in turn, has several endpoints within it.
 
 * [NodeID](#nodeid)
 
-* [DEPRECATEDOrderCurrent](#deprecatedordercurrent)
-
-* [OrderHeight](#orderheight)
-
-* [OrderHistory](#orderhistory)
-
 * [PriceInfo](#priceinfo)
+
+* [PriceHeight](#priceheight)
+
+* [PriceHistory](#pricehistory)
 
 * [StateDelegates](#statedelegates)
 
 * [SystemAll](#systemall)
 
-* [SysvarGet](#sysvarget)
+* [SystemGet](#systemget)
 
-* [SysvarSet](#sysvarset)
+* [SystemSet](#systemset)
 
-* [SysvarHistory](#sysvarhistory)
+* [SystemHistory](#systemhistory)
 
-* [AccountEAIRate](#accounteairate)
+* [SystemEAIRate](#systemeairate)
 
 * [TransactionByHash](#transactionbyhash)
 
@@ -169,8 +128,8 @@ _**Writes:**_
           "incomingRewardsFrom": null,
           "delegationNode": null,
           "lock": null,
-          "lastEAIUpdate": "2000-01-01T00:00:00Z",
-          "lastWAAUpdate": "2000-01-01T00:00:00Z",
+          "lastEAIUpdate": "2000-01-01T00:00:00.000000Z",
+          "lastWAAUpdate": "2000-01-01T00:00:00.000000Z",
           "weightedAverageAge": "1m",
           "sequence": 0,
           "stake_rules": null,
@@ -235,8 +194,8 @@ _**Writes:**_
             "incomingRewardsFrom": null,
             "delegationNode": null,
             "lock": null,
-            "lastEAIUpdate": "2000-01-01T00:00:00Z",
-            "lastWAAUpdate": "2000-01-01T00:00:00Z",
+            "lastEAIUpdate": "2000-01-01T00:00:00.000000Z",
+            "lastWAAUpdate": "2000-01-01T00:00:00.000000Z",
             "weightedAverageAge": "1m",
             "sequence": 0,
             "stake_rules": null,
@@ -252,37 +211,6 @@ _**Writes:**_
             "progenitor": null
           }
         }
-```
-
-
-
----
-## DEPRECATEDAccountEAIRate
-
-### `POST /account/eai/rate`
-
-_This call is deprecated -- please use /system/eai/rate._
-
-
-
-
-
-
-_**Consumes:**_ `[application/json]`
-
-
-_**Reads:**_
-```json
-        null
-```
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```json
-        null
 ```
 
 
@@ -338,7 +266,7 @@ _**Writes:**_
 _Returns a list of account IDs._
 
 This returns a list of every account on the blockchain, sorted
-alphabetically. A maximum of 10000 accounts can be returned in a single
+alphabetically. A maximum of 1000 accounts can be returned in a single
 request. The results are sorted by address.
 
 
@@ -377,7 +305,7 @@ _**Writes:**_
 
 ### `GET /account/currencyseats`
 
-_Returns a list of ndau 'currency seats', which are accounts containing more than 1000 ndau._
+_Returns a list of ndau 'currency seats', the oldest 3000 accounts containing more than 1000 ndau._
 
 The ndau currency seats are accounts containing more than 1000 ndau. The seniority of
 a currency seat is determined by how long it has been above the 1000 threshold, so this endpoint
@@ -409,6 +337,37 @@ _**Writes:**_
             "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue"
           ]
         }
+```
+
+
+
+---
+## DEPRECATED:AccountEAIRate
+
+### `POST /account/eai/rate`
+
+_This call is deprecated -- please use /system/eai/rate._
+
+
+
+
+
+
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        null
+```
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        null
 ```
 
 
@@ -1215,12 +1174,19 @@ _**Produces:**_ `[application/json]`
 
 
 ---
-## DEPRECATEDOrderCurrent
+## PriceInfo
 
-### `GET /order/current`
+### `GET /price/current`
 
-_This is an obsolete format. Please use /price/current instead._
+_Returns current price data for key parameters._
 
+Returns current price information:
+* Market price
+* Target price
+* Total ndau issued from the endowment
+* Total ndau in circulation
+* Total SIB burned
+* Current SIB in effect
 
 
 
@@ -1233,13 +1199,21 @@ _**Produces:**_ `[application/json]`
 
 _**Writes:**_
 ```
-        null
+        {
+          "marketPrice": 1234000000000,
+          "targetPrice": 5678000000000,
+          "floorPrice": 0,
+          "totalIssued": 291900000000000,
+          "totalNdau": 314159300000000,
+          "totalSIB": 12300000000,
+          "sib": 9876543210
+        }
 ```
 
 
 
 ---
-## OrderHeight
+## PriceHeight
 
 ### `GET /price/height/:height`
 
@@ -1278,7 +1252,7 @@ _**Writes:**_
 
 
 ---
-## OrderHistory
+## PriceHistory
 
 ### `GET /price/history`
 
@@ -1307,45 +1281,6 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```
         []
-```
-
-
-
----
-## PriceInfo
-
-### `GET /price/current`
-
-_Returns current price data for key parameters._
-
-Returns current price information:
-* Market price
-* Target price
-* Total ndau issued from the endowment
-* Total ndau in circulation
-* Total SIB burned
-* Current SIB in effect
-
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "marketPrice": 1234000000000,
-          "targetPrice": 5678000000000,
-          "floorPrice": 0,
-          "totalIssued": 291900000000000,
-          "totalNdau": 314159300000000,
-          "totalSIB": 12300000000,
-          "sib": 9876543210
-        }
 ```
 
 
@@ -1399,7 +1334,7 @@ _**Writes:**_
 
 
 ---
-## SysvarGet
+## SystemGet
 
 ### `GET /system/get/:sysvars`
 
@@ -1430,7 +1365,7 @@ _**Writes:**_
 
 
 ---
-## SysvarSet
+## SystemSet
 
 ### `POST /system/set/:sysvar`
 
@@ -1475,7 +1410,7 @@ _**Writes:**_
 
 
 ---
-## SysvarHistory
+## SystemHistory
 
 ### `GET /system/history/:sysvar`
 
@@ -1516,7 +1451,7 @@ _**Writes:**_
 
 
 ---
-## AccountEAIRate
+## SystemEAIRate
 
 ### `POST /system/eai/rate`
 
@@ -1560,7 +1495,7 @@ _**Reads:**_
               "unlocksOn": null,
               "bonus": 20000000000
             },
-            "at": "2018-07-10T20:01:02Z"
+            "at": "2018-07-10T20:01:02.000000Z"
           }
         ]
 ```
@@ -1605,7 +1540,8 @@ _**Writes:**_
           "TxOffset": 3,
           "Fee": 0,
           "SIB": 0,
-          "Tx": null
+          "Tx": null,
+          "TxBytes": null
         }
 ```
 
@@ -1668,7 +1604,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names are: change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names and aliases are: change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
@@ -1732,4 +1668,42 @@ _**Writes:**_
           "NdauSha": "23abc35",
           "Network": "mainnet"
         }
+```
+
+## Design
+
+This tool uses a [boneful](https://github.com/kentquirk/boneful) service, based on the [bone router](https://github.com/go-zoo/bone).
+
+Configuration is provided with environment variables specifying the following
+
+  * How much logging you want (error, warn, info, debug).
+  * The protocol, host and port of the ndau node's rpc port. Required.
+  * And the port to listen on.
+
+Communication between this program and tendermint is firstly done with the tool pkg and indirectly with [Tendermint's RPC client](https://github.com/tendermint/tendermint/tree/master/rpc/client), which is based on JSON RPC.
+
+Testing depends on a test net to be available and as such are not very pure unit tests.
+
+## Getting started
+
+```shell
+./build.sh
+NDAUAPI_NDAU_RPC_URL=http://127.0.0.1:31001 ./ndauapi
+```
+
+## Basic Usage
+
+```shell
+# get node status
+curl localhost:3030/status
+```
+
+## Testing in VSCode
+
+Please include this in your VSCode config to run individual tests. Replace the IP and port with your ndau node's IP and Tendermint RPC port.
+
+```json
+    "go.testEnvVars": {
+        "NDAUAPI_NDAU_RPC_URL": "http://127.0.0.1:31001"
+    },
 ```

@@ -21,7 +21,9 @@ docker exec "$CONTAINER" /image/docker-snapshot.sh
 echo "Waiting for snapshot..."
 until docker exec "$CONTAINER" test -f /image/snapshot_result 2>/dev/null
 do
-    :
+    # It takes multiple seconds to take a snapshot, so checking once per second doesn't cause too
+    # much extra wait time and it also frees up CPU for the node to consume while snapshotting.
+    sleep 1
 done
 
 # Get the contents of the file.  We could have folded this into the test above, but this way helps

@@ -8,4 +8,4 @@ if [ -z "$CONTAINER" ]; then
 fi
 
 # This starts a shell inside the container.
-docker exec -it "$CONTAINER" /bin/sh
+docker exec -it "$CONTAINER" /bin/bash

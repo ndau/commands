@@ -1,5 +1,6 @@
 # vendored dependencies
 vendor/
+bin/venv/
 
 # editors
 .vscode
@@ -98,3 +99,7 @@ slam
 !*/slam
 claimer
 !*/claimer
+claimer-lambda
+!*/claimer-lambda
+base36
+!*/base36

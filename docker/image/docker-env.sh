@@ -26,3 +26,5 @@ export SNAPSHOT_URL="https://s3.amazonaws.com"
 export SNAPSHOT_BUCKET="ndau-snapshots"
 export GENERATED_GENESIS_SNAPSHOT="*"
 export LOCAL_SNAPSHOT="$ROOT_DIR/snapshot-$NETWORK-0.tgz"
+
+export WEBHOOK_URL="https://7ovwffck3i.execute-api.us-east-1.amazonaws.com/$NETWORK/claim_winner"

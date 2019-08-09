@@ -10,6 +10,14 @@
   version = "v0.3.1"
 
 [[projects]]
+  digest = "1:22c4f2d6b662f9496d264b2ff3460956e7d8b606e08b17e621118bafabdca6fb"
+  name = "github.com/akrylysov/algnhsa"
+  packages = ["."]
+  pruneopts = ""
+  revision = "05b3d192e9a7c7e3e64ecfd4be490a6771a05b3f"
+  version = "v0.11"
+
+[[projects]]
   digest = "1:d1b7be319f318156e7e49696c5cd86636c63680c9317c6167123b4c09f96583a"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
@@ -74,6 +82,20 @@
   pruneopts = ""
   revision = "186e0939a5044b182bce9e60dea910bd6bcb5cd9"
   source = "github.com/oneiro-ndev/noms"
+
+[[projects]]
+  digest = "1:deba4f4561cc7490127f599626c78cbfe972ffacc8edfaf77710de8922e0ae77"
+  name = "github.com/aws/aws-lambda-go"
+  packages = [
+    "events",
+    "lambda",
+    "lambda/handlertrace",
+    "lambda/messages",
+    "lambdacontext",
+  ]
+  pruneopts = ""
+  revision = "4c210d7623089d36b6bb6febf5a5e553bf73fbfb"
+  version = "v1.11.1"
 
 [[projects]]
   digest = "1:06a3d6c930263524e16e4c0b4b6cf461f83ffcb468864a18f537ce19a44e5de4"
@@ -440,15 +462,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:89318707e4589101dcfc0c9ac004aab743b664c18e0d81ede70c953fa23f4ac9"
+  digest = "1:78dd095f4966b8b018d00f6e60af8b44f7ada205d60ee0a6a9c5b76b798a58d3"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "cac781082954576d73d4eb514171586c0a08d978"
-  version = "v1.2.2"
+  revision = "a66f3e5f25cb650cb7b0d055245b2854aa1e020a"
+  version = "v1.2.3"
 
 [[projects]]
   digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
@@ -472,7 +494,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:2475a2020231086f2bf0df833066d3568f01aca7d2347e28f885fe9504e7b949"
+  digest = "1:7942bb2f07558d7b6b0e6b186f32fb4119544d695b1769e75710b90848ef9276"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -482,8 +504,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "7863e064087bb2872bd2b46e2cf7510b9d1f4ddf"
-  version = "v1.6.4"
+  revision = "75dbeb9897cac6d52485c42d1bb295bd5de95380"
+  version = "v1.6.5"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -502,7 +524,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:6db79b91cd0fb68fafcc2a3842db54719a4396be06684ba11cad83b8ddd4631c"
+  digest = "1:d44ce054724d0a1c0af18295e6c8068cf0d4cc6f85d93198dc7966f17dde07ba"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -520,11 +542,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "00c6e56b02cb0ee27c2d3e22bf345ec65aa768ba"
-  version = "v1.19.3"
+  revision = "5657e8ba58545fc4dd1aa6aa0b963a69ba6b0393"
+  version = "v1.20.1"
 
 [[projects]]
-  digest = "1:7583999b73782fedeeb3ad79fdd3a5ceabeae5aadf0c20abb297dd3809e6ef15"
+  digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
   name = "github.com/oneiro-ndev/ndaumath"
   packages = [
     "pkg/address",
@@ -546,8 +568,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "2d123c108f7ddc38a1c317f575941119cf7a66a4"
-  version = "v1.3.2"
+  revision = "de5a90c45d3f079f1a263819493d2f7a70bb4b8b"
+  version = "v1.3.6"
 
 [[projects]]
   branch = "master"
@@ -574,7 +596,7 @@
   revision = "abad8f201243e4fd813d0f8b4102c3083f501960"
 
 [[projects]]
-  digest = "1:22fe963b4e5495edf74d8cc82f56a506c8c577b26a44ecf4b67fea43e6b19fc4"
+  digest = "1:0f52f5994abc186c32e54fd6e1ef96951fbf4f2f31567f2521826ca95fff2bb0"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -582,8 +604,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "5605219bad1732a31f1a9e3f0cd44bb8b70fc98d"
-  version = "v1.3.0"
+  revision = "246e85c0e747fe7026a3de06c23ec2793716e30d"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
@@ -1002,11 +1024,15 @@
   analyzer-version = 1
   input-imports = [
     "github.com/BurntSushi/toml",
+    "github.com/akrylysov/algnhsa",
     "github.com/alexflint/go-arg",
     "github.com/attic-labs/noms/go/datas",
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
     "github.com/attic-labs/noms/go/types",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/s3",
     "github.com/go-redis/redis",
     "github.com/google/shlex",
     "github.com/jawher/mow.cli",
