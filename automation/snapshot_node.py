@@ -66,8 +66,8 @@ def get_container_id(node_name):
     container_id = r.stdout.decode("utf-8").rstrip("\n")
 
     # Make sure we got back something that looks like a container id.
-    if not all(c in string.hexdigits for c in container_id):
-        sys.exit(f"Invalid container id: {container_id}")
+    if len(container_id) == 0 or not all(c in string.hexdigits for c in container_id):
+        sys.exit(f"Invalid container id '{container_id}'")
 
     print(container_id)
 
