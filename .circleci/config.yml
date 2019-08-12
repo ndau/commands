@@ -159,8 +159,8 @@ commands:
           dataset: $HONEYCOMB_DATASET
           msg: Start deploy for build $CIRCLE_BUILD_NUM
       - ecs_deploy
-      - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now running and healthy.
+#      - notify:
+#          msg: Deploy complete; nodes for $NETWORK_NAME are now running and healthy.
 
   ecs_deploy:
     description: Deploy using ECS
@@ -179,61 +179,65 @@ commands:
                     # We have a very specific and known devnet genesis snapshot (at height 27).
                     # If we ever regenerate it (which is currently a manual process), and it winds
                     # up with a different height postfix, we'll need to update this to match.
+                    echo "Resetting devnet to genesis..."
                     echo "snapshot-devnet-27" > /root/latest-devnet.txt
                     aws s3 cp /root/latest-devnet.txt s3://ndau-snapshots/latest-devnet.txt
                 else
                     # Take a snapshot before we deploy, so we don't lose any data.
                     success=""
-                    pem=/root/sc-node-ec2.pem
+                    ssh_dir=~/.ssh
+                    mkdir -p "$ssh_dir"
+                    pem="$ssh_dir"/sc-node-ec2.pem
                     echo "$SC_NODE_EC2_PEM" > "$pem"
                     chmod 600 "$pem"
 
-                    echo "Getting container id..."
-                    container_id=$(ssh -i "$pem" -o StrictHostKeyChecking=no \
-                                   ec2-user@devnet.ndau.tech \
-                                   docker container ls -q -f name=devnet-4)
-                    echo "$container_id"
+#                    echo "Getting container id..."
+#                    container_id=$(ssh -i "$pem" -o StrictHostKeyChecking=no \
+#                                   ec2-user@devnet.ndau.tech \
+#                                   docker container ls -q -f name=devnet-4)
+#                    echo "$container_id"
 
-                    echo "Creating snapshot..."
-                    if ssh -i "$pem" ec2-user@devnet.ndau.tech \
-                        docker exec "$container_id" rm -f /image/snapshot_result
-                    then
-                        if ssh -i "$pem" ec2-user@devnet.ndau.tech \
-                            docker exec "$container_id" killall -HUP procmon
-                        then
-                            echo "Waiting for snapshot..."
-                            for i in {1..60}; do
-                                if ssh -i "$pem" ec2-user@devnet.ndau.tech \
-                                    docker exec "$container_id" test -f /image/snapshot_result
-                                then
-                                    success="true"
-                                    break
-                                fi
-                                sleep 1
-                            done
-                        fi
-                    fi
+#                    echo "Creating snapshot..."
+#                    if ssh -i "$pem" ec2-user@devnet.ndau.tech \
+#                        docker exec "$container_id" rm -f /image/snapshot_result
+#                    then
+#                        if ssh -i "$pem" ec2-user@devnet.ndau.tech \
+#                            docker exec "$container_id" killall -HUP procmon
+#                        then
+#                            echo "Waiting for snapshot..."
+#                            for i in {1..60}; do
+#                                if ssh -i "$pem" ec2-user@devnet.ndau.tech \
+#                                    docker exec "$container_id" test -f /image/snapshot_result
+#                                then
+#                                    success="true"
+#                                    break
+#                                fi
+#                                sleep 1
+#                            done
+#                        fi
+#                    fi
 
-                    if [ -z "$success" ]; then
+                    if /commands/automation/snapshot_node.py devnet-4; then
+#                    if [ -n "$success" ]; then
+                        echo "Snapshot taken on devnet-4"
+                    else
                         # The deploy will just use whatever was in the last snapshot.
                         echo "Unable to take snapshot on devnet-4; deploy might lose data"
-                    else
-                        echo "Snapshot taken on devnet-4"
                     fi
                 fi
             fi
 
-            for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
-              echo "Attempting node: $i"
-              if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
-                echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
-                /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
-              fi # no else break in case some nodes are updated and others are not
-            done
+#            for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+#              echo "Attempting node: $i"
+#              if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
+#                echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
+#                /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+#              fi # no else break in case some nodes are updated and others are not
+#            done
 
             # This will wait for all backgrounded deploy-node processes to complete.
             # It will fail and exit the overall deploy job if any one of them failed.
-            wait -n
+#            wait -n
 
             echo "Deploy of $NETWORK_NAME is complete"
 
@@ -278,54 +282,61 @@ workflows:
               only: /.*/
             branches:
               ignore: /^master$/
-      - test:
-          requires:
-            - build-deps
-          filters:
-            tags:
+#      - test:
+#          requires:
+#            - build-deps
+#          filters:
+#            tags:
               # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build:
-          requires:
-            - build-deps
-          filters:
-            tags:
+#              only: /.*/
+#      - build:
+#          requires:
+#            - build-deps
+#          filters:
+#            tags:
               # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build-image:
-          requires:
-            - test
-            - build
-          filters:
-            tags:
-              only: /.*-jobs_.*?(catchup|integration|push|deploy|reset).*/
-            branches:
+#              only: /.*/
+#      - build-image:
+#          requires:
+#            - test
+#            - build
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(catchup|integration|push|deploy|reset).*/
+#            branches:
               # This causes circle to skip this job on untagged non-master builds.
-              ignore: /.*/
-      - catchup:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(catchup).*/
-      - integration:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(integration).*/
-      - push:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(push|deploy|reset).*/
+#              ignore: /.*/
+#      - catchup:
+#          requires:
+#            - build-image
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(catchup).*/
+#      - integration:
+#          requires:
+#            - build-image
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(integration).*/
+#      - push:
+#          requires:
+#            - build-image
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(push|deploy|reset).*/
       - deploy-devnet:
           requires:
-            - push
+            - build-deps
+#            - push
           filters:
             tags:
-              only: /.*-jobs_.*?(deploy|reset).*/
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
+            branches:
+              ignore: /^master$/
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(deploy|reset).*/
 
 general_config: &general_config
     working_directory: /commands

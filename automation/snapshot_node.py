@@ -19,10 +19,20 @@ def run_ssh_command(node_name, command):
     ec2_user = "ec2-user"
 
     # We build the domain name of the node by dot-separating this after the node name.
-    domain_suffix = "ndau.tech"
+    domain_name = "ndau.tech"
+
+    # The alias we use for devnet is devnet.ndau.tech since every node is on the same server.
+    # For testnet and mainnet we use {node_name}.ndau.tech.
+    devnet_name = "devnet"
+    if node_name.startswith(devnet_name):
+        cname = devnet_name
+    else:
+        cname = node_name
 
     return subprocess.run(
-        ["ssh", "-i", pem_path, f"{ec2_user}@{node_name}.{domain_suffix}", command],
+        ["ssh", "-i", pem_path,
+         "-o", "StrictHostKeyChecking=no",
+         f"{ec2_user}@{cname}.{domain_name}", command],
         stdout=subprocess.PIPE,
     )
 
@@ -58,7 +68,7 @@ def get_container_id(node_name):
     if not all(c in string.hexdigits for c in container_id):
         sys.exit(f"Invalid container id: {container_id}")
 
-    print(f"Container id: {container_id}")
+    print(container_id)
 
     return container_id
 
