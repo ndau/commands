@@ -31,9 +31,15 @@ def run_ssh_command(node_name, command):
         cname = node_name
 
     return subprocess.run(
-        ["ssh", "-i", pem_path,
-         "-o", "StrictHostKeyChecking=no",
-         f"{ec2_user}@{cname}.{domain_name}", command],
+        [
+            "ssh",
+            "-i",
+            pem_path,
+            "-o",
+            "StrictHostKeyChecking=no",
+            f"{ec2_user}@{cname}.{domain_name}",
+            command,
+        ],
         stdout=subprocess.PIPE,
     )
 
