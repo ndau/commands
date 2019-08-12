@@ -15,6 +15,11 @@ import (
 // sell orders according to the message.
 type OrderTrackingSystem interface {
 	// Run is used to start an OTS instance.
+	//
+	// The sales channel has a small buffer, but in the event the buffer fills,
+	// OTS instances must block until it can add the sale to the channel.
+	// Otherwise, a sale could fall through the cracks and never generate
+	// an appropriate issuance.
 	Run(logger logrus.FieldLogger, sales chan<- TargetPriceSale, updates <-chan UpdateOrders)
 }
 

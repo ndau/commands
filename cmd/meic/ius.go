@@ -8,8 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres"
-
+	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
 	"github.com/pkg/errors"
@@ -43,11 +44,13 @@ func NewIUS(
 		return nil, errors.Wrap(err, "parsing websocket address")
 	}
 	ius := IssuanceUpdateSystem{
-		logger:        logger,
-		serverAddr:    serverAddr,
-		selfKeys:      selfKeys,
-		issuanceKeys:  issuanceKeys,
-		sales:         make(chan TargetPriceSale),
+		logger:       logger,
+		serverAddr:   serverAddr,
+		selfKeys:     selfKeys,
+		issuanceKeys: issuanceKeys,
+		// We never want OTSs to have to block when reporting sales, so we
+		// allocate a buffer in the sales channel.
+		sales:         make(chan TargetPriceSale, 256),
 		updates:       make([]chan UpdateOrders, 0, len(otsImpls)),
 		manualUpdates: make(chan struct{}),
 	}
@@ -119,8 +122,12 @@ func (ius *IssuanceUpdateSystem) handleManualUpdate(w http.ResponseWriter, r *ht
 }
 
 // Run the issuance service
-func (ius *IssuanceUpdateSystem) Run() error {
-
+//
+// This function will only ever return normally if it receives a message on
+// the `stop` channel. This can be accomplished without ever sending such
+// a message by closing the channel. If you don't want to ever stop it, passing
+// a nil channel will do the right thing.
+func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) {
 	// set up http server: this both accepts the connection from the signature
 	// server, and serves the update endpoint
 	sigserverman := signer.NewServerManager(ius.logger, ius.selfKeys)
@@ -152,5 +159,46 @@ func (ius *IssuanceUpdateSystem) Run() error {
 	<-sigserverman.GetConnectionChan()
 	ius.logger.Info("got connection from signature service")
 
-	return nil
+	// start up the OTS instances now that we can possibly respond to their updates
+	for idx := range otsImpls {
+		go otsImpls[idx].Run(ius.logger.WithField("ots index", idx), ius.sales, ius.updates[idx])
+	}
+
+	// TODO: set up a persistent websocket connection to the ndau tx feed
+	// https://tendermint.com/docs/app-dev/subscribing-to-events-via-websocket.html
+	// and create a channel which receives Issue tx events
+
+	// everything's set up, let's handle some messages!
+	for {
+		timeout := time.After(10 * time.Minute)
+		select {
+		case <-stop:
+			break
+		case <-ius.manualUpdates:
+			// TODO: implement the following
+			// 1. get the total issuance from the blockchain
+			// 2. compute the current desired target sales stack
+			// 3. send that stack individually to each OTS
+
+			// TODO: handle incoming Issue txs from the blockchain
+			// via this same handler
+		case <-timeout:
+			// TODO, implement everythin from the manual update, plus:
+			timeout = time.After(10 * time.Minute)
+		case sale := <-ius.sales:
+			// TODO: implement the following:
+			// - get the current issuance sequence from the blockchain
+			// - generate the issuance tx
+			// - send the tx to the signature server
+			// - update the tx with the returned signatures
+			// - send it to the blockchain
+			// - handle errors appropriately
+			tx := ndau.NewIssue(sale.Qty, 0)
+			tx.Signatures = sigserverman.SignTx(tx, []signature.PublicKey{})
+			_, err := tool.SendSync(nil, tx)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
 }
