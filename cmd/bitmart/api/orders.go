@@ -14,6 +14,9 @@ import (
 
 //go:generate stringer -type=OrderStatus
 
+// NdauSymbol is the ordering symbol in use on bitmart
+const NdauSymbol = "XND_USDT"
+
 // OrderStatus is an enum defined by bitmart:
 // https://github.com/bitmartexchange/bitmart-official-api-docs/blob/master/rest/authenticated/user_orders.md#status-type
 type OrderStatus int64
@@ -72,6 +75,14 @@ func (t *Order) IsSale() bool {
 		return false
 	}
 	return s == SideSell
+}
+
+func (t *Order) IsBuy() bool {
+	s, err := ParseSide(t.Side)
+	if err != nil {
+		return false
+	}
+	return s == SideBuy
 }
 
 // UnmarshalJSON implements json.Unmarshaler

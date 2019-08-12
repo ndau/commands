@@ -18,9 +18,9 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
-	"github.com/oneiro-ndev/recovery/pkg/message"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
 	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	"github.com/sirupsen/logrus"
 	"github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -73,6 +73,7 @@ func main() {
 			pks := input("ndau-format private key: ")
 			privkeyS = &pks
 		}
+		logger := logrus.NewEntry(logrus.New())
 		selfkey, err := signer.NewVirtualDevice(*pubkeyS, *privkeyS)
 		check(err, "creating signer key from supplied keys")
 
@@ -102,7 +103,7 @@ func main() {
 		// ok, config is set
 		// set up a signer server, and wait for a connection from the signature service
 		log.Print("configuration validated; setting up websocket server...")
-		sigserver := signer.NewServer(selfkey)
+		sigserverman := signer.NewServerManager(logger, selfkey)
 		mux := http.NewServeMux()
 		httpserver := &http.Server{
 			Addr:         wsAddr.Host,
@@ -110,7 +111,7 @@ func main() {
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 5 * time.Second,
 		}
-		mux.HandleFunc(wsAddr.Path, sigserver.Serve())
+		mux.HandleFunc(wsAddr.Path, sigserverman.Serve())
 
 		wg := sync.WaitGroup{}
 		wg.Add(1)
@@ -121,13 +122,13 @@ func main() {
 
 		// shutdown
 		defer func() {
-			sigserver.Close()
+			sigserverman.Close()
 			httpserver.Close()
 			wg.Wait()
 		}()
 
 		log.Print("waiting for connection from signature service...")
-		<-sigserver.GetConnectedChan()
+		<-sigserverman.GetConnectionChan()
 		log.Print("got connection from signature service!")
 		// poll loop
 		for {
@@ -150,27 +151,12 @@ func main() {
 				issue := ndau.NewIssue(totalNewSales, ad.Sequence+1)
 
 				// get it signed
-				msgPL, err := message.NewSignTxPayload(issue, signkeys)
-				check(err, "constructing signing payload")
-				msg, err := msgPL.IntoMessage()
-				check(err, "wrapping payload in message")
-				if !sigserver.HasConnection() {
-					bail("lost connection to signature service")
-				}
-				resp, err := sigserver.SendWait(msg)
-				check(err, "signing issue tx")
-				log.Print("unpacking and validating signature server response...")
-				result, err := resp.GetResult()
-				check(err, "getting result from signature service response")
-
-				if result.Msg != "" {
-					bail(result.Msg)
-				}
-
+				sigs := sigserverman.SignTx(issue, signkeys)
+				log.Print(*issue)
 				// unpack and validate response
-				issue.ExtendSignatures(result.Signatures)
-				if len(result.Signatures) < len(signkeys) {
-					bail("signature service failed to sign the tx enough times: expect %d, have %d", len(signkeys), len(result.Signatures))
+				issue.ExtendSignatures(sigs)
+				if len(sigs) < len(signkeys) {
+					bail("signature service failed to sign the tx enough times: expect %d, have %d", len(signkeys), len(sigs))
 				}
 
 				// now send it

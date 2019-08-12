@@ -1,9 +1,11 @@
 package bitmart
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -110,10 +112,16 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 		}
 		defer resp.Body.Close()
 
+		// log.Print(resp)
+
 		data, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return errors.Wrap(err, "reading trade history response")
 		}
+
+		var out bytes.Buffer
+		err = json.Indent(&out, data, "", "  ")
+		log.Printf("data = %s", out.Bytes())
 
 		offset += limit
 
@@ -132,6 +140,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 			}
 		}
 		trades = append(trades, th.Trades[:midx+1]...)
+		log.Print(trades)
 		return nil
 	}
 

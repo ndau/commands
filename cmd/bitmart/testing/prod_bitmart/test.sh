@@ -12,7 +12,7 @@ set -e
 #    - check for the existence of `system_accounts.toml`
 #    - ensure the issuance address in `system_accounts.toml` matches the running sysvar
 #    - copy the appropriate keys from `system_accounts.toml` into `sigconfig.toml`
-# 3. Run the mock bitmart API
+# 3. Run the uat bitmart API
 # 4. Run the issuance service
 #    - it must wait for a connection for the as-yet-not-running signing service
 #    - after receiving the connection, it must create exactly one Issue tx on the blockchain
@@ -22,7 +22,7 @@ set -e
 # 7. Shut down everything
 #    - bring down the issuance service first
 #    - this should automatically bring down the signing service
-#    - shut down the mock bitmart API
+#    - shut down the uat bitmart API
 #
 # IMPORTANT: this assumes a localnet is running, the ndau tool is properly
 # configured to talk to it, and appropriate keys are assigned. The tooling
@@ -39,7 +39,7 @@ set -e
 commands_path="$GOPATH/src/github.com/oneiro-ndev/commands"
 bitmart_path="$commands_path/cmd/bitmart"
 testing_path="$bitmart_path/testing"
-mock_bitmart_path="$testing_path/mock_bitmart"
+prod_bitmart_path="$testing_path/prod_bitmart"
 signing_service_path="$commands_path/../recovery/cmd/signer"
 
 # set up the ndau tool
@@ -131,7 +131,7 @@ rfe_validation_private=npvtayjadtcbib2u2rnem47vgqqifsbt8r8y2ktdygtfkaw98imgpjw25
 # )
 
 # inject the validation keys into sigconfig.toml
-sigconfig="$mock_bitmart_path/sigconfig.toml"
+sigconfig="$prod_bitmart_path/sigconfig.toml"
 sigconfig_json=$(toml2json "$sigconfig")
 sigconfig_json=$(
     echo "$sigconfig_json" |\
@@ -174,21 +174,21 @@ killsubp () {
 
 trap killsubp EXIT
 
-echo starting mock bitmart api
-echo go run "$testing_path/mock_bitmart" &
-go run "$testing_path/mock_bitmart" &
-sleep 2
+# echo starting mock bitmart api
+# echo go run "$testing_path/mock_bitmart" &
+# go run "$testing_path/mock_bitmart" &
+# sleep 2
 
 echo starting issuance service
 echo go run "$bitmart_path" \
-    "$mock_bitmart_path/test.apikey.json" \
+    "$prod_bitmart_path/test.apikey.json" \
     "$rpc" \
     "$issuance_service_public" \
     --priv-key "$issuance_service_private" \
     --serve "$ws_addr" \
     "$rfe_validation_public"
 go run "$bitmart_path" \
-    "$mock_bitmart_path/test.apikey.json" \
+    "$prod_bitmart_path/test.apikey.json" \
     "$rpc" \
     "$issuance_service_public" \
     --priv-key "$issuance_service_private" \
@@ -234,8 +234,8 @@ sleep 10
 # - Issuance service notices the incoming connection, starts its loop.
 # - Issuance service sends a request to bitmart asking for the list of all
 #   new trades. Because there is an "endpoint" parameter in test.apikey.json,
-#   it actually sends that request to the mock api.
-# - Mock api says, yup, here are some new trades.
+#   it actually sends that request to the uat api.
+# - uat api says, yup, here are some new trades.
 # - Issuance service goes back and forth establishing a list of only those
 #   trades which were sales.
 # - Issuance service adds up the qty of the sales and generates an appropriate

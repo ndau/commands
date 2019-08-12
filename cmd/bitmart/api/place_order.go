@@ -14,9 +14,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// NdauSymbol is the ordering symbol in use on bitmart
-const NdauSymbol = "NDAU_USDT"
-
 // order direction
 const (
 	SideBuy  = "buy"

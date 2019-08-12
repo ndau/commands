@@ -5,10 +5,12 @@ import hmac
 import hashlib
 from urllib.parse import urlencode
 import decimal
+import datetime
 
-# AUTH_API = "https://openapi.bitmart.com/v2/authentication"
-API = "https://bm-htf-v2-testing-d8pvw98nl.bitmart.com/v2/"
-SYMBOL = "NDAU_USDT"
+
+API = "https://openapi.bitmart.com/v2/"
+# API = "https://bm-htf-v2-testing-d8pvw98nl.bitmart.com/v2/"
+SYMBOL = "XND_USDT"
 AUTH_API = API + "authentication"
 TIME_API = API + "time"
 WALLET_API = API + "wallet"
@@ -16,7 +18,7 @@ ORDERS_API = API + "orders"
 TRADES_API = API + "trades"
 ORDERS_PARAMS_PEND = "?symbol=" + SYMBOL + "&status=5&offset=0&limit=100"
 ORDERS_PARAMS_SUCC = "?symbol=" + SYMBOL + "&status=3&offset=0&limit=100"
-TRADES_HIST = "?symbol=" + SYMBOL + "&limit=10&offset=0"
+TRADES_HIST = "?symbol=" + SYMBOL + "&limit=200&offset=0"
 
 def create_sha256_signature(key, message):
     return hmac.digest(key, message, "sha256").hex()
@@ -77,59 +79,73 @@ if __name__ == "__main__":
     # timestamp is in milliseconds and the authorization header is "Bearer " + token
     headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"]}
 
-    response = requests.get(WALLET_API, headers=headers)
+#    response = requests.get(WALLET_API, headers=headers)
 
 #    print(response.text)
 
     response = requests.get(ORDERS_API + ORDERS_PARAMS_PEND, headers=headers)
 
-    print("pending orders = " + response.text)
+    orders = json.loads(response.text)
+    print(f"pending orders = {json.dumps(orders, indent=4)}")
 
     response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
 
-    print("succ orders = " + response.text)
+    orders = json.loads(response.text)
+    print(f"succ orders = {json.dumps(orders, indent=4)}")
 
 
     response = requests.get(TRADES_API + TRADES_HIST, headers=headers)
 
-    print("succ trades = " + response.text)
+    trade_hist = json.loads(response.text)
+    print(f"succ trades = {json.dumps(trade_hist, indent=4)}")
+
+    total = 0.0
+    for trade in trade_hist["trades"]:
+        total = total + float(trade["amount"])
+        print(f"trade = {json.dumps(trade, indent=4)}")
+        print(f"time = {datetime.datetime.utcfromtimestamp(trade['timestamp']/1000).strftime('%Y-%m-%dT%H:%M:%SZ')}")
+
+    print(f'total trades = {total:16.8f}')
 
 
-    buy_data = {"symbol": "BMX_ETH","amount": 2,"price" : .099,"side" : "buy"}
-    signed_message = create_signed_message(buy_data, keys["secret"])
 
-    data = json.dumps(buy_data)
+    # buy_data = {"symbol": "BMX_ETH","amount": 2,"price" : .099,"side" : "buy"}
+    # signed_message = create_signed_message(buy_data, keys["secret"])
 
-    headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"], "X-BM-SIGNATURE": signed_message, "Content-Type": "application/json"}
+    # data = json.dumps(buy_data)
 
-    response = requests.post(ORDERS_API, data=data, headers=headers)
+    # headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"], "X-BM-SIGNATURE": signed_message, "Content-Type": "application/json"}
 
-    print(response.text)
+    # response = requests.post(ORDERS_API, data=data, headers=headers)
 
-    sell_data = {"symbol": "BMX_ETH","amount": 3,"price" : .000078,"side" : "sell"}
-    signed_message = create_signed_message(sell_data, keys["secret"])
+    # print(response.text)
 
-    data = json.dumps(sell_data)
+    # sell_data = {"symbol": "BMX_ETH","amount": 3,"price" : .000078,"side" : "sell"}
+    # signed_message = create_signed_message(sell_data, keys["secret"])
 
-    headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"], "X-BM-SIGNATURE": signed_message, "Content-Type": "application/json"}
+    # data = json.dumps(sell_data)
 
-    response = requests.post(ORDERS_API, data=data, headers=headers)
+    # headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"], "X-BM-SIGNATURE": signed_message, "Content-Type": "application/json"}
 
-    print(response.text)
+    # response = requests.post(ORDERS_API, data=data, headers=headers)
+
+    # print(response.text)
 
     # timestamp is in milliseconds and the authorization header is "Bearer " + token
-    headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"]}
+    # headers = {"X-BM-TIMESTAMP": time["server_time"], "X-BM-AUTHORIZATION": "Bearer " + access_token["access_token"]}
 
-    response = requests.get(ORDERS_API + ORDERS_PARAMS_PEND, headers=headers)
+    # response = requests.get(ORDERS_API + ORDERS_PARAMS_PEND, headers=headers)
 
-    print("pending orders = " + response.text)
+    # orders = json.loads(response.text)
+    # print(f"pending orders = {json.dumps(orders, indent=4)}")
 
-    response = requests.get(WALLET_API, headers=headers)
+#    response = requests.get(WALLET_API, headers=headers)
 
 #    print(response.text)
 
-    response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
+    # response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
 
-    print("succ orders = " + response.text)
+    # orders = json.loads(response.text)
+    # print(f"succ orders = {json.dumps(orders, indent=4)}")
 
 
