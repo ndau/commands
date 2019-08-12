@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	bitmart "github.com/oneiro-ndev/commands/cmd/bitmart/api"
+	bitmart "github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres"
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"

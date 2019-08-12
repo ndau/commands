@@ -96,8 +96,6 @@ verify
 !*/verify
 ndsh
 !*/ndsh
-bitmart
-!*/bitmart
 slam
 !*/slam
 claimer
@@ -106,3 +104,5 @@ claimer-lambda
 !*/claimer-lambda
 base36
 !*/base36
+meic
+!*/meic

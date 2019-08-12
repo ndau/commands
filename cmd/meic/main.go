@@ -12,7 +12,7 @@ import (
 	"time"
 
 	cli "github.com/jawher/mow.cli"
-	bitmart "github.com/oneiro-ndev/commands/cmd/bitmart/api"
+	bitmart "github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"

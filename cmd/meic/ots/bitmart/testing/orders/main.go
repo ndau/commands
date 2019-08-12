@@ -10,7 +10,7 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	bitmart "github.com/oneiro-ndev/commands/cmd/bitmart/api"
+	bitmart "github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/routes"
 )
 
