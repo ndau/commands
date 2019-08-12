@@ -81,13 +81,13 @@ if [ "$network_name" = "devnet" ] && [ "$node_number" = "4" ]; then
     aws_secret_access_key="$AWS_SECRET_ACCESS_KEY"
 
     # If they aren't set, log a warning and continue without snapshots set up on the node.
-    if [ -z "$aws_access_key_id" ] or [ -z "$aws_secret_access_key" ]; then
+    if [ -z "$aws_access_key_id" ] || [ -z "$aws_secret_access_key" ]; then
         # Make sure they're both unset.
         aws_access_key_id=""
         aws_secret_access_key=""
         echo "Unable to find AWS env vars for taking snapshots on $network_name-$node_number"
     else
-        snapshot_interval="4h"
+        snapshot_interval="12h"
         echo "Snapshots every $snapshot_interval will be done on $network_name-$node_number"
     fi
 else
