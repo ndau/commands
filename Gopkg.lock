@@ -596,7 +596,6 @@
   version = "v1.3.2"
 
 [[projects]]
-  branch = "master"
   digest = "1:779ecd52c9f98a9684aa87e53914ac9f9e06e3ddab8d6c50c1785fa274974a8d"
   name = "github.com/oneiro-ndev/recovery"
   packages = [
@@ -605,6 +604,7 @@
   ]
   pruneopts = ""
   revision = "86ae0fc166fbb8e9b6683a32296a72a65da13aae"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:9a0a4769746d52666b68e71dd06ccd6850c026f74eef39354350abce8db894f1"
