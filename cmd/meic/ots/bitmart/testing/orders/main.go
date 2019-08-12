@@ -9,9 +9,18 @@ import (
 	"net/http"
 	"os"
 
-	cli "github.com/jawher/mow.cli"
-	bitmart "github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
+	"github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/routes"
+	// "bytes"
+	// "encoding/json"
+	// "fmt"
+	// "io/ioutil"
+	// "math"
+	// "net/http"
+	// "os"
+	// cli "github.com/jawher/mow.cli"
+	// bitmart "github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
+	// "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes"
 )
 
 func check(err error, context string) {
@@ -22,7 +31,7 @@ func check(err error, context string) {
 	}
 }
 
-var currentIssued int64 = 0
+var currentIssued int64
 
 func getCurrentIssued() int64 {
 	if currentIssued == 0 {
@@ -55,46 +64,49 @@ func currentTargetPrice() float64 {
 	return math.Round(targPrice*10000) / 10000
 }
 
-func getExchangeIssued(auth Auth, symbol *string) int64 {
-	// get partial success orders, this will be the current stack level
-	orders, err := bitmart.GetOrderHistory(&auth, *symbol, PartialSuccess)
-	check(err, "getting orders")
+func getExchangeIssued(auth bitmart.Auth, symbol *string) int64 {
+	// // get partial success orders, this will be the current stack level
+	// orders, err := bitmart.GetOrderHistory(&auth, *symbol, bitmart.PartialSuccess)
+	// check(err, "getting orders")
 
-	if len(orders) != 0 {
-		exchangeIssued = calculateIssued(orders[0].Price, orders[0].ExecutedAmount)
-	}
+	// if len(orders) != 0 {
+	// 	exchangeIssued := calculateIssued(orders[0].Price, orders[0].ExecutedAmount)
+	// }
 
+	// return exchangeIssued
+	return 0
 }
+
 func main() {
-	app := cli.App("orders", "get user orders from bitmart")
+	// app := cli.App("orders", "get user orders from bitmart")
 
-	var (
-		apikeyPath = app.StringArg("API_KEY", "", "Path to an apikey.json file")
-		symbol     = app.StringArg("SYMBOL", bitmart.NdauSymbol, "Trade symbol to examine")
-		status     = app.StringArg("STATUS", bitmart.Invalid.String(), "order status filter")
-		verbose    = app.BoolOpt("v verbose", false, "verbose mode")
-	)
+	// var (
+	// 	apikeyPath = app.StringArg("API_KEY", "", "Path to an apikey.json file")
+	// 	symbol     = app.StringArg("SYMBOL", bitmart.NdauSymbol, "Trade symbol to examine")
+	// 	status     = app.StringArg("STATUS", bitmart.Invalid.String(), "order status filter")
+	// 	verbose    = app.BoolOpt("v verbose", false, "verbose mode")
+	// )
 
-	app.Spec = "API_KEY [SYMBOL] STATUS [--verbose]"
+	// app.Spec = "API_KEY [SYMBOL] STATUS [--verbose]"
 
-	app.Action = func() {
-		key, err := bitmart.LoadAPIKey(*apikeyPath)
-		check(err, "loading api key")
-		auth := bitmart.NewAuth(key)
+	// app.Action = func() {
+	// 	key, err := bitmart.LoadAPIKey(*apikeyPath)
+	// 	check(err, "loading api key")
+	// 	auth := bitmart.NewAuth(key)
 
-		statusFilter := bitmart.OrderStatusFrom(*status)
-		if *verbose {
-			fmt.Println("using order status filter:", statusFilter)
-		}
-		orders, err := bitmart.GetOrderHistory(&auth, *symbol, statusFilter)
-		check(err, "getting orders")
+	// 	statusFilter := bitmart.OrderStatusFrom(*status)
+	// 	if *verbose {
+	// 		fmt.Println("using order status filter:", statusFilter)
+	// 	}
+	// 	orders, err := bitmart.GetOrderHistory(&auth, *symbol, statusFilter)
+	// 	check(err, "getting orders")
 
-		exchangeIssued := getExchangeIssued(auth, symbol)
+	// 	exchangeIssued := getExchangeIssued(auth, symbol)
 
-		data, err := json.MarshalIndent(orders, "", "  ")
-		check(err, "formatting output")
+	// 	data, err := json.MarshalIndent(orders, "", "  ")
+	// 	check(err, "formatting output")
 
-		fmt.Println(string(data))
-	}
-	app.Run(os.Args)
+	// 	fmt.Println(string(data))
+	// }
+	// app.Run(os.Args)
 }
