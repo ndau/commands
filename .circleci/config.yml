@@ -174,6 +174,7 @@ commands:
 
             # If we're running a tagged build for deploying with reset data,
             # point it to the network's genesis snapshot.
+	    # Otherwise, take a snapshot before deploying and no data will be lost.
             if [ "$NETWORK_NAME" == "devnet" ]; then
                 if [[ "$CIRCLE_TAG" == *"-jobs_"*"reset"* ]]; then
                     # We have a very specific and known devnet genesis snapshot (at height 27).
@@ -184,15 +185,39 @@ commands:
                     aws s3 cp /root/latest-devnet.txt s3://ndau-snapshots/latest-devnet.txt
                 else
                     # Take a snapshot before we deploy, so we don't lose any data.
-                    success=""
-                    ssh_dir="~/.ssh"
-                    mkdir -p "$ssh_dir"
-                    pem="$ssh_dir"/sc-node-ec2.pem
+                    #success=""
+                    pem=/root/.ssh/sc-node-ec2.pem
                     echo "$SC_NODE_EC2_PEM" > "$pem"
                     chmod 600 "$pem"
 
+                    #echo "Getting container id..."
+                    #container_id=$(ssh -i "$pem" -o StrictHostKeyChecking=no \
+                    #               ec2-user@devnet.ndau.tech \
+                    #               docker container ls -q -f name=devnet-4)
+                    #echo "$container_id"
+
+                    #echo "Creating snapshot..."
+                    #if ssh -i "$pem" ec2-user@devnet.ndau.tech \
+                    #    docker exec "$container_id" rm -f /image/snapshot_result
+                    #then
+                    #    if ssh -i "$pem" ec2-user@devnet.ndau.tech \
+                    #        docker exec "$container_id" killall -HUP procmon
+                    #    then
+                    #        echo "Waiting for snapshot..."
+                    #        for i in {1..60}; do
+                    #            if ssh -i "$pem" ec2-user@devnet.ndau.tech \
+                    #                docker exec "$container_id" test -f /image/snapshot_result
+                    #            then
+                    #                success="true"
+                    #                break
+                    #            fi
+                    #            sleep 1
+                    #        done
+                    #    fi
+                    #fi
 
                     if /commands/automation/snapshot_node.py devnet-4; then
+                    #if [ -n "$success" ]; then
                         echo "Snapshot taken on devnet-4"
                     else
                         # The deploy will just use whatever was in the last snapshot.
@@ -200,6 +225,18 @@ commands:
                     fi
                 fi
             fi
+
+            #for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
+            #  echo "Attempting node: $i"
+            #  if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
+            #    echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
+            #    /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+            #  fi # no else break in case some nodes are updated and others are not
+            #done
+
+            # This will wait for all backgrounded deploy-node processes to complete.
+            # It will fail and exit the overall deploy job if any one of them failed.
+            #wait -n
 
             echo "Deploy of $NETWORK_NAME is complete"
 
