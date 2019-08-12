@@ -13,6 +13,7 @@ for oneiro_project in /go/src/github.com/oneiro-ndev/*; do
     (
         cd "$oneiro_project"
         pwd
+        go get ./...
         go build ./...
     )
 done
