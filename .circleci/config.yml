@@ -187,7 +187,7 @@ commands:
                     # Take a snapshot before we deploy, so we don't lose any data.
                     #success=""
                     pem=/root/.ssh/sc-node-ec2.pem
-                    echo "$SC_NODE_EC2_PEM" > "$pem"
+                    echo "$SC_NODE_EC2_PEM" | base64 --decode > "$pem"
                     chmod 600 "$pem"
 
                     #echo "Getting container id..."
@@ -223,6 +223,8 @@ commands:
                         # The deploy will just use whatever was in the last snapshot.
                         echo "Unable to take snapshot on devnet-4; deploy might lose data"
                     fi
+
+                    rm -f "$pem"
                 fi
             fi
 
