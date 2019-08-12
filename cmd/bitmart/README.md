@@ -1,17 +1,21 @@
-# Bitmart Integrations
+# Multi-Exchange Issuance Coordinator
 
-We need an automatic service that can watch the Bitmart exchange and automatically
-issue appropriate `Issue` transactions on the `ndau` chain when appropriate.
+We need a way to coordinate activity on the ndau blockchain with an arbitrary number of exchanges. Coordination happens in two directions:
+
+- When target price sales occur on the exchange, `Issue` transactions must be created and dispatched to the blockchain.
+- Whenever the sales offers change, all exchanges must then update their target price sales offers appropriately.
 
 ## General Architecture
 
-- **Signing Service**: [external oneiro software](https://github.com/oneiro-ndev/recovery/tree/master/cmd/signer). Connects to a websocket server, and then listens for signature requests. On receipt, signs and returns them. Note: structurally this is a client, even though behaviorally this is a server. This is a bit unusual, but it simplifies the security requirements.
+This software is divided into two major components. The **Issuance Update System** (IUS) is the heart: it maintains a persistent websocket connection from the signing service, which it uses to sign `Issue` transactions. The **Order Tracking System** (OTS) is an interface implemented by custom software for each exchange. Its role is to hide the exchange's implementation details from the IUS.
 
-    The signing service will connect to the Bitmart Integration.
+The IUS doesn't know or care whether an OTS implementation has websocket connections to its exchange, offers a webhook API, polls the exchange API, or something else. Implementations are broadly free to do whatever they want to perform updates to and from their exchanges as close to realtime as possible. However, they must only ever communicate with the ndau blockchain via the IUS.
 
-- **Bitmart Integration**: this software. Polls the Bitmart REST API for new trades from a particular account. For each batch of new trades from this account, it calculates the total ndau traded from those trades which were sales. It then creates an `Issue` tx, has it signed by the signing service, and submits it to the ndau blockchain.
+Note: though each OTS implementation runs in its own goroutine and has a clear separation of concerns from the IUS, this software is still built as a single executable. It might be desirable in the future to split the IUS and OTS implementations into independent executables, possibly running on different hardware, communicating via (web)sockets. For now we have chosen not to do this: we aren't adding new exchanges fast enough that coordinating their additions is a problem, and it's just simpler to write this as a monolith with channels than as a constellation of microservices with websockets.
 
-## Api Keys
+## Bitmart OTS Notes
+
+### Api Keys
 
 Bitmart requires that certain API requests be authenticated. This is documented [here](https://github.com/bitmartexchange/bitmart-official-api-docs/blob/master/rest/authenticated/oauth.md).
 
