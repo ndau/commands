@@ -13,6 +13,7 @@ def run_ssh_command(node_name, command):
     """
 
     # The SSH key file must be installed here from Oneiro's 1password account.
+    # On Circle CI, "~" resolves to "/root".
     pem_path = "~/.ssh/sc-node-ec2.pem"
 
     # Username used for logging into the AWS instance through SSH.

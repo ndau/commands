@@ -174,7 +174,7 @@ commands:
 
             # If we're running a tagged build for deploying with reset data,
             # point it to the network's genesis snapshot.
-	    # Otherwise, take a snapshot before deploying and no data will be lost.
+            # Otherwise, take a snapshot before deploying and no data will be lost.
             if [ "$NETWORK_NAME" == "devnet" ]; then
                 if [[ "$CIRCLE_TAG" == *"-jobs_"*"reset"* ]]; then
                     # We have a very specific and known devnet genesis snapshot (at height 27).
