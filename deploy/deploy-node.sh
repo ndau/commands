@@ -75,7 +75,7 @@ fi
 snapshot_interval=""
 aws_access_key_id=""
 aws_secret_access_key=""
-if [ "$network_name" = "devnet" ] && { "$node_number" = "4" }; then
+if [ "$network_name" = "devnet" ] && [ "$node_number" = "4" ]; then
     # These environment variables are defined on Circle.
     aws_access_key_id="$AWS_ACCESS_KEY_ID"
     aws_secret_access_key="$AWS_SECRET_ACCESS_KEY"
