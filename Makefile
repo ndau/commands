@@ -7,6 +7,10 @@
 # don't get out of sync with each other.
 ###################################
 
+# we depend on the lockfile whenever we build something
+PACKAGES = Gopkg.toml
+LOCK = Gopkg.lock
+
 # define a few of the executables we're building
 CHASM = cmd/chasm/chasm
 CHAIN = cmd/chain/chain
@@ -41,6 +45,9 @@ peggofmt: $(PEGGOFMT)
 
 ###################################
 ### Utilities
+
+$(LOCK): $(PACKAGES)
+	dep ensure
 
 default: build
 
@@ -99,7 +106,7 @@ cmd/chasm/predefined.go: $(OPCODES)
 cmd/crank/predefined.go: $(OPCODES)
 	$(OPCODES) --consts cmd/crank/predefined.go
 
-$(OPCODES): cmd/opcodes/*.go
+$(OPCODES): cmd/opcodes/*.go $(LOCK)
 	cd cmd/opcodes && go build
 
 ###################################
@@ -125,7 +132,7 @@ benchmarks:
 ###################################
 ### The chasm assembler
 
-$(CHASM): cmd/chasm/chasm.go $(CHAINCODEPKG)/vm/opcodes.go cmd/chasm/*.go
+$(CHASM): cmd/chasm/chasm.go $(CHAINCODEPKG)/vm/opcodes.go cmd/chasm/*.go $(LOCK)
 	go build -o $(CHASM) ./cmd/chasm
 
 cmd/chasm/chasm.go: cmd/chasm/chasm.peggo
@@ -151,7 +158,7 @@ scriptgen: $(CRANK) scripts scriptclean
 	find $(SCRIPTS) -name "*.crankgen" -print0 | xargs -0 $(CRANKGEN)
 
 scripttests: $(CRANK) scriptgen
-	find $(SCRIPTS) -name "*.crank" -print0 | xargs -0 -n1 -I{} $(CRANK) -script {}
+	find $(SCRIPTS) -name "*.crank" -exec sh -c 'if ! $(CRANK) -script "$$1"; then echo "$$1"; fi' sh {} \;
 
 scriptformat: $(CHFMT) scripts
 	find $(SCRIPTS) -name "*.chasm" -print0 | xargs -0 -n1 -I{} $(CHFMT) -O {}
@@ -172,7 +179,7 @@ format: $(CHFMT)
 cmd/chfmt/chfmt.go: cmd/chfmt/chfmt.peggo
 	pigeon -o ./cmd/chfmt/chfmt.go ./cmd/chfmt/chfmt.peggo
 
-$(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go
+$(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go $(LOCK)
 	go build -o $(CHFMT) ./cmd/chfmt
 
 
@@ -182,7 +189,7 @@ $(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go
 cmd/peggofmt/peggo.go: cmd/peggofmt/peggo.peggo
 	pigeon -o ./cmd/peggofmt/peggo.go ./cmd/peggofmt/peggo.peggo
 
-$(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go
+$(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go $(LOCK)
 	go build -o $(PEGGOFMT) ./cmd/peggofmt
 
 
@@ -192,6 +199,6 @@ $(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go
 cmd/crank/crankvalues.go: cmd/crank/crankvalues.peggo
 	pigeon -o ./cmd/crank/crankvalues.go ./cmd/crank/crankvalues.peggo
 
-$(CRANK): cmd/crank/*.go
+$(CRANK): cmd/crank/*.go $(LOCK)
 	go build -o $(CRANK) ./cmd/crank
 

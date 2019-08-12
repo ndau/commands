@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/akrylysov/algnhsa"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	claimer "github.com/oneiro-ndev/commands/cmd/claimer/claimerlib"
 	"github.com/oneiro-ndev/rest"
 	log "github.com/sirupsen/logrus"
 )
-
-const configPathS = "config-path"
 
 func check(err error, context string, formatters ...interface{}) {
 	if err != nil {
@@ -24,11 +26,20 @@ func check(err error, context string, formatters ...interface{}) {
 }
 
 func main() {
-	cf := rest.DefaultConfig()
-	cf.AddString(configPathS, claimer.DefaultConfigPath)
-	cf.Load()
+	bucket := os.Getenv("S3_CONFIG_BUCKET")
+	path := os.Getenv("S3_CONFIG_PATH")
 
-	config, err := claimer.LoadConfig(cf.GetString(configPathS))
+	sess, err := session.NewSession()
+	check(err, "creating session")
+	s3client := s3.New(sess)
+	configData, err := s3client.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(path),
+	})
+	check(err, "fetching config data from s3")
+	defer configData.Body.Close()
+
+	config, err := claimer.LoadConfigData(configData.Body)
 	check(err, "loading configuration")
 
 	svc := claimer.NewClaimService(config, log.New().WithField("bin", "claimer"))
@@ -41,9 +52,11 @@ func main() {
 		svc.GetLogger().WithFields(fields).Info("qty keys known per known node")
 	}
 
+	cf := rest.DefaultConfig()
+	cf.Load()
 	server := rest.StandardSetup(cf, svc)
 	if server != nil {
 		rest.WatchSignals(nil, rest.FatalFunc(svc, "SIGINT"), rest.FatalFunc(svc, "SIGTERM"))
-		svc.GetLogger().Fatal(server.ListenAndServe())
+		algnhsa.ListenAndServe(server.Handler, nil)
 	}
 }

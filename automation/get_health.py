@@ -11,14 +11,14 @@ def get_health(url):
 
     response = fetch_url(f"{url}/health")
 
-    if not response is None:
-        health_content = response.content
-        if not health_content is None:
-            health = health_content.decode("utf-8").strip('"').rstrip('"\n')
-            if len(health) != 0:
-                return health
-
-    return "BAD"
+    try:
+        health = response.content.decode("utf-8").strip('"').rstrip('"\n')
+        if len(health) != 0:
+            return health
+        # Blank health isn't really "healthy", but there was a response, so it's not "bad" either.
+        return "ILL"
+    except:
+        return "BAD"
 
 
 def main():
