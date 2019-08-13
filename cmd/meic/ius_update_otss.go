@@ -6,21 +6,12 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 	"github.com/pkg/errors"
-	tmclient "github.com/tendermint/tendermint/rpc/client"
 )
 
 // this helper computes the desired stack and forwards it to all OTSs
 func (ius *IssuanceUpdateSystem) updateOTSs() {
 	// 1. get the total issuance from the blockchain
-	var node *tmclient.HTTP
-	{
-		np := ius.nodeAddr.Path
-		ius.nodeAddr.Path = ""
-		node = tool.Client(ius.nodeAddr.String())
-		ius.nodeAddr.Path = np
-	}
-
-	summary, _, err := tool.GetSummary(node)
+	summary, _, err := tool.GetSummary(ius.tmNode)
 	if err != nil {
 		// maybe we should figure out a better error-handling solution than all
 		// these panics

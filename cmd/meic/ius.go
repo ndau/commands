@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	tmclient "github.com/tendermint/tendermint/rpc/client"
 )
 
 // An IssuanceUpdateSystem has two major responsibilities:
@@ -31,6 +31,7 @@ type IssuanceUpdateSystem struct {
 	manualUpdates chan struct{}
 	issueTxs      chan struct{}
 	wsConn        *websocket.Conn
+	tmNode        *tmclient.HTTP
 }
 
 // NewIUS creates a new IUS and performs required initialization
@@ -52,6 +53,8 @@ func NewIUS(
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing node address")
 	}
+	nodeAddr.Path = ""
+	tmNode := tool.Client(nodeAddr.String())
 	nodeAddr.Path = "/websocket"
 
 	ius := IssuanceUpdateSystem{
@@ -70,6 +73,7 @@ func NewIUS(
 		// This effectively compresses multiple redundant `Issue`s into one.
 		// Doing so doesn't hurt anything, so why not.
 		issueTxs: make(chan struct{}, 1),
+		tmNode:   tmNode,
 	}
 
 	for i := 0; i < len(otsImpls); i++ {
@@ -88,7 +92,7 @@ func NewIUS(
 func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	// set up http server: this both accepts the connection from the signature
 	// server, and serves the update endpoint
-	sigserverman := signer.NewServerManager(ius.logger, ius.selfKeys)
+	sigserv := signer.NewServerManager(ius.logger, ius.selfKeys)
 	mux := http.NewServeMux()
 	httpserver := &http.Server{
 		Addr:         ius.serverAddr.Host,
@@ -96,7 +100,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
-	mux.HandleFunc("/sigserv", sigserverman.Serve())
+	mux.HandleFunc("/sigserv", sigserv.Serve())
 	mux.HandleFunc("/update", ius.handleManualUpdate)
 
 	wg := sync.WaitGroup{}
@@ -111,13 +115,13 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		if ius.wsConn != nil {
 			ius.wsConn.Close()
 		}
-		sigserverman.Close()
+		sigserv.Close()
 		httpserver.Close()
 		wg.Wait()
 	}()
 
 	ius.logger.Debug("waiting for connection from signature service...")
-	<-sigserverman.GetConnectionChan()
+	<-sigserv.GetConnectionChan()
 	ius.logger.Info("got connection from signature service")
 
 	// start up the OTS instances now that we can possibly respond to their updates
@@ -148,19 +152,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			ius.updateOTSs()
 			timeout = time.After(10 * time.Minute)
 		case sale := <-ius.sales:
-			// TODO: implement the following:
-			// - get the current issuance sequence from the blockchain
-			// - generate the issuance tx
-			// - send the tx to the signature server
-			// - update the tx with the returned signatures
-			// - send it to the blockchain
-			// - handle errors appropriately
-			tx := ndau.NewIssue(sale.Qty, 0)
-			tx.Signatures = sigserverman.SignTx(tx, []signature.PublicKey{})
-			_, err := tool.SendSync(nil, tx)
-			if err != nil {
-				panic(err)
-			}
+			ius.handleSale(sale, sigserv)
 		}
 	}
 }
