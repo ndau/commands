@@ -139,14 +139,11 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		case <-stop:
 			break
 		case <-ius.manualUpdates:
-			// TODO: implement the following
-			// 1. get the total issuance from the blockchain
-			// 2. compute the current desired target sales stack
-			// 3. send that stack individually to each OTS
+			ius.updateOTSs()
 		case <-ius.issueTxs:
-			// TODO: do exactly what we did above
+			ius.updateOTSs()
 		case <-timeout:
-			// TODO, implement everything from the manual update, plus:
+			ius.updateOTSs()
 			timeout = time.After(10 * time.Minute)
 		case sale := <-ius.sales:
 			// TODO: implement the following:
