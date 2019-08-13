@@ -282,9 +282,15 @@ else
     fi
 fi
 
+echo Silencing warning about Transparent Huge Pages when redis-server runs...
+docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
+       sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
+docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
+       sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/defrag'
+
 echo "Creating container..."
 # Some notes about the params to the run command:
-# - Using --sysctl silences warnings about TCP backlog and overcommit_memory when redis runs.
+# - Using --sysctl silences warning about TCP backlog when redis runs.
 # - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
 docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
@@ -302,7 +308,6 @@ docker create \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
        --sysctl net.core.somaxconn=511 \
-       --sysctl vm.overcommit_memory=1 \
        "$NDAU_IMAGE_NAME"
 
 IDENTITY_FILE="node-identity.tgz"

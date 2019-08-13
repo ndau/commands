@@ -13,6 +13,3 @@ services:
       - NODE_ID={{NETWORK_NAME}}-{{NODE_NUMBER}}
       - PERSISTENT_PEERS={{PERSISTENT_PEERS}}
       - BASE64_NODE_IDENTITY={{BASE64_NODE_IDENTITY}}
-  sysctls:
-    net.core.somaxconn: 511
-    vm.overcommit_memory: 1

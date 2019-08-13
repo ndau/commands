@@ -298,16 +298,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
             "user": null,
             "readonlyRootFilesystem": null,
             "dockerLabels": null,
-            "systemControls": [
-                {
-                    "namespace": "net.core.somaxconn",
-                    "value": "511"
-                },
-                {
-                    "namespace": "vm.overcommit_memory",
-                    "value": "1"
-                }
-            ],
+            "systemControls": null,
             "privileged": null,
             "name": "mainnet-<N>"
         }
