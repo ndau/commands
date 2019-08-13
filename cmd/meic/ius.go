@@ -140,8 +140,10 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			break
 		case <-ius.manualUpdates:
 			ius.updateOTSs()
+			timeout = time.After(10 * time.Minute)
 		case <-ius.issueTxs:
 			ius.updateOTSs()
+			timeout = time.After(10 * time.Minute)
 		case <-timeout:
 			ius.updateOTSs()
 			timeout = time.After(10 * time.Minute)
