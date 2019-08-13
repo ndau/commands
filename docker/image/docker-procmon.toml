@@ -75,6 +75,7 @@ output = ""
     path = "redis-server"
     args = [
         "--dir", "$REDIS_DATA_DIR",
+        "--maxclients", "$REDIS_MAX_CLIENTS",
         "--port", "$REDIS_PORT",
         "--save", "60", "1",
     ]

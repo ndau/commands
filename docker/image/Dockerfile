@@ -119,6 +119,11 @@ COPY --from=build_noms /bin/noms /image/bin/
 # Copy the output from the intermediate image.
 COPY --from=build_commands /image/bin/* /image/bin/
 
+# Silence Redis warnings.
+RUN echo "net.core.somaxconn = 511" >> /etc/sysctl.conf && \
+    echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf && \
+    echo "echo never > /sys/kernel/mm/transparent_hugepage/enabled" >> /etc/rc.local
+
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
 # Tendermint itself will communicate with other containers through the P2P ports.

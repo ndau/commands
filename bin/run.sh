@@ -6,7 +6,7 @@ initialize() {
     source "$CMDBIN_DIR"/env.sh
 
     # This is needed because in the long term, noms eats more than 256 file descriptors
-    ulimit -n 1024
+    ulimit -n "$ULIMIT_AMOUNT"
 }
 
 wait_port() {
@@ -55,6 +55,7 @@ ndau_redis() {
 
     mkdir -p "$data_dir"
     redis-server --dir "$data_dir" \
+                 --maxclients "$REDIS_MAX_CLIENTS" \
                  --port "$redis_port" \
                  --save 60 1 \
                  >"$output_name.log" 2>&1 &
