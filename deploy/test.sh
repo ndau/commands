@@ -14,7 +14,7 @@ for oneiro_project in /go/src/github.com/oneiro-ndev/*; do
         cd "$oneiro_project"
         pwd
         # we don't want to test commands, just binary packages
-        if [ -d cmd ]; then
+        if [ "$(basename "$(pwd)")" != commands ] && [ -d cmd ]; then
           rm -rf cmd >/dev/null 2>&1
         fi
         go test ./...
