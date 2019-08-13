@@ -1,20 +1,13 @@
 package main
 
 import (
-	"encoding/base64"
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-
 	"github.com/gorilla/websocket"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
@@ -86,172 +79,12 @@ func NewIUS(
 	return &ius, nil
 }
 
-// manual updates must be POST requests, with a JSON body containing two fields:
-// - `timestamp` which is a RFC3339 string and must be within 30s of the server time
-// - `signature` which is a signature.Signature which must validate with the server's keys
-func (ius *IssuanceUpdateSystem) handleManualUpdate(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	if r.Method != http.MethodPost {
-		reqres.RespondJSON(w, reqres.NewFromErr("POST only", errors.New("method not allowed"), http.StatusMethodNotAllowed))
-		return
-	}
-
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		reqres.RespondJSON(w, reqres.NewFromErr("could not read http request body", err, http.StatusBadRequest))
-		return
-	}
-
-	var payload struct {
-		Timestamp string              `json:"timestamp"`
-		Signature signature.Signature `json:"signature"`
-	}
-
-	err = json.Unmarshal(data, &payload)
-	if err != nil {
-		reqres.RespondJSON(w, reqres.NewFromErr("could not parse request payload", err, http.StatusBadRequest))
-		return
-	}
-
-	ts, err := time.Parse(time.RFC3339, payload.Timestamp)
-	if err != nil {
-		reqres.RespondJSON(w, reqres.NewFromErr("could not parse timestamp as RFC3339", err, http.StatusBadRequest))
-		return
-	}
-
-	tsdiff := ts.Sub(time.Now())
-	if tsdiff < 0 {
-		tsdiff = -tsdiff
-	}
-	if tsdiff > 30*time.Second {
-		reqres.RespondJSON(w, reqres.NewFromErr("timestamp must be within 30s of server time", errors.New("timestamp out of bounds"), http.StatusBadRequest))
-		return
-	}
-
-	pubkey, err := ius.selfKeys.Public(0)
-	if err != nil {
-		reqres.RespondJSON(w, reqres.NewFromErr("could not get server public key", err, http.StatusInternalServerError))
-		return
-	}
-
-	if !payload.Signature.Verify([]byte(payload.Timestamp), *pubkey) {
-		reqres.RespondJSON(w, reqres.NewFromErr("must have signed timestamp string with server private key", errors.New("invalid signature"), http.StatusBadRequest))
-		return
-	}
-
-	// looks like everything checked out! trigger a manual update
-	ius.manualUpdates <- struct{}{}
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// this function should _not_ be called in a goroutine.
-// it handles launching the goroutines necessary to actually monitor the
-// websocket connection.
-func (ius *IssuanceUpdateSystem) monitorIssueTxs(stop <-chan struct{}) error {
-	var err error
-	ius.wsConn, _, err = websocket.DefaultDialer.Dial(ius.nodeAddr.String(), nil)
-	if err != nil {
-		return errors.Wrap(err, "dialing node websocket connection")
-	}
-
-	subsMsg := `{"jsonrpc":"2.0","method":"subscribe","id":"0","params":{"query":"tm.event='Tx'"}}`
-	pingMsg := `{"jsonrpc":"2.0","method":"abci_info"}`
-
-	// send the subscription message over the connection
-	err = ius.wsConn.WriteMessage(websocket.TextMessage, []byte(subsMsg))
-	if err != nil {
-		return errors.Wrap(err, "sending subscription message")
-	}
-
-	// past this point it's all goroutines, so we have to assume that we won't
-	// really have network errors ever
-
-	// start a goroutine which keeps the TM websocket connection alive and forwards
-	// issues
-	go func() {
-		// if there's no traffic in 30s, TM closes the websocket.
-		// We therefore have to keep pinging it manually
-		timeout := time.After(25 * time.Second)
-
-		for {
-			select {
-			case <-stop:
-				break
-			case <-timeout:
-				err := ius.wsConn.WriteMessage(websocket.TextMessage, []byte(pingMsg))
-				if err != nil {
-					// can't do much useful with a non-nil error, but we also
-					// don't expect to see them very often. If this turns out
-					// to bite us often, we can build up some kind of error-
-					// handling infrastructure suitable for this multi-goroutine
-					// situation.
-					panic(errors.Wrap(err, "writing ping to TM"))
-				}
-				timeout = time.After(25 * time.Second)
-			}
-		}
-	}()
-
-	// start a goroutine which reads all traffic inbound on the TM websocket
-	// connection, determines which correspond to issue txs, and forwards
-	// notifications for those
-	go func() {
-		var msg map[string]interface{}
-		for {
-			// shutdown?
-			select {
-			case <-stop:
-				break
-			default:
-			}
-
-			err := ius.wsConn.ReadJSON(&msg)
-			if err != nil {
-				panic(errors.Wrap(err, "reading message from TM"))
-			}
-			// get the b64-encoded tx data
-			b64data, err := getNested(msg, "result", "data", "value", "TxResult", "tx")
-			if err != nil {
-				if strings.HasPrefix(err.Error(), "item not found:") {
-					// in that case, it was probably a pong message
-					continue
-				}
-				panic(errors.Wrap(err, "unexpected TM ws message"))
-			}
-
-			data, err := base64.StdEncoding.DecodeString(b64data.(string))
-			if err != nil {
-				panic(errors.Wrap(err, "decoding tx b64"))
-			}
-
-			tx, err := metatx.Unmarshal(data, ndau.TxIDs)
-			if err != nil {
-				panic(errors.Wrap(err, "unmarshaling tx"))
-			}
-
-			if _, ok := tx.(*ndau.Issue); ok {
-				// aha, this is what we wanted to see
-				// use a non-blocking send, just in case there are a lot of
-				// messages incoming
-				select {
-				case ius.issueTxs <- struct{}{}:
-				default:
-				}
-			}
-			// otherwise it doesn't matter, just loop again
-		}
-	}()
-
-	return nil
-}
-
 // Run the issuance service
 //
-// This function will only ever return normally if it receives a message on
-// the `stop` channel. This can be accomplished without ever sending such
-// a message by closing the channel. If you don't want to ever stop it, passing
-// a nil channel will do the right thing.
+// This function will only ever return normally without error if it receives
+// a message on the `stop` channel. This can be accomplished without ever
+// sending such a message by closing the channel. If you don't want to ever
+// stop it, passing a nil channel will do the right thing.
 func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	// set up http server: this both accepts the connection from the signature
 	// server, and serves the update endpoint
@@ -298,10 +131,6 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	if err != nil {
 		return errors.Wrap(err, "creating WS connection to TM to receive Issue tx notifications")
 	}
-
-	// TODO: set up a persistent websocket connection to the ndau tx feed
-	// https://tendermint.com/docs/app-dev/subscribing-to-events-via-websocket.html
-	// and create a channel which receives Issue tx events
 
 	// everything's set up, let's handle some messages!
 	for {
