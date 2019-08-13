@@ -12,7 +12,7 @@ RUNNING_FILE="$SCRIPT_DIR/running"
 rm -f "$RUNNING_FILE"
 
 # This is needed because in the long term, noms eats more than 256 file descriptors.
-ulimit -n 1024
+ulimit -n "$ULIMIT_AMOUNT"
 
 # If there's no data directory yet, it means we're starting from scratch.
 if [ ! -d "$DATA_DIR" ]; then
