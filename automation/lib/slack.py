@@ -11,10 +11,7 @@ def post_to_slack(message):
     """
 
     slack_key_name = "SLACK_DEPLOYS_KEY"
-    try:
-        slack_key_value = os.environ[slack_key_name]
-    except:
-        slack_key_value = ""
+    slack_key_value = os.environ.get(slack_key_name, "")
     if len(slack_key_value) == 0:
         print(f"Unable to post to slack without {slack_key_name} env var: '{message}'")
         return
@@ -26,7 +23,7 @@ def post_to_slack(message):
         print(
             f"Got {r.status_code} when posting to slack because {r.reason}: '{message}'"
         )
-    elif r.content.decode("utf-8") != "ok":
+    elif r.text != "ok":
         print(f"Posted to slack but got back non-ok response: '{message}'")
     else:
         print(f"Posted to slack: '{message}'")
