@@ -253,18 +253,18 @@ workflows:
 #            branches:
 #              # This causes circle to skip this job on untagged non-master builds.
 #              ignore: /.*/
-      - catchup:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(catchup).*/
-      - integration:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(integration).*/
+#      - catchup:
+#          requires:
+#            - build-image
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(catchup).*/
+#      - integration:
+#          requires:
+#            - build-image
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(integration).*/
       - push:
           requires:
             - build-image

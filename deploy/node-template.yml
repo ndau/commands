@@ -2,9 +2,6 @@ version: '3'
 services:
   {{NETWORK_NAME}}-{{NODE_NUMBER}}:
     image: "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:{{TAG}}"
-    sysctls:
-      - net.core.somaxconn='511'
-      - vm.overcommit_memory='1'
     ports:
       - "{{RPC_PORT}}:26670"
       - "{{P2P_PORT}}:26660"
@@ -16,3 +13,6 @@ services:
       - NODE_ID={{NETWORK_NAME}}-{{NODE_NUMBER}}
       - PERSISTENT_PEERS={{PERSISTENT_PEERS}}
       - BASE64_NODE_IDENTITY={{BASE64_NODE_IDENTITY}}
+  sysctls:
+    - net.core.somaxconn: 511
+    - vm.overcommit_memory: 1
