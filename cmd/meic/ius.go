@@ -42,7 +42,6 @@ func NewIUS(
 	logger *logrus.Entry,
 	serverAddress string,
 	selfKeys signer.SignDevice,
-	issuanceKeys []signature.PublicKey,
 	nodeAddress string,
 ) (*IssuanceUpdateSystem, error) {
 	serverAddr, err := url.Parse(serverAddress)
@@ -58,11 +57,10 @@ func NewIUS(
 	nodeAddr.Path = "/websocket"
 
 	ius := IssuanceUpdateSystem{
-		logger:       logger,
-		serverAddr:   serverAddr,
-		nodeAddr:     nodeAddr,
-		selfKeys:     selfKeys,
-		issuanceKeys: issuanceKeys,
+		logger:     logger,
+		serverAddr: serverAddr,
+		nodeAddr:   nodeAddr,
+		selfKeys:   selfKeys,
 		// We never want OTSs to have to block when reporting sales, so we
 		// allocate a buffer in the sales channel.
 		sales:         make(chan TargetPriceSale, 256),
