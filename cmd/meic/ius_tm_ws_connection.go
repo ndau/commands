@@ -52,7 +52,7 @@ func (ius *IssuanceUpdateSystem) monitorIssueTxs(stop <-chan struct{}) error {
 					// to bite us often, we can build up some kind of error-
 					// handling infrastructure suitable for this multi-goroutine
 					// situation.
-					panic(errors.Wrap(err, "writing ping to TM"))
+					check(err, "writing ping to TM")
 				}
 				timeout = time.After(25 * time.Second)
 			}
@@ -74,7 +74,7 @@ func (ius *IssuanceUpdateSystem) monitorIssueTxs(stop <-chan struct{}) error {
 
 			err := ius.wsConn.ReadJSON(&msg)
 			if err != nil {
-				panic(errors.Wrap(err, "reading message from TM"))
+				check(err, "reading message from TM")
 			}
 			// get the b64-encoded tx data
 			b64data, err := getNested(msg, "result", "data", "value", "TxResult", "tx")
@@ -83,17 +83,17 @@ func (ius *IssuanceUpdateSystem) monitorIssueTxs(stop <-chan struct{}) error {
 					// in that case, it was probably a pong message
 					continue
 				}
-				panic(errors.Wrap(err, "unexpected TM ws message"))
+				check(err, "unexpected TM ws message")
 			}
 
 			data, err := base64.StdEncoding.DecodeString(b64data.(string))
 			if err != nil {
-				panic(errors.Wrap(err, "decoding tx b64"))
+				check(err, "decoding tx b64")
 			}
 
 			tx, err := metatx.Unmarshal(data, ndau.TxIDs)
 			if err != nil {
-				panic(errors.Wrap(err, "unmarshaling tx"))
+				check(err, "unmarshaling tx")
 			}
 
 			if _, ok := tx.(*ndau.Issue); ok {

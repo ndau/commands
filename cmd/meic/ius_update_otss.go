@@ -5,7 +5,6 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
-	"github.com/pkg/errors"
 )
 
 // this helper computes the desired stack and forwards it to all OTSs
@@ -15,7 +14,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	if err != nil {
 		// maybe we should figure out a better error-handling solution than all
 		// these panics
-		panic(errors.Wrap(err, "failed to get blockchain summary"))
+		check(err, "failed to get blockchain summary")
 	}
 
 	// 2. compute the current desired target sales stack
@@ -31,7 +30,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	price := func(issued math.Ndau) pricecurve.Nanocent {
 		p, err := pricecurve.PriceAtUnit(issued)
 		if err != nil {
-			panic(errors.Wrap(err, "calculating expected price"))
+			check(err, "calculating expected price")
 		}
 		return p
 	}

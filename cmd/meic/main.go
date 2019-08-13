@@ -18,11 +18,11 @@ func main() {
 	var args args
 	arg.MustParse(&args)
 
-	logger := logrus.New().WithField("bin", "meic")
+	logger = logrus.New().WithField("bin", "meic")
 	device, err := signer.NewVirtualDevice(args.ServerPubKey.FullString(), args.ServerPvtKey.FullString())
 	check(err, "creating virtual signer device")
 
-	ius, err := NewIUS(logger, args.ServerAddr, device, args.NodeAddr)
+	ius, err := NewIUS(logger.(*logrus.Entry), args.ServerAddr, device, args.NodeAddr)
 	check(err, "creating ius")
 
 	err = ius.Run(nil)

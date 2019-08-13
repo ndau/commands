@@ -6,7 +6,6 @@ import (
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
 	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
-	"github.com/pkg/errors"
 )
 
 // handle a sale of ndau by creating and sending an Issue tx
@@ -15,11 +14,11 @@ func (ius *IssuanceUpdateSystem) handleSale(sale TargetPriceSale, sigserv *signe
 	var issuer address.Address
 	err := tool.Sysvar(ius.tmNode, sv.ReleaseFromEndowmentAddressName, &issuer)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to get sysvar with address of issuer"))
+		check(err, "failed to get sysvar with address of issuer")
 	}
 	acctData, _, err := tool.GetAccount(ius.tmNode, issuer)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to get issuer account data"))
+		check(err, "failed to get issuer account data")
 	}
 	// - generate the issuance tx
 	tx := ndau.NewIssue(sale.Qty, acctData.Sequence+1)
@@ -34,6 +33,6 @@ func (ius *IssuanceUpdateSystem) handleSale(sale TargetPriceSale, sigserv *signe
 	// compromise to keep things flowing smoothly.
 	_, err = tool.SendSync(ius.tmNode, tx)
 	if err != nil {
-		panic(errors.Wrap(err, "sending issue tx to blockchain"))
+		check(err, "sending issue tx to blockchain")
 	}
 }

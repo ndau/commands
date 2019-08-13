@@ -5,12 +5,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
+
+var logger logrus.FieldLogger
 
 func check(err error, context string) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, context+":")
 		fmt.Fprintln(os.Stderr, err)
+		if logger != nil {
+			logger.WithError(err).WithField("context", context).Error("aborting")
+		}
 		os.Exit(1)
 	}
 }
