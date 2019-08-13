@@ -42,12 +42,6 @@ fi
 # update dependencies for cache-busting when appropriate
 cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
 
-echo Silencing warning about Transparent Huge Pages when redis-server runs...
-docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
-       sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
-docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
-       sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/defrag'
-
 echo "Building $NDAU_IMAGE_NAME..."
 docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
