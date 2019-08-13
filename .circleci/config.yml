@@ -160,7 +160,7 @@ commands:
           msg: Start deploy for build $CIRCLE_BUILD_NUM
       - ecs_deploy
       - notify:
-          msg: Deploy complete; nodes for $NETWORK_NAME are now starting up.
+          msg: Deploy complete; nodes for $NETWORK_NAME are now running and healthy.
 
   ecs_deploy:
     description: Deploy using ECS
@@ -171,6 +171,35 @@ commands:
 
             # get bash environment variables from previous steps
             source $BASH_ENV
+
+            # If we're running a tagged build for deploying with reset data,
+            # point it to the network's genesis snapshot.
+            # Otherwise, take a snapshot before deploying and no data will be lost.
+            if [ "$NETWORK_NAME" == "devnet" ]; then
+                if [[ "$CIRCLE_TAG" == *"-jobs_"*"reset"* ]]; then
+                    # We have a very specific and known devnet genesis snapshot (at height 27).
+                    # If we ever regenerate it (which is currently a manual process), and it winds
+                    # up with a different height postfix, we'll need to update this to match.
+                    echo "Resetting devnet to genesis..."
+                    echo "snapshot-devnet-27" > /root/latest-devnet.txt
+                    aws s3 cp /root/latest-devnet.txt s3://ndau-snapshots/latest-devnet.txt
+                else
+                    # Take a snapshot before we deploy, so we don't lose any data.
+                    # snapshot_node.py looks for the pem file in ~/.ssh, which is /root in Circle.
+                    pem=/root/.ssh/sc-node-ec2.pem
+                    echo "$SC_NODE_EC2_PEM" | base64 --decode > "$pem"
+                    chmod 600 "$pem"
+
+                    if /commands/automation/snapshot_node.py devnet-4; then
+                        echo "Snapshot taken on devnet-4"
+                    else
+                        # The deploy will just use whatever was in the last snapshot.
+                        echo "Unable to take snapshot on devnet-4; deploy might lose data"
+                    fi
+
+                    rm -f "$pem"
+                fi
+            fi
 
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
@@ -247,7 +276,7 @@ workflows:
             - build
           filters:
             tags:
-              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
+              only: /.*-jobs_.*?(catchup|integration|push|deploy|reset).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
@@ -268,13 +297,13 @@ workflows:
             - build-image
           filters:
             tags:
-              only: /.*-jobs_.*?(push|deploy).*/
+              only: /.*-jobs_.*?(push|deploy|reset).*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
-              only: /.*-jobs_.*?(deploy).*/
+              only: /.*-jobs_.*?(deploy|reset).*/
 
 general_config: &general_config
     working_directory: /commands

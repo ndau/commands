@@ -169,7 +169,9 @@ The jobs are:
 * push
     - Push `ndauimage` to AWS ECR
 * deploy
-    - Deploy `ndauimage` to devnet
+    - Deploy `ndauimage` to devnet (preserving blockchain data)
+* reset
+    - Deploy `ndauimage` to devnet (resetting blockchain data back to devnet genesis)
 
 Master builds require the `catchup` job and the `integration` job to pass before the `push` and `deploy` jobs run.  This is an improvement since now we won't deploy "invalid" (test-failing) builds.  You can always use a tagged build if you want to manually push or deploy a test-failing build.
 
