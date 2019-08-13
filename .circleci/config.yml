@@ -227,30 +227,32 @@ workflows:
               only: /.*/
             branches:
               ignore: /^master$/
-      - test:
-          requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build:
-          requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
+#      - test:
+#          requires:
+#            - build-deps
+#          filters:
+#            tags:
+#              # This causes circle to run this job on tagged non-master builds.
+#              only: /.*/
+#      - build:
+#          requires:
+#            - build-deps
+#          filters:
+#            tags:
+#              # This causes circle to run this job on tagged non-master builds.
+#              only: /.*/
       - build-image:
           requires:
-            - test
-            - build
+            - build-deps
+#            - test
+#            - build
           filters:
             tags:
-              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
-            branches:
-              # This causes circle to skip this job on untagged non-master builds.
-              ignore: /.*/
+              only: /.*/
+#              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
+#            branches:
+#              # This causes circle to skip this job on untagged non-master builds.
+#              ignore: /.*/
       - catchup:
           requires:
             - build-image
@@ -268,13 +270,15 @@ workflows:
             - build-image
           filters:
             tags:
-              only: /.*-jobs_.*?(push|deploy).*/
+              only: /.*/
+#              only: /.*-jobs_.*?(push|deploy).*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
-              only: /.*-jobs_.*?(deploy).*/
+              only: /.*/
+#              only: /.*-jobs_.*?(deploy).*/
 
 general_config: &general_config
     working_directory: /commands
