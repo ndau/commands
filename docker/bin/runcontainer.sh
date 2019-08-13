@@ -290,7 +290,7 @@ docker run --rm -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i \
 
 echo "Creating container..."
 # Some notes about the params to the run command:
-# - Using --sysctl silences warning about TCP backlog when redis runs.
+# - Using --sysctl silences a warning about TCP backlog when redis runs.
 # - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
 docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
