@@ -284,6 +284,7 @@ fi
 
 echo "Creating container..."
 # Some notes about the params to the run command:
+# - Using --sysctl silences warnings about TCP backlog and overcommit_memory when redis runs.
 # - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
 docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
@@ -300,6 +301,8 @@ docker create \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
+       --sysctl net.core.somaxconn=511 \
+       --sysctl vm.overcommit_memory=1 \
        "$NDAU_IMAGE_NAME"
 
 IDENTITY_FILE="node-identity.tgz"
