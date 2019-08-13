@@ -299,6 +299,11 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
             "readonlyRootFilesystem": null,
             "dockerLabels": null,
             "systemControls": null,
+                {
+                    "namespace": "net.core.somaxconn",
+                    "value": "511"
+                }
+            ],
             "privileged": null,
             "name": "mainnet-<N>"
         }

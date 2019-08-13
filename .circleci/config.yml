@@ -227,58 +227,54 @@ workflows:
               only: /.*/
             branches:
               ignore: /^master$/
-#      - test:
-#          requires:
-#            - build-deps
-#          filters:
-#            tags:
-#              # This causes circle to run this job on tagged non-master builds.
-#              only: /.*/
-#      - build:
-#          requires:
-#            - build-deps
-#          filters:
-#            tags:
-#              # This causes circle to run this job on tagged non-master builds.
-#              only: /.*/
-      - build-image:
+      - test:
           requires:
             - build-deps
-#            - test
-#            - build
           filters:
             tags:
+              # This causes circle to run this job on tagged non-master builds.
               only: /.*/
-#              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
-#            branches:
-#              # This causes circle to skip this job on untagged non-master builds.
-#              ignore: /.*/
-#      - catchup:
-#          requires:
-#            - build-image
-#          filters:
-#            tags:
-#              only: /.*-jobs_.*?(catchup).*/
-#      - integration:
-#          requires:
-#            - build-image
-#          filters:
-#            tags:
-#              only: /.*-jobs_.*?(integration).*/
+      - build:
+          requires:
+            - build-deps
+          filters:
+            tags:
+              # This causes circle to run this job on tagged non-master builds.
+              only: /.*/
+      - build-image:
+          requires:
+            - test
+            - build
+          filters:
+            tags:
+              only: /.*-jobs_.*?(catchup|integration|push|deploy).*/
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
+      - catchup:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-jobs_.*?(catchup).*/
+      - integration:
+          requires:
+            - build-image
+          filters:
+            tags:
+              only: /.*-jobs_.*?(integration).*/
       - push:
           requires:
             - build-image
           filters:
             tags:
-              only: /.*/
-#              only: /.*-jobs_.*?(push|deploy).*/
+              only: /.*-jobs_.*?(push|deploy).*/
       - deploy-devnet:
           requires:
             - push
           filters:
             tags:
-              only: /.*/
-#              only: /.*-jobs_.*?(deploy).*/
+              only: /.*-jobs_.*?(deploy).*/
 
 general_config: &general_config
     working_directory: /commands
