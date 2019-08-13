@@ -1,13 +1,10 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -23,32 +20,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/tendermint/tendermint/rpc/client"
 )
-
-func check(err error, context string) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, context+":")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
-func bail(err string, context ...interface{}) {
-	if !strings.HasSuffix(err, "\n") {
-		err += "\n"
-	}
-	fmt.Fprintf(os.Stderr, err, context...)
-	os.Exit(1)
-}
-
-func input(prompt string) string {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf(prompt)
-	inputline, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-	return strings.TrimSpace(inputline)
-}
 
 func main() {
 	app := cli.App("bitmart", "track issuance sales and send appropriate transactions")
