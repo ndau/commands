@@ -9,19 +9,14 @@ set -e # exit for any command that returns non-0
 # to the regular go path.
 cp -r /go/src/github.com/oneiro-ndev/commands/vendor/* /go/src/
 
-echo '
-# Use https instead of git and git+ssh
-[url "https://github.com/"]
-  insteadOf = git://github.com/
-[url "https://github.com/"]
-  insteadOf = git@github.com:
-' >> ~/.gitconfig
-
 for oneiro_project in /go/src/github.com/oneiro-ndev/*; do
     (
         cd "$oneiro_project"
         pwd
-        go get ./...
+        # we don't want to test commands, just binary packages
+        if [ -d cmd ]; then
+          rm -rf cmd >/dev/null 2>&1
+        fi
         go build ./...
     )
 done
