@@ -29,6 +29,9 @@ type IssuanceUpdateSystem struct {
 	updates       []chan UpdateOrders
 	manualUpdates chan struct{}
 	tmNode        *tmclient.HTTP
+	stackGen      uint
+	stackDefault  uint
+	config        *Config
 }
 
 // NewIUS creates a new IUS and performs required initialization
@@ -40,6 +43,8 @@ func NewIUS(
 	serverAddress string,
 	selfKeys signer.SignDevice,
 	nodeAddress string,
+	stackDefault uint,
+	config *Config,
 ) (*IssuanceUpdateSystem, error) {
 	serverAddr, err := url.Parse(serverAddress)
 	if err != nil {
@@ -64,6 +69,17 @@ func NewIUS(
 		updates:       make([]chan UpdateOrders, 0, len(otsImpls)),
 		manualUpdates: make(chan struct{}),
 		tmNode:        tmNode,
+		stackGen:      stackDefault,
+		stackDefault:  stackDefault,
+		config:        config,
+	}
+
+	if ius.config != nil {
+		for _, o := range ius.config.DepthOverrides {
+			if o > ius.stackGen {
+				ius.stackGen = o
+			}
+		}
 	}
 
 	for i := 0; i < len(otsImpls); i++ {

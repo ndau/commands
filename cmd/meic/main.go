@@ -8,21 +8,35 @@ import (
 )
 
 type args struct {
-	ServerAddr   string               `arg:"-s,--server-addr,required"`
-	ServerPubKey signature.PublicKey  `arg:"-p,--server-pub-key,required"`
-	ServerPvtKey signature.PrivateKey `arg:"-P,--server-pvt-key,required"`
-	NodeAddr     string               `arg:"-n,--node-addr,required"`
+	ServerAddr        string               `arg:"-s,--server-addr,required"`
+	ServerPubKey      signature.PublicKey  `arg:"-p,--server-pub-key,required"`
+	ServerPvtKey      signature.PrivateKey `arg:"-P,--server-pvt-key,required"`
+	NodeAddr          string               `arg:"-n,--node-addr,required"`
+	DefaultStackDepth uint                 `arg:"-d,--default-stack-depth"`
+	ConfPath          string               `arg:"-c,--config-path"`
 }
 
 func main() {
-	var args args
+	args := args{
+		DefaultStackDepth: 3,
+	}
 	arg.MustParse(&args)
 
 	logger = logrus.New().WithField("bin", "meic")
 	device, err := signer.NewVirtualDevice(args.ServerPubKey.FullString(), args.ServerPvtKey.FullString())
 	check(err, "creating virtual signer device")
 
-	ius, err := NewIUS(logger.(*logrus.Entry), args.ServerAddr, device, args.NodeAddr)
+	config, err := LoadConfig(args.ConfPath)
+	check(err, "loading configuration")
+
+	ius, err := NewIUS(
+		logger.(*logrus.Entry),
+		args.ServerAddr,
+		device,
+		args.NodeAddr,
+		args.DefaultStackDepth,
+		config,
+	)
 	check(err, "creating ius")
 
 	err = ius.Run(nil)
