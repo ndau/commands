@@ -23,7 +23,7 @@ In all cases, leave default settings unless specified below.
     ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC55zKlUU5P+iUVR++59SoPM3PKjSvVnA06swqdLc3UiNK7dun6crh3VT/8O66lOil/+LcsfYDbFeKkXRl8LYqcs/BrCZMVa0exJrcb/iUOlGKgmxkQYx0+x1+WdtEIdn/5RozdYZC7lmOMvpPD/Sg4OeqF6/kM/crdKWEYWbPEZmVFzZeSCh9ln0cqTceMCPx7NwaZki3k3ldy9rmeY6hkBa0QaqZ38aosgQJ9NNs/ls6O9WbXnhCgKP9km6GlYBkIcTBBD1za0qAzUN3s3v3ldcGSrkwwF76gLcGjoQTzmpnI+bP0u/ByJaqgZ0u6oOpDuRShUHRb7wPbA6Vyk1QH
     ```
     - Grab the `sc-node-ec2.pem` file from 1password for later use if you want to shell into the node instance.
-    - To SSH into the instance later, use: `ssh -i "/path/to/sc-node-ec2.pem" ec2-user@mainnet-<N>.ndau.tech`.  The "Connect" button in EC2 Instances is not useful since we block direct connections to the private instance IP.
+    - To SSH into the instance later, use: `ssh -i "/path/to/sc-node-ec2.pem" ec2-user@ssh.mainnet-<N>.ndau.tech`.  The "Connect" button in EC2 Instances is not useful since we block direct connections to the private instance IP.
 1. VPC > Your VPCs
     - Create VPC
         - Name tag: `mainnet-<N>`
@@ -118,7 +118,6 @@ In all cases, leave default settings unless specified below.
     - Add: `TCP --- 26660 - TCP -- 26660`
     - Add: `HTTPS - 26670 - HTTP - 26670`
     - Add: `HTTPS - 3030 -- HTTP - 3030 `
-    - Add: `TCP --- 22 ---- TCP -- 22   `
     - Selected available subnets: `mainnet-<N>-public`
     - Next: Assign Security Groups
     - Select `default` (it should already be selected)
@@ -137,10 +136,25 @@ In all cases, leave default settings unless specified below.
     - Create
     - If there is an "unknown error" reported, click "Review and resolve", then "Create" again
     - Ignore failing health checks until the end of the remaining steps
-1. EC2 > Network Interfaces
-    - Filter by VPC ID to find all the Network Interfaces created by the Load Balancer
-    - Name them all appropriately: `mainnet-<N>:{0,1,2}`
-    - The two with Description `ELB mainnet-<N>` can be left alone; AWS clears their names periodically.
+1. EC2 > Load Balancers
+    - Create Load Balancer (dedicated to SSH connections; useful when the primary load balancer sees the instance as unhealthy and blocks traffic to it)
+    - Select "Classic Load Balancer"
+    - Name: `mainnet-<N>-ssh`
+    - Create LB Inside: `mainnet-<N>`
+    - Change the "HTTP/80" entry to "TCP/22"
+    - Selected available subnets: `mainnet-<N>-public`
+    - Next: Assign Security Groups
+    - Select `default` (it should already be selected)
+    - Next: Configure Security Settings
+    - (No certificate config since there's no HTTPS forwarding)
+    - Next: Configure Health Check
+    - Leave the "TCP/22" defaults
+    - Change the Healthy interval from `10` to `2`
+    - Next: Add EC2 Instances
+    - Select `ECS Instance - EC2ContainerService-mainnet-<N>`
+    - Next: Add Tags
+    - Review and Create
+    - Create
 1. EC2 > Load Balancers
     - Select `mainnet-<N>`
     - Find the "DNS name" at the bottom under the "Description" tab, select the text (up to the .com) and copy it to the clipboard
@@ -156,6 +170,9 @@ In all cases, leave default settings unless specified below.
         - Add a `.` to the end of it (might not matter)
     - Create
     - Run `dig +noall +answer mainnet-<N>.ndau.tech` and make sure the `A` records that come back mention `mainnet-<N>.ndau.tech` in them.  If not, they haven't propogated and the nodes won't work yet.  Wait for this to happen before moving on.
+1. EC2 > Load Balancers
+    - Follow all the points in the previous step again, but for `mainnet-<N>-ssh`
+    - In Route 53, make `ssh.mainnet-<N>.ndau.tech` point to the corresponding SSH load balancer's DNS name
 1. ECS > Task Definitions
     - Create new Task Definition
     - Select "EC2"
