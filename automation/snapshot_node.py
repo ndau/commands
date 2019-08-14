@@ -37,7 +37,7 @@ def run_ssh_command(node_name, command):
             pem_path,
             "-o",
             "StrictHostKeyChecking=no",
-            f"{ec2_user}@{cname}.{domain_name}",
+            f"{ec2_user}@ssh.{cname}.{domain_name}",
             command,
         ],
         stdout=subprocess.PIPE,
