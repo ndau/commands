@@ -382,7 +382,6 @@ jobs:
           name: build-deps
           command: |
             # build deps image
-            echo "$AWS_DEPLOY_SECRETS_ID $AWS_DEPLOY_SECRETS_KEY"
             docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
