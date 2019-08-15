@@ -231,43 +231,43 @@ workflows:
             - push
   tagged-build:
     jobs:
-      - build-stub:
+      - build:
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
               only: /.*/
             branches:
               ignore: /^master$/
-      - catchup-stub:
+      - catchup:
           requires:
-            - build-stub
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(catchup).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - integration-stub:
+      - integration:
           requires:
-            - build-stub
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(integration).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - push-stub:
+      - push:
           requires:
-            - build-stub
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(push|deploy|reset).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - deploy-stub:
+      - deploy:
           requires:
-            - push-stub
+            - push
           filters:
             tags:
               only: /.*-jobs_.*?(deploy|reset).*/
