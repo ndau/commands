@@ -32,19 +32,16 @@ commands:
           when: on_fail
 
   mark_honeycomb:
-    description: "Places a marker in the specified honeycomb dataset"
+    description: "Places a marker in the ci-deploy honeycomb dataset"
     parameters:
       msg:
-        type: string
-      dataset:
         type: string
     steps:
       - run:
           name: create marker
           command: |
-            echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" >parms.txt
-            cat parms.txt   #just to be sure
-            curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt https://api.honeycomb.io/1/markers/<< parameters.dataset >>
+            echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" > parms.txt
+            curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt "https://api.honeycomb.io/1/markers/$HONEYCOMB_DATASET"
 
   save_image:
     description: "Saves a docker image to the cache"
@@ -156,7 +153,6 @@ commands:
       - setup
       - setup_ecs_and_identities
       - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
           msg: Start deploy for build $CIRCLE_BUILD_NUM
       - ecs_deploy
       - notify:
@@ -386,6 +382,7 @@ jobs:
           name: build-deps
           command: |
             # build deps image
+            echo "$AWS_DEPLOY_SECRETS_ID $AWS_DEPLOY_SECRETS_KEY"
             docker build -t deps -f /commands/deploy/deps.docker /commands/
       - save_image:
           img_name: deps:latest
@@ -608,6 +605,8 @@ jobs:
             docker create \
               --name localnet-1 \
               -e NETWORK=localnet \
+              -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
+              -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
