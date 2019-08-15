@@ -7,8 +7,12 @@ set -e
 export NDAUHOME=/.ndau
 
 echo "Configuring ndau tool..."
-/image/bin/ndau conf http://$IP:26670
-/image/bin/ndau conf update-from /system_accounts.toml
+commands_dir=/go/src/github.com/oneiro-ndev/commands
+mkdir -p "$commands_dir"
+cp /image/bin/keytool "$commands_dir"
+cp /image/bin/ndau "$commands_dir"
+"$commands_dir"/ndau conf http://$IP:26670
+"$commands_dir"/ndau conf update-from /system_accounts.toml
 
 echo "Setting up python environment..."
 python3 -m ensurepip
