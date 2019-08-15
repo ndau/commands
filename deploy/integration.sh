@@ -4,14 +4,17 @@
 
 set -e
 
+ndev_dir=/go/src/github.com/oneiro-ndev
+commands_dir="$ndev_dir"/commands
+
+export GOPATH=/go
 export NDAUHOME=/.ndau
 
 echo "Configuring ndau tool..."
-commands_dir=/go/src/github.com/oneiro-ndev/commands
 mkdir -p "$commands_dir"
 cp /image/bin/keytool "$commands_dir"
 cp /image/bin/ndau "$commands_dir"
-"$commands_dir"/ndau conf http://$IP:26670
+"$commands_dir"/ndau conf http://"$IP":26670
 "$commands_dir"/ndau conf update-from /system_accounts.toml
 
 echo "Setting up python environment..."
@@ -23,8 +26,9 @@ if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi
 if [ ! -e /usr/bin/python ]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
 
 echo "Running integration tests..."
-cd /integration-tests
+mv /integration-tests "$ndev_dir"
+cd "$ndev_dir"/integration-tests
 pipenv sync
-pipenv run pytest -v --ip=$IP
+pipenv run pytest -v --ip="$IP"
 
 echo "Integration script complete"
