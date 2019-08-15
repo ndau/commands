@@ -12,7 +12,7 @@ commands:
         type: string
     steps:
       - run:
-          name: send message
+          name: Send message
           command: |
               # this is necessary to get the environment variables to interpolate properly
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
@@ -25,7 +25,7 @@ commands:
         type: string
     steps:
       - run:
-          name: send error message
+          name: Send error message
           command: |
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
               curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
@@ -38,7 +38,7 @@ commands:
         type: string
     steps:
       - run:
-          name: create marker
+          name: Create honeycomb marker
           command: |
             echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" > parms.txt
             curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt "https://api.honeycomb.io/1/markers/$HONEYCOMB_DATASET"
@@ -55,7 +55,7 @@ commands:
       - restore_cache:
           key: << parameters.key >>
       - run:
-          name: save docker image to cache
+          name: Save docker image to cache
           command: |
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
@@ -77,7 +77,7 @@ commands:
       - restore_cache:
           key: << parameters.key >>
       - run:
-          name: load docker image from cache
+          name: Load docker image from cache
           command: |
             docker load -i "/opt/docker-cache/<< parameters.img_name >>.docker"
 
@@ -91,7 +91,7 @@ commands:
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
-          name: clone and set up commands repo
+          name: Clone and set up commands repo
           command: |
             # AWS ECR Login
             eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
@@ -99,11 +99,12 @@ commands:
             if [ -z "$CIRCLE_BRANCH" ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
             then
               echo "CIRCLE_TAG = $CIRCLE_TAG"
-              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands
+              commands_branch="$CIRCLE_TAG"
             else # use CIRCLE_BRANCH
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
-              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands
+              commands_branch="$CIRCLE_BRANCH"
             fi
+            git clone $CIRCLE_REPOSITORY_URL -b "$commands_branch" /commands
 
             # add the circle image's known_hosts file to the known_hosts used inside the images
             cp /root/.ssh/known_hosts /commands/deploy/known_hosts
@@ -124,7 +125,7 @@ commands:
       This should be run before any deploy steps.
     steps:
       - run:
-          name: download and configure ecs-cli
+          name: Download and configure ecs-cli
           command: |
             # download ecs cli
             curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && \
@@ -134,7 +135,7 @@ commands:
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
             ecs-cli configure --cluster "$CLUSTER_NAME" --region "$ECS_REGION" --config-name "$CLUSTER_NAME"
       - run:
-          name: download node identities
+          name: Download node identities
           command: |
             S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
@@ -158,7 +159,7 @@ commands:
     description: Deploy using ECS
     steps:
       - run:
-          name: deploy
+          name: Deploy to devnet
           command: |
 
             # get bash environment variables from previous steps
@@ -329,7 +330,7 @@ jobs:
     steps:
       - setup
       - run:
-          name: build ndauimage
+          name: Build ndauimage
           command: |
             # reload saved environment variables
             source $BASH_ENV
@@ -358,7 +359,7 @@ jobs:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: test catchup on mainnet from genesis
+          name: Test catchup on mainnet from genesis
           command: |
             # Run a local node connected to mainnet starting from the genesis snapshot.
             nodename="catchup-node"
@@ -438,7 +439,7 @@ jobs:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: push ndauimage to ECR
+          name: Push ndauimage to ECR
           command: |
             # reload saved environment variables
             source $BASH_ENV
@@ -471,11 +472,8 @@ jobs:
       - restore_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
-      - restore_image:
-          img_name: ndauimage:latest
-          key: "{{ .Revision }}-ndauimage"
       - run:
-          name: integration tests
+          name: Run integration tests
           command: |
             # In order to get two node containers talking to each other, and to get integration
             # tests talking to them, they must each be in their own child containers within the
