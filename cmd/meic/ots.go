@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/sirupsen/logrus"
@@ -35,6 +36,8 @@ func SynchronizeOrders(
 	sort.Slice(current, func(i, j int) bool { return current[i].Price < current[j].Price })
 	sort.Slice(desired, func(i, j int) bool { return desired[i].Price < desired[j].Price })
 
+	fmt.Println("current =", current)
+	fmt.Println("desired =", desired)
 	// in essence, this is a merge sort on current and desired
 	ci := 0
 	di := 0

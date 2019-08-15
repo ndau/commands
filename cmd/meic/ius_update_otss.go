@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
@@ -22,10 +24,13 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	// current one. We can figure out a good way to make this configurable later.
 	stack := make([]SellOrder, 0, 4)
 	issued := summary.TotalIssue
+	fmt.Println("issued =", issued)
 
 	napuInBlock := math.Ndau(pricecurve.SaleBlockQty * constants.NapuPerNdau)
 	issuedInBlock := issued % napuInBlock
+	fmt.Println("issued in block =", issuedInBlock)
 	remainingInBlock := (napuInBlock - issuedInBlock) % napuInBlock
+	fmt.Println("remaining in block =", remainingInBlock)
 
 	price := func(issued math.Ndau) pricecurve.Nanocent {
 		p, err := pricecurve.PriceAtUnit(issued)
@@ -42,7 +47,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 		})
 		issued += remainingInBlock
 	}
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		stack = append(stack, SellOrder{
 			Qty:   napuInBlock,
 			Price: price(issued),

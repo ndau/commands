@@ -1,9 +1,8 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
 	"net/url"
-	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -49,13 +48,17 @@ func NewIUS(
 		return nil, errors.Wrap(err, "parsing server address")
 	}
 	nodeAddr, err := url.Parse(nodeAddress)
+	fmt.Println("nodeaddr = ", nodeAddr)
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing node address")
 	}
+	fmt.Println("got here")
 	nodeAddr.Path = ""
 	tmNode := tool.Client(nodeAddr.String())
+	nodeAddr, err = url.Parse("ws://localhost:26670")
 	nodeAddr.Path = "/websocket"
-
+	fmt.Println("nodeaddr = ", nodeAddr)
+	fmt.Println("got next")
 	ius := IssuanceUpdateSystem{
 		logger:     logger,
 		serverAddr: serverAddr,
@@ -90,37 +93,37 @@ func NewIUS(
 func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	// set up http server: this both accepts the connection from the signature
 	// server, and serves the update endpoint
-	sigserv := signer.NewServerManager(ius.logger, ius.selfKeys)
-	mux := http.NewServeMux()
-	httpserver := &http.Server{
-		Addr:         ius.serverAddr.Host,
-		Handler:      mux,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
-	}
-	mux.HandleFunc("/sigserv", sigserv.Serve())
-	mux.HandleFunc("/update", ius.handleManualUpdate)
+	// sigserv := signer.NewServerManager(ius.logger, ius.selfKeys)
+	// mux := http.NewServeMux()
+	// httpserver := &http.Server{
+	// 	Addr:         ius.serverAddr.Host,
+	// 	Handler:      mux,
+	// 	ReadTimeout:  5 * time.Second,
+	// 	WriteTimeout: 5 * time.Second,
+	// }
+	// mux.HandleFunc("/sigserv", sigserv.Serve())
+	// mux.HandleFunc("/update", ius.handleManualUpdate)
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		httpserver.ListenAndServe()
-		wg.Done()
-	}()
+	// wg := sync.WaitGroup{}
+	// wg.Add(1)
+	// go func() {
+	// 	httpserver.ListenAndServe()
+	// 	wg.Done()
+	// }()
 
-	// shutdown
-	defer func() {
-		if ius.wsConn != nil {
-			ius.wsConn.Close()
-		}
-		sigserv.Close()
-		httpserver.Close()
-		wg.Wait()
-	}()
+	// // shutdown
+	// defer func() {
+	// 	if ius.wsConn != nil {
+	// 		ius.wsConn.Close()
+	// 	}
+	// 	sigserv.Close()
+	// 	httpserver.Close()
+	// 	wg.Wait()
+	// }()
 
-	ius.logger.Debug("waiting for connection from signature service...")
-	<-sigserv.GetConnectionChan()
-	ius.logger.Info("got connection from signature service")
+	// ius.logger.Debug("waiting for connection from signature service...")
+	// <-sigserv.GetConnectionChan()
+	// ius.logger.Info("got connection from signature service")
 
 	// start up the OTS instances now that we can possibly respond to their updates
 	for idx := range otsImpls {
@@ -136,7 +139,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 
 	// everything's set up, let's handle some messages!
 	for {
-		timeout := time.After(10 * time.Minute)
+		timeout := time.After(10 * time.Second)
 		select {
 		case <-stop:
 			break
@@ -147,10 +150,12 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			ius.updateOTSs()
 			timeout = time.After(10 * time.Minute)
 		case <-timeout:
+			fmt.Println("timeout")
 			ius.updateOTSs()
-			timeout = time.After(10 * time.Minute)
+			timeout = time.After(10 * time.Second)
 		case sale := <-ius.sales:
-			ius.handleSale(sale, sigserv)
+			fmt.Println(sale)
+			//			ius.handleSale(sale, sigserv)
 		}
 	}
 }
