@@ -77,6 +77,7 @@ func (t *Order) IsSale() bool {
 	return s == SideSell
 }
 
+// IsBuy is true when the order is a buy order
 func (t *Order) IsBuy() bool {
 	s, err := ParseSide(t.Side)
 	if err != nil {

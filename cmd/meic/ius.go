@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
+	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
@@ -25,13 +27,14 @@ type IssuanceUpdateSystem struct {
 	nodeAddr      *url.URL
 	selfKeys      signer.SignDevice
 	issuanceKeys  []signature.PublicKey
-	sales         chan TargetPriceSale
-	updates       []chan UpdateOrders
+	sales         chan ots.TargetPriceSale
+	updates       []chan ots.UpdateOrders
 	manualUpdates chan struct{}
 	tmNode        *tmclient.HTTP
 	stackGen      uint
 	stackDefault  uint
 	config        *Config
+	errs          chan error
 }
 
 // NewIUS creates a new IUS and performs required initialization
@@ -65,13 +68,14 @@ func NewIUS(
 		selfKeys:   selfKeys,
 		// We never want OTSs to have to block when reporting sales, so we
 		// allocate a buffer in the sales channel.
-		sales:         make(chan TargetPriceSale, 256),
-		updates:       make([]chan UpdateOrders, 0, len(otsImpls)),
+		sales:         make(chan ots.TargetPriceSale, 256),
+		updates:       make([]chan ots.UpdateOrders, 0, len(otsImpls)),
 		manualUpdates: make(chan struct{}),
 		tmNode:        tmNode,
 		stackGen:      stackDefault,
 		stackDefault:  stackDefault,
 		config:        config,
+		errs:          make(chan error),
 	}
 
 	if ius.config != nil {
@@ -83,7 +87,9 @@ func NewIUS(
 	}
 
 	for i := 0; i < len(otsImpls); i++ {
-		ius.updates = append(ius.updates, make(chan UpdateOrders))
+		err := otsImpls[i].Init(ius.logger.WithField("method", "init"))
+		check(err, fmt.Sprintf("initializing ots %d", i))
+		ius.updates = append(ius.updates, make(chan ots.UpdateOrders))
 	}
 
 	return &ius, nil
@@ -129,7 +135,12 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 
 	// start up the OTS instances now that we can possibly respond to their updates
 	for idx := range otsImpls {
-		go otsImpls[idx].Run(ius.logger.WithField("ots index", idx), ius.sales, ius.updates[idx])
+		go otsImpls[idx].Run(
+			ius.logger.WithField("ots index", idx),
+			ius.sales,
+			ius.updates[idx],
+			ius.errs,
+		)
 	}
 
 	// everything's set up, let's handle some messages!
@@ -145,6 +156,10 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		case sale := <-ius.sales:
 			ius.handleSale(sale, sigserv)
 			ius.updateOTSs()
+		case err := <-ius.errs:
+			// for now, just quit and depend on procmon to restart us after a
+			// delay if any OTS fails. we may wish to revisit this policy later.
+			check(err, "goroutine error")
 		}
 		timeout = time.After(10 * time.Minute)
 	}

@@ -1,4 +1,4 @@
-package main
+package ots
 
 import (
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"

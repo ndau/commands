@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
@@ -18,7 +19,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	}
 
 	// 2. compute the current desired target sales stack
-	stack := make([]SellOrder, 0, ius.stackGen+1)
+	stack := make([]ots.SellOrder, 0, ius.stackGen+1)
 	partial := uint(0)
 	issued := summary.TotalIssue
 
@@ -36,14 +37,14 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 
 	if remainingInBlock > 0 {
 		partial = 1
-		stack = append(stack, SellOrder{
+		stack = append(stack, ots.SellOrder{
 			Qty:   remainingInBlock,
 			Price: price(issued),
 		})
 		issued += remainingInBlock
 	}
 	for i := uint(0); i < ius.stackGen; i++ {
-		stack = append(stack, SellOrder{
+		stack = append(stack, ots.SellOrder{
 			Qty:   napuInBlock,
 			Price: price(issued),
 		})
@@ -60,8 +61,8 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 		}
 		// spawn goroutines because we don't want to block the main thread
 		// in case any of the OTSs are blocked
-		go func(c chan<- UpdateOrders, depth int) {
-			c <- UpdateOrders{
+		go func(c chan<- ots.UpdateOrders, depth int) {
+			c <- ots.UpdateOrders{
 				Orders: stack[:depth],
 			}
 		}(uoChan, int(depth))

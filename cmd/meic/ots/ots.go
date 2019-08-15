@@ -1,4 +1,4 @@
-package main
+package ots
 
 import (
 	"sort"
@@ -14,13 +14,24 @@ import (
 // must respond to UpdateOrders messages by adjusting that exchange's open
 // sell orders according to the message.
 type OrderTrackingSystem interface {
+	// Init is used to initialize an OTS instance.
+	//
+	// It is run synchronously, so can return an error. If an OTS instance
+	// fails to initialize, it is excluded from the list of running OTSs.
+	Init(logger logrus.FieldLogger) error
+
 	// Run is used to start an OTS instance.
 	//
 	// The sales channel has a small buffer, but in the event the buffer fills,
 	// OTS instances must block until it can add the sale to the channel.
 	// Otherwise, a sale could fall through the cracks and never generate
 	// an appropriate issuance.
-	Run(logger logrus.FieldLogger, sales chan<- TargetPriceSale, updates <-chan UpdateOrders)
+	Run(
+		logger logrus.FieldLogger,
+		sales chan<- TargetPriceSale,
+		updates <-chan UpdateOrders,
+		errs chan<- error,
+	)
 }
 
 // SynchronizeOrders handles the grunt work of diffing out the updates implied

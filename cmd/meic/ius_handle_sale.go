@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
@@ -9,7 +10,7 @@ import (
 )
 
 // handle a sale of ndau by creating and sending an Issue tx
-func (ius *IssuanceUpdateSystem) handleSale(sale TargetPriceSale, sigserv *signer.ServerManager) {
+func (ius *IssuanceUpdateSystem) handleSale(sale ots.TargetPriceSale, sigserv *signer.ServerManager) {
 	// - get the current issuance sequence from the blockchain
 	var issuer address.Address
 	err := tool.Sysvar(ius.tmNode, sv.ReleaseFromEndowmentAddressName, &issuer)
