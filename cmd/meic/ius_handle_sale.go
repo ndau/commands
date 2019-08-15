@@ -31,7 +31,7 @@ func (ius *IssuanceUpdateSystem) handleSale(sale TargetPriceSale, sigserv *signe
 	// but returns without forcing the caller to wait
 	// for the chain to actually vote and update. This seems like a worthwhile
 	// compromise to keep things flowing smoothly.
-	_, err = tool.SendSync(ius.tmNode, tx)
+	_, err = tool.SendCommit(ius.tmNode, tx)
 	if err != nil {
 		check(err, "sending issue tx to blockchain")
 	}

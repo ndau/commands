@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
@@ -28,9 +27,10 @@ type IssuanceUpdateSystem struct {
 	sales         chan TargetPriceSale
 	updates       []chan UpdateOrders
 	manualUpdates chan struct{}
-	issueTxs      chan struct{}
-	wsConn        *websocket.Conn
 	tmNode        *tmclient.HTTP
+	stackGen      uint
+	stackDefault  uint
+	config        *Config
 }
 
 // NewIUS creates a new IUS and performs required initialization
@@ -42,6 +42,8 @@ func NewIUS(
 	serverAddress string,
 	selfKeys signer.SignDevice,
 	nodeAddress string,
+	stackDefault uint,
+	config *Config,
 ) (*IssuanceUpdateSystem, error) {
 	serverAddr, err := url.Parse(serverAddress)
 	if err != nil {
@@ -69,12 +71,18 @@ func NewIUS(
 		sales:         make(chan TargetPriceSale, 256),
 		updates:       make([]chan UpdateOrders, 0, len(otsImpls)),
 		manualUpdates: make(chan struct{}),
-		// a buffer size of 1 means that the tx goroutine can just skip
-		// adding to this channel if doing so would block.
-		// This effectively compresses multiple redundant `Issue`s into one.
-		// Doing so doesn't hurt anything, so why not.
-		issueTxs: make(chan struct{}, 1),
-		tmNode:   tmNode,
+		tmNode:        tmNode,
+		stackGen:      stackDefault,
+		stackDefault:  stackDefault,
+		config:        config,
+	}
+
+	if ius.config != nil {
+		for _, o := range ius.config.DepthOverrides {
+			if o > ius.stackGen {
+				ius.stackGen = o
+			}
+		}
 	}
 
 	for i := 0; i < len(otsImpls); i++ {
@@ -111,11 +119,8 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	// 	wg.Done()
 	// }()
 
-	// // shutdown
+	// shutdown
 	// defer func() {
-	// 	if ius.wsConn != nil {
-	// 		ius.wsConn.Close()
-	// 	}
 	// 	sigserv.Close()
 	// 	httpserver.Close()
 	// 	wg.Wait()
@@ -130,13 +135,6 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		go otsImpls[idx].Run(ius.logger.WithField("ots index", idx), ius.sales, ius.updates[idx])
 	}
 
-	// connect to TM and listen to the TX websocket feed to get notifications of
-	// Issue txs
-	err := ius.monitorIssueTxs(stop)
-	if err != nil {
-		return errors.Wrap(err, "creating WS connection to TM to receive Issue tx notifications")
-	}
-
 	// everything's set up, let's handle some messages!
 	for {
 		timeout := time.After(10 * time.Second)
@@ -145,10 +143,6 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			break
 		case <-ius.manualUpdates:
 			ius.updateOTSs()
-			timeout = time.After(10 * time.Minute)
-		case <-ius.issueTxs:
-			ius.updateOTSs()
-			timeout = time.After(10 * time.Minute)
 		case <-timeout:
 			fmt.Println("timeout")
 			ius.updateOTSs()
@@ -156,6 +150,8 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		case sale := <-ius.sales:
 			fmt.Println(sale)
 			//			ius.handleSale(sale, sigserv)
+			ius.updateOTSs()
 		}
+		timeout = time.After(10 * time.Minute)
 	}
 }

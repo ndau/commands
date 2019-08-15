@@ -20,9 +20,8 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	}
 
 	// 2. compute the current desired target sales stack
-	// for the moment, we'll hardcode a stack of 3 full blocks for sale past the
-	// current one. We can figure out a good way to make this configurable later.
-	stack := make([]SellOrder, 0, 4)
+	stack := make([]SellOrder, 0, ius.stackGen+1)
+	partial := uint(0)
 	issued := summary.TotalIssue
 	fmt.Println("issued =", issued)
 
@@ -41,13 +40,14 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	}
 
 	if remainingInBlock > 0 {
+		partial = 1
 		stack = append(stack, SellOrder{
 			Qty:   remainingInBlock,
 			Price: price(issued),
 		})
 		issued += remainingInBlock
 	}
-	for i := 0; i < 2; i++ {
+	for i := uint(0); i < ius.stackGen; i++ {
 		stack = append(stack, SellOrder{
 			Qty:   napuInBlock,
 			Price: price(issued),
@@ -56,15 +56,19 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	}
 
 	// 3. send that stack individually to each OTS
-	uos := UpdateOrders{
-		Orders: stack,
-	}
-
-	for _, uoChan := range ius.updates {
+	for idx, uoChan := range ius.updates {
+		depth := ius.stackDefault + partial
+		if ius.config != nil && ius.config.DepthOverrides != nil {
+			if do, ok := ius.config.DepthOverrides[uint(idx)]; ok {
+				depth = do + partial
+			}
+		}
 		// spawn goroutines because we don't want to block the main thread
 		// in case any of the OTSs are blocked
-		go func(c chan<- UpdateOrders) {
-			c <- uos
-		}(uoChan)
+		go func(c chan<- UpdateOrders, depth int) {
+			c <- UpdateOrders{
+				Orders: stack[:depth],
+			}
+		}(uoChan, int(depth))
 	}
 }
