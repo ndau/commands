@@ -94,7 +94,11 @@ func main() {
 
 	alllines, err := ParseReader("", tee)
 	if err != nil {
-		log.Fatal(describeErrors(err, buf.String()))
+		filename := a.Input
+		if filename == "" {
+			filename = "stdin"
+		}
+		log.Fatal(describeErrors(err, buf.String(), filename))
 	}
 
 	// we successfully read the file, now close it in case
