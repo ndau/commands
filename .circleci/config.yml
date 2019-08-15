@@ -91,12 +91,11 @@ commands:
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
-          name: AWS ECR Login
-          command: eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
-
-      - run:
-          name: Checkout code
+          name: clone and set up commands repo
           command: |
+            # AWS ECR Login
+            eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
+
             if [ -z "$CIRCLE_BRANCH" ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
             then
               echo "CIRCLE_TAG = $CIRCLE_TAG"
@@ -113,9 +112,6 @@ commands:
             # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
             echo -e "$machine_user_key" > /commands/machine_user_key
 
-      - run:
-          name: get git information
-          command: |
             cd /commands
             echo 'export VERSION=$(git describe --long --tags --match="v*")' >> $BASH_ENV
             echo 'export SHA=$(git rev-parse --short $CIRCLE_SHA1)' >> $BASH_ENV
@@ -138,7 +134,7 @@ commands:
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
             ecs-cli configure --cluster "$CLUSTER_NAME" --region "$ECS_REGION" --config-name "$CLUSTER_NAME"
       - run:
-          name: Download node identities
+          name: download node identities
           command: |
             S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
@@ -215,86 +211,61 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - build-deps:
+      - build:
           filters:
             branches:
               only: /^master$/
-      - test:
-          requires:
-            - build-deps
-      - build:
-          requires:
-            - build-deps
-      - build-image:
-          requires:
-            - test
-            - build
       - catchup:
           requires:
-            - build-image
+            - build
       - integration:
           requires:
-            - build-image
+            - build
       - push:
           requires:
             # Unlike tagged builds, master builds wait for tests to pass before pushing.
             - catchup
             - integration
-      - deploy-devnet:
+      - deploy:
           requires:
             - push
   tagged-build:
     jobs:
-      - build-deps:
+      - build:
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
               only: /.*/
             branches:
               ignore: /^master$/
-      - test:
+      - catchup:
           requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build:
-          requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build-image:
-          requires:
-            - test
             - build
           filters:
             tags:
-              only: /.*-jobs_.*?(catchup|integration|push|deploy|reset).*/
+              only: /.*-jobs_.*?(catchup).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - catchup:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(catchup).*/
       - integration:
           requires:
-            - build-image
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(integration).*/
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
       - push:
           requires:
-            - build-image
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(push|deploy|reset).*/
-      - deploy-devnet:
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
+      - deploy:
           requires:
             - push
           filters:
@@ -317,20 +288,6 @@ jobs:
   # The stub jobs are useful to test workflows and their job filters on the circle server
   # without having to wait for actual work done by the jobs themselves.  The beef.js script
   # can also help with this, but it sometimes doesn't match what circle actually does.
-  build-deps-stub:
-    <<: *general_config
-    steps:
-      - run:
-          name: build-deps stub
-          command: |
-            echo "build-deps stub"
-  test-stub:
-    <<: *general_config
-    steps:
-      - run:
-          name: test stub
-          command: |
-            echo "test stub"
   build-stub:
     <<: *general_config
     steps:
@@ -338,13 +295,6 @@ jobs:
           name: build stub
           command: |
             echo "build stub"
-  build-image-stub:
-    <<: *general_config
-    steps:
-      - run:
-          name: build-image stub
-          command: |
-            echo "build-image stub"
   catchup-stub:
     <<: *general_config
     steps:
@@ -359,13 +309,13 @@ jobs:
           name: push stub
           command: |
             echo "push stub"
-  deploy-devnet-stub:
+  deploy-stub:
     <<: *general_config
     steps:
       - run:
-          name: deploy-devnet stub
+          name: deploy stub
           command: |
-            echo "deploy-devnet stub"
+            echo "deploy stub"
   integration-stub:
     <<: *general_config
     steps:
@@ -374,71 +324,28 @@ jobs:
           command: |
             echo "integration stub"
 
-  build-deps:
-    <<: *general_config
-    steps:
-      - setup
-      - run:
-          name: build-deps
-          command: |
-            # build deps image
-            docker build -t deps -f /commands/deploy/deps.docker /commands/
-      - save_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
-
-  test:
-    <<: *general_config
-    steps:
-      - setup
-      - restore_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
-      - run:
-          name: Test
-          command: |
-            # this runs a test script within the deps image
-            docker run --rm \
-                -e CI=true \
-                deps \
-                /bin/sh /root/test.sh
-
   build:
     <<: *general_config
     steps:
       - setup
-      - restore_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
       - run:
-          name: Build
+          name: build ndauimage
           command: |
-            # this runs a build script within the deps image
-            docker run \
-                -e CI=true \
-                deps \
-                /bin/sh /root/build.sh
-
-  build-image:
-    <<: *general_config
-    steps:
-      - setup
-      - run:
-          name: build the single container image
-          command: |
-            # TODO let buildimage.sh use the already fetched vendor dir
-
             # reload saved environment variables
             source $BASH_ENV
             # build single container node image
             if [ -z "$CIRCLE_BRANCH" ]
             then
               echo "CIRCLE_TAG = $CIRCLE_TAG"
-              ./docker/bin/buildimage.sh "$CIRCLE_TAG"
+              commands_branch="$CIRCLE_TAG"
             else
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
-              ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
+              commands_branch="$CIRCLE_BRANCH"
             fi
+            # Run unit tests at build-time.  The Go code exists at that point and this saves us
+            # from having an extra job when "build" and "test" are generally done concurrently,
+            # and both are required to pass.  There is no case where we want one w/o the other.
+            RUN_UNIT_TESTS=1 ./docker/bin/buildimage.sh "$commands_branch"
       - save_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
@@ -462,8 +369,7 @@ jobs:
             echo
 
             # Get the current height of mainnet.  We need to catch up to at least this height.
-            # Use mainnet-2 since that's in the same region as devnet.
-            status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
+            status=$(curl -s https://mainnet-0.ndau.tech:26670/status)
             height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
             if [ -z "$height" ] || [ $height -le 0 ]; then
               echo "Unable to get mainnet height"
@@ -532,7 +438,7 @@ jobs:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: push the single container image
+          name: push ndauimage to ECR
           command: |
             # reload saved environment variables
             source $BASH_ENV
@@ -553,7 +459,7 @@ jobs:
             # push the image to ECR
             docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
 
-  deploy-devnet:
+  deploy:
     <<: *general_config
     steps:
       - deploy-net
@@ -563,18 +469,18 @@ jobs:
     steps:
       - setup
       - restore_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
+          img_name: ndauimage:latest
+          key: "{{ .Revision }}-ndauimage"
       - restore_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: Integration tests
+          name: integration tests
           command: |
             # In order to get two node containers talking to each other, and to get integration
             # tests talking to them, they must each be in their own child containers within the
             # docker "bridge" network.  Each node is in its own container automatically, then we
-            # spin up a child deps container from which integration tests will run.
+            # spin up a child ndauimage container from which integration tests will run.
 
             # Run two local nodes.
             # Integration tests only require one, but running two exercises p2p operations.
@@ -639,10 +545,15 @@ jobs:
             cd /integration-tests
             echo "integration-tests repo at $(git rev-parse --short HEAD)"
 
-            # Create a container that integration tests can run out of.  Use the deps image.
+            # Create a container that integration tests can run out of.  Use the ndauimage.
             echo "Creating tests container..."
             container=tests-container
-            docker create --name "$container" --entrypoint "/root/integration.sh" -e "IP=$ip" deps
+            docker create \
+                --name "$container" \
+                --entrypoint "/root/integration.sh" \
+                -e "IP=$ip" \
+                ndauimage
+            docker cp /commands/deploy/integration.sh "$container":/root/integration.sh
             docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
             docker cp /system_accounts.toml "$container":/system_accounts.toml
             docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \

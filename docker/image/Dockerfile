@@ -95,6 +95,8 @@ RUN git clone git@github.com:oneiro-ndev/commands.git \
 COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 
 # Perform custom setup steps from inside the intermediate image.
+ARG RUN_UNIT_TESTS
+ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
 RUN /image/docker-build.sh
 
 

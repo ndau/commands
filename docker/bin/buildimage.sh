@@ -43,10 +43,16 @@ fi
 cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
 
 echo "Building $NDAU_IMAGE_NAME..."
-docker build \
+if ! docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
+       --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$(git rev-parse --short HEAD)" \
        --tag="$NDAU_IMAGE_NAME:latest"
+then
+    echo "Failed to build $NDAU_IMAGE_NAME"
+    exit 1
+fi
+
 echo "done"
