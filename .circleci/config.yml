@@ -329,6 +329,9 @@ jobs:
       - save_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
+      - save_image:
+          img_name: ndauimage-ci:latest
+          key: "{{ .Revision }}-ndauimage-ci"
 
   catchup:
     <<: *general_config
@@ -453,8 +456,8 @@ jobs:
     steps:
       - setup
       - restore_image:
-          img_name: ndauimage:latest
-          key: "{{ .Revision }}-ndauimage"
+          img_name: ndauimage-ci:latest
+          key: "{{ .Revision }}-ndauimage-ci"
       - run:
           name: Run integration tests
           command: |
