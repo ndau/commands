@@ -165,7 +165,7 @@ commands:
                     # Take a snapshot before we deploy, so we don't lose any data.
                     # snapshot_node.py looks for the pem file in ~/.ssh, which is /root in Circle.
                     pem=/root/.ssh/sc-node-ec2.pem
-                    echo "$SC_NODE_EC2_PEM" | base64 --decode > "$pem"
+                    echo "$SC_NODE_EC2_PEM" | base64 -d > "$pem"
                     chmod 600 "$pem"
 
                     if /commands/automation/snapshot_node.py devnet-4; then
