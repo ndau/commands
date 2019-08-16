@@ -370,7 +370,8 @@ jobs:
             echo
 
             # Get the current height of mainnet.  We need to catch up to at least this height.
-            status=$(curl -s https://mainnet-0.ndau.tech:26670/status)
+            # Use mainnet-2 since that's in the same region as devnet, our deploy target.
+            status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
             height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
             if [ -z "$height" ] || [ $height -le 0 ]; then
               echo "Unable to get mainnet height"
@@ -514,9 +515,7 @@ jobs:
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
             # The ndauimage container looks for a specially-named snapshot ending with "-0".
-            docker cp \
-                "$bin_dir"/snapshot-localnet-1.tgz \
-                localnet-1:/image/snapshot-localnet-0.tgz
+            docker cp "$bin_dir"/snapshot-localnet-1.tgz localnet-1:/image/snapshot-localnet-0.tgz
             docker start localnet-1
             echo "Waiting for localnet-1 to fully spin up..."
             until docker exec localnet-1 test -f /image/running 2>/dev/null
