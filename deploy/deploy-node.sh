@@ -87,11 +87,14 @@ else
     echo "Snapshots are disabled on $network_name-$node_number"
 fi
 
+BASE64_NODE_IDENTITY=$(cat "$IDENTITY_FILE" | base64)
+echo "Node identity: $BASE64_NODE_IDENTITY"
+
 cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
-    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
+    -e "s%{{BASE64_NODE_IDENTITY}}%${BASE64_NODE_IDENTITY}%g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
@@ -102,6 +105,8 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{AWS_SECRET_ACCESS_KEY}}/${aws_secret_access_key}/g" \
     -e "s/{{SNAPSHOT_INTERVAL}}/${snapshot_interval}/g" \
   > "$TMP_FILE"
+
+echo "Template file:"
 cat "$TMP_FILE"
 
 # Send the new task definition to AWS and update the service for the node.
