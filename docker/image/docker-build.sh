@@ -1,19 +1,9 @@
 #!/bin/bash
 
+set -e
+
 NDEV_SUBDIR=github.com/oneiro-ndev
 NDEV_DIR="$GOPATH/src/$NDEV_SUBDIR"
-
-if [ -n "$RUN_UNIT_TESTS" ]; then
-    echo "Running unit tests..."
-    set -e
-    export CGO_ENABLED=0
-    for dir in "$NDEV_DIR"/commands/vendor/"$NDEV_SUBDIR"/*
-    do
-        cd "$dir"
-        pwd
-        go test ./...
-    done
-fi
 
 BIN_DIR=/image/bin
 mkdir "$BIN_DIR"
@@ -40,3 +30,14 @@ mv ndau "$BIN_DIR"
 echo Building procmon...
 go build ./cmd/procmon
 mv procmon "$BIN_DIR"
+
+if [ -n "$RUN_UNIT_TESTS" ]; then
+    echo "Running unit tests..."
+    export CGO_ENABLED=0
+    for dir in "$NDEV_DIR"/commands/vendor/"$NDEV_SUBDIR"/*
+    do
+        cd "$dir"
+        pwd
+        go test ./...
+    done
+fi
