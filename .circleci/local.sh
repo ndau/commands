@@ -1,7 +1,5 @@
 #!/bin/bash
 # This script runs the circle ci build on your local machine.
-# You can install the circle ci commandline tool with the following commands:
-#
 
 # errcho echos to stderr
 errcho(){
@@ -12,11 +10,9 @@ errcho(){
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ -z "$(which circleci)" ]; then
-    errcho "Installing circleci"
+    errcho "Installing circleci..."
     curl -o /usr/local/bin/circleci https://circle-downloads.s3.amazonaws.com/releases/build_agent_wrapper/circleci
     chmod +x /usr/local/bin/circleci
-else
-    errcho "circleci already installed."
 fi
 
 # set flag that gets turned to true if there are any errors
@@ -34,29 +30,24 @@ if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
     errcho "Missing AWS_SECRET_ACCESS_KEY env var"
 fi
 
+if [ -z "$AWS_DEPLOY_SECRETS_ID" ]; then
+    errors=true
+    errcho "Missing AWS_DEPLOY_SECRETS_ID env var"
+fi
+
+if [ -z "$AWS_DEPLOY_SECRETS_KEY" ]; then
+    errors=true
+    errcho "Missing AWS_DEPLOY_SECRETS_KEY env var"
+fi
+
 if [ ! -f "$DIR/../machine_user_key" ]; then
     errors=true
     errcho "Missing $DIR/../machine_user_key"
 fi
 
-if [ ! -f "$HOME/.helm/ca.pem" ]; then
+if [ ! -f "$HOME/.ssh/sc-node-ec2.pem" ]; then
     errors=true
-    errcho "Missing $HOME/.helm/ca.pem"
-fi
-
-if [ ! -f "$HOME/.helm/cert.pem" ]; then
-    errors=true
-    errcho "Missing $HOME/.helm/cert.pem"
-fi
-
-if [ ! -f "$HOME/.helm/key.pem" ]; then
-    errors=true
-    errcho "Missing $HOME/.helm/key.pem"
-fi
-
-if [ ! -f "$HOME/.kube/dev-chaos.yaml" ]; then
-    errors=true
-    errcho "Missing $HOME/.kube/dev-chaos.yaml"
+    errcho "Missing $HOME/.ssh/sc-node-ec2.pem"
 fi
 
 # exit if there's any errors
@@ -69,10 +60,10 @@ escape_newlines() {
 
 # Build locally using circle ci
 circleci build \
+    --config="$DIR/config.yml" \
     -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
     -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-    -e gomu="$(escape_newlines "$(cat $DIR/../machine_user_key)")" \
-    -e helm_ca_pem="$(escape_newlines "$(cat ~/.helm/ca.pem)")" \
-    -e helm_cert_pem="$(escape_newlines "$(cat ~/.helm/cert.pem)")" \
-    -e helm_key_pem="$(escape_newlines "$(cat ~/.helm/key.pem)")" \
-    -e kube_config="$(escape_newlines "$(cat ~/.kube/dev-chaos.yaml)")"
+    -e AWS_DEPLOY_SECRETS_ID="$AWS_DEPLOY_SECRETS_ID" \
+    -e AWS_DEPLOY_SECRETS_KEY="$AWS_DEPLOY_SECRETS_KEY" \
+    -e machine_user_key="$(escape_newlines "$(cat $DIR/../machine_user_key)")" \
+    -e SC_NODE_EC2_PEM="$(cat $HOME/.ssh/sc-node-ec2.pem | base64)"

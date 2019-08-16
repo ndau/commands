@@ -12,7 +12,7 @@ commands:
         type: string
     steps:
       - run:
-          name: send message
+          name: Send message
           command: |
               # this is necessary to get the environment variables to interpolate properly
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
@@ -25,26 +25,23 @@ commands:
         type: string
     steps:
       - run:
-          name: send error message
+          name: Send error message
           command: |
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
               curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
           when: on_fail
 
   mark_honeycomb:
-    description: "Places a marker in the specified honeycomb dataset"
+    description: "Places a marker in the ci-deploy honeycomb dataset"
     parameters:
       msg:
         type: string
-      dataset:
-        type: string
     steps:
       - run:
-          name: create marker
+          name: Create honeycomb marker
           command: |
-            echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" >parms.txt
-            cat parms.txt   #just to be sure
-            curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt https://api.honeycomb.io/1/markers/<< parameters.dataset >>
+            echo "{\"message\":\"<< parameters.msg >>\", \"type\":\"deploy\"}" > parms.txt
+            curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d @parms.txt "https://api.honeycomb.io/1/markers/$HONEYCOMB_DATASET"
 
   save_image:
     description: "Saves a docker image to the cache"
@@ -58,7 +55,7 @@ commands:
       - restore_cache:
           key: << parameters.key >>
       - run:
-          name: save docker image to cache
+          name: Save docker image to cache
           command: |
             # ensure cache directory
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
@@ -80,7 +77,7 @@ commands:
       - restore_cache:
           key: << parameters.key >>
       - run:
-          name: load docker image from cache
+          name: Load docker image from cache
           command: |
             docker load -i "/opt/docker-cache/<< parameters.img_name >>.docker"
 
@@ -94,36 +91,27 @@ commands:
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
-          name: AWS ECR Login
-          command: eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
-
-      - run:
-          name: Checkout code
+          name: Common setup
           command: |
-            if [ -z "$CIRCLE_BRANCH" ] # if CIRCLE_BRANCH is not set, check out CIRCLE_TAG
-            then
-              echo "CIRCLE_TAG = $CIRCLE_TAG"
-              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_TAG /commands
-            else # use CIRCLE_BRANCH
+            # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
+            eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
+
+            # Clone the commands repo, used by enough jobs to make it worthwhile for every job.
+            if [ -n "$CIRCLE_BRANCH" ]; then
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
-              git clone $CIRCLE_REPOSITORY_URL -b $CIRCLE_BRANCH /commands
+              COMMANDS_BRANCH_OR_TAG="$CIRCLE_BRANCH"
+            else
+              echo "CIRCLE_TAG = $CIRCLE_TAG"
+              COMMANDS_BRANCH_OR_TAG="$CIRCLE_TAG"
             fi
+            git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /commands
 
-            # add the circle image's known_hosts file to the known_hosts used inside the images
-            cp /root/.ssh/known_hosts /commands/deploy/known_hosts
-
-            # install github machine user key
-            # This needs to be here. Otherwise git will cowardly refuse to clone into an non-empty directory.
-            echo -e "$machine_user_key" > /commands/machine_user_key
-
-      - run:
-          name: get git information
-          command: |
             cd /commands
-            echo 'export VERSION=$(git describe --long --tags --match="v*")' >> $BASH_ENV
-            echo 'export SHA=$(git rev-parse --short $CIRCLE_SHA1)' >> $BASH_ENV
-            echo 'export CI_USER=$CIRCLE_USERNAME' >> $BASH_ENV
-            echo 'export CI_URL=$CIRCLE_BUILD_URL' >> $BASH_ENV
+            SHA=$(git rev-parse --short $CIRCLE_SHA1)
+
+            # Save these off so jobs don't have to deduce them again.
+            echo "$SHA" > /root/sha.txt
+            echo "$COMMANDS_BRANCH_OR_TAG" > /root/commands_branch_or_tag.txt
 
   setup_ecs_and_identities:
     description: |
@@ -131,7 +119,7 @@ commands:
       This should be run before any deploy steps.
     steps:
       - run:
-          name: download and configure ecs-cli
+          name: Download ecs-cli and node identities
           command: |
             # download ecs cli
             curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && \
@@ -140,9 +128,8 @@ commands:
             # configure ecs
             ecs-cli configure profile --access-key "$AWS_ACCESS_KEY_ID" --secret-key "$AWS_SECRET_ACCESS_KEY" --profile-name default
             ecs-cli configure --cluster "$CLUSTER_NAME" --region "$ECS_REGION" --config-name "$CLUSTER_NAME"
-      - run:
-          name: Download node identities
-          command: |
+
+            # Download node identities
             S3_NODE_ID_ARCHIVE="node-identities-${NETWORK_NAME}.tgz"
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
@@ -156,7 +143,6 @@ commands:
       - setup
       - setup_ecs_and_identities
       - mark_honeycomb:
-          dataset: $HONEYCOMB_DATASET
           msg: Start deploy for build $CIRCLE_BUILD_NUM
       - ecs_deploy
       - notify:
@@ -166,12 +152,8 @@ commands:
     description: Deploy using ECS
     steps:
       - run:
-          name: deploy
+          name: Deploy to devnet
           command: |
-
-            # get bash environment variables from previous steps
-            source $BASH_ENV
-
             # If we're running a tagged build for deploying with reset data,
             # point it to the network's genesis snapshot.
             # Otherwise, take a snapshot before deploying and no data will be lost.
@@ -187,7 +169,7 @@ commands:
                     # Take a snapshot before we deploy, so we don't lose any data.
                     # snapshot_node.py looks for the pem file in ~/.ssh, which is /root in Circle.
                     pem=/root/.ssh/sc-node-ec2.pem
-                    echo "$SC_NODE_EC2_PEM" | base64 --decode > "$pem"
+                    echo "$SC_NODE_EC2_PEM" | base64 -d > "$pem"
                     chmod 600 "$pem"
 
                     if /commands/automation/snapshot_node.py devnet-4; then
@@ -201,6 +183,7 @@ commands:
                 fi
             fi
 
+            export SHA=$(cat /root/sha.txt)
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
@@ -219,86 +202,61 @@ workflows:
   version: 2
   master-build:
     jobs:
-      - build-deps:
+      - build:
           filters:
             branches:
               only: /^master$/
-      - test:
-          requires:
-            - build-deps
-      - build:
-          requires:
-            - build-deps
-      - build-image:
-          requires:
-            - test
-            - build
       - catchup:
           requires:
-            - build-image
+            - build
       - integration:
           requires:
-            - build-image
+            - build
       - push:
           requires:
             # Unlike tagged builds, master builds wait for tests to pass before pushing.
             - catchup
             - integration
-      - deploy-devnet:
+      - deploy:
           requires:
             - push
   tagged-build:
     jobs:
-      - build-deps:
+      - build:
           filters:
             tags:
               # This causes circle to run this job on tagged non-master builds.
               only: /.*/
             branches:
               ignore: /^master$/
-      - test:
+      - catchup:
           requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build:
-          requires:
-            - build-deps
-          filters:
-            tags:
-              # This causes circle to run this job on tagged non-master builds.
-              only: /.*/
-      - build-image:
-          requires:
-            - test
             - build
           filters:
             tags:
-              only: /.*-jobs_.*?(catchup|integration|push|deploy|reset).*/
+              only: /.*-jobs_.*?(catchup).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - catchup:
-          requires:
-            - build-image
-          filters:
-            tags:
-              only: /.*-jobs_.*?(catchup).*/
       - integration:
           requires:
-            - build-image
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(integration).*/
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
       - push:
           requires:
-            - build-image
+            - build
           filters:
             tags:
               only: /.*-jobs_.*?(push|deploy|reset).*/
-      - deploy-devnet:
+            branches:
+              # This causes circle to skip this job on untagged non-master builds.
+              ignore: /.*/
+      - deploy:
           requires:
             - push
           filters:
@@ -308,11 +266,10 @@ workflows:
 general_config: &general_config
     working_directory: /commands
     docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.11
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.12
     environment:
         shell: /bin/bash
         <<: *aws_defaults
-        NDAUHOME: /root/.ndau
         NETWORK_NAME: devnet
         PERSISTENT_PEERS: 88cf98107823c1ca6621a0656daeecf731870532@devnet.ndau.tech:26660,7c7a66648ca0bf152aeee0c2d358f2d9f7b18341@devnet.ndau.tech:26661,dfa5eca4f826e977379e44d19dd606c06d8f7b7c@devnet.ndau.tech:26662,595562bf12ae2ba03d522f7026d9aa653ab9707c@devnet.ndau.tech:26663,59ed8217b8ef647b7ed1439408f3de35873e65d0@devnet.ndau.tech:26664 # devnet
         CLUSTER_NAME: devnet
@@ -321,20 +278,6 @@ jobs:
   # The stub jobs are useful to test workflows and their job filters on the circle server
   # without having to wait for actual work done by the jobs themselves.  The beef.js script
   # can also help with this, but it sometimes doesn't match what circle actually does.
-  build-deps-stub:
-    <<: *general_config
-    steps:
-      - run:
-          name: build-deps stub
-          command: |
-            echo "build-deps stub"
-  test-stub:
-    <<: *general_config
-    steps:
-      - run:
-          name: test stub
-          command: |
-            echo "test stub"
   build-stub:
     <<: *general_config
     steps:
@@ -342,13 +285,6 @@ jobs:
           name: build stub
           command: |
             echo "build stub"
-  build-image-stub:
-    <<: *general_config
-    steps:
-      - run:
-          name: build-image stub
-          command: |
-            echo "build-image stub"
   catchup-stub:
     <<: *general_config
     steps:
@@ -363,13 +299,13 @@ jobs:
           name: push stub
           command: |
             echo "push stub"
-  deploy-devnet-stub:
+  deploy-stub:
     <<: *general_config
     steps:
       - run:
-          name: deploy-devnet stub
+          name: deploy stub
           command: |
-            echo "deploy-devnet stub"
+            echo "deploy stub"
   integration-stub:
     <<: *general_config
     steps:
@@ -378,71 +314,22 @@ jobs:
           command: |
             echo "integration stub"
 
-  build-deps:
-    <<: *general_config
-    steps:
-      - setup
-      - run:
-          name: build-deps
-          command: |
-            # build deps image
-            docker build -t deps -f /commands/deploy/deps.docker /commands/
-      - save_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
-
-  test:
-    <<: *general_config
-    steps:
-      - setup
-      - restore_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
-      - run:
-          name: Test
-          command: |
-            # this runs a test script within the deps image
-            docker run --rm \
-                -e CI=true \
-                deps \
-                /bin/sh /root/test.sh
-
   build:
     <<: *general_config
     steps:
       - setup
-      - restore_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
       - run:
-          name: Build
+          name: Build ndauimage
           command: |
-            # this runs a build script within the deps image
-            docker run \
-                -e CI=true \
-                deps \
-                /bin/sh /root/build.sh
+            COMMANDS_BRANCH_OR_TAG=$(cat /root/commands_branch_or_tag.txt)
 
-  build-image:
-    <<: *general_config
-    steps:
-      - setup
-      - run:
-          name: build the single container image
-          command: |
-            # TODO let buildimage.sh use the already fetched vendor dir
+            # Create the machine_user_key file for buildimage.sh to use.
+            echo -e "$machine_user_key" > /commands/machine_user_key
 
-            # reload saved environment variables
-            source $BASH_ENV
-            # build single container node image
-            if [ -z "$CIRCLE_BRANCH" ]
-            then
-              echo "CIRCLE_TAG = $CIRCLE_TAG"
-              ./docker/bin/buildimage.sh "$CIRCLE_TAG"
-            else
-              echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
-              ./docker/bin/buildimage.sh "$CIRCLE_BRANCH"
-            fi
+            # Run unit tests at build-time.  The Go code exists at that point and this saves us
+            # from having an extra job when "build" and "test" are generally done concurrently,
+            # and both are required to pass.  There is no case where we want one w/o the other.
+            RUN_UNIT_TESTS=1 /commands/docker/bin/buildimage.sh "$COMMANDS_BRANCH_OR_TAG"
       - save_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
@@ -455,18 +342,19 @@ jobs:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: test catchup on mainnet from genesis
+          name: Test catchup on mainnet from genesis
           command: |
             # Run a local node connected to mainnet starting from the genesis snapshot.
             nodename="catchup-node"
             snapshot="snapshot-mainnet-1"
             USE_LOCAL_IMAGE=1 \
-            ./docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+            /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
+                "" "$snapshot"
 
             echo
 
             # Get the current height of mainnet.  We need to catch up to at least this height.
-            # Use mainnet-2 since that's in the same region as devnet.
+            # Use mainnet-2 since that's in the same region as devnet, our deploy target.
             status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
             height=$(echo $status | sed -n -e 's/.*latest_block_height....\([0-9]\{1,\}\).*/\1/p')
             if [ -z "$height" ] || [ $height -le 0 ]; then
@@ -517,7 +405,7 @@ jobs:
             echo
 
             # Stop and remove the container instance for the catchup test node.
-            ./docker/bin/removecontainer.sh "$nodename"
+            /commands/docker/bin/removecontainer.sh "$nodename"
 
             echo
 
@@ -536,10 +424,9 @@ jobs:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: push the single container image
+          name: Push ndauimage to ECR
           command: |
-            # reload saved environment variables
-            source $BASH_ENV
+            SHA=$(cat /root/sha.txt)
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
@@ -549,7 +436,8 @@ jobs:
             # but only if we're deploying to master (e.g. don't do this for tagged pushes)
             if [ "$CIRCLE_BRANCH" = "master" ]; then
                 echo $SHA > /root/current-$NETWORK_NAME.txt
-                aws s3 cp /root/current-$NETWORK_NAME.txt s3://ndau-images/current-$NETWORK_NAME.txt
+                aws s3 cp /root/current-$NETWORK_NAME.txt \
+                    s3://ndau-images/current-$NETWORK_NAME.txt
             fi
             # retag built image
             docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
@@ -557,7 +445,7 @@ jobs:
             # push the image to ECR
             docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
 
-  deploy-devnet:
+  deploy:
     <<: *general_config
     steps:
       - deploy-net
@@ -567,18 +455,15 @@ jobs:
     steps:
       - setup
       - restore_image:
-          img_name: deps:latest
-          key: "{{ .Revision }}-deps"
-      - restore_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
       - run:
-          name: Integration tests
+          name: Run integration tests
           command: |
             # In order to get two node containers talking to each other, and to get integration
             # tests talking to them, they must each be in their own child containers within the
             # docker "bridge" network.  Each node is in its own container automatically, then we
-            # spin up a child deps container from which integration tests will run.
+            # spin up a child ndauimage container from which integration tests will run.
 
             # Run two local nodes.
             # Integration tests only require one, but running two exercises p2p operations.
@@ -608,6 +493,8 @@ jobs:
             docker create \
               --name localnet-1 \
               -e NETWORK=localnet \
+              -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
+              -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
@@ -641,10 +528,15 @@ jobs:
             cd /integration-tests
             echo "integration-tests repo at $(git rev-parse --short HEAD)"
 
-            # Create a container that integration tests can run out of.  Use the deps image.
+            # Create a container that integration tests can run out of.  Use the ndauimage.
             echo "Creating tests container..."
             container=tests-container
-            docker create --name "$container" --entrypoint "/root/integration.sh" -e "IP=$ip" deps
+            docker create \
+                --name "$container" \
+                --entrypoint "/root/integration.sh" \
+                -e "IP=$ip" \
+                ndauimage
+            docker cp /commands/deploy/integration.sh "$container":/root/integration.sh
             docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
             docker cp /system_accounts.toml "$container":/system_accounts.toml
             docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \
@@ -660,7 +552,7 @@ jobs:
             echo "Inspecting bridge network..."
             docker network inspect bridge
 
-            # This serves as a "docker wait" that dumps integration-test output to circle.
+            # This serves as a "docker wait" that dumps integration-tests output to circle.
             docker container logs --follow "$container"
 
             # Fail the circle job if the container exited with a non-zero exit code.
