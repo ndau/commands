@@ -64,13 +64,6 @@ rpc_port=$(calc_port rpc $node_number)
 p2p_port=$(calc_port p2p $node_number)
 ndauapi_port=$(calc_port ndauapi $node_number)
 
-# test base64 capibilities
-if echo "A" | base64 -w0 2> /dev/null; then
-  b64_opts="-w0"
-else
-  b64_opts=""
-fi
-
 # Make devnet-4 the one that takes periodic snapshots.
 snapshot_interval=""
 aws_access_key_id=""
@@ -98,7 +91,7 @@ cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
-    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 $b64_opts)%g" \
+    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64)%g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
