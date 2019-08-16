@@ -514,7 +514,9 @@ jobs:
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
             # The ndauimage container looks for a specially-named snapshot ending with "-0".
-            docker cp "$bin_dir"/snapshot-integration-1.tgz integration-1:/image/snapshot-integration-0.tgz
+            docker cp \
+                "$bin_dir"/snapshot-localnet-1.tgz \
+                integration-1:/image/snapshot-localnet-0.tgz
             docker start integration-1
             echo "Waiting for integration-1 to fully spin up..."
             until docker exec integration-1 test -f /image/running 2>/dev/null
