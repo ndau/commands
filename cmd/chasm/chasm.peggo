@@ -1,6 +1,6 @@
 {
     package main
-
+    
     import "github.com/oneiro-ndev/chaincode/pkg/vm"
 }
 
@@ -63,7 +63,7 @@ ConstDef <-
 Opcode =
     ( "nop"                                    { return newUnitaryOpcode(vm.OpNop) }
     // VVVVV---GENERATED CODE BETWEEN THESE MARKERS, DO NOT EDIT---VVVVV
-
+    
     / "zero"                                   { return newUnitaryOpcode(vm.OpZero) }
     / "xor"                                    { return newUnitaryOpcode(vm.OpXor) }
     / "wchoice" _ ix:Value                     { return newBinaryOpcode(vm.OpWChoice, ix.(string)) }

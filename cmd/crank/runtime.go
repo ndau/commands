@@ -169,6 +169,8 @@ func (rs *runtimeState) repl() {
 			if rs.vm == nil {
 				rs.out.Println("  [no VM is loaded]")
 			} else {
+				// force the stack to not be empty
+				rs.vm.Stack()
 				rs.out.Println(rs.vm)
 			}
 			rs.out.Printf("%3d crank> ", linenumber)
