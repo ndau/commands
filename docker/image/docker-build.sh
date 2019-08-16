@@ -18,8 +18,9 @@ fi
 BIN_DIR=/image/bin
 mkdir "$BIN_DIR"
 
-echo Building ndau...
 cd "$NDEV_DIR"/commands || exit 1
+
+echo Building ndau...
 VERSION=$(git describe --long --tags --match="v*")
 echo "  VERSION=$VERSION"
 VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
