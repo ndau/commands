@@ -4,18 +4,20 @@
 
 set -e
 
-ndev_dir=/go/src/github.com/oneiro-ndev
-commands_dir="$ndev_dir"/commands
-
+# Environment variables that integration tests need.
 export GOPATH=/go
 export NDAUHOME=/.ndau
 
+ndev_dir="$GOPATH"/src/github.com/oneiro-ndev
+commands_dir="$ndev_dir"/commands
+
 echo "Configuring ndau tool..."
 mkdir -p "$commands_dir"
-cp /image/bin/keytool "$commands_dir"
-cp /image/bin/ndau "$commands_dir"
-"$commands_dir"/ndau conf http://"$IP":26670
-"$commands_dir"/ndau conf update-from /system_accounts.toml
+cd "$commands_dir" || exit 1
+cp /image/bin/keytool .
+cp /image/bin/ndau .
+./ndau conf http://"$IP":26670
+./ndau conf update-from /system_accounts.toml
 
 echo "Setting up python environment..."
 python3 -m ensurepip

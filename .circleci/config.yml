@@ -485,54 +485,54 @@ jobs:
             echo "Starting first node..."
             bin_dir="/commands/docker/bin"
             # Using "*" will cause the node to generate single validator genesis data.
-            "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
+            "$bin_dir"/runcontainer.sh localnet integration-0 26660 26670 3030 "" "*"
 
             # Get the ip of the first node.
-            ip=$(docker container inspect localnet-0 | \
+            ip=$(docker container inspect integration-0 | \
                  jq -r .[0].NetworkSettings.Networks.bridge.IPAddress)
-            echo "localnet-0 ip: $ip"
+            echo "integration-0 ip: $ip"
 
             # Get the peer id of the first node.
-            id=$(docker exec localnet-0 curl -s http://localhost:26670/status | \
+            id=$(docker exec integration-0 curl -s http://localhost:26670/status | \
                  jq -r .result.node_info.id)
-            echo "localnet-0 id: $id"
+            echo "integration-0 id: $id"
 
             # Generate the snapshot.
             echo "Taking genesis snapshot..."
-            "$bin_dir"/snapshotcontainer.sh localnet-0
+            "$bin_dir"/snapshotcontainer.sh integration-0
 
             # Start the second container.  We can't use runcontainer.sh here because it tests
-            # port connectivity with peers, and localnet-0's IP isn't valid ouside of containers
+            # port connectivity with peers, and integration-0's IP isn't valid ouside of containers
             # on the bridge network.  So we implement the meat of runcontainer.sh here:
             echo "Starting second node..."
             docker create \
-              --name localnet-1 \
+              --name integration-1 \
               -e NETWORK=localnet \
               -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
               -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
-              -e NODE_ID=localnet-1 \
+              -e NODE_ID=integration-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
             # The ndauimage container looks for a specially-named snapshot ending with "-0".
-            docker cp "$bin_dir"/snapshot-localnet-1.tgz localnet-1:/image/snapshot-localnet-0.tgz
-            docker start localnet-1
-            echo "Waiting for localnet-1 to fully spin up..."
-            until docker exec localnet-1 test -f /image/running 2>/dev/null
+            docker cp "$bin_dir"/snapshot-integration-1.tgz integration-1:/image/snapshot-integration-0.tgz
+            docker start integration-1
+            echo "Waiting for integration-1 to fully spin up..."
+            until docker exec integration-1 test -f /image/running 2>/dev/null
             do
                 sleep 1
             done
-            echo "localnet-1 is ready; dumping container logs..."
-            docker container logs localnet-1 2>/dev/null | sed -e 's/^/> /'
+            echo "integration-1 is ready; dumping container logs..."
+            docker container logs integration-1 2>/dev/null | sed -e 's/^/> /'
             # --- end of code adapted from runcontainer.sh ---
 
             # Integration tests do not require a multi-node network, but we'd like to ensure that
             # exercising p2p features at least.  Make sure both nodes have each other as peers.
             echo "Checking peers..."
             for i in {0..1}; do
-              num_peers=$(docker exec localnet-$i curl -s http://localhost:26670/net_info | \
+              num_peers=$(docker exec integration-$i curl -s http://localhost:26670/net_info | \
                  jq -r .result.n_peers)
               if [ "$num_peers" != "1" ]; then
-                echo "ERROR: localnet-$i expected to have 1 peer but has $num_peers"
+                echo "ERROR: integration-$i expected to have 1 peer but has $num_peers"
                 false
               fi
             done
@@ -552,9 +552,9 @@ jobs:
                 -e "IP=$ip" \
                 ndauimage
             docker cp /commands/deploy/integration.sh "$container":/root/integration.sh
-            docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
+            docker cp integration-0:/image/system_accounts.toml /system_accounts.toml
             docker cp /system_accounts.toml "$container":/system_accounts.toml
-            docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \
+            docker cp integration-0:/image/data/tendermint/config/priv_validator_key.json \
                       /priv_validator_key.json
             docker cp /priv_validator_key.json "$container":/priv_validator_key.json
             docker cp /integration-tests "$container":/integration-tests
