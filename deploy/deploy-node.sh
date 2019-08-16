@@ -87,7 +87,7 @@ else
     echo "Snapshots are disabled on $network_name-$node_number"
 fi
 
-BASE64_NODE_IDENTITY=$(cat "$IDENTITY_FILE" | base64)
+BASE64_NODE_IDENTITY=$(cat "$IDENTITY_FILE" | base64 | tr -d \\n)
 echo "Node identity: $BASE64_NODE_IDENTITY"
 
 cat "$TEMPLATE_FILE" | \
