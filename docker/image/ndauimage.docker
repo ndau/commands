@@ -1,5 +1,0 @@
-# This docker file is used to build a deployable ndauimage with CI tools stripped out.
-FROM ndauimage-ci
-
-# Remove files that were only built for CI purposes and cause significant bloat to the image.
-RUN rm -f /image/bin/keytool && rm -f /image/bin/ndau

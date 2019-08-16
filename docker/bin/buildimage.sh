@@ -42,29 +42,13 @@ fi
 # update dependencies for cache-busting when appropriate
 cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
 
-cd "$COMMANDS_DIR" || exit 1
-SHA=$(git rev-parse --short HEAD)
-
-# The CI build contains extra tools needed by Circle CI.
-echo "Building $NDAU_IMAGE_NAME-ci..."
+echo "Building $NDAU_IMAGE_NAME..."
 if ! docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
        "$IMAGE_DIR" \
-       --tag="$NDAU_IMAGE_NAME-ci:$SHA" \
-       --tag="$NDAU_IMAGE_NAME-ci:latest"
-then
-    echo "Failed to build $NDAU_IMAGE_NAME-ci"
-    exit 1
-fi
-
-# Strip out the CI tools for our deployable image.
-echo "Building $NDAU_IMAGE_NAME..."
-if ! docker build \
-       --file="$IMAGE_DIR/$NDAU_IMAGE_NAME.docker" \
-       "$IMAGE_DIR" \
-       --tag="$NDAU_IMAGE_NAME:$SHA" \
+       --tag="$NDAU_IMAGE_NAME:$(git rev-parse --short HEAD)" \
        --tag="$NDAU_IMAGE_NAME:latest"
 then
     echo "Failed to build $NDAU_IMAGE_NAME"

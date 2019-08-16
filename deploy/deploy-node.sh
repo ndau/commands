@@ -87,9 +87,8 @@ else
     echo "Snapshots are disabled on $network_name-$node_number"
 fi
 
-# Some versions of base64 inject newlines; strip them.
-# Doing it this way works with more versions of base64 than using -w0, for example.
 BASE64_NODE_IDENTITY=$(cat "$IDENTITY_FILE" | base64 | tr -d \\n)
+echo "Node identity: $BASE64_NODE_IDENTITY"
 
 cat "$TEMPLATE_FILE" | \
   sed \
@@ -106,6 +105,8 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{AWS_SECRET_ACCESS_KEY}}/${aws_secret_access_key}/g" \
     -e "s/{{SNAPSHOT_INTERVAL}}/${snapshot_interval}/g" \
   > "$TMP_FILE"
+
+echo "Template file:"
 cat "$TMP_FILE"
 
 # Send the new task definition to AWS and update the service for the node.
