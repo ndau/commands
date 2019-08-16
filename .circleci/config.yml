@@ -106,7 +106,11 @@ commands:
             fi
             git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /commands
 
-            # Save this off so jobs don't have to deduce it again.
+            cd /commands
+            SHA=$(git rev-parse --short $CIRCLE_SHA1)
+
+            # Save these off so jobs don't have to deduce them again.
+            echo "$SHA" > /root/sha.txt
             echo "$COMMANDS_BRANCH_OR_TAG" > /root/commands_branch_or_tag.txt
 
   setup_ecs_and_identities:
@@ -179,9 +183,7 @@ commands:
                 fi
             fi
 
-            cd /commands
-            export SHA=$(git rev-parse --short $CIRCLE_SHA1)
-
+            export SHA=$(cat /root/sha.txt)
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
@@ -427,9 +429,7 @@ jobs:
       - run:
           name: Push ndauimage to ECR
           command: |
-            cd /commands
-            SHA=$(git rev-parse --short $CIRCLE_SHA1)
-
+            SHA=$(cat /root/sha.txt)
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
