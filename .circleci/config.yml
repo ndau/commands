@@ -179,6 +179,9 @@ commands:
                 fi
             fi
 
+            cd /commands
+            export SHA=$(git rev-parse --short $CIRCLE_SHA1)
+
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
@@ -265,7 +268,6 @@ general_config: &general_config
     environment:
         shell: /bin/bash
         <<: *aws_defaults
-        NDAUHOME: /root/.ndau
         NETWORK_NAME: devnet
         PERSISTENT_PEERS: 88cf98107823c1ca6621a0656daeecf731870532@devnet.ndau.tech:26660,7c7a66648ca0bf152aeee0c2d358f2d9f7b18341@devnet.ndau.tech:26661,dfa5eca4f826e977379e44d19dd606c06d8f7b7c@devnet.ndau.tech:26662,595562bf12ae2ba03d522f7026d9aa653ab9707c@devnet.ndau.tech:26663,59ed8217b8ef647b7ed1439408f3de35873e65d0@devnet.ndau.tech:26664 # devnet
         CLUSTER_NAME: devnet
