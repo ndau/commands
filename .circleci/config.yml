@@ -478,6 +478,7 @@ jobs:
             echo "Starting first node..."
             bin_dir="/commands/docker/bin"
             # Using "*" will cause the node to generate single validator genesis data.
+            SLACK_DEPLOYS_KEY="" \
             "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
             # Get the ip of the first node.
@@ -503,7 +504,7 @@ jobs:
               -e NETWORK=localnet \
               -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
               -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
-              -e SLACK_DEPLOYS_KEY="$SLACK_DEPLOYS_KEY" \
+              -e SLACK_DEPLOYS_KEY="" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
