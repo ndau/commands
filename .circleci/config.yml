@@ -183,18 +183,27 @@ commands:
                 fi
             fi
 
+            pids=()
             export SHA=$(cat /root/sha.txt)
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
                 /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+                pid="$!"
+                pids=("${pids[@]}" "$pid")
+                echo "Deploying $NETWORK_NAME-$i on pid $pid"
               fi # no else break in case some nodes are updated and others are not
             done
 
             # This will wait for all backgrounded deploy-node processes to complete.
             # It will fail and exit the overall deploy job if any one of them failed.
-            wait -n
+            for pid in "${pids[@]}"; do
+                if ! wait "$pid"; then
+                    echo "Deploy failed on pid $pid"
+                    false
+                fi
+            done
 
             echo "Deploy of $NETWORK_NAME is complete"
 
