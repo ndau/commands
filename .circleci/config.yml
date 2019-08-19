@@ -356,7 +356,8 @@ jobs:
             nodename="catchup-node"
             snapshot="snapshot-mainnet-1"
             USE_LOCAL_IMAGE=1 \
-            /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
+            SLACK_DEPLOYS_KEY="" \
+              /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
                 "" "$snapshot"
 
             echo
@@ -479,7 +480,7 @@ jobs:
             bin_dir="/commands/docker/bin"
             # Using "*" will cause the node to generate single validator genesis data.
             SLACK_DEPLOYS_KEY="" \
-            "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
+              "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
             # Get the ip of the first node.
             ip=$(docker container inspect localnet-0 | \
