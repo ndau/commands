@@ -105,7 +105,7 @@ cat "$TEMPLATE_FILE" | \
     -e "s/{{NDAUAPI_PORT}}/${ndauapi_port}/g" \
     -e "s/{{NETWORK_NAME}}/${network_name}/g" \
     -e "s/{{AWS_ACCESS_KEY_ID}}/${aws_access_key_id}/g" \
-    -e "s/{{AWS_SECRET_ACCESS_KEY}}/${aws_secret_access_key}/g" \
+    -e "s%{{AWS_SECRET_ACCESS_KEY}}%${aws_secret_access_key}%g" \
     -e "s/{{SNAPSHOT_INTERVAL}}/${snapshot_interval}/g" \
   > "$TMP_FILE"
 cat "$TMP_FILE"
