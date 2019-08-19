@@ -147,7 +147,11 @@ You can edit these files how you want, to test things out.  But if you'd like to
 
 ## Honeycomb
 
-To enable logging to honeycomb, simply have your `HONEYCOMB_DATASET` and `HONEYCOMB_KEY` environment variables exported before running a container.  Any restart of that container will preserve and reuse these settings.
+To enable logging to Honeycomb, have your `HONEYCOMB_DATASET` and `HONEYCOMB_KEY` environment variables exported before running a container.  Any restart of that container will preserve and reuse these settings.
+
+## Slack
+
+To enable sending deploy-related notifications to a Slack channel, have your `SLACK_DEPLOYS_KEY` environment variable exported before running a container.  Any restart of that container will preserve and reuse this setting.
 
 ## Validators and Verifiers
 

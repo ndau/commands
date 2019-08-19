@@ -214,6 +214,7 @@ Here is the Task Definition JSON for a `mainnet-<N>` node.
     - Set `SNAPSHOT_INTERVAL` (e.g. "4h") and the `AWS_*` variables to have periodic backups uploaded to S3
 1. Set the `BASE64_NODE_IDENTITY` and `PERSISTENT_PEERS` environment variable values (beyond the scope of this document)
 1. Set the `HONEYCOMB_KEY` field to have logs sent to honeycomb; leave it blank to log locally inside the container
+1. Set the `SLACK_DEPLOYS_KEY` field to have deploy-related notifications sent to the Slack channel corresponding to that key
 
 NOTE: If you change the image used, you must do a rolling restart of mainnet nodes (upgrade one at a time, letting it rejoin the network before restarting the next) and update `s3://ndau-images/current-mainnet.txt` to reference the new SHA (in this example, it's "cb8e545").
 
@@ -288,7 +289,11 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                 {
                     "name": "HONEYCOMB_DATASET",
                     "value": "sc-node-mainnet"
-                }
+                },
+                {
+                    "name": "SLACK_DEPLOYS_KEY",
+                    "value": ""
+                },
             ],
             "resourceRequirements": null,
             "ulimits": null,

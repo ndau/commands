@@ -16,6 +16,6 @@ escape_newlines() {
 # AWS_DEPLOY_SCRETS_KEY
 # HONEYCOMB_DATASET
 # HONEYCOMB_KEY
-# SLACK_KEY
+# SLACK_DEPLOYS_KEY
 echo machine_user_key="$(escape_newlines "$(cat $DIR/../machine_user_key)")"
 echo SC_NODE_EC2_PEM="$(cat $HOME/.ssh/sc-node-ec2.pem | base64)"

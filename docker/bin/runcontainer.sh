@@ -285,7 +285,7 @@ fi
 echo "Creating container..."
 # Some notes about the params to the run command:
 # - Using --sysctl silences a warning about TCP backlog when redis runs.
-# - Set your own HONEYCOMB_* env vars ahead of time to enable honeycomb logging.
+# - Set your own HONEYCOMB_* and SLACK_* env vars ahead of time to enable honeycomb logging.
 docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
@@ -294,6 +294,7 @@ docker create \
        -e "NETWORK=$NETWORK" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
        -e "HONEYCOMB_KEY=$HONEYCOMB_KEY" \
+       -e "SLACK_DEPLOYS_KEY=$SLACK_DEPLOYS_KEY" \
        -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
        -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
        -e "SNAPSHOT_INTERVAL=$SNAPSHOT_INTERVAL" \

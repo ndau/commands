@@ -16,7 +16,7 @@ commands:
           command: |
               # this is necessary to get the environment variables to interpolate properly
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
-              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_DEPLOYS_KEY
 
   notify_error:
     description: "Notifies the team with a message only when an error occurs"
@@ -28,7 +28,7 @@ commands:
           name: Send error message
           command: |
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
-              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_DEPLOYS_KEY
           when: on_fail
 
   mark_honeycomb:
@@ -495,6 +495,7 @@ jobs:
               -e NETWORK=localnet \
               -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
               -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
+              -e SLACK_DEPLOYS_KEY="$SLACK_DEPLOYS_KEY" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage

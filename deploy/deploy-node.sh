@@ -33,6 +33,7 @@ usage() {
   errcho "    SHA is the 7-digit sha1 that matches a tag in ECR."
   errcho "    CLUSTER_NAME is the name of the cluster to deploy to."
   errcho "    [HONEYCOMB_KEY] is the honeycomb key to log to."
+  errcho "    [SLACK_DEPLOYS_KEY] is the slack key to send deploy-related notifcations to."
   errcho "    [PERSISTENT_PEERS] is a comma separated list of peers for Tendermint (id@IP:port)."
 }
 
@@ -98,6 +99,7 @@ cat "$TEMPLATE_FILE" | \
     -e "s%{{BASE64_NODE_IDENTITY}}%${BASE64_NODE_IDENTITY}%g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
+    -e "s/{{SLACK_DEPLOYS_KEY}}/${SLACK_DEPLOYS_KEY}/g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
     -e "s/{{P2P_PORT}}/${p2p_port}/g" \
     -e "s/{{NDAUAPI_PORT}}/${ndauapi_port}/g" \
