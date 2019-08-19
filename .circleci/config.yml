@@ -16,7 +16,7 @@ commands:
           command: |
               # this is necessary to get the environment variables to interpolate properly
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
-              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_DEPLOYS_KEY
 
   notify_error:
     description: "Notifies the team with a message only when an error occurs"
@@ -28,7 +28,7 @@ commands:
           name: Send error message
           command: |
               echo "{\"text\":\"<< parameters.msg >>\"}" >parms.txt
-              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_KEY
+              curl -X POST -H 'Content-type: application/json' --data @parms.txt https://hooks.slack.com/services/$SLACK_DEPLOYS_KEY
           when: on_fail
 
   mark_honeycomb:
@@ -183,18 +183,26 @@ commands:
                 fi
             fi
 
+            pids=()
             export SHA=$(cat /root/sha.txt)
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
-              echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
                 /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+                pid="$!"
+                pids=("${pids[@]}" "$pid")
+                echo "Deploying $NETWORK_NAME-$i on pid $pid"
               fi # no else break in case some nodes are updated and others are not
             done
 
             # This will wait for all backgrounded deploy-node processes to complete.
             # It will fail and exit the overall deploy job if any one of them failed.
-            wait -n
+            for pid in "${pids[@]}"; do
+                if ! wait "$pid"; then
+                    echo "Deploy failed on pid $pid"
+                    false
+                fi
+            done
 
             echo "Deploy of $NETWORK_NAME is complete"
 
@@ -348,7 +356,8 @@ jobs:
             nodename="catchup-node"
             snapshot="snapshot-mainnet-1"
             USE_LOCAL_IMAGE=1 \
-            /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
+            SLACK_DEPLOYS_KEY="" \
+              /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
                 "" "$snapshot"
 
             echo
@@ -470,7 +479,8 @@ jobs:
             echo "Starting first node..."
             bin_dir="/commands/docker/bin"
             # Using "*" will cause the node to generate single validator genesis data.
-            "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
+            SLACK_DEPLOYS_KEY="" \
+              "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
             # Get the ip of the first node.
             ip=$(docker container inspect localnet-0 | \
@@ -495,6 +505,7 @@ jobs:
               -e NETWORK=localnet \
               -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
               -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
+              -e SLACK_DEPLOYS_KEY="" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               ndauimage
