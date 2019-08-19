@@ -186,7 +186,6 @@ commands:
             pids=()
             export SHA=$(cat /root/sha.txt)
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
-              echo "Attempting node: $i"
               if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
                 /commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
