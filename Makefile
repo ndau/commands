@@ -157,8 +157,9 @@ scripts: $(CHASM)
 scriptgen: $(CRANK) scripts scriptclean
 	find $(SCRIPTS) -name "*.crankgen" -print0 | xargs -0 $(CRANKGEN)
 
+# please don't use --exec for find, it's several times slower than below
 scripttests: $(CRANK) scriptgen
-	find $(SCRIPTS) -name "*.crank" -exec sh -c 'if ! $(CRANK) -script "$$1"; then echo "$$1"; fi' sh {} \;
+	find $(SCRIPTS) -name "*.crank" -print0 | xargs -0 -n1 -I{} -P4 $(CRANK) -script {}
 
 scriptformat: $(CHFMT) scripts
 	find $(SCRIPTS) -name "*.chasm" -print0 | xargs -0 -n1 -I{} $(CHFMT) -O {}

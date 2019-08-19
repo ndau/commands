@@ -31,7 +31,7 @@ func (p *parserError) ErrorPos() ErrorPosition {
 	}
 }
 
-func describeError(err error, source string) string {
+func describeError(err error, source, filename string) string {
 	if e, ok := err.(ErrorPositioner); ok {
 		lines := strings.Split(source, "\n")
 		ep := e.ErrorPos()
@@ -46,20 +46,20 @@ func describeError(err error, source string) string {
 		caretline := line[:ep.col]
 		nonspace := regexp.MustCompile("[^ \t]")
 		caretline = nonspace.ReplaceAllString(caretline, " ") + "^"
-		return fmt.Sprintf("%s\n%4d: %s\n     %s %v\n", err.Error(), ep.line, line, caretline, ep)
+		return fmt.Sprintf("[%s] %s\n%4d: %s\n     %s %v\n", filename, err.Error(), ep.line, line, caretline, ep)
 	}
 	fmt.Printf("NOT ErrorPositioner: %#v\n", err)
 	return err.Error()
 }
 
-func describeErrors(err error, source string) string {
+func describeErrors(err error, source, filename string) string {
 	if el, ok := err.(errList); ok {
 		s := ""
 		for _, e := range el {
-			s += describeError(e, source)
+			s += describeError(e, source, filename)
 		}
 		return s
 	}
 	fmt.Printf("NOT errList: %#v\n", err)
-	return describeError(err, source)
+	return describeError(err, source, filename)
 }
