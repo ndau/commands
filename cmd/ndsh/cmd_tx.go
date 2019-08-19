@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/alexflint/go-arg"
 	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
@@ -153,7 +155,8 @@ func (Tx) Run(argvs []string, sh *Shell) (err error) {
 	}
 
 	if args.Prevalidate {
-		fee, sib, _, _, err := tool.Prevalidate(sh.Node, sh.Staged.Tx)
+		logger := logrus.New()
+		fee, sib, _, err := tool.Prevalidate(sh.Node, sh.Staged.Tx, logger)
 		if err != nil {
 			return errors.Wrap(err, "prevalidating")
 		}

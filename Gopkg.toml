@@ -16,8 +16,7 @@ version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.20"
-branch = "kjq-logging-api"
+version = "~v1.21"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -29,8 +28,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-# version = "~v1.4"
-branch = "kjq-remove-minnoderegistrationstake"
+version = "~v1.5"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/writers"
