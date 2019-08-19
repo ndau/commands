@@ -293,7 +293,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                 {
                     "name": "SLACK_DEPLOYS_KEY",
                     "value": ""
-                },
+                }
             ],
             "resourceRequirements": null,
             "ulimits": null,
