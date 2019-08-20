@@ -74,3 +74,19 @@ func Remove(ddb *dynamodb.DynamoDB, addr BadAddress, verbose bool) error {
 	fmt.Println("remove: unimplemented")
 	return nil
 }
+
+// Check whether an address exists in the bad address DB
+func Check(ddb *dynamodb.DynamoDB, addr address.Address) (bool, error) {
+	av := dynamodb.AttributeValue{}
+	av.SetS(addr.String())
+	gio, err := ddb.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(Table),
+		Key: map[string]*dynamodb.AttributeValue{
+			addressField: &av,
+		},
+	})
+	if err != nil {
+		return false, errors.Wrap(err, "checking whether address is in db")
+	}
+	return gio != nil && len(gio.Item) > 0, nil
+}

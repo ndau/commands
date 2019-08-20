@@ -18,7 +18,8 @@ type GenerateCmd struct {
 
 // CheckCmd handles args for checking
 type CheckCmd struct {
-	Address address.Address `arg:"positional,required" help:"check this address"`
+	Address  address.Address `arg:"positional,required" help:"check this address"`
+	ExitCode bool            `arg:"-e,--exit-code" help:"return with an exit code of 2 if the address is in the db"`
 }
 
 var args struct {
@@ -59,7 +60,16 @@ func main() {
 	case args.Remove != nil:
 		check(baddress.Remove(ddb, *args.Remove, args.Verbose), "manually removing address")
 	case args.Check != nil:
-		fmt.Println("check: unimplemented")
+		exists, err := baddress.Check(ddb, args.Check.Address)
+		check(err, "checking whether %s is in bad address db", args.Check.Address)
+		status := "does not exist"
+		if exists {
+			status = "exists"
+		}
+		fmt.Println(args.Check.Address, status)
+		if args.Check.ExitCode && exists {
+			os.Exit(2)
+		}
 	default:
 		parser.WriteHelp(os.Stdout)
 	}
