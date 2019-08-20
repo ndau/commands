@@ -16,6 +16,11 @@ import (
 type GenerateCmd struct {
 }
 
+// RemoveCmd handles args for removing addresses
+type RemoveCmd struct {
+	Address address.Address `arg:"positional,required" help:"remove this address"`
+}
+
 // CheckCmd handles args for checking
 type CheckCmd struct {
 	Address  address.Address `arg:"positional,required" help:"check this address"`
@@ -25,7 +30,7 @@ type CheckCmd struct {
 var args struct {
 	Generate *GenerateCmd         `arg:"subcommand:generate" help:"automatically generate bad addresses"`
 	Add      *baddress.BadAddress `arg:"subcommand:add" help:"manually add bad addresses"`
-	Remove   *baddress.BadAddress `arg:"subcommand:remove" help:"manually remove bad address from the list"`
+	Remove   *RemoveCmd           `arg:"subcommand:remove" help:"manually remove bad address from the list"`
 	Check    *CheckCmd            `arg:"subcommand:check" help:"check whether an address is valid or not"`
 	Verbose  bool                 `arg:"-v" help:"emit additional information"`
 }
@@ -58,7 +63,7 @@ func main() {
 	case args.Add != nil:
 		check(baddress.Add(ddb, *args.Add, args.Verbose), "manually adding address")
 	case args.Remove != nil:
-		check(baddress.Remove(ddb, *args.Remove, args.Verbose), "manually removing address")
+		check(baddress.Remove(ddb, args.Remove.Address, args.Verbose), "manually removing address")
 	case args.Check != nil:
 		exists, err := baddress.Check(ddb, args.Check.Address)
 		check(err, "checking whether %s is in bad address db", args.Check.Address)

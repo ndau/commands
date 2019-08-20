@@ -69,21 +69,31 @@ func Add(ddb *dynamodb.DynamoDB, addr BadAddress, verbose bool) error {
 	return nil
 }
 
-// Remove a bad address from teh DB
-func Remove(ddb *dynamodb.DynamoDB, addr BadAddress, verbose bool) error {
-	fmt.Println("remove: unimplemented")
+func addrKey(addr address.Address) map[string]*dynamodb.AttributeValue {
+	av := dynamodb.AttributeValue{}
+	av.SetS(addr.String())
+	return map[string]*dynamodb.AttributeValue{
+		addressField: &av,
+	}
+}
+
+// Remove a bad address from the DB
+func Remove(ddb *dynamodb.DynamoDB, addr address.Address, verbose bool) error {
+	_, err := ddb.DeleteItem(&dynamodb.DeleteItemInput{
+		TableName: aws.String(Table),
+		Key:       addrKey(addr),
+	})
+	if err != nil {
+		return errors.Wrap(err, "removing key from db")
+	}
 	return nil
 }
 
 // Check whether an address exists in the bad address DB
 func Check(ddb *dynamodb.DynamoDB, addr address.Address) (bool, error) {
-	av := dynamodb.AttributeValue{}
-	av.SetS(addr.String())
 	gio, err := ddb.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(Table),
-		Key: map[string]*dynamodb.AttributeValue{
-			addressField: &av,
-		},
+		Key:       addrKey(addr),
 	})
 	if err != nil {
 		return false, errors.Wrap(err, "checking whether address is in db")
