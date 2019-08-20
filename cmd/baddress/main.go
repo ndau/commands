@@ -59,7 +59,7 @@ func main() {
 	// then dispatch
 	switch {
 	case args.Generate != nil:
-		fmt.Println("generate: unimplemented")
+		check(baddress.Generate(ddb, args.Verbose), "generating bad addresses")
 	case args.Add != nil:
 		check(baddress.Add(ddb, *args.Add, args.Verbose), "manually adding address")
 	case args.Remove != nil:
