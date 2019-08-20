@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import subprocess
 import pathlib
-import re
+import subprocess
 
 
 def findroot():
@@ -29,13 +28,13 @@ def commands():
 
 
 def unignore(cmd):
-    return f"!*/{cmd}"
+    return f"!**/{cmd}/"
 
 
 def update():
     gil = gitignore_lines()
 
-    with (ROOT / ".gitignore").open('a') as gitignore:
+    with (ROOT / ".gitignore").open("a") as gitignore:
         for cmd in commands():
             if cmd not in gil:
                 print(cmd, file=gitignore)
