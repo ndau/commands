@@ -219,6 +219,7 @@ def wait_for_service(
     """
     Wait for a node's service to become healthy and fully caught up on its network.
     Uses the urls to check its health before returning.
+    Returns the amount of time that was spent waiting for the upgrade to complete after a restart.
     """
 
     # First, make sure we're not polling the old service that still might be draining.
@@ -226,6 +227,10 @@ def wait_for_service(
         time.sleep(1)
 
     print(f"Restart of {node_name} is complete")
+
+    # Record the time of the restart so we make sure to wait at least MIN_WAIT_BETWEEN_NODES.
+    # We don't count the service startup time since procmon starting is the true start we want.
+    time_started = time.time()
 
     # Wait forever.  When doing an upgrade with full reindex, the first node can take a long
     # time to catch up.  The higher the blockchain height, the longer it'll take.  It's unbounded.
@@ -246,7 +251,7 @@ def wait_for_service(
             continue
 
         print(f"Catchup of {node_name} is complete and node is healthy")
-        return
+        return time.time() - time_started
 
     # Will never happen (but leaving it here in case we ever do impose a max wait time).
     sys.exit(f"Timed out waiting for {node_name} upgrade to complete")
@@ -317,19 +322,10 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
     print(f"Updating {node_name} service...")
     update_service(node_name, region, cluster)
 
-    # Record the time of the restart so we make sure to wait at least MIN_WAIT_BETWEEN_NODES.
-    # NOTE: It would be better to detect the old service going down first.  When we support
-    # config changes (e.g. environment variable updates without a new sha), we'll need this as
-    # well as improved wait-for-catchup logic below, since the sha, catchup and health won't be
-    # expected to change during such an upgrade.
-    time_started = time.time()
-
     print(f"Waiting for {node_name} to restart and catch up...")
-    wait_for_service(
+    return wait_for_service(
         node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn
     )
-
-    return time.time() - time_started
 
 
 def upgrade_nodes(network_name, node_name, sha, snapshot):
