@@ -86,7 +86,7 @@ func shutdown(root *Task, mainTasks []*Task) func() {
 // Then we run the task, and when it is finished, we check task.Terminate.
 // If task.Terminate is defined, we call killall. Otherwise, if necessary
 // (task.Shutdown was true) we run the root task again.
-func runfunc(task, root *Task, mainTasks []*Task) func() {
+func runfunc(task, root *Task, mainTasks, periodicTasks []*Task) func() {
 	return func() {
 		if task.Shutdown {
 			root.Logger.Warn("running shutdown task, temporarily stopping all tasks")
@@ -105,6 +105,7 @@ func runfunc(task, root *Task, mainTasks []*Task) func() {
 			root.Logger.Debug("restarting main tasks")
 			root.Stopped = make(chan struct{})
 			root.StartChildren()
+			setupPeriodic(root, mainTasks, periodicTasks)
 			root.Logger.Warn("shutdown processing complete")
 		}
 	}
@@ -155,15 +156,15 @@ func setupSighandlers(root *Task, tasks Tasks) {
 		syscall.SIGINT:  shutdown(root, tasks.Main),
 	}
 	for sig, task := range tasks.Signals {
-		sighandlers[sig] = runfunc(task, root, tasks.Main)
+		sighandlers[sig] = runfunc(task, root, tasks.Main, tasks.Periodic)
 	}
 	WatchSignals(sighandlers)
 }
 
-func setupPeriodic(root *Task, tasks Tasks) {
+func setupPeriodic(root *Task, mainTasks, periodicTasks []*Task) {
 	// set up the execution of any periodic tasks
-	for _, t := range tasks.Periodic {
-		f := runfunc(t, root, tasks.Main)
+	for _, t := range periodicTasks {
+		f := runfunc(t, root, mainTasks, periodicTasks)
 		dur := t.Periodic
 		logger := t.Logger
 		logger.WithField("period", dur).Info("setting up periodic task")
@@ -219,7 +220,7 @@ func main() {
 	root.StartChildren()
 
 	setupSighandlers(root, tasks)
-	setupPeriodic(root, tasks)
+	setupPeriodic(root, tasks.Main, tasks.Periodic)
 
 	// and run almost forever
 	logstatus := time.NewTicker(15 * time.Second)
