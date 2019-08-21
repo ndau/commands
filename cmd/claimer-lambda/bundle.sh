@@ -41,7 +41,8 @@ update_net() {
                     \"Variables\": {
                         \"PORT\": \"80\",
                         \"S3_CONFIG_BUCKET\": \"claimer-service-config\",
-                        \"S3_CONFIG_PATH\": \"claimer_conf_${net}.toml\"
+                        \"S3_CONFIG_PATH\": \"claimer_conf_${net}.toml\",
+                        \"CLAIMER_SYNC_MODE\": \"1\"
                     }
                 }"
     )
