@@ -8,7 +8,7 @@ import decimal
 
 # AUTH_API = "https://openapi.bitmart.com/v2/authentication"
 API = "https://bm-htf-v2-testing-d8pvw98nl.bitmart.com/v2/"
-SYMBOL = "NDAU_USDT"
+SYMBOL = "BMX_USDT"
 AUTH_API = API + "authentication"
 TIME_API = API + "time"
 WALLET_API = API + "wallet"
@@ -79,15 +79,15 @@ if __name__ == "__main__":
 
     response = requests.get(WALLET_API, headers=headers)
 
-#    print(response.text)
+    print(response.text)
 
     response = requests.get(ORDERS_API + ORDERS_PARAMS_PEND, headers=headers)
 
     print("pending orders = " + response.text)
 
-    response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
+    # response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
 
-    print("succ orders = " + response.text)
+    # print("succ orders = " + response.text)
 
 
     response = requests.get(TRADES_API + TRADES_HIST, headers=headers)
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     print(response.text)
 
-    sell_data = {"symbol": "BMX_ETH","amount": 3,"price" : .000078,"side" : "sell"}
+    sell_data = {"symbol": "BMX_USDT","amount": 1000,"price" : .0334,"side" : "sell"}
     signed_message = create_signed_message(sell_data, keys["secret"])
 
     data = json.dumps(sell_data)
@@ -124,12 +124,12 @@ if __name__ == "__main__":
 
     print("pending orders = " + response.text)
 
-    response = requests.get(WALLET_API, headers=headers)
+    # response = requests.get(WALLET_API, headers=headers)
 
 #    print(response.text)
 
-    response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
+    # response = requests.get(ORDERS_API + ORDERS_PARAMS_SUCC, headers=headers)
 
-    print("succ orders = " + response.text)
+    # print("succ orders = " + response.text)
 
 

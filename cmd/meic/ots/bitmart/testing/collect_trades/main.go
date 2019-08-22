@@ -36,7 +36,7 @@ func SubscribeTrade(symbol string, precision int) ([]byte, error) {
 func listen(conn *websocket.Conn, messages chan<- []byte) {
 	defer close(messages)
 
-	for taken := 0; *take <= 0 || taken < *take; taken++ {
+	for {
 		mtype, message, err := conn.ReadMessage()
 		if err != nil {
 			logrus.WithError(err).Error("failed to read message")
@@ -77,7 +77,7 @@ func main() {
 	check(err, "dial")
 	defer conn.Close()
 
-	st, err := SubscribeTrade("BTC_USDT", 2)
+	st, err := SubscribeTrade("XND_USDT", 4)
 	check(err, "make subscribe json")
 	logrus.WithField("subscribe", string(st)).Debug("subscribe to BTC/USD")
 
@@ -94,6 +94,7 @@ func main() {
 				return
 			}
 			js, err := prettyJSON(message)
+			fmt.Println("number of trades = ", len(js["data"]["trades"]))
 			if err != nil {
 				logrus.WithError(err).Error("failed to prettify JSON")
 				fmt.Printf("%s\n", message)

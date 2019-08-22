@@ -14,9 +14,6 @@ import (
 
 //go:generate stringer -type=OrderStatus
 
-// NdauSymbol is the ordering symbol in use on bitmart
-const NdauSymbol = "XND_USDT"
-
 // OrderStatus is an enum defined by bitmart:
 // https://github.com/bitmartexchange/bitmart-official-api-docs/blob/master/rest/authenticated/user_orders.md#status-type
 type OrderStatus int64
@@ -140,9 +137,10 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 		queryParams.Set("offset", fmt.Sprintf("%d", offset))
 		queryParams.Set("limit", fmt.Sprintf("%d", limit))
 
+		ordersURL := auth.key.Endpoint + "orders"
 		req, err := http.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("%s?%s", APIOrders, queryParams.Encode()),
+			fmt.Sprintf("%s?%s", ordersURL, queryParams.Encode()),
 			nil,
 		)
 		if err != nil {
@@ -159,6 +157,10 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 		if err != nil {
 			return errors.Wrap(err, "reading order history response")
 		}
+
+		var input interface{}
+		json.Unmarshal(data, &input)
+		fmt.Println("input =", input)
 
 		err = json.Unmarshal(data, &th)
 		if err != nil {
@@ -189,7 +191,8 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 
 // GetOrder gets the named order
 func GetOrder(auth *Auth, entrustID int64) (*Order, error) {
-	url := fmt.Sprintf("%s/%d", APIOrders, entrustID)
+	ordersURL := auth.key.Endpoint + "orders"
+	url := fmt.Sprintf("%s/%d", ordersURL, entrustID)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "constructing order request")

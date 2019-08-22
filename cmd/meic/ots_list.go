@@ -12,7 +12,7 @@ import (
 // the IUS refers to it when initializing in order to launch all instances
 var otsImpls = []ots.OrderTrackingSystem{
 	bitmart.OTS{
-		Symbol:     "XND_USDT",
-		APIKeyPath: "bitmart.apikey.json",
+		Symbol:     "NDAU_USDT",
+		APIKeyPath: "test.apikey.json",
 	},
 }

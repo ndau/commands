@@ -86,12 +86,14 @@ func NewIUS(
 		}
 	}
 
+	fmt.Println("Impls = ", otsImpls)
 	for i := 0; i < len(otsImpls); i++ {
 		err := otsImpls[i].Init(ius.logger.WithField("method", "init"))
 		check(err, fmt.Sprintf("initializing ots %d", i))
 		ius.updates = append(ius.updates, make(chan ots.UpdateOrders))
 	}
 
+	fmt.Println("Impls = ", otsImpls)
 	return &ius, nil
 }
 
@@ -112,9 +114,9 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
-	mux.HandleFunc("/sigserv", sigserv.Serve())
+	mux.HandleFunc("/signer", sigserv.Serve())
 	mux.HandleFunc("/update", ius.handleManualUpdate)
-
+	fmt.Println("starting IUS run")
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
@@ -130,7 +132,9 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	}()
 
 	ius.logger.Debug("waiting for connection from signature service...")
+	fmt.Println("before GetConnection")
 	<-sigserv.GetConnectionChan()
+	fmt.Println("after GetCOnnection")
 	ius.logger.Info("got connection from signature service")
 
 	// start up the OTS instances now that we can possibly respond to their updates
@@ -155,6 +159,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			ius.updateOTSs()
 		case sale := <-ius.sales:
 			ius.handleSale(sale, sigserv)
+			fmt.Println("sale = ", sale)
 			ius.updateOTSs()
 		case err := <-ius.errs:
 			// for now, just quit and depend on procmon to restart us after a

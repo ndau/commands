@@ -20,9 +20,6 @@ const (
 	SideSell = "sell"
 )
 
-// SignatureHeader names the key used for signing the request body per the Bitmart strategy
-const SignatureHeader = "x-bm-signature"
-
 // ParseSide parses arbitrary text input to produce a side
 func ParseSide(s string) (string, error) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
@@ -53,6 +50,7 @@ func prepareOrderSignature(auth *Auth, symbol string, side string, price float64
 		side,
 		symbol,
 	)
+	fmt.Println("msg = ", msg)
 	return HMACSign(auth.key.Secret, msg)
 }
 
@@ -75,10 +73,12 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 		err = errors.Wrap(err, "json-serializing request body")
 		return
 	}
+	fmt.Println("jsdata = ", jsdata)
 	buf := bytes.NewBuffer(jsdata)
 
 	req := new(http.Request)
-	req, err = http.NewRequest(http.MethodPost, APIOrders, buf)
+	ordersURL := auth.key.Endpoint + "orders"
+	req, err = http.NewRequest(http.MethodPost, ordersURL, buf)
 	if err != nil {
 		err = errors.Wrap(err, "constructing order request")
 		return

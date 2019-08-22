@@ -9,3 +9,8 @@ const (
 	APITrades = API + "trades"
 	APIOrders = API + "orders"
 )
+
+// SignatureHeader names the key used for signing the request body per the Bitmart strategy
+const SignatureHeader = "X-Bm-Signature"
+
+const WSSBitmart = "wss://openws.bitmart.com"

@@ -75,21 +75,22 @@ type TradeHistory struct {
 }
 
 // GetTradeHistory retrieves the list of all user trades
-func GetTradeHistory(auth *Auth, symbol string) ([]Trade, error) {
+func GetTradeHistory(auth *Auth, symbol string) ([]Trade, int64, error) {
 	return GetTradeHistoryAfter(auth, symbol, 0)
 }
 
 // GetTradeHistoryAfter retrieves the list of all user trades whose trade_id is
 // greater than tradeIDLimit.
-func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trade, error) {
+func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trade, int64, error) {
 	if symbol == "" {
-		return nil, errors.New("symbol must not be empty")
+		return nil, 0, errors.New("symbol must not be empty")
 	}
 	var offset = 0
 	const limit = 1000
 	var th TradeHistory
 	trades := make([]Trade, 0, limit)
 	stop := false
+	maxTradeID := tradeIDLimit
 
 	getPage := func() error {
 		queryParams := url.Values{}
@@ -97,9 +98,10 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 		queryParams.Set("offset", fmt.Sprintf("%d", offset))
 		queryParams.Set("limit", fmt.Sprintf("%d", limit))
 
+		tradesURL := auth.key.Endpoint + "trades"
 		req, err := http.NewRequest(
 			http.MethodGet,
-			fmt.Sprintf("%s?%s", APITrades, queryParams.Encode()),
+			fmt.Sprintf("%s?%s", tradesURL, queryParams.Encode()),
 			nil,
 		)
 		if err != nil {
@@ -132,32 +134,35 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 
 		midx := -1
 		for idx, trade := range th.Trades {
-			if trade.TradeID > tradeIDLimit {
+			if trade.EntrustID > tradeIDLimit {
 				midx = idx
+				if trade.EntrustID > maxTradeID {
+					maxTradeID = trade.TradeID
+				}
 			} else {
 				stop = true
 				break
 			}
 		}
 		trades = append(trades, th.Trades[:midx+1]...)
-		log.Print(trades)
+		log.Println("trades = ", trades)
 		return nil
 	}
 
 	// get first page
 	err := getPage()
 	if err != nil {
-		return nil, errors.Wrap(err, "getting first trade history page")
+		return nil, 0, errors.Wrap(err, "getting first trade history page")
 	}
 
 	for !stop && th.CurrentPage < th.TotalPages {
 		err = getPage()
 		if err != nil {
-			return trades, errors.Wrap(err, fmt.Sprintf("getting trade history page %d", offset/limit))
+			return trades, maxTradeID, errors.Wrap(err, fmt.Sprintf("getting trade history page %d", offset/limit))
 		}
 	}
 
-	return trades, nil
+	return trades, maxTradeID, nil
 }
 
 // FilterSales retains only those Trades which correspond to a sell order

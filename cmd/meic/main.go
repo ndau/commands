@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
@@ -18,11 +20,13 @@ type args struct {
 
 func main() {
 	args := args{
-		DefaultStackDepth: 3,
+		DefaultStackDepth: 2,
 	}
 	arg.MustParse(&args)
 
 	logger = logrus.New().WithField("bin", "meic")
+	fmt.Println("pubkey = ", args.ServerPubKey.FullString())
+	fmt.Println("pvtkey = ", args.ServerPvtKey.FullString())
 	device, err := signer.NewVirtualDevice(args.ServerPubKey.FullString(), args.ServerPvtKey.FullString())
 	check(err, "creating virtual signer device")
 
