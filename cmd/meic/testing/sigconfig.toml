@@ -1,0 +1,22 @@
+[client]
+priv_key = "npvtayjadtcbicsrsawrd6c6ziydstnsc9avwhpam75uts87pxv84jasbze33y6z2wm9pj53ff4cn8ffgj979bybrjbkrb9srdrt25j8umsbdxcfdhrkhrmtdkvm"
+pub_key = "npuba8jadtbbebiz84vzukmwe36kknv958dnc8ucw8d9a8g9dtyv7ezachkekgq8w99qm8gw4yqc"
+type = "virtual"
+
+[connections]
+
+[connections.local]
+url = "ws://localhost:20036/signer"
+
+[keys]
+
+[keys.issue]
+priv_key = "npvtayjadtcbib2u2rnem47vgqqifsbt8r8y2ktdygtfkaw98imgpjw25mqztt72b7k2scgjyhypk4twibph5m88sw3xmg3xe77m9vmsyfhq32ywn7z63bmm4zix"
+pub_key = "npuba8jadtbbed4xtaenvnrn4xxdisc4ryz77bjvkypvkj54z9gzbnkq7vtpi35r3wr2decrrkem"
+type = "virtual"
+
+[virtual]
+
+[virtual.R1]
+priv_key = "npvtayjadtcbib2u2rnem47vgqqifsbt8r8y2ktdygtfkaw98imgpjw25mqztt72b7k2scgjyhypk4twibph5m88sw3xmg3xe77m9vmsyfhq32ywn7z63bmm4zix"
+pub_key = "npuba8jadtbbed4xtaenvnrn4xxdisc4ryz77bjvkypvkj54z9gzbnkq7vtpi35r3wr2decrrkem"
