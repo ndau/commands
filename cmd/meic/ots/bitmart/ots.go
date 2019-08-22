@@ -55,6 +55,20 @@ func (e OTS) Submit(order ots.SellOrder) error {
 
 // Init implements ots.OrderTrackingSystem
 func (e OTS) Init(logger logrus.FieldLogger) error {
+	logger = logger.WithField("ots", "bitmart (init)")
+
+	key, err := LoadAPIKey(e.APIKeyPath)
+	if err != nil {
+		return errors.Wrap(err, "bitmart ots: loading api key")
+	}
+	e.auth = NewAuth(key)
+
+	e.statusFilter = OrderStatusFrom("pendingandpartialsuccess")
+	logger.WithFields(logrus.Fields{
+		"ots":          "bitmart",
+		"statusFilter": e.statusFilter,
+	}).Debug("setup status filter")
+
 	return nil
 }
 
@@ -65,19 +79,6 @@ func (e OTS) Run(
 	updates <-chan ots.UpdateOrders,
 	errs chan<- error,
 ) {
-	logger = logger.WithField("ots", "bitmart")
-
-	key, err := LoadAPIKey(e.APIKeyPath)
-	if err != nil {
-		errs <- errors.Wrap(err, "bitmart ots: loading api key")
-	}
-	e.auth = NewAuth(key)
-
-	e.statusFilter = OrderStatusFrom("pendingandpartialsuccess")
-	logger.WithFields(logrus.Fields{
-		"ots":          "bitmart",
-		"statusFilter": e.statusFilter,
-	}).Debug("setup status filter")
 
 	// launch a goroutine to watch the updates channel
 	go func() {
@@ -149,6 +150,8 @@ func (e OTS) Run(
 			)
 		}
 	}()
+
+	var err error
 
 	// make first call to get max trade ID
 	var maxTradeID int64
