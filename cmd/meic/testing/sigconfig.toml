@@ -6,7 +6,7 @@ type = "virtual"
 [connections]
 
 [connections.local]
-url = "ws://localhost:20036/signer"
+url = "ws://localhost:20036/sigserv"
 
 [keys]
 
