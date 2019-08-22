@@ -2,13 +2,11 @@ package bitmart
 
 import (
 	"fmt"
-	"math"
-	"sort"
 	"time"
 
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
-	ndaumath "github.com/oneiro-ndev/ndaumath/pkg/types"
+	math "github.com/oneiro-ndev/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -82,18 +80,23 @@ func (e OTS) Run(
 
 	// launch a goroutine to watch the updates channel
 	go func() {
-		logger = logger.WithField("goroutine", "OTS updates monitor")
+		logger = logger.WithField("goroutine", "bitmart OTS updates monitor")
 		for {
 			// notice any update instructions
 			upd := <-updates
 
 			logger.WithField("desired stack", upd.Orders).Debug("received update instruction")
 
-			// set exchange appropriate sig digits for Qty and Price for update orders
-			for idx := range upd.Orders {
-				upd.Orders[idx].Qty = ndaumath.Ndau(math.Round(float64(upd.Orders[idx].Qty/1000000)) * 1000000)
-				upd.Orders[idx].Price = pricecurve.Nanocent(math.Round(float64(upd.Orders[idx].Price)/10000000) * 10000000)
+			// bitmart truncates the precision of Qty and Price, so we have to reduce
+			// both of those in order for synchronization to work. However, we can't
+			// modify upd, as that is a shared data structure which will affect other
+			// exchanges. We therefore copy the data, truncating en-route.
+			desiredStack := make([]ots.SellOrder, len(upd.Orders))
+			for idx, o := range upd.Orders {
+				desiredStack[idx].Qty = o.Qty - (o.Qty % 1000000)
+				desiredStack[idx].Price = o.Price - (o.Price % 10000000)
 			}
+
 			// update the current stack
 			orders, err := GetOrderHistory(&e.auth, e.Symbol, e.statusFilter)
 			if err != nil {
@@ -101,37 +104,37 @@ func (e OTS) Run(
 				return
 			}
 
-			curStack := make([]ots.SellOrder, 0, 4)
+			curStack := make([]ots.SellOrder, 0, len(orders))
 
-			// order the current stack from lowest to highest price
-			sort.Slice(orders, func(i, j int) bool {
-				return orders[i].Price > orders[j].Price
-			})
-
-			for i := len(orders) - 1; i >= 0; i-- {
-				if orders[i].Side == "sell" {
-					fQty := fmt.Sprintf("%f", orders[i].RemainingAmount)
-					qty, err := ndaumath.ParseNdau(fQty)
-					if err != nil {
-						errs <- errors.Wrap(err, "converting remaining amount")
-						return
-					}
-
-					fPrice := fmt.Sprintf("%f", orders[i].Price)
-					price, err := pricecurve.ParseDollars(fPrice)
-					if err != nil {
-						errs <- errors.Wrap(err, "converting price")
-						return
-					}
-
-					curStack = append(curStack, ots.SellOrder{
-						Qty:   qty,
-						Price: price,
-						ID:    uint64(orders[i].EntrustID),
-					})
+			for _, order := range orders {
+				if !order.IsSale() {
+					continue
 				}
+
+				fQty := fmt.Sprintf("%f", order.RemainingAmount)
+				qty, err := math.ParseNdau(fQty)
+				if err != nil {
+					errs <- errors.Wrap(err, "converting remaining amount")
+					return
+				}
+
+				fPrice := fmt.Sprintf("%f", order.Price)
+				price, err := pricecurve.ParseDollars(fPrice)
+				if err != nil {
+					errs <- errors.Wrap(err, "converting price")
+					return
+				}
+
+				curStack = append(curStack, ots.SellOrder{
+					Qty:   qty,
+					Price: price,
+					ID:    uint64(order.EntrustID),
+				})
 			}
 
+			// we've defined our order manipulation functions as methods
+			// on this struct, but the signature isn't quite the same.
+			// this wrapper converts the signature appropriately.
 			ewrap := func(f func(ots.SellOrder) error) func(ots.SellOrder) {
 				return func(s ots.SellOrder) {
 					err := f(s)
@@ -143,7 +146,7 @@ func (e OTS) Run(
 
 			ots.SynchronizeOrders(
 				curStack,
-				upd.Orders,
+				desiredStack,
 				ewrap(e.UpdateQty),
 				ewrap(e.Delete),
 				ewrap(e.Submit),
