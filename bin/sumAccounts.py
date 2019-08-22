@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
 
-import requests
-import time
 import sys
+import time
+
+import requests
 
 
 def getData(base, path, parms=None):
@@ -23,7 +24,7 @@ def getData(base, path, parms=None):
 
 names = {
     "local": "http://localhost:3030",
-    "main": "https://node-0.main.ndau.tech",
+    "main": "https://mainnet-0.ndau.tech:3030",
     "mainnet": "https://mainnet-0.ndau.tech:3030",
     "dev": "https://devnet-0.api.ndau.tech",
     "devnet": "https://devnet-0.api.ndau.tech",
@@ -51,13 +52,9 @@ if __name__ == "__main__":
 
         data = resp.json()
         for k in data:
-#            balances.append((k, data[k]["balance"] / 100_000_000))
-            print(k)
-            if k[0:3] == "ndx":
-                balances.append((k, data[k]["balance"]))
+            balances.append((k, data[k]["balance"]))
 
     total = sum([b for k, b in balances])
-#    print(f"total in {len(balances)} accounts is {total}")
     print(f"total in {len(balances)} accounts is {total / 100_000_000}")
 
     s = sorted(balances, key=lambda a: a[1])
