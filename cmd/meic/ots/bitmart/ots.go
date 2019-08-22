@@ -26,6 +26,7 @@ type OTS struct {
 // compile-time check that we actually do implement that interface
 var _ ots.OrderTrackingSystem = (*OTS)(nil)
 
+// UpdateQty updates a bitmart order, setting a new qty on offer at the same price
 func (e OTS) UpdateQty(order ots.SellOrder) error {
 	fmt.Println("update = ", order)
 	err := CancelOrder(&e.auth, order.ID)
@@ -45,12 +46,14 @@ func (e OTS) UpdateQty(order ots.SellOrder) error {
 	return err
 }
 
+// Delete deletes a bitmart sell order
 func (e OTS) Delete(order ots.SellOrder) error {
 	fmt.Println("delete = ", order)
 	return CancelOrder(&e.auth, order.ID)
 	// return nil
 }
 
+// Submit submits a new bitmart sell order
 func (e OTS) Submit(order ots.SellOrder) error {
 	fmt.Println("submit = ", order)
 	fmt.Println("OTS = ", e)
@@ -193,11 +196,22 @@ func (e OTS) Run(
 			fmt.Println("curstack =", curStack)
 			fmt.Println("update stack =", upd.Orders)
 
-			err = ots.SynchronizeOrders(curStack, upd.Orders, e.UpdateQty, e.Delete, e.Submit)
-			if err != nil {
-				errs <- errors.Wrap(err, "synchronizing orders")
+			ewrap := func(f func(ots.SellOrder) error) func(ots.SellOrder) {
+				return func(s ots.SellOrder) {
+					err := f(s)
+					if err != nil {
+						errs <- err
+					}
+				}
 			}
 
+			ots.SynchronizeOrders(
+				curStack,
+				upd.Orders,
+				ewrap(e.UpdateQty),
+				ewrap(e.Delete),
+				ewrap(e.Submit),
+			)
 		}
 	}()
 

@@ -3,7 +3,6 @@ package ots
 import (
 	"sort"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,20 +32,16 @@ type OrderTrackingSystem interface {
 		updates <-chan UpdateOrders,
 		errs chan<- error,
 	)
-
-	UpdateQty(order SellOrder) error
-	Delete(order SellOrder) error
-	Submit(order SellOrder) error
 }
 
 // SynchronizeOrders handles the grunt work of diffing out the updates implied
 // by a current and desired set of sell orders.
 func SynchronizeOrders(
 	current, desired []SellOrder,
-	updateQty func(SellOrder) error,
-	delete func(SellOrder) error,
-	submit func(SellOrder) error,
-) error {
+	updateQty func(SellOrder),
+	delete func(SellOrder),
+	submit func(SellOrder),
+) {
 	// sort the current and desired slices by price
 	sort.Slice(current, func(i, j int) bool { return current[i].Price < current[j].Price })
 	sort.Slice(desired, func(i, j int) bool { return desired[i].Price < desired[j].Price })
@@ -54,7 +49,6 @@ func SynchronizeOrders(
 	// in essence, this is a merge sort on current and desired
 	ci := 0
 	di := 0
-	var err error
 	for ci < len(current) && di < len(desired) {
 		switch {
 		case current[ci].Price < desired[di].Price:
@@ -65,41 +59,22 @@ func SynchronizeOrders(
 			// the price is right
 			if current[ci].Qty != desired[di].Qty {
 				current[ci].Qty = desired[di].Qty
-				err = updateQty(current[ci])
-				if err != nil {
-					err = errors.Wrap(err, "updating Qty")
-					return err
-				}
-
+				updateQty(current[ci])
 			}
 			ci++
 			di++
 		case current[ci].Price > desired[di].Price:
-			// we are missing a stack level, place an order at desired level and
-			// see if that syncs everything up
-			err = submit(desired[di])
-			if err != nil {
-				err = errors.Wrap(err, "submitting order")
-				return err
-			}
+			// we are missing a stack level, place an order
+			submit(desired[di])
 			di++
 		}
 	}
 	// now remove any extra current orders which haven't been dealt with
 	for ; ci < len(current); ci++ {
-		err = delete(current[ci])
-		if err != nil {
-			err = errors.Wrap(err, "deleting order")
-			return err
-		}
+		delete(current[ci])
 	}
 	// now add any extra desired orders which haven't been dealt with
 	for ; di < len(desired); di++ {
-		err = submit(desired[di])
-		if err != nil {
-			err = errors.Wrap(err, "submitting order")
-			return err
-		}
+		submit(desired[di])
 	}
-	return err
 }
