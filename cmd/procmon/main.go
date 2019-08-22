@@ -175,6 +175,7 @@ func setupPeriodic(root *Task, mainTasks, periodicTasks []*Task) {
 		logger.WithField("period", dur).Info("setting up periodic task")
 		go func() {
 			ticker := time.NewTicker(dur)
+			defer ticker.Stop()
 			for {
 				select {
 				case <-ticker.C:
