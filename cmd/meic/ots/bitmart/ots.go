@@ -50,7 +50,7 @@ func (e OTS) Submit(order ots.SellOrder) error {
 }
 
 // Init implements ots.OrderTrackingSystem
-func (e OTS) Init(logger logrus.FieldLogger, args interface{}) error {
+func (e *OTS) Init(logger logrus.FieldLogger, args interface{}) error {
 	logger = logger.WithField("ots", "bitmart")
 
 	if bma, ok := args.(HasBMArgs); ok {
@@ -74,7 +74,7 @@ func (e OTS) Init(logger logrus.FieldLogger, args interface{}) error {
 }
 
 // Run implements ots.OrderTrackingSystem
-func (e OTS) Run(
+func (e *OTS) Run(
 	logger logrus.FieldLogger,
 	sales chan<- ots.TargetPriceSale,
 	updates <-chan ots.UpdateOrders,
