@@ -12,6 +12,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// NdauSymbol is the ordering symbol in use on bitmart
+const NdauSymbol = "XND_USDT"
+
 //go:generate stringer -type=OrderStatus
 
 // OrderStatus is an enum defined by bitmart:

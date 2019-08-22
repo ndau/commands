@@ -13,4 +13,5 @@ const (
 // SignatureHeader names the key used for signing the request body per the Bitmart strategy
 const SignatureHeader = "X-Bm-Signature"
 
+// WSSBitmart is bitmart's websocket URL
 const WSSBitmart = "wss://openws.bitmart.com"
