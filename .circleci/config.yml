@@ -536,7 +536,7 @@ jobs:
             # Pull down a copy of integration-tests repo.  We'll copy it into the tests container.
             echo "Cloning integration-tests..."
             git clone git@github.com:oneiro-ndev/integration-tests.git /integration-tests \
-			    -b eas-ndau-385 # FIXME: Remove this once this branch's PR is approved.
+                -b eas-ndau-385 # FIXME: Remove this once this branch's PR is approved.
             cd /integration-tests
             echo "integration-tests repo at $(git rev-parse --short HEAD)"
 
