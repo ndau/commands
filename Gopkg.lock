@@ -18,12 +18,12 @@
   version = "v0.11"
 
 [[projects]]
-  digest = "1:d1b7be319f318156e7e49696c5cd86636c63680c9317c6167123b4c09f96583a"
+  digest = "1:5418edaba5856d5a67695d3c1d1fb2b60f2b7fdee95ab2879904a00cc0139fc6"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
   pruneopts = ""
-  revision = "f40417ef119019b1c94b79f3f18b7f66b9fb6bce"
-  version = "v1.0.0"
+  revision = "8baf7040d76473dd1d78c17b490d9d8cf6b1c584"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:cc3e3ab828a51af490c9cf9c01487a201809e5cff04467c0fab8a2be0cb42109"
