@@ -50,7 +50,7 @@ func prepareOrderSignature(auth *Auth, symbol string, side string, price float64
 		side,
 		symbol,
 	)
-	fmt.Println("msg = ", msg)
+
 	return HMACSign(auth.key.Secret, msg)
 }
 
@@ -73,7 +73,7 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 		err = errors.Wrap(err, "json-serializing request body")
 		return
 	}
-	fmt.Println("jsdata = ", jsdata)
+
 	buf := bytes.NewBuffer(jsdata)
 
 	req := new(http.Request)
