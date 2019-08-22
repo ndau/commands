@@ -26,8 +26,7 @@ var _ ots.OrderTrackingSystem = (*OTS)(nil)
 func (e OTS) UpdateQty(order ots.SellOrder) error {
 	err := CancelOrder(&e.auth, order.ID)
 	if err != nil {
-		err = errors.Wrap(err, "cancel order request")
-		return err
+		return errors.Wrap(err, "cancel order request")
 	}
 	qty := float64(order.Qty) / 100000000
 	price := float64(order.Price) / 100000000000
@@ -45,7 +44,6 @@ func (e OTS) Delete(order ots.SellOrder) error {
 func (e OTS) Submit(order ots.SellOrder) error {
 	qty := float64(order.Qty) / 100000000
 	price := float64(order.Price) / 100000000000
-	err := error(nil)
 	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
 	order.ID = uint64(id)
 	return err

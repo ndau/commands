@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -50,7 +49,6 @@ func prepareOrderSignature(auth *Auth, symbol string, side string, price float64
 		side,
 		symbol,
 	)
-
 	return HMACSign(auth.key.Secret, msg)
 }
 
@@ -73,7 +71,6 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 		err = errors.Wrap(err, "json-serializing request body")
 		return
 	}
-
 	buf := bytes.NewBuffer(jsdata)
 
 	req := new(http.Request)
@@ -104,7 +101,6 @@ func PlaceOrder(auth *Auth, symbol string, side string, price float64, amount fl
 	var poresp PlaceOrderResponse
 	err = json.Unmarshal(data, &poresp)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, string(data))
 		err = errors.Wrap(err, "parsing order response")
 		return
 	}
