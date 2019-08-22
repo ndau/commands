@@ -32,7 +32,7 @@ func main() {
 		key, err := bitmart.LoadAPIKey(*apikeyPath)
 		check(err, "loading api key")
 		auth := bitmart.NewAuth(key)
-		trades, err := bitmart.GetTradeHistoryAfter(&auth, *symbol, int64(*limit))
+		trades, _, err := bitmart.GetTradeHistoryAfter(&auth, *symbol, int64(*limit))
 		check(err, "getting trades")
 
 		data, err := json.MarshalIndent(trades, "", "  ")

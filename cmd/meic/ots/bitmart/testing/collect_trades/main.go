@@ -7,10 +7,9 @@ import (
 	"os"
 
 	"github.com/gorilla/websocket"
+	"github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
 	"github.com/sirupsen/logrus"
 )
-
-const bitmart = "wss://openws.bitmart.com"
 
 var (
 	take     = flag.Int("take", 0, "take only the first n trades. If unset, continue until interrupt.")
@@ -73,13 +72,13 @@ func main() {
 
 	logrus.SetLevel(logrus.Level(*logLevel))
 
-	conn, _, err := websocket.DefaultDialer.Dial(bitmart, nil)
+	conn, _, err := websocket.DefaultDialer.Dial(bitmart.WSSBitmart, nil)
 	check(err, "dial")
 	defer conn.Close()
 
-	st, err := SubscribeTrade("XND_USDT", 4)
+	st, err := SubscribeTrade(bitmart.NdauSymbol, 4)
 	check(err, "make subscribe json")
-	logrus.WithField("subscribe", string(st)).Debug("subscribe to BTC/USD")
+	logrus.WithField("subscribe", string(st)).Debug("subscribe to XND/USDT")
 
 	err = conn.WriteMessage(websocket.TextMessage, st)
 	check(err, "send")
@@ -94,7 +93,6 @@ func main() {
 				return
 			}
 			js, err := prettyJSON(message)
-			fmt.Println("number of trades = ", len(js["data"]["trades"]))
 			if err != nil {
 				logrus.WithError(err).Error("failed to prettify JSON")
 				fmt.Printf("%s\n", message)

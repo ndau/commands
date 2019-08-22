@@ -161,10 +161,6 @@ func GetOrderHistory(auth *Auth, symbol string, status OrderStatus) ([]Order, er
 			return errors.Wrap(err, "reading order history response")
 		}
 
-		var input interface{}
-		json.Unmarshal(data, &input)
-		fmt.Println("input =", input)
-
 		err = json.Unmarshal(data, &th)
 		if err != nil {
 			return errors.Wrap(err, "parsing order history response")
