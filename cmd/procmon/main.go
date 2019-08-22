@@ -86,7 +86,7 @@ func shutdown(root *Task, mainTasks []*Task) func() {
 // Then we run the task, and when it is finished, we check task.Terminate.
 // If task.Terminate is defined, we call killall. Otherwise, if necessary
 // (task.Shutdown was true) we run the root task again.
-func runfunc(task, root *Task, mainTasks []*Task) func() {
+func runfunc(task, root *Task, mainTasks, periodicTasks []*Task) func() {
 	return func() {
 		if task.Shutdown {
 			root.Logger.Warn("running shutdown task, temporarily stopping all tasks")
@@ -103,11 +103,17 @@ func runfunc(task, root *Task, mainTasks []*Task) func() {
 		}
 		if task.Shutdown {
 			root.Logger.Debug("restarting main tasks")
-			root.Stopped = make(chan struct{})
-			root.StartChildren()
+			startChildren(root, mainTasks, periodicTasks)
 			root.Logger.Warn("shutdown processing complete")
 		}
 	}
+}
+
+// Helper function to set up root.Stopped and start its child tasks.
+func startChildren(root *Task, mainTasks, periodicTasks []*Task) {
+	root.Stopped = make(chan struct{})
+	root.StartChildren()
+	setupPeriodic(root, mainTasks, periodicTasks)
 }
 
 func waitForTasksToDie(root *Task, mainTasks []*Task) int {
@@ -155,20 +161,21 @@ func setupSighandlers(root *Task, tasks Tasks) {
 		syscall.SIGINT:  shutdown(root, tasks.Main),
 	}
 	for sig, task := range tasks.Signals {
-		sighandlers[sig] = runfunc(task, root, tasks.Main)
+		sighandlers[sig] = runfunc(task, root, tasks.Main, tasks.Periodic)
 	}
 	WatchSignals(sighandlers)
 }
 
-func setupPeriodic(root *Task, tasks Tasks) {
+func setupPeriodic(root *Task, mainTasks, periodicTasks []*Task) {
 	// set up the execution of any periodic tasks
-	for _, t := range tasks.Periodic {
-		f := runfunc(t, root, tasks.Main)
+	for _, t := range periodicTasks {
+		f := runfunc(t, root, mainTasks, periodicTasks)
 		dur := t.Periodic
 		logger := t.Logger
 		logger.WithField("period", dur).Info("setting up periodic task")
 		go func() {
 			ticker := time.NewTicker(dur)
+			defer ticker.Stop()
 			for {
 				select {
 				case <-ticker.C:
@@ -212,14 +219,11 @@ func main() {
 	// now build a special task to act as the parent of the root tasks
 	root := NewTask(rootTaskName, "")
 	root.Logger = logger
-	root.Stopped = make(chan struct{})
 	for i := range tasks.Main {
 		root.AddDependent(tasks.Main[i])
 	}
-	root.StartChildren()
-
+	startChildren(root, tasks.Main, tasks.Periodic)
 	setupSighandlers(root, tasks)
-	setupPeriodic(root, tasks)
 
 	// and run almost forever
 	logstatus := time.NewTicker(15 * time.Second)

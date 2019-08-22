@@ -447,7 +447,7 @@ def main():
 
     # Post a message to slack, similar to what the Circle workflow posts after a devnet deploy.
     post_to_slack(
-        f"Upgrade complete; nodes for {network_name} are now running and healthy."
+        f"Upgrade to {sha} complete; nodes for {network_name} are now running and healthy."
     )
 
     total_time = int(time.time() - start_time + 0.5)
