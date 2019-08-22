@@ -1540,8 +1540,13 @@ _**Writes:**_
           "TxOffset": 3,
           "Fee": 0,
           "SIB": 0,
-          "Tx": null,
-          "TxBytes": null
+          "TxType": "Lock",
+          "TxData": {
+            "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+            "period": "1m",
+            "sequence": 1234,
+            "signatures": null
+          }
         }
 ```
 

@@ -137,6 +137,7 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/dynamodb",
+    "service/dynamodb/dynamodbattribute",
     "service/s3",
     "service/sts",
   ]
@@ -524,7 +525,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:97d8efdb0575196007cbee97ac93d3c92723a3b8f85ba562efe0da57e08d1120"
+  digest = "1:e74c2a132ad9f7b1e5aac82131b86136b0fe9e7f2bfb2fc1a03371f316f2921d"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -542,8 +543,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "32f5cceaf9f022eac935a02561658d13babf2e24"
-  version = "v1.21.0"
+  revision = "9198f7d7520854e68462de08d59daac93fe8a829"
+  version = "v1.21.1"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -1032,6 +1033,8 @@
     "github.com/attic-labs/noms/go/types",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/dynamodb",
+    "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/go-redis/redis",
     "github.com/google/shlex",
