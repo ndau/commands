@@ -2,6 +2,7 @@ package claimer
 
 import (
 	"io"
+	"os"
 
 	"github.com/BurntSushi/toml"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
@@ -14,6 +15,9 @@ type Config struct {
 	NodeRPC string `toml:"node_rpc"`
 	// The Nodes map actually maps an address to a list of private keys
 	Nodes map[string][]string `toml:"nodes"`
+	// If set and true, operate in synchronous mode: wait for the blockchain
+	// to return before returning from a request.
+	SyncMode *bool `toml:"sync_mode"`
 }
 
 // DefaultConfigPath is the default expected path for the claimer's configuration
@@ -25,6 +29,10 @@ const DefaultConfigPath = "claimer_conf.toml"
 func LoadConfig(path string) (*Config, error) {
 	config := new(Config)
 	_, err := toml.DecodeFile(path, config)
+	if os.ExpandEnv("$CLAIMER_SYNC_MODE") == "1" {
+		tru := true
+		config.SyncMode = &tru
+	}
 	return config, err
 }
 
