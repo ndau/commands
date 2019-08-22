@@ -86,7 +86,7 @@ func main() {
 	messages := make(chan []byte)
 	go listen(conn, messages)
 
-	for {
+	for taken := 0; *take <= 0 || taken < *take; taken++ {
 		select {
 		case message, ok := <-messages:
 			if !ok {
