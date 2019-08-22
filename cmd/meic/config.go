@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
+	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 )
 
 // Config defines the configuration that the MEIC can have
@@ -22,3 +24,20 @@ func LoadConfig(confPath string) (*Config, error) {
 	}
 	return &c, nil
 }
+
+type args struct {
+	bitmart.BMArgs
+
+	ServerAddr        string               `arg:"-s,--server-addr,required"`
+	ServerPubKey      signature.PublicKey  `arg:"-p,--server-pub-key,required"`
+	ServerPvtKey      signature.PrivateKey `arg:"-P,--server-pvt-key,required"`
+	NodeAddr          string               `arg:"-n,--node-addr,required"`
+	DefaultStackDepth uint                 `arg:"-d,--default-stack-depth"`
+	ConfPath          string               `arg:"-c,--config-path"`
+}
+
+func (a args) GetBMArgs() bitmart.BMArgs {
+	return a.BMArgs
+}
+
+var _ bitmart.HasBMArgs = (*args)(nil)

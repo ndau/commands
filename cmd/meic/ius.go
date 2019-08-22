@@ -33,6 +33,7 @@ type IssuanceUpdateSystem struct {
 	tmNode        *tmclient.HTTP
 	stackGen      uint
 	stackDefault  uint
+	args          args
 	config        *Config
 	errs          chan error
 }
@@ -45,15 +46,14 @@ func NewIUS(
 	logger *logrus.Entry,
 	serverAddress string,
 	selfKeys signer.SignDevice,
-	nodeAddress string,
-	stackDefault uint,
+	args args,
 	config *Config,
 ) (*IssuanceUpdateSystem, error) {
 	serverAddr, err := url.Parse(serverAddress)
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing server address")
 	}
-	nodeAddr, err := url.Parse(nodeAddress)
+	nodeAddr, err := url.Parse(args.NodeAddr)
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing node address")
 	}
@@ -72,8 +72,9 @@ func NewIUS(
 		updates:       make([]chan ots.UpdateOrders, 0, len(otsImpls)),
 		manualUpdates: make(chan struct{}),
 		tmNode:        tmNode,
-		stackGen:      stackDefault,
-		stackDefault:  stackDefault,
+		stackGen:      args.DefaultStackDepth,
+		stackDefault:  args.DefaultStackDepth,
+		args:          args,
 		config:        config,
 		errs:          make(chan error),
 	}
@@ -87,7 +88,12 @@ func NewIUS(
 	}
 
 	for i := 0; i < len(otsImpls); i++ {
-		err := otsImpls[i].Init(ius.logger.WithField("method", "init"))
+		err := otsImpls[i].Init(
+			ius.logger.WithFields(logrus.Fields{
+				"ots.index": i,
+				"method":    "run",
+			}), ius.args,
+		)
 		check(err, fmt.Sprintf("initializing ots %d", i))
 		ius.updates = append(ius.updates, make(chan ots.UpdateOrders))
 	}
@@ -136,7 +142,10 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	// start up the OTS instances now that we can possibly respond to their updates
 	for idx := range otsImpls {
 		go otsImpls[idx].Run(
-			ius.logger.WithField("ots index", idx),
+			ius.logger.WithFields(logrus.Fields{
+				"ots.index": idx,
+				"method":    "run",
+			}),
 			ius.sales,
 			ius.updates[idx],
 			ius.errs,

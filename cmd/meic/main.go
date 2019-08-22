@@ -2,19 +2,9 @@ package main
 
 import (
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
 	"github.com/sirupsen/logrus"
 )
-
-type args struct {
-	ServerAddr        string               `arg:"-s,--server-addr,required"`
-	ServerPubKey      signature.PublicKey  `arg:"-p,--server-pub-key,required"`
-	ServerPvtKey      signature.PrivateKey `arg:"-P,--server-pvt-key,required"`
-	NodeAddr          string               `arg:"-n,--node-addr,required"`
-	DefaultStackDepth uint                 `arg:"-d,--default-stack-depth"`
-	ConfPath          string               `arg:"-c,--config-path"`
-}
 
 func main() {
 	args := args{
@@ -33,8 +23,7 @@ func main() {
 		logger.(*logrus.Entry),
 		args.ServerAddr,
 		device,
-		args.NodeAddr,
-		args.DefaultStackDepth,
+		args,
 		config,
 	)
 	check(err, "creating ius")

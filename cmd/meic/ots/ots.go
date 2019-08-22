@@ -18,7 +18,13 @@ type OrderTrackingSystem interface {
 	//
 	// It is run synchronously, so can return an error. If an OTS instance
 	// fails to initialize, it is excluded from the list of running OTSs.
-	Init(logger logrus.FieldLogger) error
+	//
+	// Args is the arguments struct of the MEIC. Because OTS implementations
+	// can't import that struct directly, they should define their own arguments
+	// struct and an interface which permits accessing it. They can then
+	// type-assert that the MEIC args struct implements that interface, and use
+	// that to get their arguments' values.
+	Init(logger logrus.FieldLogger, args interface{}) error
 
 	// Run is used to start an OTS instance.
 	//

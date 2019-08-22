@@ -14,7 +14,7 @@ import (
 // An OTS is the bitmart implementation of the OTS interface
 type OTS struct {
 	Symbol       string
-	APIKeyPath   string
+	args         BMArgs
 	auth         Auth
 	statusFilter OrderStatus
 }
@@ -50,10 +50,16 @@ func (e OTS) Submit(order ots.SellOrder) error {
 }
 
 // Init implements ots.OrderTrackingSystem
-func (e OTS) Init(logger logrus.FieldLogger) error {
-	logger = logger.WithField("ots", "bitmart (init)")
+func (e OTS) Init(logger logrus.FieldLogger, args interface{}) error {
+	logger = logger.WithField("ots", "bitmart")
 
-	key, err := LoadAPIKey(e.APIKeyPath)
+	if bma, ok := args.(HasBMArgs); ok {
+		e.args = bma.GetBMArgs()
+	} else {
+		return errors.New("args did not implement HasBMArgs")
+	}
+
+	key, err := LoadAPIKey(e.args.APIKeyPath)
 	if err != nil {
 		return errors.Wrap(err, "bitmart ots: loading api key")
 	}
@@ -61,7 +67,6 @@ func (e OTS) Init(logger logrus.FieldLogger) error {
 
 	e.statusFilter = OrderStatusFrom("pendingandpartialsuccess")
 	logger.WithFields(logrus.Fields{
-		"ots":          "bitmart",
 		"statusFilter": e.statusFilter,
 	}).Debug("setup status filter")
 
@@ -75,10 +80,11 @@ func (e OTS) Run(
 	updates <-chan ots.UpdateOrders,
 	errs chan<- error,
 ) {
+	logger = logger.WithField("ots", "bitmart")
 
 	// launch a goroutine to watch the updates channel
 	go func() {
-		logger = logger.WithField("goroutine", "bitmart OTS updates monitor")
+		logger = logger.WithField("goroutine", "updates monitor")
 		for {
 			// notice any update instructions
 			upd := <-updates
@@ -152,6 +158,8 @@ func (e OTS) Run(
 		}
 	}()
 
+	logger = logger.WithField("goroutine", "trade poller")
+
 	var err error
 
 	// make first call to get max trade ID
@@ -163,6 +171,7 @@ func (e OTS) Run(
 	}
 	var trades []Trade
 	for {
+		logger.WithField("max trade id", maxTradeID).Debug("polling for new trades")
 		trades, maxTradeID, err = GetTradeHistoryAfter(&e.auth, e.Symbol, maxTradeID)
 		if err != nil {
 			errs <- errors.Wrap(err, "get order history after")
