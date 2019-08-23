@@ -28,8 +28,7 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/recovery"
-# version = "~1.0"
-branch = "prgn-fix-tests"
+version = "~1.0"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"

@@ -596,7 +596,6 @@
   version = "v1.3.2"
 
 [[projects]]
-  branch = "prgn-fix-tests"
   digest = "1:33449fe72270b67f17cdfb39a8a0037705d6043d2c7dfb4581c1b09f69650c7f"
   name = "github.com/oneiro-ndev/recovery"
   packages = [
@@ -604,7 +603,8 @@
     "pkg/signer",
   ]
   pruneopts = ""
-  revision = "77c04f0ca26e607a4a5486e4f9365c6fa540ac3a"
+  revision = "c6572a883ed5bfffc01686d4c7d45c1cd7fe7ea8"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:9a0a4769746d52666b68e71dd06ccd6850c026f74eef39354350abce8db894f1"
