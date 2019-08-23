@@ -377,7 +377,7 @@ _**Writes:**_
 
 ### `GET /block/before/:height`
 
-_Returns a (possibly filtered) sequence of block metadata for blocks of height less than last._
+_Returns a (possibly filtered) sequence of block metadata for a range of blocks on or before a given height._
 
 
 
@@ -386,9 +386,10 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- height | Path | Blocks of this height and greater will not be returned. | int
+ height | Path | Blocks greater than this height will not be returned. | int
  filter | Query | Set to 'noempty' to exclude empty blocks. | string
  after | Query | The block height after which no more results should be returned. | int
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
