@@ -42,7 +42,9 @@ update_net() {
                         \"PORT\": \"80\",
                         \"S3_CONFIG_BUCKET\": \"claimer-service-config\",
                         \"S3_CONFIG_PATH\": \"claimer_conf_${net}.toml\",
-                        \"CLAIMER_SYNC_MODE\": \"1\"
+                        \"CLAIMER_SYNC_MODE\": \"1\",
+                        \"HONEYCOMB_KEY_ENCRYPTED\": \"AQICAHjdJG7IpPV3q1vuQqBwx7BqkzK7ZRcoefcuUK42fSelBgHpdbhjVe/afPtoAfFl7KxvAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMA7IIiEFoMuxrTNjCAgEQgDssejpKt4Mi2Ki/uRNqGpERi3pjvKP85Q7e/A/2sRjK3H6q+RO2a9hQKAmiqxBEKYd/duvSooEseX3+pA==\",
+                        \"HONEYCOMB_DATASET\": \"$net\"
                     }
                 }"
     )
