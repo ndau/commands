@@ -24,7 +24,8 @@ version = "~v1.3"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
-version = "~v1.3"
+# version = "~v1.3"
+branch = "prgn-autoflush"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/rest"

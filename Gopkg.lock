@@ -582,12 +582,12 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:a6e407e79884332da0bd0671d247cbcd15119f4d9397104e3d7a3665c7ade07b"
+  branch = "prgn-autoflush"
+  digest = "1:04246474fb2668bfaea7ca0d5a4d1c5d5040cf1cd2fe6b09c38e1fede73f7d93"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "aa2af29d92adea204a6365d09e14256c2e34211f"
-  version = "v1.3.2"
+  revision = "6ae1b289440092a8481c44ccbdbb8fa5e7813aa0"
 
 [[projects]]
   branch = "prgn-propagate-logger"
