@@ -73,11 +73,11 @@ func getLogger(sess *session.Session) *log.Entry {
 
 		hcKey := string(hckdo.Plaintext)
 		leh = leh.WithField("HONEYCOMB_KEY", redact(hcKey))
-		leh.Debug("decrypted honeycomb key")
 
 		// then set the key in the environment...
 		os.Setenv("HONEYCOMB_KEY", hcKey)
 
+		leh.Info("setting up honeycomb")
 		// then finally perform normal honeycomb setup
 		return honeycomb.Setup(logger).WithField("bin", "claimer")
 	}
