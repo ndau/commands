@@ -27,6 +27,10 @@ name = "github.com/oneiro-ndev/o11y"
 version = "~v1.3"
 
 [[constraint]]
+name = "github.com/oneiro-ndev/rest"
+branch = "prgn-propagate-logger"
+
+[[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
 version = "~v1.5"
 
