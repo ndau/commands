@@ -90,6 +90,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [TransactionByHash](#transactionbyhash)
 
+* [TransactionBefore](#transactionbefore)
+
 * [TxPrevalidate](#txprevalidate)
 
 * [TxSubmit](#txsubmit)
@@ -377,7 +379,7 @@ _**Writes:**_
 
 ### `GET /block/before/:height`
 
-_Returns a (possibly filtered) sequence of block metadata for a range of blocks on or before a given height._
+_Returns a (possibly filtered) sequence of block metadata for blocks on or before a given height._
 
 
 
@@ -1541,6 +1543,7 @@ _**Writes:**_
           "TxOffset": 3,
           "Fee": 0,
           "SIB": 0,
+          "TxHash": "123abc34099f",
           "TxType": "Lock",
           "TxData": {
             "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
@@ -1548,6 +1551,56 @@ _**Writes:**_
             "sequence": 1234,
             "signatures": null
           }
+        }
+```
+
+
+
+---
+## TransactionBefore
+
+### `GET /transaction/before/:txhash`
+
+_Returns a sequence of transaction metadata for transactions equal to or before a given transaction._
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ txhash | Path | Transactions after this will not be returned. | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "Txs": [
+            {
+              "BlockHeight": 1234,
+              "TxOffset": 3,
+              "Fee": 0,
+              "SIB": 0,
+              "TxHash": "123abc34099f",
+              "TxType": "Lock",
+              "TxData": {
+                "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+                "period": "1m",
+                "sequence": 1234,
+                "signatures": null
+              }
+            }
+          ],
+          "NextTxHash": "123abc34099f"
         }
 ```
 
