@@ -17,13 +17,18 @@ Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/on
 The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package.
 1. Install the Xcode command-line tools: `xcode-select --install`
 1. Install [Brew](https://brew.sh/)
-1. Install `go`: `brew install go`
-1. Install `dep`: `brew install dep`
-1. Install Redis:
+1. Install [Python3](https://www.python.org/downloads/)
+1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
+    ```sh
+    python3 -m pip install remarshal --user
+    ```
+2. Install `go`: `brew install go`
+3. Install `dep`: `brew install dep`
+4. Install Redis:
     - Run `which redis-server` to see if you've got redis currently installed on your machine
     - If it's already installed, run `brew upgrade redis@5.0`
     - Otherwise, run `brew install redis@5.0`
-1. Install `jq`: `brew install jq`
+5. Install `jq`: `brew install jq`
 
 #### Ubuntu:
 
