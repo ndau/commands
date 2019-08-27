@@ -22,7 +22,7 @@ import time
 MIN_WAIT_BETWEEN_NODES = 120
 
 # Repository URI for our ndauimage Docker images.
-ECR_URI = "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node"
+ECR_URI = "578681496768.dkr.ecr.us-east-1.amazonaws.com/ndauimage"
 
 
 def fetch_container_definitions(node_name, region):
