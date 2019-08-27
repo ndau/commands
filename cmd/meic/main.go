@@ -20,7 +20,7 @@ type args struct {
 
 func main() {
 	args := args{
-		DefaultStackDepth: 2,
+		DefaultStackDepth: 3,
 	}
 	arg.MustParse(&args)
 

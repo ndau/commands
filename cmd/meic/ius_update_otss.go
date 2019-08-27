@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
@@ -17,7 +19,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 		// these panics
 		check(err, "failed to get blockchain summary")
 	}
-
+	fmt.Println("summary = ", summary)
 	// 2. compute the current desired target sales stack
 	stack := make([]ots.SellOrder, 0, ius.stackGen+1)
 	partial := uint(0)
@@ -43,7 +45,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 		})
 		issued += remainingInBlock
 	}
-	for i := uint(0); i < ius.stackGen; i++ {
+	for i := partial; i < ius.stackGen; i++ {
 		stack = append(stack, ots.SellOrder{
 			Qty:   napuInBlock,
 			Price: price(issued),
@@ -53,10 +55,10 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 
 	// 3. send that stack individually to each OTS
 	for idx, uoChan := range ius.updates {
-		depth := ius.stackDefault + partial
+		depth := ius.stackDefault
 		if ius.config != nil && ius.config.DepthOverrides != nil {
 			if do, ok := ius.config.DepthOverrides[uint(idx)]; ok {
-				depth = do + partial
+				depth = do
 			}
 		}
 		// spawn goroutines because we don't want to block the main thread

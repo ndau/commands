@@ -160,6 +160,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		case sale := <-ius.sales:
 			ius.handleSale(sale, sigserv)
 			fmt.Println("sale = ", sale)
+			time.Sleep(1 * time.Second)
 			ius.updateOTSs()
 		case err := <-ius.errs:
 			// for now, just quit and depend on procmon to restart us after a

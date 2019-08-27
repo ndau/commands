@@ -155,7 +155,7 @@ ws_addr=$(echo "$sigconfig_json" | jq .connections.local.url --raw-output)
 
 # ensure there's plenty of un-issued RFE'd ndau floating around
 # this is an arbitrary address; nobody's expected to have access to it
-"$NDAU" rfe 50000 --address ndaaiz75f4ejxp3gdxb7eqct4wuyukrj36epf245qaeifcw2
+# "$NDAU" rfe 50000 --address ndaaiz75f4ejxp3gdxb7eqct4wuyukrj36epf245qaeifcw2
 
 # let's start running things!
 # before we start: we're going to be running several background tasks,
@@ -224,7 +224,7 @@ go run "$signing_service_path" -c "$sigconfig" &
 
 # give everything a bit to get settled
 echo "processing, please wait"
-sleep 60
+sleep 600
 
 # The sequence of events when we went to sleep just then:
 #

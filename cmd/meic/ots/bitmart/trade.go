@@ -132,11 +132,12 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 			return errors.Wrap(err, "parsing trade history response")
 		}
 
+		log.Println("trade hist = ", th)
 		midx := -1
 		for idx, trade := range th.Trades {
-			if trade.EntrustID > tradeIDLimit {
+			if trade.TradeID > tradeIDLimit {
 				midx = idx
-				if trade.EntrustID > maxTradeID {
+				if trade.TradeID > maxTradeID {
 					maxTradeID = trade.TradeID
 				}
 			} else {
@@ -155,7 +156,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 		return nil, 0, errors.Wrap(err, "getting first trade history page")
 	}
 
-	for !stop && th.CurrentPage < th.TotalPages {
+	for !stop && th.CurrentPage < (th.TotalPages-1) {
 		err = getPage()
 		if err != nil {
 			return trades, maxTradeID, errors.Wrap(err, fmt.Sprintf("getting trade history page %d", offset/limit))
