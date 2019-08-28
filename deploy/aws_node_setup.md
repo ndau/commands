@@ -288,7 +288,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                 },
                 {
                     "name": "HONEYCOMB_DATASET",
-                    "value": "sc-node-mainnet"
+                    "value": "mainnet"
                 },
                 {
                     "name": "SLACK_DEPLOYS_KEY",
@@ -306,7 +306,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
             "memoryReservation": 512,
             "volumesFrom": [],
             "stopTimeout": null,
-            "image": "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:cb8e545",
+            "image": "578681496768.dkr.ecr.us-east-1.amazonaws.com/ndauimage:cb8e545",
             "startTimeout": null,
             "dependsOn": null,
             "disableNetworking": null,
