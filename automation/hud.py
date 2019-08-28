@@ -52,7 +52,7 @@ def render_hud():
 
     column_width = 11
     x_node = 1
-    x_health = x_node + column_width
+    x_health = x_node + column_width + 4
     x_version = x_health + column_width
     x_sha = x_version + column_width
     x_catchup = x_sha + column_width
@@ -70,7 +70,7 @@ def render_hud():
     print_at(
         x_node,
         y_network + 1,
-        "---------- ---------- ---------- ---------- ---------- ---------- ----------",
+        "-------------- ---------- ---------- ---------- ---------- ---------- ----------",
     )
 
     # Fetch the api and rpc urls once.
