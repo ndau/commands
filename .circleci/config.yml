@@ -449,10 +449,10 @@ jobs:
                     s3://ndau-images/current-$NETWORK_NAME.txt
             fi
             # retag built image
-            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
+            docker tag ndauimage $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/ndauimage:$SHA
             docker rmi ndauimage:$SHA
             # push the image to ECR
-            docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/sc-node:$SHA
+            docker push $AWS_ACCOUNT.dkr.ecr.$ECR_REGION.amazonaws.com/ndauimage:$SHA
 
   deploy:
     <<: *general_config
