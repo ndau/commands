@@ -20,15 +20,15 @@ The Homebrew package manager is by far the easiest way to install these tools, b
 1. Install [Python3](https://www.python.org/downloads/)
 1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
     ```sh
-    python3 -m pip install remarshal --user
+    python3 -m pip install remarshal
     ```
-2. Install `go`: `brew install go`
-3. Install `dep`: `brew install dep`
-4. Install Redis:
+1. Install `go`: `brew install go`
+1. Install `dep`: `brew install dep`
+1. Install Redis:
     - Run `which redis-server` to see if you've got redis currently installed on your machine
     - If it's already installed, run `brew upgrade redis@5.0`
     - Otherwise, run `brew install redis@5.0`
-5. Install `jq`: `brew install jq`
+1. Install `jq`: `brew install jq`
 
 #### Ubuntu:
 
@@ -52,7 +52,7 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
 To create a custom configuration (usually to replicate a testnet or mainnet configuration), do the following **before** running `./bin/run.sh` for the first time. If you're already running with the default pre-installed configuration, remove the `~/.localnet` directory first.
     
 1. Create the directory `~/.localnet/genesis_files`
-2. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
+1. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
     
     ```sh
     go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
@@ -60,7 +60,7 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
        -a ~/.localnet/genesis_files/system_accounts.toml
     ```
      
-3. Edit those files as desired for a custom configuration
+1. Edit those files as desired for a custom configuration
 
 ### Running
 
