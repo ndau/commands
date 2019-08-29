@@ -5,13 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	sdk "github.com/oneiro-ndev/ndau/pkg/api_sdk"
 	"github.com/oneiro-ndev/ndau/pkg/ndau"
 	"github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	log "github.com/sirupsen/logrus"
-	"github.com/tendermint/tendermint/rpc/client"
 )
 
 // intended to be launched in a goroutine. Create a claim node reward tx
@@ -22,16 +21,20 @@ func dispatch(logger *log.Entry, node string, addr address.Address, keys []signa
 		"winnerAddress": addr.String(),
 	})
 
-	rpc := client.NewHTTP(node, "/websocket")
+	client, err := sdk.NewClient(node)
+	if err != nil {
+		logger.WithError(err).Error("could not connect to ndau node")
+		return
+	}
 
-	ad, _, err := tool.GetAccount(rpc, addr)
+	ad, err := client.GetAccount(addr)
 	if err != nil {
 		logger.WithError(err).Error("could not get account data")
 		return
 	}
 
 	tx := ndau.NewClaimNodeReward(addr, ad.Sequence+1, keys...)
-	_, err = tool.SendCommit(rpc, tx)
+	_, err = client.Send(tx)
 	if err != nil {
 		logger.WithError(err).Error("could not send claim tx")
 	} else {
