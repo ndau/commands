@@ -1561,7 +1561,7 @@ _**Writes:**_
 
 ### `GET /transaction/before/:txhash`
 
-_Returns a sequence of transaction metadata for transactions before a given transaction._
+_Returns a sequence of transaction metadata for transactions on or before a given transaction hash._
 
 
 
@@ -1570,7 +1570,7 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- txhash | Path | Only transactions before this will be returned. Leave blank to get the most recent page of transactions | string
+ txhash | Path | Only transactions on or before this will be returned. Use 'start' to get the most recent page of transactions | string
  types | Query | Comma-separated list of transaction types to return. Leave blank to get transactions of any type | string
  limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
@@ -1600,7 +1600,8 @@ _**Writes:**_
                 "signatures": null
               }
             }
-          ]
+          ],
+          "NextTxHash": "123abc34099f"
         }
 ```
 
