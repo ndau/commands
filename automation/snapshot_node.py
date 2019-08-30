@@ -83,8 +83,8 @@ def get_container_id(node_name):
 def snapshot_node(node_name):
     """
     Cause the given node to take a snapshot and upload it to S3 and register it as the latest.
-    Only works for nodes on AWS that have been configured with S3 creds, like testnet-5 and
-    mainnet-5.  Otherwise, the snapshot will get generated inside the node's container, but
+    Only works for nodes on AWS that have been configured with S3 creds, like testnet-backup and
+    mainnet-backup.  Otherwise, the snapshot will get generated inside the node's container, but
     not uploaded.
     """
 
