@@ -16,7 +16,7 @@ version = "~v1.6"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-branch = "eas-ndau-386"
+branch = "eas-ndau-390"
 #version = "~v1.21"
 
 [[constraint]]
