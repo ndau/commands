@@ -80,7 +80,7 @@ func main() {
 	}
 
 	// initialize configuration
-	cf, warn, err := cfg.New()
+	cf, warn, err := cfg.NewFromEnv()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: could not get config: %v\n", err)
 		usage()
