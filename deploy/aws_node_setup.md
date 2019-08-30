@@ -103,6 +103,7 @@ In all cases, leave default settings unless specified below.
     - EC2 Linux + Networking
     - Next step
     - Cluster name: `mainnet-<N>`
+    - EC2 instance type: `m5.large`
     - Key pair: `sc-node-ec2-keypair`
     - VPC: `mainnet-<N>`
     - Subnets: `mainnet-<N>-private` (do not select the public one)
