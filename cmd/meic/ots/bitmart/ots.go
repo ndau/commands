@@ -26,47 +26,53 @@ type OTS struct {
 // compile-time check that we actually do implement that interface
 var _ ots.OrderTrackingSystem = (*OTS)(nil)
 
+// UpdateQty updates the qty in an order on the order stack at an exchange,
+// usually by cancelling and replacing
 func (e OTS) UpdateQty(order ots.SellOrder) error {
-	fmt.Println("update = ", order)
-	err := CancelOrder(&e.auth, order.ID)
-	//	err := error(nil)
+	log.Println("update = ", order)
+	err := error(nil)
+	//	err = CancelOrder(&e.auth, order.ID)
 	if err != nil {
 		err = errors.Wrap(err, "cancel order request")
 		return err
 	}
-	fmt.Println("OTS = ", e)
+	log.Println("OTS = ", e)
 	qty := float64(order.Qty) / 100000000
-	fmt.Println("qty = ", qty)
+	log.Println("qty = ", qty)
 	price := float64(order.Price) / 100000000000
-	fmt.Println("price = ", price)
-	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
+	log.Println("price = ", price)
+	id := uint64(0)
+	//	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
 	order.ID = uint64(id)
-	//	err = error(nil)
 	return err
 }
 
+// Delete deletes an order off the order stack on the exchange
 func (e OTS) Delete(order ots.SellOrder) error {
-	fmt.Println("delete = ", order)
-	return CancelOrder(&e.auth, order.ID)
-	// return nil
+	log.Println("delete = ", order)
+	err := error(nil)
+	//	err = CancelOrder(&e.auth, order.ID)
+	return err
 }
 
+// Submit submits a new order to the order stack at the exchange
 func (e OTS) Submit(order ots.SellOrder) error {
-	fmt.Println("submit = ", order)
-	fmt.Println("OTS = ", e)
+	log.Println("submit = ", order)
+	log.Println("OTS = ", e)
 	qty := float64(order.Qty) / 100000000
-	fmt.Println("qty = ", qty)
+	log.Println("qty = ", qty)
 	price := float64(order.Price) / 100000000000
-	fmt.Println("price = ", price)
+	log.Println("price = ", price)
 	err := error(nil)
-	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
+	id := uint64(0)
+	//	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
 	order.ID = uint64(id)
 	return err
 }
 
 // Init implements ots.OrderTrackingSystem
 func (e OTS) Init(logger logrus.FieldLogger) error {
-	fmt.Println("symbol = ", e.Symbol)
+	log.Println("symbol = ", e.Symbol)
 
 	return nil
 }
@@ -124,7 +130,7 @@ func (e OTS) Run(
 			orders, err := GetOrderHistory(&e.auth, e.Symbol, e.statusFilter)
 			if err != nil {
 				errs <- errors.Wrap(err, "getting orders")
-				return
+				continue
 			}
 
 			curStack := make([]ots.SellOrder, 0, 4)
@@ -140,14 +146,14 @@ func (e OTS) Run(
 					qty, err := ndaumath.ParseNdau(fQty)
 					if err != nil {
 						errs <- errors.Wrap(err, "converting remaining amount")
-						return
+						continue
 					}
 
 					fPrice := fmt.Sprintf("%f", orders[i].Price)
 					price, err := pricecurve.ParseDollars(fPrice)
 					if err != nil {
 						errs <- errors.Wrap(err, "converting price")
-						return
+						continue
 					}
 
 					curStack = append(curStack, ots.SellOrder{
@@ -182,9 +188,12 @@ func (e OTS) Run(
 		trades, maxTradeID, err = GetTradeHistoryAfter(&e.auth, e.Symbol, maxTradeID)
 		if err != nil {
 			errs <- errors.Wrap(err, "get order history after")
-			return
+			time.Sleep(1 * time.Second)
+			continue
 		}
-		log.Println("new trades = ", trades)
+		if len(trades) > 0 {
+			log.Println("new trades = ", trades)
+		}
 		var tps = ots.TargetPriceSale{Qty: 0}
 		// if there are new trades, loop through them, add them up, and notify IUS of new sales
 		if len(trades) > 0 {

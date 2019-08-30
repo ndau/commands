@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -13,12 +14,11 @@ var logger logrus.FieldLogger
 
 func check(err error, context string) {
 	if err != nil {
-		fmt.Fprintln(os.Stderr, context+":")
-		fmt.Fprintln(os.Stderr, err)
+		log.Println(context + ":")
+		log.Println(err)
 		if logger != nil {
-			logger.WithError(err).WithField("context", context).Error("aborting")
+			logger.WithError(err).WithField("context", context).Error("error in IUS message loop")
 		}
-		os.Exit(1)
 	}
 }
 

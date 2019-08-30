@@ -123,7 +123,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 
 		var out bytes.Buffer
 		err = json.Indent(&out, data, "", "  ")
-		// log.Printf("data = %s", out.Bytes())
+		//		log.Printf("data = %s", out.Bytes())
 
 		offset += limit
 
@@ -132,7 +132,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 			return errors.Wrap(err, "parsing trade history response")
 		}
 
-		log.Println("trade hist = ", th)
+		//		log.Println("trade hist = ", th)
 		midx := -1
 		for idx, trade := range th.Trades {
 			if trade.TradeID > tradeIDLimit {
@@ -146,7 +146,9 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 			}
 		}
 		trades = append(trades, th.Trades[:midx+1]...)
-		log.Println("trades = ", trades)
+		if len(trades) > 0 {
+			log.Println("trades = ", trades)
+		}
 		return nil
 	}
 
