@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	ndaumath "github.com/oneiro-ndev/ndaumath/pkg/types"
 )
 
 // this helper computes the desired stack and forwards it to all OTSs
@@ -23,13 +24,14 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	// 2. compute the current desired target sales stack
 	stack := make([]ots.SellOrder, 0, ius.stackGen+1)
 	partial := uint(0)
-	issued := summary.TotalIssue
+	// JSG round remaining to 2 significant digs of ndau for exchange
+	issued := ndaumath.Ndau(math.Round(float64(summary.TotalIssue)/1000000) * 1000000)
 
-	napuInBlock := math.Ndau(pricecurve.SaleBlockQty * constants.NapuPerNdau)
+	napuInBlock := ndaumath.Ndau(pricecurve.SaleBlockQty * constants.NapuPerNdau)
 	issuedInBlock := issued % napuInBlock
 	remainingInBlock := (napuInBlock - issuedInBlock) % napuInBlock
 
-	price := func(issued math.Ndau) pricecurve.Nanocent {
+	price := func(issued ndaumath.Ndau) pricecurve.Nanocent {
 		p, err := pricecurve.PriceAtUnit(issued)
 		if err != nil {
 			check(err, "calculating expected price")

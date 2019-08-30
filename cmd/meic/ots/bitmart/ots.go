@@ -3,11 +3,11 @@ package bitmart
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
 	ndaumath "github.com/oneiro-ndev/ndaumath/pkg/types"
@@ -71,38 +71,6 @@ func (e OTS) Init(logger logrus.FieldLogger) error {
 	return nil
 }
 
-// SubscribeTrade generates a request to subscribe to a trade feed
-func subscribeTrade(symbol string, precision int) ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"subscribe": "trade",
-		"symbol":    symbol,
-		"precision": precision,
-	})
-}
-
-func listen(conn *websocket.Conn, messages chan<- []byte) {
-	defer close(messages)
-
-	for {
-		mtype, message, err := conn.ReadMessage()
-		if err != nil {
-			logrus.WithError(err).Error("failed to read message")
-			return
-		}
-		switch mtype {
-		case websocket.CloseMessage:
-			logrus.WithField("data", message).Info("received close messagse from server")
-			return
-		case websocket.TextMessage, websocket.BinaryMessage:
-			messages <- message
-		case websocket.PongMessage:
-			// ignore it; it's pretty unlikely without our originating pings, anyway
-		case websocket.PingMessage:
-			logrus.Debug("ignoring ping message originating from server")
-		}
-	}
-}
-
 func prettyJSON(bytes []byte) (s string, err error) {
 	var obj interface{}
 	err = json.Unmarshal(bytes, &obj)
@@ -135,7 +103,7 @@ func (e OTS) Run(
 		"statusFilter": e.statusFilter,
 	}).Debug("setup status filter")
 
-	fmt.Println("OTS =", e)
+	log.Println("OTS =", e)
 
 	// launch a goroutine to watch the updates channel
 	go func() {
@@ -152,7 +120,7 @@ func (e OTS) Run(
 				upd.Orders[idx].Price = pricecurve.Nanocent(math.Round(float64(upd.Orders[idx].Price)/10000000) * 10000000)
 			}
 			// update the current stack
-			fmt.Println("OTS =", e)
+			log.Println("OTS =", e)
 			orders, err := GetOrderHistory(&e.auth, e.Symbol, e.statusFilter)
 			if err != nil {
 				errs <- errors.Wrap(err, "getting orders")
@@ -190,8 +158,8 @@ func (e OTS) Run(
 				}
 			}
 
-			fmt.Println("curstack =", curStack)
-			fmt.Println("update stack =", upd.Orders)
+			log.Println("curstack =", curStack)
+			log.Println("update stack =", upd.Orders)
 
 			err = ots.SynchronizeOrders(curStack, upd.Orders, e.UpdateQty, e.Delete, e.Submit)
 			if err != nil {
@@ -201,45 +169,6 @@ func (e OTS) Run(
 		}
 	}()
 
-	// listen to Bitmart websocket until we get a new trade
-	// conn, _, err := websocket.DefaultDialer.Dial(WSSBitmart, nil)
-	// if err != nil {
-	// 	errs <- errors.Wrap(err, "subscribing to trades")
-	// }
-	// defer conn.Close()
-
-	// st, err := subscribeTrade(e.Symbol, 2)
-	// if err != nil {
-	// 	errs <- errors.Wrap(err, "make subscribe json")
-	// }
-	// logrus.WithField("subscribe", string(st)).Debug("subscribe to XND symbol")
-
-	// err = conn.WriteMessage(websocket.TextMessage, st)
-	// if err != nil {
-	// 	errs <- errors.Wrap(err, "writing message")
-	// }
-
-	// messages := make(chan []byte)
-	// go listen(conn, messages)
-
-	// for {
-	// 	select {
-	// 	case message, ok := <-messages:
-	// 		if !ok {
-	// 			errs <- errors.Wrap(err, "getting message")
-	// 			return
-	// 		}
-	// 		js, err := prettyJSON(message)
-	// 		if err != nil {
-	// 			errs <- errors.Wrap(err, "failed to pretty JSON")
-	// 			logrus.WithError(err).Error("failed to prettify JSON")
-	// 			fmt.Printf("%s\n", message)
-	// 		} else {
-	// 			fmt.Println(js)
-	// 		}
-	// 	}
-	// }
-
 	// make first call to get max trade ID
 	var maxTradeID int64
 	_, maxTradeID, err = GetTradeHistory(&e.auth, e.Symbol)
@@ -247,7 +176,7 @@ func (e OTS) Run(
 		errs <- errors.Wrap(err, "get order history")
 		return
 	}
-	fmt.Println("max trade = ", maxTradeID)
+	log.Println("max trade = ", maxTradeID)
 	var trades []Trade
 	for {
 		trades, maxTradeID, err = GetTradeHistoryAfter(&e.auth, e.Symbol, maxTradeID)
@@ -255,12 +184,16 @@ func (e OTS) Run(
 			errs <- errors.Wrap(err, "get order history after")
 			return
 		}
-		fmt.Println("new trades = ", trades)
-		for _, trade := range trades {
-			var tps = ots.TargetPriceSale{Qty: trade.Amount}
+		log.Println("new trades = ", trades)
+		var tps = ots.TargetPriceSale{Qty: 0}
+		// if there are new trades, loop through them, add them up, and notify IUS of new sales
+		if len(trades) > 0 {
+			for _, trade := range trades {
+				tps.Qty = tps.Qty + trade.Amount
+			}
 			sales <- tps
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 }

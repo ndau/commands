@@ -123,7 +123,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 
 		var out bytes.Buffer
 		err = json.Indent(&out, data, "", "  ")
-		log.Printf("data = %s", out.Bytes())
+		// log.Printf("data = %s", out.Bytes())
 
 		offset += limit
 

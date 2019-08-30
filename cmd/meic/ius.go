@@ -146,7 +146,8 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			ius.errs,
 		)
 	}
-
+	// sync up the OTSs with the current state of issuance on the blockchain
+	ius.updateOTSs()
 	// everything's set up, let's handle some messages!
 	for {
 		timeout := time.After(10 * time.Minute)
@@ -160,6 +161,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		case sale := <-ius.sales:
 			ius.handleSale(sale, sigserv)
 			fmt.Println("sale = ", sale)
+			// wait for Issue TX to settle on blockchain
 			time.Sleep(1 * time.Second)
 			ius.updateOTSs()
 		case err := <-ius.errs:
