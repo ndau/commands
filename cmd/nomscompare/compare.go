@@ -255,8 +255,9 @@ func setItems(s nt.Set) (items []string, err error) {
 }
 
 func structFields(s nt.Struct) (fields []string) {
-	s.IterFields(func(name string, v nt.Value) {
+	s.IterFields(func(name string, v nt.Value) (stop bool) {
 		fields = append(fields, name)
+		return false
 	})
 	sort.Strings(fields)
 	return
