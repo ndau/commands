@@ -155,7 +155,7 @@ func GetTradeHistoryAfter(auth *Auth, symbol string, tradeIDLimit int64) ([]Trad
 	// get first page
 	err := getPage()
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "getting first trade history page")
+		return nil, maxTradeID, errors.Wrap(err, "getting first trade history page")
 	}
 
 	for !stop && th.CurrentPage < (th.TotalPages-1) {
