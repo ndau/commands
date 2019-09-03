@@ -513,7 +513,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "prgn-new-noms"
   digest = "1:4f92ab695bec50599bcae01f00f54829166c1d58e3ed8d3db28d9d45b9f0fe13"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -524,7 +523,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "88cf7b8e9cf44fd00bc8e66885438184bce068d1"
+  revision = "37fb303b2b3deb7dc3118c1cbe3555e3d1b9a920"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -543,7 +543,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-new-noms"
   digest = "1:696a7292ab8c04e46640e47cda6e46fe1a3d2dc6108469c15a77bff2279eadfd"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -562,7 +561,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "e344fe7d32aa4028ea521e11120102782546fb82"
+  revision = "aa9f40ac089d9178efadfc54601634009a2bab5d"
+  version = "v1.23.0"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
