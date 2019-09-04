@@ -70,7 +70,7 @@ The following scripts make modifications to nodes on a network.
 
 This should be the most common thing we need to do when controlling nodes on a network.  As long as we have backward-compatible changes, we can do a rolling upgrade of a network's nodes.
 
-First, find the SHA you want to upgrade to on [ECR](https://console.aws.amazon.com/ecr/repositories/sc-node/?region=us-east-1).  The image revisions that show up there come from devnet master deploys and tagged builds from a branch (e.g. `git tag your-tag-push`).  Only SHAs that are listed here are allowed to be used when upgrading.
+First, find the SHA you want to upgrade to on [ECR](https://console.aws.amazon.com/ecr/repositories/ndauimage/?region=us-east-1).  The image revisions that show up there come from devnet master deploys and tagged builds from a branch (e.g. `git tag your-tag-push`).  Only SHAs that are listed here are allowed to be used when upgrading.
 
 To upgrade all nodes on testnet to the `badf00d` SHA:
 ```sh
@@ -86,13 +86,27 @@ To upgrade node 3 on testnet to the `badf00d` SHA:
 
 Single node upgrades are useful if you would like more control over the timing and order of node upgrades on a network.  It's also useful if a rolling upgrade was interrupted for any reason.
 
+### Upgrade with full reindex
+
+Sometimes we need to do a rolling upgrade, but force the nodes to wipe and reindex Redis data.  This is required if we change the format of an index, and is useful when we add new indexes that we want to have filled with everything that's on the blockchain already.
+
+To do this, we can choose a snapshot to start with.  This is more general than it needs to be for this use case, because here we'd always want to start with the genesis snapshot `snapshot-mainnet-1`:
+
+```sh
+./upgrade.py testnet --sha badf00d --snapshot snapshot-mainnet-1
+```
+
+This will cause testnet to upgrade to the given SHA, but the `testnet-backup` node will be the only one that reindexes from genesis.  (The testnet network is a fork of mainnet, so we use mainnet's genesis snapshot for both).  The upgrade-with-reindex process will then take a new snapshot and upload it to S3.  Then the rest of the network's nodes will do a rolling upgrade as usual, this time with the new "latest" snapshot with new Redis data.
+
+IMPORTANT: Because we don't upload a snapshot if the same-named snapshot already exists on S3, you must make sure that the latest blockheight (height of the last non-empty block) doesn't already have a snapshot uploaded with that height number in the name.  Check the S3 bucket first to see the latest snapshot height for the network you're upgrading.  Then compare against the latest non-empty block using the Blockchain Explorer (view all blocks, hiding empty blocks).  If the heights are the same, you can work around this by moving away the latest snapshot on S3 first.  There is a private bucket at `s3://ndau-snapshots/old/<NETWORK>-vX.Y.Z` you can move it to.  You should move away all old snapshots on the network you're upgrading-with-reindex anyway, because after the new snapshot is taken, all old ones become obsolete (since they have old Redis data in them).  The only one we keep forever is `snapshot-mainnet-1.tgz`.  That, too, has obsolete Redis data in it, but generally on an upgrade-with-reindex, we bump the `indexVersion` in Go code, to force a reindex of the sysvars present from noms in that snapshot.  So the obsolete Redis data gets regenerated automatically, and relatively quickly, when the backup node first starts up using that snapshot.
+
 ### Snapshot
 
 We can cause a node to take a snapshot of its data files then upload it to S3 and register it as the latest snapshot for its network.
 
-To cause node 5 on testnet to take a snapshot:
+To cause the backup (snapshot-taking) node on testnet to take a snapshot:
 ```sh
-./snapshot_node.py testnet-5
+./snapshot_node.py testnet-backup
 ```
 
 ### Configure
@@ -130,7 +144,7 @@ If there are things you'd like to change about a node that the above scripts don
 1. Sign on to AWS
 1. Choose a region in the upper right corner
     - testnet-0 and mainnet-0 are on `us-east-1` (N. Virginia)
-    - testnet-1, testnet-5, mainnet-1 and mainnet-5 are on `us-east-2` (Ohio)
+    - testnet-1, testnet-backup, mainnet-1 and mainnet-backup are on `us-east-2` (Ohio)
     - devnet (all nodes), testnet-2 and mainnet-2 are on `us-west-1` (N. California)
     - testnet-3 and mainnet-3 are on `us-west-2` (Oregon)
     - testnet-4 and mainnet-4 are on `ap-southeast-1` (Singapore)

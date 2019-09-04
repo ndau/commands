@@ -12,11 +12,11 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.6"
+version = "~v1.7"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.21"
+version = "~v1.23"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -50,7 +50,6 @@ branch = "master"
 [[override]]
 name = "github.com/attic-labs/noms"
 branch = "master"
-source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/gofrs/uuid"

@@ -18,6 +18,25 @@
   version = "v0.11"
 
 [[projects]]
+  branch = "master"
+  digest = "1:a7f619ffc7b99687f9444bd0a07509fec8ae708a7175d234878129896c0918a8"
+  name = "github.com/alecthomas/template"
+  packages = [
+    ".",
+    "parse",
+  ]
+  pruneopts = ""
+  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:86ea497979270399c5e544bbdc6f3a846078cd7c6d9be40fd0012ab54fee4052"
+  name = "github.com/alecthomas/units"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c3de453c63f4bdb4dadffab9805ec00426c505f7"
+
+[[projects]]
   digest = "1:5418edaba5856d5a67695d3c1d1fb2b60f2b7fdee95ab2879904a00cc0139fc6"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
@@ -54,8 +73,16 @@
   revision = "b6552d20145fbabab0c1c1dd00a0bc834df9c3dd"
 
 [[projects]]
+  digest = "1:15d017551627c8bb091bde628215b2861bed128855343fdd570c62d08871f6e1"
+  name = "github.com/attic-labs/kingpin"
+  packages = ["."]
+  pruneopts = ""
+  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
+  version = "v2.2.6"
+
+[[projects]]
   branch = "master"
-  digest = "1:b40230d769d63a8bcaa3dfe8aeae48fa4037fae7accdd4034fa7f3292f47592b"
+  digest = "1:9e791b07b9d7a3537adff1ab8c0e3c1a558354038146b45a6fc3e7e5c0bb5e3e"
   name = "github.com/attic-labs/noms"
   packages = [
     "go/chunks",
@@ -80,8 +107,7 @@
     "go/util/writers",
   ]
   pruneopts = ""
-  revision = "186e0939a5044b182bce9e60dea910bd6bcb5cd9"
-  source = "github.com/oneiro-ndev/noms"
+  revision = "1d6d4689808c155bccec3764720abfcb4ff9a3e7"
 
 [[projects]]
   digest = "1:deba4f4561cc7490127f599626c78cbfe972ffacc8edfaf77710de8922e0ae77"
@@ -392,14 +418,6 @@
   version = "1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:6ea4e90d9fc387ca27c25348e40dbe38c3606eec7f283bf98a39db59b37ed5bb"
-  name = "github.com/juju/gnuflag"
-  packages = ["."]
-  pruneopts = ""
-  revision = "2ce1bb71843d6d179b3f1c1c9cb4a72cd067fc65"
-
-[[projects]]
   digest = "1:deeb6536ebbcb66ab11213ecfaac9daadfcd004dd057446a4980ffd6c15c36e2"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
@@ -496,7 +514,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:7942bb2f07558d7b6b0e6b186f32fb4119544d695b1769e75710b90848ef9276"
+  digest = "1:4f92ab695bec50599bcae01f00f54829166c1d58e3ed8d3db28d9d45b9f0fe13"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -506,8 +524,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "75dbeb9897cac6d52485c42d1bb295bd5de95380"
-  version = "v1.6.5"
+  revision = "37fb303b2b3deb7dc3118c1cbe3555e3d1b9a920"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -526,7 +544,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:e74c2a132ad9f7b1e5aac82131b86136b0fe9e7f2bfb2fc1a03371f316f2921d"
+  digest = "1:696a7292ab8c04e46640e47cda6e46fe1a3d2dc6108469c15a77bff2279eadfd"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/ndau",
@@ -544,8 +562,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "9198f7d7520854e68462de08d59daac93fe8a829"
-  version = "v1.21.1"
+  revision = "aa9f40ac089d9178efadfc54601634009a2bab5d"
+  version = "v1.23.0"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"

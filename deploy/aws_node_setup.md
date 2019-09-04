@@ -103,6 +103,7 @@ In all cases, leave default settings unless specified below.
     - EC2 Linux + Networking
     - Next step
     - Cluster name: `mainnet-<N>`
+    - EC2 instance type: `m5.large`
     - Key pair: `sc-node-ec2-keypair`
     - VPC: `mainnet-<N>`
     - Subnets: `mainnet-<N>-private` (do not select the public one)
@@ -288,7 +289,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
                 },
                 {
                     "name": "HONEYCOMB_DATASET",
-                    "value": "sc-node-mainnet"
+                    "value": "mainnet"
                 },
                 {
                     "name": "SLACK_DEPLOYS_KEY",
@@ -306,7 +307,7 @@ NOTE: If you change the image used, you must do a rolling restart of mainnet nod
             "memoryReservation": 512,
             "volumesFrom": [],
             "stopTimeout": null,
-            "image": "578681496768.dkr.ecr.us-east-1.amazonaws.com/sc-node:cb8e545",
+            "image": "578681496768.dkr.ecr.us-east-1.amazonaws.com/ndauimage:cb8e545",
             "startTimeout": null,
             "dependsOn": null,
             "disableNetworking": null,
