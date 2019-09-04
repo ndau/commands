@@ -466,6 +466,14 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
+  digest = "1:e2beacef2053964dea3a7b8ccb105a46d101274cbce02698b1f0db630bb39046"
+  name = "github.com/libp2p/go-buffer-pool"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c4a5988a1e475884367015e1a2d0bd5fa4c491f4"
+  version = "v0.0.2"
+
+[[projects]]
   digest = "1:63722a4b1e1717be7b98fc686e0b30d5e7f734b9e93d7dee86293b6deab7ea28"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -547,6 +555,7 @@
   digest = "1:696a7292ab8c04e46640e47cda6e46fe1a3d2dc6108469c15a77bff2279eadfd"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
+    "pkg/api_sdk",
     "pkg/ndau",
     "pkg/ndau/backing",
     "pkg/ndau/config",
@@ -808,7 +817,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:17977f5e3cd66d7beddd7a582dd98215abf625974c28da501a8350846a58d171"
+  digest = "1:895f52f5e01627c8db1bc6da10233d8c6b4ac3dc056accbbb3774ef705ad5bf2"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -817,7 +826,9 @@
     "abci/example/kvstore",
     "abci/server",
     "abci/types",
-    "blockchain",
+    "behaviour",
+    "blockchain/v0",
+    "blockchain/v1",
     "config",
     "consensus",
     "consensus/types",
@@ -834,7 +845,6 @@
     "libs/autofile",
     "libs/clist",
     "libs/common",
-    "libs/db",
     "libs/events",
     "libs/fail",
     "libs/flowrate",
@@ -860,13 +870,22 @@
     "state/txindex",
     "state/txindex/kv",
     "state/txindex/null",
+    "store",
     "types",
     "types/time",
     "version",
   ]
   pruneopts = ""
-  revision = "8fb2c2a0e824d68a1c057e02b4897b085e3a855a"
-  version = "v0.31.7"
+  revision = "0ad70fb69aa39b20f35d127c25573c4e169f6f90"
+  version = "v0.32.3"
+
+[[projects]]
+  digest = "1:655a572c927b924550f8699c4045c6befb78c363f3010805f5f777e06e90caac"
+  name = "github.com/tendermint/tm-db"
+  packages = ["."]
+  pruneopts = ""
+  revision = "94017c88bf1d54efad5e99736182b97f32f73916"
+  version = "v0.1.1"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
@@ -1072,6 +1091,7 @@
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
+    "github.com/oneiro-ndev/ndau/pkg/api_sdk",
     "github.com/oneiro-ndev/ndau/pkg/ndau",
     "github.com/oneiro-ndev/ndau/pkg/ndau/backing",
     "github.com/oneiro-ndev/ndau/pkg/ndau/config",
