@@ -51,9 +51,10 @@ FROM go_build AS build_noms
 
 ENV ATTICLABS_DIR=$GOPATH/src/github.com/attic-labs
 RUN mkdir -p "$ATTICLABS_DIR"
-# This copy exists to bust the cache if we ever push commits to noms
+# This copy exists to bust the cache if new commits exist
 COPY ./noms_sha /
 RUN git clone git@github.com:attic-labs/noms.git "$ATTICLABS_DIR"/noms
+RUN go get -u "$ATTICLABS_DIR"/noms/...
 RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 
 
