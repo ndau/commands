@@ -164,6 +164,7 @@
     "private/protocol/xml/xmlutil",
     "service/dynamodb",
     "service/dynamodb/dynamodbattribute",
+    "service/kms",
     "service/s3",
     "service/sts",
   ]
@@ -599,20 +600,20 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:a6e407e79884332da0bd0671d247cbcd15119f4d9397104e3d7a3665c7ade07b"
+  digest = "1:04246474fb2668bfaea7ca0d5a4d1c5d5040cf1cd2fe6b09c38e1fede73f7d93"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "aa2af29d92adea204a6365d09e14256c2e34211f"
-  version = "v1.3.2"
+  revision = "9008d5eb126d49f45422114ff123f65e38e2fbe7"
+  version = "v1.3.3"
 
 [[projects]]
-  branch = "master"
-  digest = "1:9a0a4769746d52666b68e71dd06ccd6850c026f74eef39354350abce8db894f1"
+  digest = "1:421a898995cef1628dcad6fb07c282c1589fb54c8cf36af93ba538ae980f4cbb"
   name = "github.com/oneiro-ndev/rest"
   packages = ["."]
   pruneopts = ""
-  revision = "abad8f201243e4fd813d0f8b4102c3083f501960"
+  revision = "cf2ee21900a2ca6155b631c942ba320333773278"
+  version = "v0.1.0"
 
 [[projects]]
   digest = "1:05177ac5165995d13fe65c5fb1e9b481f5d32e2dc2a9501c08a1f391b7668887"
@@ -1053,6 +1054,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/dynamodb",
     "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
+    "github.com/aws/aws-sdk-go/service/kms",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/go-redis/redis",
     "github.com/google/shlex",
