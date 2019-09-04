@@ -13,12 +13,12 @@ version = "~v1.1"
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
 branch = "eas-ndau-390"
-#version = "~v1.6"
+#version = "~v1.7"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
 branch = "eas-ndau-390"
-#version = "~v1.22"
+#version = "~v1.23"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -27,6 +27,10 @@ version = "~v1.3"
 [[constraint]]
 name = "github.com/oneiro-ndev/o11y"
 version = "~v1.3"
+
+[[constraint]]
+name = "github.com/oneiro-ndev/rest"
+version = "~v0.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
@@ -47,7 +51,6 @@ branch = "master"
 [[override]]
 name = "github.com/attic-labs/noms"
 branch = "master"
-source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/gofrs/uuid"
