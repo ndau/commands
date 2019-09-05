@@ -515,7 +515,7 @@
 
 [[projects]]
   branch = "eas-ndau-390"
-  digest = "1:f946919ef0c533abedd6d1f2c6c63d80fffaf3445b919d1d9fe1273326086306"
+  digest = "1:cbfeda1ac9488041926bb36fb6a4edb5a9ce943eaa06d72a3620ba416a1bdf83"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -525,7 +525,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "46d33bd51197e955aaa9908f27e58a34d8fc5b23"
+  revision = "ae46dacc434e4af60f87134b5927faaa6a0182ec"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
