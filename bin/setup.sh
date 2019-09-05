@@ -76,6 +76,9 @@ else
     echo SETUP: Cloning noms...
     git clone "$NOMS_REPO"
 fi
+# Do a "go get" after cloning noms to match /docker/image/Dockerfile behavior.
+echo SETUP: Getting noms...
+go get -u "$ATTICLABS_DIR"/noms/...
 
 run_dep_ensure() {
     # These vendor directories sometimes cause dep ensure to fail, remove them first.
