@@ -545,7 +545,7 @@
 
 [[projects]]
   branch = "eas-ndau-390"
-  digest = "1:030075fd928c05ddc2771ac08728bbecaeefa1bb68e765969dbd373ffdf274a9"
+  digest = "1:9a54bfe790f957b4ab788ca8b0012fc9bae321fe1565525a10905509c3c00edf"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -564,7 +564,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "2183e29d25769fa6a9d4b6ac9bab3643aa953881"
+  revision = "2fd9a9fb83a5b33af3af9bed77fbec3c2de591ca"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
