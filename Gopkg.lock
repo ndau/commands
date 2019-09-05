@@ -514,7 +514,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:4f92ab695bec50599bcae01f00f54829166c1d58e3ed8d3db28d9d45b9f0fe13"
+  digest = "1:f946919ef0c533abedd6d1f2c6c63d80fffaf3445b919d1d9fe1273326086306"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -524,8 +524,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "37fb303b2b3deb7dc3118c1cbe3555e3d1b9a920"
-  version = "v1.7.0"
+  revision = "d6f6b0363e70b84103f71b4e0af387239d84e5ef"
+  version = "v1.7.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -544,9 +544,10 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:696a7292ab8c04e46640e47cda6e46fe1a3d2dc6108469c15a77bff2279eadfd"
+  digest = "1:607f7eeb05263fd1a2ba41af7239ef674fc41d65cfbea9b5d4a189378a2cb702"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
+    "pkg/api_sdk",
     "pkg/ndau",
     "pkg/ndau/backing",
     "pkg/ndau/config",
@@ -562,8 +563,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "aa9f40ac089d9178efadfc54601634009a2bab5d"
-  version = "v1.23.0"
+  revision = "f40f99745230abad9e8c389729924a472b4ff632"
+  version = "v1.23.1"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -1072,6 +1073,7 @@
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
+    "github.com/oneiro-ndev/ndau/pkg/api_sdk",
     "github.com/oneiro-ndev/ndau/pkg/ndau",
     "github.com/oneiro-ndev/ndau/pkg/ndau/backing",
     "github.com/oneiro-ndev/ndau/pkg/ndau/config",
