@@ -522,8 +522,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "prgn-update-tendermint"
-  digest = "1:c31872912ccc730cf06d26827ad2b9cb133559badd33e784411f764dd2fc693b"
+  digest = "1:1f291cf8e8b25456f645ad62cf14e985ff34f73eb577f2f13fc02b52efdec4ee"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -533,7 +532,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "36a3d4369bc964530d221eb13122a63554d98a53"
+  revision = "541655184285ca7e160a95366a10abb920db1a66"
+  version = "v1.8.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -552,8 +552,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-update-tendermint"
-  digest = "1:f37384a0ba2a5ac66e0f690aeba1bc7e8fcd529a040df2d7f4bc3655d1386eda"
+  digest = "1:7183894f1e78aeb929865bad75e65371df79f5936f2c8193c63466d61eb85273"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "b2c1dee43cec1a260d71f38e83ceea3175d70200"
+  revision = "b73fbabbfe388d6c9952c4d4e99e5e1836198749"
+  version = "v1.24.0"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
