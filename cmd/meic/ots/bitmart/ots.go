@@ -184,6 +184,7 @@ func (e OTS) Run(
 	}
 	log.Println("max trade = ", maxTradeID)
 	var trades []Trade
+	// now loop asking for new trades every X seconds, if we get some notify IUS
 	for {
 		trades, maxTradeID, err = GetTradeHistoryAfter(&e.auth, e.Symbol, maxTradeID)
 		if err != nil {
@@ -193,9 +194,10 @@ func (e OTS) Run(
 		}
 		if len(trades) > 0 {
 			log.Println("new trades = ", trades)
+			time.Sleep(10 * time.Second)
 		}
 		var tps = ots.TargetPriceSale{Qty: 0}
-		// if there are new trades, loop through them, add them up, and notify IUS of new sales
+		// if there are new trades, loop through them, add them up, and send message to IUS
 		if len(trades) > 0 {
 			for _, trade := range trades {
 				tps.Qty = tps.Qty + trade.Amount

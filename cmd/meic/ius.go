@@ -159,7 +159,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 		case <-timeout:
 			ius.updateOTSs()
 		case sale := <-ius.sales:
-			//			ius.handleSale(sale, sigserv)
+			ius.handleSale(sale, sigserv)
 			fmt.Println("sale = ", sale)
 			// wait for Issue TX to settle on blockchain
 			time.Sleep(1 * time.Second)
