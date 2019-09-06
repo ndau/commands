@@ -23,7 +23,7 @@ COPY --from=redis:5.0.4-alpine [ \
     ]
 
 # Use pre-built tendermint image
-COPY --from=tendermint/tendermint:v0.31.4 /usr/bin/tendermint /image/bin/
+COPY --from=tendermint/tendermint:v0.32.3 /usr/bin/tendermint /image/bin/
 
 
 # The go_build stage has all the tooling necessary to clone repos and build

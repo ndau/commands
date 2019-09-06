@@ -466,6 +466,14 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
+  digest = "1:e2beacef2053964dea3a7b8ccb105a46d101274cbce02698b1f0db630bb39046"
+  name = "github.com/libp2p/go-buffer-pool"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c4a5988a1e475884367015e1a2d0bd5fa4c491f4"
+  version = "v0.0.2"
+
+[[projects]]
   digest = "1:63722a4b1e1717be7b98fc686e0b30d5e7f734b9e93d7dee86293b6deab7ea28"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -514,7 +522,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:f946919ef0c533abedd6d1f2c6c63d80fffaf3445b919d1d9fe1273326086306"
+  digest = "1:1f291cf8e8b25456f645ad62cf14e985ff34f73eb577f2f13fc02b52efdec4ee"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -524,8 +532,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "d6f6b0363e70b84103f71b4e0af387239d84e5ef"
-  version = "v1.7.1"
+  revision = "541655184285ca7e160a95366a10abb920db1a66"
+  version = "v1.8.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -544,7 +552,7 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:607f7eeb05263fd1a2ba41af7239ef674fc41d65cfbea9b5d4a189378a2cb702"
+  digest = "1:7183894f1e78aeb929865bad75e65371df79f5936f2c8193c63466d61eb85273"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -563,8 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "f40f99745230abad9e8c389729924a472b4ff632"
-  version = "v1.23.1"
+  revision = "b73fbabbfe388d6c9952c4d4e99e5e1836198749"
+  version = "v1.24.0"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -809,7 +817,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:17977f5e3cd66d7beddd7a582dd98215abf625974c28da501a8350846a58d171"
+  digest = "1:895f52f5e01627c8db1bc6da10233d8c6b4ac3dc056accbbb3774ef705ad5bf2"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -818,7 +826,9 @@
     "abci/example/kvstore",
     "abci/server",
     "abci/types",
-    "blockchain",
+    "behaviour",
+    "blockchain/v0",
+    "blockchain/v1",
     "config",
     "consensus",
     "consensus/types",
@@ -835,7 +845,6 @@
     "libs/autofile",
     "libs/clist",
     "libs/common",
-    "libs/db",
     "libs/events",
     "libs/fail",
     "libs/flowrate",
@@ -861,13 +870,22 @@
     "state/txindex",
     "state/txindex/kv",
     "state/txindex/null",
+    "store",
     "types",
     "types/time",
     "version",
   ]
   pruneopts = ""
-  revision = "8fb2c2a0e824d68a1c057e02b4897b085e3a855a"
-  version = "v0.31.7"
+  revision = "0ad70fb69aa39b20f35d127c25573c4e169f6f90"
+  version = "v0.32.3"
+
+[[projects]]
+  digest = "1:655a572c927b924550f8699c4045c6befb78c363f3010805f5f777e06e90caac"
+  name = "github.com/tendermint/tm-db"
+  packages = ["."]
+  pruneopts = ""
+  revision = "94017c88bf1d54efad5e99736182b97f32f73916"
+  version = "v0.1.1"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
