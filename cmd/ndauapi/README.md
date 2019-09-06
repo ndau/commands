@@ -1571,7 +1571,7 @@ _**Parameters:**_
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
  txhash | Path | Only transactions on or before this will be returned. Use 'start' to get the most recent page of transactions | string
- types | Query | Pipe-separated list of transaction types to return. Leave blank to get transactions of any type | string
+ type | Query | Case-insensitive transaction type name to filter by. Use multiple instances of this parameter to get results for multiple transaction types. Leave off to get transactions of any type | string
  limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
