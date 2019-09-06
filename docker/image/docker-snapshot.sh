@@ -79,8 +79,26 @@ then
     file_name="$SNAPSHOT_NAME.tgz"
     if curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$file_name"
     then
-        echo "Snapshot $file_name already exists on S3"
-    else
+        if [ "$3" = "--force" ]; then
+            # Give it a new "forced" name so that we don't clobber what's up there.
+            # If there is a forced one, though, it will get clobbered by this.
+            # Forcing the snapshot is used primarily when doing an upgrade-with-full-reindex.
+            # We need the new snapshot with reindexed data to be uploaded even if there's a
+            # snapshot already there with the same name (height).
+            # NOTE: It would be better if we instead incorporated the SHA into the snapshot name.
+            #       Then when we're doing an upgrade, the snapshot names can't possibly collide.
+            SNAPSHOT_NAME="$SNAPSHOT_NAME-forced"
+            file_name="$SNAPSHOT_NAME.tgz"
+            new_path="$SCRIPT_DIR/$file_name"
+            mv "$SNAPSHOT_PATH" "$new_path"
+            SNAPSHOT_PATH="$new_path"
+        else
+            echo "Snapshot $file_name already exists on S3"
+            file_name=""
+        fi
+    fi
+
+    if [ -n "$file_name" ]; then
         if ! upload_to_s3 "$file_name" "application/x-gtar"; then
             echo "Failed to upload snapshot"
         else
