@@ -522,7 +522,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "eas-commands-396.2"
   digest = "1:39cd6ab7d03a9d315e532932e26e61abc1f09d28c327cd8261f98371b2bb4140"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -533,7 +532,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "46790dc747fdb392f6c647bcee5b61a49012ba1a"
+  revision = "777c6bf0ee6cbe6fd75ec2767dfdd272ac97c172"
+  version = "v1.8.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -552,7 +552,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "eas-commands-396.2"
   digest = "1:49a48b988861bb3482206f5d706b658ab4e47b8b3960b7037b02711355f9758a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "48abb5916f960c23f7c0a6e9ae4c114cd6604e3c"
+  revision = "7a84fbd6028f7ec861d36d434ce7dee8ad149b0a"
+  version = "v1.24.2"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
