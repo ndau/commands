@@ -4,7 +4,23 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 # shellcheck source=docker-env.sh
 source "$SCRIPT_DIR"/docker-env.sh
 
-echo "Running $NODE_ID node group..."
+# Log startup notification locally.
+notif_msg="$NODE_ID is starting up"
+echo "$notif_msg"
+
+# Place startup marker in honeycomb.
+if [ -n "$HONEYCOMB_KEY" ] && [ -n "$HONEYCOMB_DATASET" ]; then
+    notif_data='{"message":"'"$notif_msg"'","type":"deploy"}'
+    curl -X POST -H "X-Honeycomb-Team: $HONEYCOMB_KEY" -d "$notif_data" \
+         "https://api.honeycomb.io/1/markers/$HONEYCOMB_DATASET"
+fi
+
+# Send startup message to slack.
+if [ -n "$SLACK_DEPLOYS_KEY" ]; then
+    notif_data='{"text":"'"$notif_msg"'"}'
+    curl -X POST -H "Content-type: application/json" -d "$notif_data" \
+         "https://hooks.slack.com/services/$SLACK_DEPLOYS_KEY"
+fi
 
 # Remove this file while we're starting up.  Once it's written, it can be used as a flag
 # to the outside world as to whether the container's processes are all fully running.
@@ -12,7 +28,7 @@ RUNNING_FILE="$SCRIPT_DIR/running"
 rm -f "$RUNNING_FILE"
 
 # This is needed because in the long term, noms eats more than 256 file descriptors.
-ulimit -n 1024
+ulimit -n "$ULIMIT_AMOUNT"
 
 # If there's no data directory yet, it means we're starting from scratch.
 if [ ! -d "$DATA_DIR" ]; then

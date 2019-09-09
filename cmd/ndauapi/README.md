@@ -90,6 +90,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [TransactionByHash](#transactionbyhash)
 
+* [TransactionBefore](#transactionbefore)
+
 * [TxPrevalidate](#txprevalidate)
 
 * [TxSubmit](#txsubmit)
@@ -377,7 +379,7 @@ _**Writes:**_
 
 ### `GET /block/before/:height`
 
-_Returns a (possibly filtered) sequence of block metadata for blocks of height less than last._
+_Returns a (possibly filtered) sequence of block metadata for blocks on or before a given height._
 
 
 
@@ -386,9 +388,10 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- height | Path | Blocks of this height and greater will not be returned. | int
+ height | Path | Blocks greater than this height will not be returned. | int
  filter | Query | Set to 'noempty' to exclude empty blocks. | string
  after | Query | The block height after which no more results should be returned. | int
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
 
 
@@ -1540,8 +1543,67 @@ _**Writes:**_
           "TxOffset": 3,
           "Fee": 0,
           "SIB": 0,
-          "Tx": null,
-          "TxBytes": null
+          "TxHash": "123abc34099f",
+          "TxType": "Lock",
+          "TxData": {
+            "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+            "period": "1m",
+            "sequence": 1234,
+            "signatures": null
+          },
+          "Timestamp": "2018-07-10T20:01:02Z"
+        }
+```
+
+
+
+---
+## TransactionBefore
+
+### `GET /transaction/before/:txhash`
+
+_Returns a sequence of transaction metadata for transactions on or before a given transaction hash._
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ txhash | Path | Only transactions on or before this will be returned. Use 'start' to get the most recent page of transactions | string
+ type | Query | Case-insensitive transaction type name to filter by. Use multiple instances of this parameter to get results for multiple transaction types. Leave off to get transactions of any type | string
+ limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "Txs": [
+            {
+              "BlockHeight": 1234,
+              "TxOffset": 3,
+              "Fee": 0,
+              "SIB": 0,
+              "TxHash": "123abc34099f",
+              "TxType": "Lock",
+              "TxData": {
+                "target": "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue",
+                "period": "1m",
+                "sequence": 1234,
+                "signatures": null
+              },
+              "Timestamp": "2018-07-10T20:01:02Z"
+            }
+          ],
+          "NextTxHash": "123abc34099f"
         }
 ```
 

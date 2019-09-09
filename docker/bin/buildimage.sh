@@ -31,7 +31,7 @@ if [ -n "$(docker container ls -a -q -f ancestor=$NDAU_IMAGE_NAME)" ]; then
 fi
 
 # update shas for cache-busting when appropriate
-curl -s https://api.github.com/repos/oneiro-ndev/noms/git/refs/heads/master |\
+curl -s https://api.github.com/repos/attic-labs/noms/git/refs/heads/master |\
     jq -r .object.sha > "$IMAGE_DIR/noms_sha"
 git rev-parse HEAD > "$IMAGE_DIR/commands_sha"
 if [ -n "$(git status --porcelain)" ]; then
@@ -42,11 +42,20 @@ fi
 # update dependencies for cache-busting when appropriate
 cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
 
+cd "$COMMANDS_DIR" || exit 1
+SHA=$(git rev-parse --short HEAD)
+
 echo "Building $NDAU_IMAGE_NAME..."
-docker build \
+if ! docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
+       --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
        "$IMAGE_DIR" \
-       --tag="$NDAU_IMAGE_NAME:$(git rev-parse --short HEAD)" \
+       --tag="$NDAU_IMAGE_NAME:$SHA" \
        --tag="$NDAU_IMAGE_NAME:latest"
+then
+    echo "Failed to build $NDAU_IMAGE_NAME"
+    exit 1
+fi
+
 echo "done"

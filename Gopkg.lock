@@ -18,12 +18,31 @@
   version = "v0.11"
 
 [[projects]]
-  digest = "1:d1b7be319f318156e7e49696c5cd86636c63680c9317c6167123b4c09f96583a"
+  branch = "master"
+  digest = "1:a7f619ffc7b99687f9444bd0a07509fec8ae708a7175d234878129896c0918a8"
+  name = "github.com/alecthomas/template"
+  packages = [
+    ".",
+    "parse",
+  ]
+  pruneopts = ""
+  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:86ea497979270399c5e544bbdc6f3a846078cd7c6d9be40fd0012ab54fee4052"
+  name = "github.com/alecthomas/units"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c3de453c63f4bdb4dadffab9805ec00426c505f7"
+
+[[projects]]
+  digest = "1:5418edaba5856d5a67695d3c1d1fb2b60f2b7fdee95ab2879904a00cc0139fc6"
   name = "github.com/alexflint/go-arg"
   packages = ["."]
   pruneopts = ""
-  revision = "f40417ef119019b1c94b79f3f18b7f66b9fb6bce"
-  version = "v1.0.0"
+  revision = "8baf7040d76473dd1d78c17b490d9d8cf6b1c584"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:cc3e3ab828a51af490c9cf9c01487a201809e5cff04467c0fab8a2be0cb42109"
@@ -54,8 +73,16 @@
   revision = "b6552d20145fbabab0c1c1dd00a0bc834df9c3dd"
 
 [[projects]]
+  digest = "1:15d017551627c8bb091bde628215b2861bed128855343fdd570c62d08871f6e1"
+  name = "github.com/attic-labs/kingpin"
+  packages = ["."]
+  pruneopts = ""
+  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
+  version = "v2.2.6"
+
+[[projects]]
   branch = "master"
-  digest = "1:b40230d769d63a8bcaa3dfe8aeae48fa4037fae7accdd4034fa7f3292f47592b"
+  digest = "1:9e791b07b9d7a3537adff1ab8c0e3c1a558354038146b45a6fc3e7e5c0bb5e3e"
   name = "github.com/attic-labs/noms"
   packages = [
     "go/chunks",
@@ -80,8 +107,7 @@
     "go/util/writers",
   ]
   pruneopts = ""
-  revision = "186e0939a5044b182bce9e60dea910bd6bcb5cd9"
-  source = "github.com/oneiro-ndev/noms"
+  revision = "1d6d4689808c155bccec3764720abfcb4ff9a3e7"
 
 [[projects]]
   digest = "1:deba4f4561cc7490127f599626c78cbfe972ffacc8edfaf77710de8922e0ae77"
@@ -137,6 +163,8 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/dynamodb",
+    "service/dynamodb/dynamodbattribute",
+    "service/kms",
     "service/s3",
     "service/sts",
   ]
@@ -390,14 +418,6 @@
   version = "1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:6ea4e90d9fc387ca27c25348e40dbe38c3606eec7f283bf98a39db59b37ed5bb"
-  name = "github.com/juju/gnuflag"
-  packages = ["."]
-  pruneopts = ""
-  revision = "2ce1bb71843d6d179b3f1c1c9cb4a72cd067fc65"
-
-[[projects]]
   digest = "1:deeb6536ebbcb66ab11213ecfaac9daadfcd004dd057446a4980ffd6c15c36e2"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
@@ -444,6 +464,14 @@
   packages = ["."]
   pruneopts = ""
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
+
+[[projects]]
+  digest = "1:e2beacef2053964dea3a7b8ccb105a46d101274cbce02698b1f0db630bb39046"
+  name = "github.com/libp2p/go-buffer-pool"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c4a5988a1e475884367015e1a2d0bd5fa4c491f4"
+  version = "v0.0.2"
 
 [[projects]]
   digest = "1:63722a4b1e1717be7b98fc686e0b30d5e7f734b9e93d7dee86293b6deab7ea28"
@@ -494,7 +522,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:7942bb2f07558d7b6b0e6b186f32fb4119544d695b1769e75710b90848ef9276"
+  digest = "1:39cd6ab7d03a9d315e532932e26e61abc1f09d28c327cd8261f98371b2bb4140"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -504,8 +532,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "75dbeb9897cac6d52485c42d1bb295bd5de95380"
-  version = "v1.6.5"
+  revision = "777c6bf0ee6cbe6fd75ec2767dfdd272ac97c172"
+  version = "v1.8.1"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -524,10 +552,10 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "kjq-logging-api"
-  digest = "1:6fe8c7c5809ce08829e09fc6358e06a0c7c8414b7c912d60c1fb902def81b880"
+  digest = "1:49a48b988861bb3482206f5d706b658ab4e47b8b3960b7037b02711355f9758a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
+    "pkg/api_sdk",
     "pkg/ndau",
     "pkg/ndau/backing",
     "pkg/ndau/config",
@@ -543,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "1ef3756df6574aa32f9ad83cd00b5d05915143fd"
+  revision = "7a84fbd6028f7ec861d36d434ce7dee8ad149b0a"
+  version = "v1.24.2"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -580,23 +609,22 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:a6e407e79884332da0bd0671d247cbcd15119f4d9397104e3d7a3665c7ade07b"
+  digest = "1:04246474fb2668bfaea7ca0d5a4d1c5d5040cf1cd2fe6b09c38e1fede73f7d93"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "aa2af29d92adea204a6365d09e14256c2e34211f"
-  version = "v1.3.2"
+  revision = "9008d5eb126d49f45422114ff123f65e38e2fbe7"
+  version = "v1.3.3"
 
 [[projects]]
-  branch = "master"
-  digest = "1:9a0a4769746d52666b68e71dd06ccd6850c026f74eef39354350abce8db894f1"
+  digest = "1:421a898995cef1628dcad6fb07c282c1589fb54c8cf36af93ba538ae980f4cbb"
   name = "github.com/oneiro-ndev/rest"
   packages = ["."]
   pruneopts = ""
-  revision = "abad8f201243e4fd813d0f8b4102c3083f501960"
+  revision = "cf2ee21900a2ca6155b631c942ba320333773278"
+  version = "v0.1.0"
 
 [[projects]]
-  branch = "kjq-remove-minnoderegistrationstake"
   digest = "1:05177ac5165995d13fe65c5fb1e9b481f5d32e2dc2a9501c08a1f391b7668887"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -605,7 +633,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "f2ccd55a8de5703e95343fccf38297dfd81fcf44"
+  revision = "372cdfc76e3aa63c55724b9c2022dfa4c3ff74f8"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
@@ -788,7 +817,7 @@
   version = "v0.14.1"
 
 [[projects]]
-  digest = "1:17977f5e3cd66d7beddd7a582dd98215abf625974c28da501a8350846a58d171"
+  digest = "1:895f52f5e01627c8db1bc6da10233d8c6b4ac3dc056accbbb3774ef705ad5bf2"
   name = "github.com/tendermint/tendermint"
   packages = [
     "abci/client",
@@ -797,7 +826,9 @@
     "abci/example/kvstore",
     "abci/server",
     "abci/types",
-    "blockchain",
+    "behaviour",
+    "blockchain/v0",
+    "blockchain/v1",
     "config",
     "consensus",
     "consensus/types",
@@ -814,7 +845,6 @@
     "libs/autofile",
     "libs/clist",
     "libs/common",
-    "libs/db",
     "libs/events",
     "libs/fail",
     "libs/flowrate",
@@ -840,13 +870,22 @@
     "state/txindex",
     "state/txindex/kv",
     "state/txindex/null",
+    "store",
     "types",
     "types/time",
     "version",
   ]
   pruneopts = ""
-  revision = "8fb2c2a0e824d68a1c057e02b4897b085e3a855a"
-  version = "v0.31.7"
+  revision = "0ad70fb69aa39b20f35d127c25573c4e169f6f90"
+  version = "v0.32.3"
+
+[[projects]]
+  digest = "1:655a572c927b924550f8699c4045c6befb78c363f3010805f5f777e06e90caac"
+  name = "github.com/tendermint/tm-db"
+  packages = ["."]
+  pruneopts = ""
+  revision = "94017c88bf1d54efad5e99736182b97f32f73916"
+  version = "v0.1.1"
 
 [[projects]]
   digest = "1:23ed2a28cfc147d46f7fbf4d85f83f6d659e15eac4ad1c16c4d32b19da5bd2fa"
@@ -1032,6 +1071,9 @@
     "github.com/attic-labs/noms/go/types",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/dynamodb",
+    "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
+    "github.com/aws/aws-sdk-go/service/kms",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/go-redis/redis",
     "github.com/google/shlex",
@@ -1049,6 +1091,7 @@
     "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
     "github.com/oneiro-ndev/metanode/pkg/meta/state",
     "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
+    "github.com/oneiro-ndev/ndau/pkg/api_sdk",
     "github.com/oneiro-ndev/ndau/pkg/ndau",
     "github.com/oneiro-ndev/ndau/pkg/ndau/backing",
     "github.com/oneiro-ndev/ndau/pkg/ndau/config",

@@ -12,12 +12,11 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.6"
+version = "~v1.8"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.20"
-branch = "kjq-logging-api"
+version = "~v1.24"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -28,13 +27,20 @@ name = "github.com/oneiro-ndev/o11y"
 version = "~v1.3"
 
 [[constraint]]
+name = "github.com/oneiro-ndev/rest"
+version = "~v0.1"
+
+[[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-# version = "~v1.4"
-branch = "kjq-remove-minnoderegistrationstake"
+version = "~v1.5"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/writers"
 version = "~v1.1"
+
+[[constraint]]
+name = "github.com/alexflint/go-arg"
+version = "v1.1"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
@@ -43,7 +49,6 @@ branch = "master"
 [[override]]
 name = "github.com/attic-labs/noms"
 branch = "master"
-source = "github.com/oneiro-ndev/noms"
 
 [[override]]
 name = "github.com/gofrs/uuid"
@@ -51,7 +56,7 @@ version = "~v3.2"
 
 [[override]]
 name = "github.com/tendermint/tendermint"
-version = "v0.31.4"
+version = "=v0.32.3"
 
 [[override]]
 name = "github.com/tinylabs/msgp"

@@ -23,7 +23,7 @@ COPY --from=redis:5.0.4-alpine [ \
     ]
 
 # Use pre-built tendermint image
-COPY --from=tendermint/tendermint:v0.31.4 /usr/bin/tendermint /image/bin/
+COPY --from=tendermint/tendermint:v0.32.3 /usr/bin/tendermint /image/bin/
 
 
 # The go_build stage has all the tooling necessary to clone repos and build
@@ -51,10 +51,10 @@ FROM go_build AS build_noms
 
 ENV ATTICLABS_DIR=$GOPATH/src/github.com/attic-labs
 RUN mkdir -p "$ATTICLABS_DIR"
-RUN cd "$ATTICLABS_DIR"
-# This copy exists to bust the cache if we ever push commits to noms
+# This copy exists to bust the cache if new commits exist
 COPY ./noms_sha /
-RUN git clone git@github.com:oneiro-ndev/noms.git "$ATTICLABS_DIR"/noms
+RUN git clone git@github.com:attic-labs/noms.git "$ATTICLABS_DIR"/noms
+RUN go get -u "$ATTICLABS_DIR"/noms/...
 RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 
 
@@ -95,6 +95,8 @@ RUN git clone git@github.com:oneiro-ndev/commands.git \
 COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 
 # Perform custom setup steps from inside the intermediate image.
+ARG RUN_UNIT_TESTS
+ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
 RUN /image/docker-build.sh
 
 

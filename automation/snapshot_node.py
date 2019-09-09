@@ -13,16 +13,33 @@ def run_ssh_command(node_name, command):
     """
 
     # The SSH key file must be installed here from Oneiro's 1password account.
+    # If this script is run on Circle, "~" resolves to "/root"; see the deploy job in config.yml.
     pem_path = "~/.ssh/sc-node-ec2.pem"
 
     # Username used for logging into the AWS instance through SSH.
     ec2_user = "ec2-user"
 
     # We build the domain name of the node by dot-separating this after the node name.
-    domain_suffix = "ndau.tech"
+    domain_name = "ndau.tech"
+
+    # The alias we use for devnet is devnet.ndau.tech since every node is on the same server.
+    # For testnet and mainnet we use {node_name}.ndau.tech.
+    devnet_name = "devnet"
+    if node_name.startswith(devnet_name):
+        cname = devnet_name
+    else:
+        cname = node_name
 
     return subprocess.run(
-        ["ssh", "-i", pem_path, f"{ec2_user}@{node_name}.{domain_suffix}", command],
+        [
+            "ssh",
+            "-i",
+            pem_path,
+            "-o",
+            "StrictHostKeyChecking=no",
+            f"{ec2_user}@ssh.{cname}.{domain_name}",
+            command,
+        ],
         stdout=subprocess.PIPE,
     )
 
@@ -55,10 +72,10 @@ def get_container_id(node_name):
     container_id = r.stdout.decode("utf-8").rstrip("\n")
 
     # Make sure we got back something that looks like a container id.
-    if not all(c in string.hexdigits for c in container_id):
-        sys.exit(f"Invalid container id: {container_id}")
+    if len(container_id) == 0 or not all(c in string.hexdigits for c in container_id):
+        sys.exit(f"Invalid container id '{container_id}'")
 
-    print(f"Container id: {container_id}")
+    print(container_id)
 
     return container_id
 
@@ -66,8 +83,8 @@ def get_container_id(node_name):
 def snapshot_node(node_name):
     """
     Cause the given node to take a snapshot and upload it to S3 and register it as the latest.
-    Only works for nodes on AWS that have been configured with S3 creds, like testnet-5 and
-    mainnet-5.  Otherwise, the snapshot will get generated inside the node's container, but
+    Only works for nodes on AWS that have been configured with S3 creds, like testnet-backup and
+    mainnet-backup.  Otherwise, the snapshot will get generated inside the node's container, but
     not uploaded.
     """
 
@@ -77,7 +94,7 @@ def snapshot_node(node_name):
     r = run_ssh_command(
         node_name,
         f"docker exec {container_id} rm -f /image/snapshot_result; "
-        f"docker exec {container_id} killall -HUP procmon; ",
+        f"docker exec {container_id} killall -HUP procmon",
     )
     if r.returncode != 0:
         sys.exit(f"ssh failed to create snapshot with code {r.returncode}")

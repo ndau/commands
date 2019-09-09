@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # 3rd party repos and version to use.
-export NOMS_REPO=https://github.com/oneiro-ndev/noms.git
+export NOMS_REPO=https://github.com/attic-labs/noms.git
 export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
-export TENDERMINT_VER=v0.31.4
+export TENDERMINT_VER=v0.32.3
 
 # For multi-node support.
 export MAX_NODE_COUNT=10
@@ -21,6 +21,10 @@ export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 export NDAUAPI_PORT=3030
 export CLAIMER_PORT=3000
+
+# Redis can't have more clients than 32 less than the ulimit amount we use.
+export ULIMIT_AMOUNT=1024
+export REDIS_MAX_CLIENTS=$((ULIMIT_AMOUNT - 32))
 
 # Go source path.
 GO_DIR=$(go env GOPATH)

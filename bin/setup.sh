@@ -76,6 +76,9 @@ else
     echo SETUP: Cloning noms...
     git clone "$NOMS_REPO"
 fi
+# Do a "go get" after cloning noms to match /docker/image/Dockerfile behavior.
+echo SETUP: Getting noms...
+go get -u "$ATTICLABS_DIR"/noms/...
 
 run_dep_ensure() {
     # These vendor directories sometimes cause dep ensure to fail, remove them first.
@@ -104,8 +107,9 @@ fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git fetch --prune
 git checkout "$TENDERMINT_VER"
-echo SETUP: Ensuring dependencies for tendermint...
-run_dep_ensure
+# TODO: dep is no longer supported by tendermint; replace this.
+#echo SETUP: Ensuring dependencies for tendermint...
+#run_dep_ensure
 
 # Get the ndev repos.
 update_repo() {

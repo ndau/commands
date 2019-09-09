@@ -5,6 +5,7 @@ import (
 
 	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
 	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/sirupsen/logrus"
 
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 	math "github.com/oneiro-ndev/ndaumath/pkg/types"
@@ -100,7 +101,8 @@ func (Closeout) Run(argvs []string, sh *Shell) (err error) {
 			acct.Data.Sequence+1,
 			acct.PrivateValidationKeys...,
 		)
-		fee, sib, _, _, err := tool.Prevalidate(sh.Node, tx)
+		logger := logrus.New()
+		fee, sib, _, err := tool.Prevalidate(sh.Node, tx, logger)
 		if fee == 0 && sib == 0 && err != nil {
 			return errors.Wrap(err, "prevalidating")
 		}

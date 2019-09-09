@@ -30,7 +30,7 @@ NETWORK_LOCATIONS = {
         "testnet-2": {"cluster": "testnet-2", "region": "us-west-1"},
         "testnet-3": {"cluster": "testnet-3", "region": "us-west-2"},
         "testnet-4": {"cluster": "testnet-4", "region": "ap-southeast-1"},
-        "testnet-5": {"cluster": "testnet-5", "region": "us-east-2"},
+        "testnet-backup": {"cluster": "testnet-backup", "region": "us-east-2"},
     },
     "mainnet": {
         "mainnet-0": {"cluster": "mainnet-0", "region": "us-east-1"},
@@ -38,6 +38,6 @@ NETWORK_LOCATIONS = {
         "mainnet-2": {"cluster": "mainnet-2", "region": "us-west-1"},
         "mainnet-3": {"cluster": "mainnet-3", "region": "us-west-2"},
         "mainnet-4": {"cluster": "mainnet-4", "region": "ap-southeast-1"},
-        "mainnet-5": {"cluster": "mainnet-5", "region": "us-east-2"},
+        "mainnet-backup": {"cluster": "mainnet-backup", "region": "us-east-2"},
     },
 }

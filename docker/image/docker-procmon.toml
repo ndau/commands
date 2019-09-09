@@ -75,6 +75,7 @@ output = ""
     path = "redis-server"
     args = [
         "--dir", "$REDIS_DATA_DIR",
+        "--maxclients", "$REDIS_MAX_CLIENTS",
         "--port", "$REDIS_PORT",
         "--save", "60", "1",
     ]
@@ -215,7 +216,7 @@ output = ""
     name = "snapshot-immediate"
     path = "/bin/bash"
     args = [
-        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload",
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload --force",
     ]
     stdout = "$LOG_DIR/snapshot.log"
     stderr = "$LOG_DIR/snapshot.log"

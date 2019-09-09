@@ -33,6 +33,7 @@ usage() {
   errcho "    SHA is the 7-digit sha1 that matches a tag in ECR."
   errcho "    CLUSTER_NAME is the name of the cluster to deploy to."
   errcho "    [HONEYCOMB_KEY] is the honeycomb key to log to."
+  errcho "    [SLACK_DEPLOYS_KEY] is the slack key to send deploy-related notifcations to."
   errcho "    [PERSISTENT_PEERS] is a comma separated list of peers for Tendermint (id@IP:port)."
 }
 
@@ -64,24 +65,48 @@ rpc_port=$(calc_port rpc $node_number)
 p2p_port=$(calc_port p2p $node_number)
 ndauapi_port=$(calc_port ndauapi $node_number)
 
-# test base64 capibilities
-if echo "A" | base64 -w0 2> /dev/null; then
-  b64_opts="-w0"
+# Make devnet-4 the one that takes periodic snapshots.
+snapshot_interval=""
+aws_access_key_id=""
+aws_secret_access_key=""
+if [ "$network_name" = "devnet" ] && [ "$node_number" = "4" ]; then
+    # These environment variables are defined on Circle.
+    aws_access_key_id="$AWS_ACCESS_KEY_ID"
+    aws_secret_access_key="$AWS_SECRET_ACCESS_KEY"
+
+    # If they aren't set, log a warning and continue without snapshots set up on the node.
+    if [ -z "$aws_access_key_id" ] || [ -z "$aws_secret_access_key" ]; then
+        # Make sure they're both unset.
+        aws_access_key_id=""
+        aws_secret_access_key=""
+        echo "Unable to find AWS env vars for taking snapshots on $network_name-$node_number"
+    else
+        snapshot_interval="12h"
+        echo "Snapshots every $snapshot_interval will be done on $network_name-$node_number"
+    fi
 else
-  b64_opts=""
+    echo "Snapshots are disabled on $network_name-$node_number"
 fi
+
+# Some versions of base64 inject newlines; strip them.
+# Doing it this way works with more versions of base64 than using -w0, for example.
+BASE64_NODE_IDENTITY=$(cat "$IDENTITY_FILE" | base64 | tr -d \\n)
 
 cat "$TEMPLATE_FILE" | \
   sed \
     -e "s/{{TAG}}/${SHA}/g" \
     -e "s/{{NODE_NUMBER}}/${node_number}/g" \
-    -e "s%{{BASE64_NODE_IDENTITY}}%$(cat "$IDENTITY_FILE" | base64 $b64_opts)%g" \
+    -e "s%{{BASE64_NODE_IDENTITY}}%${BASE64_NODE_IDENTITY}%g" \
     -e "s/{{PERSISTENT_PEERS}}/${PERSISTENT_PEERS}/g" \
     -e "s/{{HONEYCOMB_KEY}}/${HONEYCOMB_KEY}/g" \
+    -e "s%{{SLACK_DEPLOYS_KEY}}%${SLACK_DEPLOYS_KEY}%g" \
     -e "s/{{RPC_PORT}}/${rpc_port}/g" \
     -e "s/{{P2P_PORT}}/${p2p_port}/g" \
     -e "s/{{NDAUAPI_PORT}}/${ndauapi_port}/g" \
     -e "s/{{NETWORK_NAME}}/${network_name}/g" \
+    -e "s/{{AWS_ACCESS_KEY_ID}}/${aws_access_key_id}/g" \
+    -e "s%{{AWS_SECRET_ACCESS_KEY}}%${aws_secret_access_key}%g" \
+    -e "s/{{SNAPSHOT_INTERVAL}}/${snapshot_interval}/g" \
   > "$TMP_FILE"
 cat "$TMP_FILE"
 
