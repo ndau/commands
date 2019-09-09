@@ -1550,7 +1550,8 @@ _**Writes:**_
             "period": "1m",
             "sequence": 1234,
             "signatures": null
-          }
+          },
+          "Timestamp": "2018-07-10T20:01:02Z"
         }
 ```
 
@@ -1598,7 +1599,8 @@ _**Writes:**_
                 "period": "1m",
                 "sequence": 1234,
                 "signatures": null
-              }
+              },
+              "Timestamp": "2018-07-10T20:01:02Z"
             }
           ],
           "NextTxHash": "123abc34099f"
