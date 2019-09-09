@@ -107,8 +107,9 @@ fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git fetch --prune
 git checkout "$TENDERMINT_VER"
-echo SETUP: Ensuring dependencies for tendermint...
-run_dep_ensure
+# TODO: dep is no longer supported by tendermint; replace this.
+#echo SETUP: Ensuring dependencies for tendermint...
+#run_dep_ensure
 
 # Get the ndev repos.
 update_repo() {

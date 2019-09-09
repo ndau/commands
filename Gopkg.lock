@@ -522,7 +522,8 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:1f291cf8e8b25456f645ad62cf14e985ff34f73eb577f2f13fc02b52efdec4ee"
+  branch = "eas-commands-396.2"
+  digest = "1:2850afbde36fd8f9bd532da32b2ebd59f21ad6346f3512c820d1142090a2d70a"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -532,8 +533,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "541655184285ca7e160a95366a10abb920db1a66"
-  version = "v1.8.0"
+  revision = "e088ad46278599209b667cdfa551890cd75b43ee"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:dd75164d519f23cceb85e9dffc1f4a100a218af6e795a42d0cdea29443813f69"
+  branch = "eas-commands-396.2"
+  digest = "1:e16aafd545114be95105f04125c8730dd6aa1748c9282e761975f94e3f27cd61"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "a1a0fc2b462eab93eef4e38bd38ebd6150a94bdf"
-  version = "v1.24.1"
+  revision = "0be3c74b915f27fd56a58fa1996795e210c4ef94"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
