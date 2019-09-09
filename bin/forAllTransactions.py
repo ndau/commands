@@ -13,17 +13,6 @@ import textwrap
 import ndau
 
 
-class FooAction(argparse.Action):
-    def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        if nargs is not None:
-            raise ValueError("nargs not allowed")
-        super(FooAction, self).__init__(option_strings, dest, **kwargs)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        print("%r %r %r" % (namespace, values, option_string))
-        setattr(namespace, self.dest, values)
-
-
 def setupArgs():
     """ sets up the argument parser with all of our options """
     parser = argparse.ArgumentParser(
@@ -66,11 +55,11 @@ def setupArgs():
         "Use quotes around each individual constraint.",
     )
     parser.add_argument(
-        "--transactions",
+        "--txtypes",
         nargs="*",
         default=[],
-        help="Accepts a set of names or aliases to limit the set of transactions"
-        ", or tags prefixed with #. See --names for a list.",
+        help="Accepts a set of names or aliases to limit the set of transaction types"
+        ", or tags prefixed with '.'. See --names for a list.",
     )
     parser.add_argument(
         "--fields",
@@ -81,16 +70,17 @@ def setupArgs():
     parser.add_argument(
         "--blockrange",
         type=int,
-        action=FooAction,
+        nargs=2,
         metavar="HEIGHT",
         help="range of blocks to search",
     )
     parser.add_argument(
         "--timespan",
-        type=ndau.timestamp,
         nargs=2,
         metavar="TIMESTAMP",
-        help="span of time to search (like '2019-07-18T12:34:56Z')",
+        help="start and end times of the span of time to search (like "
+        "'2019-07-18T12:34:56Z' , just a date like 2019-08-01, "
+        "or a word like 'first' or 'now')",
     )
     parser.add_argument(
         "--sort",
@@ -152,31 +142,65 @@ if __name__ == "__main__":
 
     transactions = ndau.Transactions()
 
-    print(args.blockrange)
-    print(args.timespan)
-
     # if they just want a list of names, oblige them and quit
     if args.names:
         transactions.print()
-        exit(1)
+        exit(0)
 
     # look up the network; if we don't find it, assume that the
-    # network value is an API URL
+    # network value is an API URL (but if it doesn't start with http, fail)
     name = args.network
     if name in ndau.networks:
         node = ndau.networks[name]
     else:
+        if not name.startswith("http"):
+            print("network name must start with http or https", file=sys.stderr)
+            exit(1)
         node = name
 
-    # if there are no fields specified, use all of them
-    if len(args.fields) == 0:
-        outputfields = ndau.accountFields.keys()
-    else:
-        outputfields = [ndau.fieldnames()[f.lower()] for f in args.fields]
+    genesis = "2019-05-11T00:00:00Z"
+    timeNow = datetime.datetime.utcnow().isoformat("T") + "Z"
+    times = {
+        "start": genesis,
+        "first": genesis,
+        "genesis": genesis,
+        "now": timeNow,
+        "last": timeNow,
+        "end": timeNow,
+    }
 
     # parse all the constraints, building the comparators we will use to
     # evaluate them as we walk through the data
     constraints = []
+
+    # we treat timespan and blockrange as constraints until the API gets smarter
+    if args.timespan:
+        st, et = [t.lower() for t in args.timespan]
+        if st in times:
+            startts = times[st]
+        else:
+            startts = ndau.timestamp(st)
+        if et in times:
+            endts = times[et]
+        else:
+            endts = ndau.timestamp(et)
+
+        if startts > endts:
+            startts, endts = endts, startts
+        constraints.append(ndau.comparator("blocktime", ">=", startts))
+        constraints.append(ndau.comparator("blocktime", "<=", endts))
+
+    if args.blockrange:
+        lastblock = ndau.getData(node, "/block/current")
+        lastheight = lastblock["block_meta"]["header"]["height"]
+        sb, eb = args.blockrange
+        sb = ndau.clamp(sb, 1, lastheight)
+        eb = ndau.clamp(eb, 1, lastheight)
+        if sb > eb:
+            sb, eb = eb, sb
+        constraints.append(ndau.comparator("blockheight", ">=", sb))
+        constraints.append(ndau.comparator("blockheight", "<=", eb))
+
     for c in args.constraints:
         pat = re.compile("([a-zA-Z0-9._-]+) *(>=|<=|>|<|==|=|!=|%) *([^ ]+)")
         m = pat.match(c)
@@ -185,42 +209,40 @@ if __name__ == "__main__":
             continue
         name, op, value = m.groups()
 
-        if name.lower() not in ndau.fieldnames():
-            print(f"no known field called '{name}'", file=sys.stderr)
-            continue
-
-        constraints.append(ndau.comparator(ndau.fieldnames()[name.lower()], op, value))
+        constraints.append(ndau.comparator(name.lower(), op, value))
 
     # limit is the number of accounts in a single query -- this is limited by the
     # blockchain API and so we have to do a set of requests to get all the data
     limit = 100
-    after = "-"
     output = []
+    types = transactions.getTxsByName(args.txtypes)
+    nexthash = "start"
     # we need the current time to evaluate "islocked"
-    timeNow = datetime.datetime.now().isoformat("T")
-    while after != "":
-        qp = dict(limit=limit, after=after)
-        result = ndau.getData(node, "/account/list", parms=qp)
-        after = result["NextAfter"]
+    while nexthash != "":
+        url = f"/transaction/before/{nexthash}"
+        qp = dict(limit=limit, type=types)
+        resp = ndau.getData(node, url, parms=qp)
+        if not resp:
+            print("Failure fetching data.", file=sys.stderr)
+            exit(1)
 
-        accts = result["Accounts"]
-        resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
+        nexthash = resp["NextTxHash"]
 
-        data = resp.json()
-        # ok, now we can iterate through the batch of data
-        for k in data:
-            # add some manufactured fields to the account data
-            data[k]["id"] = k
-            # we're unlocked if there's no lock object, OR if
-            # the current time is after the "unlocksOn" time.
-            unlocked = data[k].get("lock") is None or (
-                data[k]["lock"].get("unlocksOn") is not None
-                and data[k]["lock"]["unlocksOn"] < timeNow
-            )
-            data[k]["islocked"] = not unlocked
-            data[k]["hasrecourse"] = data[k]["recourseSettings"] is not None
+        data = resp["Txs"]
+
+        # # annotate blocktimes for all blocks
+        # allblocks = [d["BlockHeight"] for d in data]
+        # ndau.cacheBlockTimes(node, allblocks)
+        # for i in range(len(data)):
+        #     # add blocktimes to the tx data
+        #     bt = ndau.getBlockTime(node, data[i]["BlockHeight"])
+        #     data[i]["blocktime"] = ndau.timestamp(bt)
+
+        # ok, now we can iterate through the batch of data, flatten it,
+        # and evaluate constraints
+        for i in range(len(data)):
             # now flatten it
-            flat = ndau.flatten(data[k])
+            flat = ndau.flatten(data[i])
 
             # by default we keep it but if it fails any constraint we drop it
             keep = True
@@ -238,6 +260,24 @@ if __name__ == "__main__":
     # These next steps are carefully ordered because we want to sort before truncation
     # and we might want to sort on data that's not included in the output set
 
+    # if they just want a count, we don't need to sort and filter fields,
+    # and max is meaningless.
+    if args.format == "count":
+        print(f"{len(output)}", file=args.output)
+        exit(0)
+
+    # if there are no fields specified, use all of the fields specified
+    # in the unified collection of txs
+    if len(args.fields) == 0:
+        fields = set()
+        for o in output:
+            fields.update(set([k.lower() for k in o.keys()]))
+        outputfields = sorted(
+            list(fields), key=lambda x: "zzz" + x if x.startswith("txdata") else x
+        )
+    else:
+        outputfields = [f.lower() for f in args.fields]
+
     # 1) sort the result
     if args.sort != "":
         field = args.sort
@@ -245,7 +285,7 @@ if __name__ == "__main__":
         if field[0] == "/":
             field = field[1:]
             reverse = True
-        f = ndau.fieldnames()[field.lower()]
+        f = field.lower()
         output = sorted(output, key=lambda x: x[f], reverse=reverse)
 
     # 2) truncate the result set if desired
@@ -258,9 +298,7 @@ if __name__ == "__main__":
         i = dict([(k, v) for k, v in o.items() if k in outputfields])
         result.append(i)
 
-    if args.format == "count":
-        print(f"{len(result)}", file=args.output)
-    elif args.format == "json":
+    if args.format == "json":
         j = json.dump(result, args.output)
     elif args.format == "csv":
         w = csv.DictWriter(args.output, outputfields)

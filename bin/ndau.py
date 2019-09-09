@@ -9,9 +9,20 @@
 import collections
 import datetime
 import itertools
+import random
 import re
 import requests
 import time
+import sys
+
+
+def clamp(n, min, max):
+    """ clamps a value between min and max """
+    if n < min:
+        n = min
+    if n > max:
+        n = max
+    return n
 
 
 # ----- query help -----------------
@@ -20,15 +31,17 @@ def getData(base, path, parms=None):
     u = base + path
     try:
         r = requests.get(u, timeout=3, params=parms)
+        # print(r.url)
     except requests.Timeout:
-        print(f"{time.asctime()}: Timeout in {u}")
+        print(f"{time.asctime()}: Timeout fetching {u} {parms}")
         return {}
     except Exception as e:
-        print(f"{time.asctime()}: Error {e} in {u}")
+        print(f"{time.asctime()}: Error {e} fetching {u} {parms}")
         return {}
+
     if r.status_code == requests.codes.ok:
         return r.json()
-    print(f"{time.asctime()}: Error in {u}: ({r.status_code}) {r} {r.text}")
+    print(f"{time.asctime()}: Error fetching {r.url}: ({r.status_code}) {r} {r.text}")
     return {}
 
 
@@ -40,17 +53,70 @@ def post(*args, **kwargs):
     return requests.post(*args, **kwargs)
 
 
+# we cache block times in case of duplicates
+blocktimes = {}
+
+
+# fetch a block time from our base given a block number
+def getBlockTime(base, blocknum):
+    if blocknum in blocktimes:
+        return blocktimes[blocknum]
+    block = getData(base, f"/block/height/{blocknum}")
+    t = block["block_meta"]["header"]["time"]
+    blocktimes[blocknum] = t
+    return t
+
+
+# this fetches times for a list of block numbers
+def cacheBlockTimes(base, blocknums):
+    # we optimize the search by creating aggregating similar block numbers
+    # into runs of no more than 100 blocks so we can fetch them in bulk
+    ids = sorted(blocknums)
+    runs = []
+    run = None
+    for i in ids:
+        if run is None:
+            run = [i, i]
+            continue
+
+        if run[0] < i - 99:
+            runs.append(run)
+            run = [i, i]
+
+        run[1] = i
+
+    for r in runs:
+        block = getData(base, f"/block/range/{r[0]}/{r[1]}")
+        for b in block["block_metas"]:
+            h = b["header"]["height"]
+            t = b["header"]["time"]
+            blocktimes[h] = t
+
+
 # All of the predefined network names. Note that you can also use the entire
 # URL explicitly if # you have something other than one of these.
-networks = {
-    "local": "http://localhost:3030",
-    "main": "https://mainnet-0.ndau.tech:3030",
-    "mainnet": "https://mainnet-0.ndau.tech:3030",
-    "dev": "https://devnet.ndau.tech:3030",
-    "devnet": "https://devnet.ndau.tech:3030",
-    "test": "https://testnet-0.ndau.tech:3030",
-    "testnet": "https://testnet-0.ndau.tech:3030",
-}
+networks = {"local": "http://localhost:3030"}
+
+try:
+    r = requests.get(
+        "https://s3.us-east-2.amazonaws.com/ndau-json/services.json", timeout=3
+    )
+    j = r.json()
+    for n in j["networks"]:
+        node = random.choice([i for i in j["networks"][n]["nodes"].values()])
+        networks[n] = f"https://{node['api']}"
+        if n.endswith("net"):
+            networks[n[:-3]] = f"https://{node['api']}"
+except requests.Timeout:
+    print(f"{time.asctime()}: Timeout fetching services.json")
+    # in case services.json doesn't work, give us a chance
+    networks["main"] = "https://mainnet-0.ndau.tech:3030"
+    networks["mainnet"] = "https://mainnet-0.ndau.tech:3030"
+    networks["dev"] = "https://devnet.ndau.tech:3030"
+    networks["devnet"] = "https://devnet.ndau.tech:3030"
+    networks["test"] = "https://testnet-0.ndau.tech:3030"
+    networks["testnet"] = "https://testnet-0.ndau.tech:3030"
+
 
 # ----- field names for account fields
 
@@ -95,7 +161,7 @@ def accountNames():
     """ invert the accountfields list so we can use it to look up user input. """
     return dict(
         itertools.chain.from_iterable(
-            ((alias.lower(), k) for alias in aliases)
+            ((alias.lower(), k.lower()) for alias in aliases)
             for k, aliases in accountFields.items()
         )
     )
@@ -167,11 +233,11 @@ class Transactions(object):
             "_lookup": set([name.lower()]),
         }
         tx["_lookup"].update(set(aliases))
-        tx["_lookup"].update(set(["#" + t for t in tags]))
+        tx["_lookup"].update(set(["." + t for t in tags]))
         self.transactions.append(tx)
 
     def getMatchIndexes(self, text):
-        p = re.compile("[a-z#]+")
+        p = re.compile("[a-z.]+")
         sa = set(p.findall(text))
         results = set()
         for tx in self.transactions:
@@ -185,6 +251,14 @@ class Transactions(object):
                 return tx
         return None
 
+    def getTxsByName(self, names):
+        r = []
+        for n in names:
+            for tx in self.transactions:
+                if n.lower() in tx["_lookup"]:
+                    r.append(tx["name"])
+        return r
+
     def print(self):
         tags = collections.defaultdict(list)
         print("Transactions            Aliases               Tags")
@@ -192,7 +266,7 @@ class Transactions(object):
         for tx in self.transactions:
             print(
                 f"{tx['name']:22}  {', '.join(tx['aliases']):20}"
-                f"  {', '.join(['#'+t for t in tx['tags']])}"
+                f"  {', '.join(['.'+t for t in tx['tags']])}"
             )
             for t in tx["tags"]:
                 tags[t].append(tx["name"])
@@ -252,14 +326,19 @@ def parseDuration(s):
 
 def timestamp(s):
     """ validates and canonicalizes a timestamp """
-    RFC3339 = "%Y-%m-%dT%H:%M:%S.%f"
+    RFC3339 = "%Y-%m-%dT%H:%M:%S"
+    RFC3339f = "%Y-%m-%dT%H:%M:%S.%f"
     formats = [
         "%Y-%m-%d",
         "%Y-%m-%dT%H:%M",
-        "%Y-%m-%dT%H:%M:%S",
         RFC3339,
+        RFC3339f,
         RFC3339 + "Z",
+        RFC3339f + "Z",
     ]
+    # remove extra digits from the time if there are any
+    # python can only handle microseconds, not nanoseconds
+    s = re.sub(r"(\.[0-9]{1,6})([0-9]+)", r"\1", s)
     ts = None
     for f in formats:
         try:
@@ -268,8 +347,9 @@ def timestamp(s):
         except ValueError:
             continue
 
-        if ts is None:
-            raise ValueError
+    if ts is None:
+        print(f"{ts} is not a valid time format", file=sys.stderr)
+        raise ValueError
     return ts.strftime(RFC3339 + "Z")
 
 
@@ -301,7 +381,7 @@ def comparator(field, op, value):
         # durations.
 
         v = value
-        vl = value.lower()
+        vl = str(value).lower()
 
         if isinstance(f, str):
             m = durpat.match(f)
@@ -358,7 +438,7 @@ def flatten(value, prefix=""):
     result = dict()
     for k, v in value.items():
         if isinstance(v, dict):
-            result.update(flatten(v, k + "."))
+            result.update(flatten(v, k.lower() + "."))
         else:
-            result[prefix + k] = v
+            result[prefix + k.lower()] = v
     return result

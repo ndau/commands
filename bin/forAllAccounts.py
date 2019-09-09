@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     # if they just want a list of names, oblige them and quit
     if args.names:
-        ndau.printFieldHelp()
+        ndau.printAccountFieldHelp()
         exit(1)
 
     # look up the network; if we don't find it, assume that the
@@ -150,6 +150,9 @@ if __name__ == "__main__":
     if name in ndau.networks:
         node = ndau.networks[name]
     else:
+        if not name.startswith("http"):
+            print("network name must start with http or https", file=sys.stderr)
+            exit(1)
         node = name
 
     # if there are no fields specified, use all of them
@@ -183,7 +186,7 @@ if __name__ == "__main__":
     after = "-"
     output = []
     # we need the current time to evaluate "islocked"
-    timeNow = datetime.datetime.now().isoformat("T")
+    timeNow = datetime.datetime.utcnow().isoformat("T")
     while after != "":
         qp = dict(limit=limit, after=after)
         result = ndau.getData(node, "/account/list", parms=qp)
