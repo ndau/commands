@@ -492,9 +492,11 @@ jobs:
                  jq -r .result.node_info.id)
             echo "localnet-0 id: $id"
 
-            # Generate the snapshot.
+            # Generate the snapshot (without uploading it to S3).
             echo "Taking genesis snapshot..."
-            "$bin_dir"/snapshotcontainer.sh localnet-0
+            AWS_ACCESS_KEY_ID="" \
+            AWS_SECRET_ACCESS_KEY="" \
+              "$bin_dir"/snapshotcontainer.sh localnet-0
 
             # Start the second container.  We can't use runcontainer.sh here because it tests
             # port connectivity with peers, and localnet-0's IP isn't valid ouside of containers
