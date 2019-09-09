@@ -356,6 +356,8 @@ jobs:
             nodename="catchup-node"
             snapshot="snapshot-mainnet-1"
             USE_LOCAL_IMAGE=1 \
+            AWS_ACCESS_KEY_ID="" \
+            AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
               /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
                 "" "$snapshot"
@@ -479,6 +481,8 @@ jobs:
             echo "Starting first node..."
             bin_dir="/commands/docker/bin"
             # Using "*" will cause the node to generate single validator genesis data.
+            AWS_ACCESS_KEY_ID="" \
+            AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
               "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
@@ -492,11 +496,9 @@ jobs:
                  jq -r .result.node_info.id)
             echo "localnet-0 id: $id"
 
-            # Generate the snapshot (without uploading it to S3).
+            # Generate the snapshot.
             echo "Taking genesis snapshot..."
-            AWS_ACCESS_KEY_ID="" \
-            AWS_SECRET_ACCESS_KEY="" \
-              "$bin_dir"/snapshotcontainer.sh localnet-0
+            "$bin_dir"/snapshotcontainer.sh localnet-0
 
             # Start the second container.  We can't use runcontainer.sh here because it tests
             # port connectivity with peers, and localnet-0's IP isn't valid ouside of containers
@@ -507,6 +509,8 @@ jobs:
               -e NETWORK=localnet \
               -e HONEYCOMB_DATASET="$HONEYCOMB_DATASET" \
               -e HONEYCOMB_KEY="$HONEYCOMB_KEY" \
+              -e AWS_ACCESS_KEY_ID="" \
+              -e AWS_SECRET_ACCESS_KEY="" \
               -e SLACK_DEPLOYS_KEY="" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
