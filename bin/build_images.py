@@ -34,9 +34,13 @@ def run(cmd, timeout=1, check=True, stderr=subprocess.STDOUT, env={}) -> str:
     return result.stdout.strip()
 
 
+def current_branch() -> str:
+    return run("git symbolic-ref --short HEAD", stderr=subprocess.DEVNULL, check=False)
+
+
 @lru_cache(1)
-def commands_sha() -> str:
-    return run("git rev-parse --short HEAD")
+def commands_sha(branch="HEAD") -> str:
+    return run(f"git rev-parse --short {branch}")
 
 
 def rooted(*components) -> str:
@@ -91,9 +95,9 @@ def build(image: str, env: dict = {}) -> None:
 
 
 def main(branch: str, run_unit_tests: bool) -> None:
-    if run("git status --porcelain") != "":
-        print("WARN: uncommitted changes")
-        print(f"docker image contains only committed work ({commands_sha()})")
+    if run("git status --porcelain") != "" and branch == current_branch():
+        print("WARNING: uncommitted changes")
+        print(f"docker image contains only committed work ({commands_sha(branch)})")
 
     def sbuild(*args, **kwargs):
         "build, handling build errors"
@@ -131,9 +135,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="build ndau docker images")
     parser.add_argument(
         "--branch",
-        default=run(
-            "git symbolic-ref --short HEAD", stderr=subprocess.DEVNULL, check=False
-        ),
+        default=current_branch(),
         help=("build this branch/tag of the commands repo. default: current branch"),
     )
     parser.add_argument(
