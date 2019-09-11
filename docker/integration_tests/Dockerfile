@@ -1,4 +1,4 @@
-FROM ndaunode AS integration_tests
+FROM ndauimage AS integration_tests
 
 # Install extra tools.
 RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 && \

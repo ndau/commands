@@ -1,5 +1,5 @@
 # Build the final image. This should contain no trace of earlier stages.
-FROM alpine:3.9 AS ndaunode
+FROM alpine:3.9 AS ndauimage
 
 # Use a specific version of redis.
 COPY --from=redis:5.0.4-alpine [ \

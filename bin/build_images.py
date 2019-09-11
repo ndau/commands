@@ -121,7 +121,7 @@ def main(branch: str, run_unit_tests: bool) -> None:
     sbuild("build_commands", env=env)
 
     # prepare and build the ndaunode and integration tests public images
-    sbuild("ndaunode")
+    sbuild("ndauimage")
     sbuild("integration_tests")
 
 
