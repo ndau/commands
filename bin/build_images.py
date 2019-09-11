@@ -68,7 +68,15 @@ class BuildError(Exception):
         self.image = image
 
 
-def build(image: str, env: dict = {}) -> None:
+class PushError(Exception):
+    def __init__(self, tag):
+        super(BuildError, self).__init__(f"failed to push {tag}")
+        self.tag = tag
+
+
+def build(
+    image: str, branch: str, env: dict = {}, public: bool = False, push: bool = False
+) -> None:
     """
     Build one of our docker images
     """
@@ -86,6 +94,11 @@ def build(image: str, env: dict = {}) -> None:
     cmd.append(rooted("docker", image))
     cmd.append(f"--tag={image}:{commands_sha()}")
     cmd.append(f"--tag={image}:latest")
+    if public:
+        shatag = f"oneirondev/{image}:{commands_sha(branch)}"
+        ltag = f"oneirondev/{image}:latest"
+        cmd.append(f"--tag={shatag}")
+        cmd.append(f"--tag={ltag}")
 
     try:
         run(cmd, timeout=None)
@@ -93,14 +106,25 @@ def build(image: str, env: dict = {}) -> None:
         print(e.stdout, file=sys.stderr)
         raise BuildError(image)
 
+    if public and push:
+        for tag in (shatag, ltag):
+            cmd = ["docker", "push", tag]
+            try:
+                run(cmd, timeout=None)
+            except subprocess.CalledProcessError as e:
+                print(e.stdout, file=sys.stderr)
+                raise PushError(tag)
 
-def main(branch: str, run_unit_tests: bool) -> None:
+
+def main(branch: str, run_unit_tests: bool, push: bool) -> None:
     if run("git status --porcelain") != "" and branch == current_branch():
         print("WARNING: uncommitted changes")
         print(f"docker image contains only committed work ({commands_sha(branch)})")
 
     def sbuild(*args, **kwargs):
         "build, handling build errors"
+        args = list(args)
+        args.insert(1, branch)
         try:
             build(*args, **kwargs)
         except BuildError as e:
@@ -125,7 +149,7 @@ def main(branch: str, run_unit_tests: bool) -> None:
     sbuild("build_commands", env=env)
 
     # prepare and build the ndaunode and integration tests public images
-    sbuild("ndauimage")
+    sbuild("ndauimage", public=True, push=push)
     sbuild("integration_tests")
 
 
@@ -143,6 +167,14 @@ if __name__ == "__main__":
         action="store_true",
         help="run unit tests after building the commands packages",
     )
+    parser.add_argument(
+        "--push",
+        action="store_true",
+        help=(
+            "push public images to docker hub after generation. "
+            "note: must have stored credentials with `docker login`"
+        ),
+    )
 
     args = parser.parse_args()
-    main(args.branch, args.run_unit_tests)
+    main(args.branch, args.run_unit_tests, args.push)
