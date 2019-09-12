@@ -49,9 +49,11 @@ def is_version_tag(branch) -> bool:
 def commands_sha(branch="HEAD") -> str:
     if branch != "HEAD":
         run("git fetch origin", timeout=30)
-        if not is_version_tag(branch):
-            branch = f"origin/{branch}"
-    return run(f"git rev-parse --short {branch}")
+    obranch = f"origin/{branch}"
+    try:
+        return run(f"git rev-parse --short {obranch}")
+    except subprocess.CalledProcessError:
+        return run(f"git rev-parse --short {branch}")
 
 
 def rooted(*components) -> str:
