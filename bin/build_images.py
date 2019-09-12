@@ -40,6 +40,9 @@ def current_branch() -> str:
 
 @lru_cache(1)
 def commands_sha(branch="HEAD") -> str:
+    if branch != "HEAD":
+        run("git fetch origin", timeout=30)
+        branch = f"origin/{branch}"
     return run(f"git rev-parse --short {branch}")
 
 
@@ -118,8 +121,10 @@ def build(
 
 def main(branch: str, run_unit_tests: bool, push: bool) -> None:
     if run("git status --porcelain") != "" and branch == current_branch():
-        print("WARNING: uncommitted changes")
-        print(f"docker images contain only committed work ({commands_sha(branch)})")
+        print(
+            "WARNING: docker images contain only committed and pushed work "
+            f"({commands_sha(branch)})"
+        )
 
     def sbuild(*args, **kwargs):
         "build, handling build errors"
