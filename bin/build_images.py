@@ -119,7 +119,7 @@ def build(
 def main(branch: str, run_unit_tests: bool, push: bool) -> None:
     if run("git status --porcelain") != "" and branch == current_branch():
         print("WARNING: uncommitted changes")
-        print(f"docker image contains only committed work ({commands_sha(branch)})")
+        print(f"docker images contain only committed work ({commands_sha(branch)})")
 
     def sbuild(*args, **kwargs):
         "build, handling build errors"
@@ -151,6 +151,9 @@ def main(branch: str, run_unit_tests: bool, push: bool) -> None:
     # prepare and build the ndaunode and integration tests public images
     sbuild("ndauimage", public=True, push=push)
     sbuild("integration_tests")
+
+    # prepare and build a tools image
+    sbuild("tools", public=True, push=push)
 
 
 if __name__ == "__main__":
