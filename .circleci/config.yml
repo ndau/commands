@@ -337,7 +337,7 @@ jobs:
             # Run unit tests at build-time.  The Go code exists at that point and this saves us
             # from having an extra job when "build" and "test" are generally done concurrently,
             # and both are required to pass.  There is no case where we want one w/o the other.
-            /commands/bin/build_image.py "$COMMANDS_BRANCH_OR_TAG" --run-unit-tests
+            /commands/bin/build_images.py "$COMMANDS_BRANCH_OR_TAG" --run-unit-tests
       - save_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
