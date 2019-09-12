@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import shlex
-import shutil
 import subprocess
 import sys
 from functools import lru_cache
 
 import requests
+
+VERSION = re.compile(r"^v[.\d]+(-\w[-.\w]*)?$")
 
 
 def run(cmd, timeout=1, check=True, stderr=subprocess.STDOUT, env={}) -> str:
@@ -39,10 +41,16 @@ def current_branch() -> str:
 
 
 @lru_cache(1)
+def is_version_tag(branch) -> bool:
+    return VERSION.match(branch) is not None
+
+
+@lru_cache(1)
 def commands_sha(branch="HEAD") -> str:
     if branch != "HEAD":
         run("git fetch origin", timeout=30)
-        branch = f"origin/{branch}"
+        if not is_version_tag(branch):
+            branch = f"origin/{branch}"
     return run(f"git rev-parse --short {branch}")
 
 
@@ -97,11 +105,16 @@ def build(
     cmd.append(rooted("docker", image))
     cmd.append(f"--tag={image}:{commands_sha()}")
     cmd.append(f"--tag={image}:latest")
+    ptags = []
     if public:
-        shatag = f"oneirondev/{image}:{commands_sha(branch)}"
-        ltag = f"oneirondev/{image}:latest"
-        cmd.append(f"--tag={shatag}")
-        cmd.append(f"--tag={ltag}")
+        ptags = [
+            f"oneirondev/{image}:{commands_sha(branch)}",
+            f"oneirondev/{image}:latest",
+        ]
+        if is_version_tag(branch):
+            ptags.append(f"oneirondev/{image}:{branch}")
+        for ptag in ptags:
+            cmd.append(f"--tag={ptag}")
 
     try:
         run(cmd, timeout=None)
@@ -109,8 +122,8 @@ def build(
         print(e.stdout, file=sys.stderr)
         raise BuildError(image)
 
-    if public and push:
-        for tag in (shatag, ltag):
+    if push:
+        for tag in ptags:
             cmd = ["docker", "push", tag]
             try:
                 run(cmd, timeout=None)
@@ -146,8 +159,9 @@ def main(branch: str, run_unit_tests: bool, push: bool) -> None:
     sbuild("noms")
 
     # prepare and build the commands packages
-    shutil.copy2(rooted("Gopkg.toml"), rooted("docker", "build_commands", "Gopkg.toml"))
-    shutil.copy2(rooted("Gopkg.lock"), rooted("docker", "build_commands", "Gopkg.lock"))
+    for pkgfile in ("Gopkg.toml", "Gopkg.lock"):
+        with open(rooted("docker", "build_commands", pkgfile), "wt") as fp:
+            fp.write(run(f"git show {branch}:{pkgfile}"))
     env = {"COMMANDS_BRANCH": branch}
     if run_unit_tests:
         env["RUN_UNIT_TESTS"] = "1"
@@ -166,8 +180,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="build ndau docker images")
     parser.add_argument(
-        "--branch",
+        "branch",
         default=current_branch(),
+        nargs="?",
         help=("build this branch/tag of the commands repo. default: current branch"),
     )
     parser.add_argument(
