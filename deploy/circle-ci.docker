@@ -1,8 +1,8 @@
 # This docker image contains the tools needed by our Circle CI jobs.
 
-FROM golang:1.12-alpine3.9
+FROM golang:1.12-alpine3.10
 
-LABEL org.opencontainers.image.version=0.0.12
+LABEL org.opencontainers.image.version=0.0.13
 
 RUN apk update && \
     apk add --no-cache bash curl docker git jq openssh-client python3 && \
