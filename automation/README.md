@@ -10,6 +10,16 @@ This directory contains scripts for managing nodes on the following ndau network
 
 The scripts assume that the network is already set up.  See the `.md` files in the `deploy` directory for further details and instructions on setting up nodes on a network manually.
 
+## Install
+
+You will need to have the `requests` module installed into your Python 3 environment in order to run the scripts here.
+
+In order to use the "rolling upgrade with reindex" feature, you must have the `sc-node-ec2.pem` file installed in your `~/.ssh` directory and `chmod 400` it.  Get it from the Oneiro 1password account.
+
+You can optionally set and export the `SLACK_DEPLOYS_KEY` environment variable before running the upgrde script.  Get the key from someone on the team.  It'll allow the scripts to post notifications to the ndev `#deploys` slack channel when upgrades complete.
+
+If we ever implement the upgrade script as a Circle job, we won't need to do any of the above locally.  Our `commands/.circleci/config.yml` and environment vairables up on the Circle server are already configured to have what we need.
+
 ## Node Status
 
 The `get_*.py` scripts poll status info from nodes on a network.
@@ -119,23 +129,9 @@ We could fold this into the current upgrade script, or make a new one for changi
 
 For now, we can use the Manual Steps (below) for editing a node's Task Definition and Updating its service.
 
-### Schema Change
-
-This is not yet automated.
-
-We currently have a schema change transaction, but it has never been tested on one of our networks.  We'll add support for this once we have a need for it.  We'll need to stop all validator nodes and restart them after an upgrade.
-
-Our current rolling upgrade process (above) is not suitable for a schema change, since the node software is presumably not backward compatible and we therefore cannot upgrade one node without upgrading all of them simultaneously.
-
 ### Genesis
 
-This is not yet automated.
-
-Currently, devnet does a re-genesis on every deploy, so that's taken care of.  Mainnet will never start over from genesis, so that's not something we need to support.
-
-That just leaves testnet.  Since testnet is a staging network for mainnet, it should be a rare occurrence to have to start it over with a new genesis snapshot.
-
-For now, we continue to do that manually (taking a snapshot, uploading it to S3, getting the node identities and persistent peers and editing the Task Definitions on ECS, then Updating the testnet services via the AWS Management Console).
+Sometimes we want to reset devnet.  Currently when we land to `commands` master, we redeploy without resetting blockchain data.  We can use the `*-jobs_reset` tag to force a resetting deploy, though.  There is no way to reset testnet or mainnet.  Of course, we never want to reset mainnet.  But sometimes we want to "repave" testnet with the latest blockchain data from mainnet.  That's covered below.
 
 ## Manual Steps
 
@@ -192,3 +188,38 @@ This approach shouldn't be needed.  The Update approach is preferred.  But it's 
     - Next step
     - Next step (again)
     - Create Service (if it gives an error about the old service still draining, click Back, then Create Service again until it works)
+
+## Repaving testnet
+
+Sometimes we want to repave testnet with the latest blockchain snapshot from mainnet.  Any time we do this, testnet becomes a fork of mainnet.  When we add big features like new or changed transactions, we need to practice using them on testnet before we upgrade mainnet and submit them there.
+
+Repaving testnet is currently a manual process.  Conceptually, it's simple:
+
+1. Take down all testnet nodes
+1. Copy `latest-mainnet.txt` to `latest-testnet.txt` on S3
+1. Fire up all testnet nodes
+
+We can't do a "rolling repave" because blockchain data differs between testnet and mainnet, and so catchup will fail for a restarted node while the others are still running on old testnet data.  This is why we do a full take-down and fire-up.
+
+Here are the steps for accomplishing this:
+
+1. Optional take a manual snapshot of testnet
+    - This is if you want a backup of old testnet before repaving it
+    - run: `./snapshot_node.py testnet-backup`
+    - It'll get uploaded to `s3://ndau-snapshots` for safe keeping
+1. Optional: take a manual snapshot of mainnet
+    - This is if you want to ensure you're using the absolute latest state of mainnet to repave testnet with; mainnet takes snapshots every hour, so this might not be necessary
+    - run: `./snapshot_node.py mainnet-backup`
+    - It'll upload to S3 and update `mainnet-latest.txt` to point to it
+1. In the AWS Management Console, navigate to ECS > Clusters
+    - "Delete" services `testnet-0` through `testnet-4` and `testnet-backup`
+    - Instructions for this (including which regions they are on) are documented above in the Manual Steps section
+1. Once all testnet nodes are down, run `aws s3 cp s3://ndau-snapshots/latest-mainnet.txt s3://ndau-snapshots/latest-testnet.txt`
+1. Optionally: move away all existing `snapshot-testnet-*.tgz` files since they are not valid history in the repaved world
+    - There is a per-network-and-version place to store them if you want, e.g. `s3://ndau-snapshots/old/testnet-v1.2.0`
+    - Once we start using the `commands` SHA as part of the snapshot name, this is likely not going to be worth the trouble; we can keep all old snapshots in a flat list at the root when that happens without worrying about blockchain compatibility problems
+1. Back in the AWS Console, navigate to ECS > Clusters
+    - "Create" all of the testnet services in the same regions they were before
+    - Instructions for this are documented above in the Manual Steps section
+    - Wait a minute or two between firing up each successive node, so that the daily restart timer in procmon doesn't cause them all to restart at near the same time
+1. Testnet is now repaved and is an effective copy of recent mainnet
