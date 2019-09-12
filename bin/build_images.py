@@ -68,9 +68,12 @@ def prepare_noms() -> None:
         print(resp.json()["object"]["sha"], file=fp)
 
 
-def prepare_commands() -> None:
+def prepare_commands(branch) -> None:
     with open(rooted("docker", "build_commands", "commands_sha"), "wt") as fp:
         print(commands_sha(), file=fp)
+    for pkgfile in ("Gopkg.toml", "Gopkg.lock"):
+        with open(rooted("docker", "build_commands", pkgfile), "wt") as fp:
+            fp.write(run(f"git show {branch}:{pkgfile}"))
 
 
 class BuildError(Exception):
@@ -159,9 +162,7 @@ def main(branch: str, run_unit_tests: bool, push: bool) -> None:
     sbuild("noms")
 
     # prepare and build the commands packages
-    for pkgfile in ("Gopkg.toml", "Gopkg.lock"):
-        with open(rooted("docker", "build_commands", pkgfile), "wt") as fp:
-            fp.write(run(f"git show {branch}:{pkgfile}"))
+    prepare_commands(branch)
     env = {"COMMANDS_BRANCH": branch}
     if run_unit_tests:
         env["RUN_UNIT_TESTS"] = "1"
