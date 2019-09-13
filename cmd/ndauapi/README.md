@@ -88,6 +88,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [SystemEAIRate](#systemeairate)
 
+* [DEPRECATED:TransactionByHash](#deprecated:transactionbyhash)
+
 * [TransactionByHash](#transactionbyhash)
 
 * [TransactionBefore](#transactionbefore)
@@ -1520,9 +1522,40 @@ _**Writes:**_
 
 
 ---
-## TransactionByHash
+## DEPRECATED:TransactionByHash
 
 ### `GET /transaction/:txhash`
+
+_This call is deprecated -- please use /transaction/detail._
+
+
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "BlockHeight": 1234,
+          "TxOffset": 3,
+          "Fee": 0,
+          "SIB": 0,
+          "Tx": null,
+          "TxBytes": null
+        }
+```
+
+
+
+---
+## TransactionByHash
+
+### `GET /transaction/detail/:txhash`
 
 _Returns a transaction from the blockchain given its tx hash._
 
