@@ -3,7 +3,8 @@ FROM alpine:3.9 AS ndauimage
 
 # our scripts require bash as opposed to bare sh
 # bind-tools are required for dig, for manual DNS
-RUN apk add --no-cache bash bind-tools
+RUN apk add --no-cache bash bind-tools ca-certificates && \
+    update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
 COPY --from=redis:5.0.4-alpine [ \

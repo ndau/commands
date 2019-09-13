@@ -84,14 +84,14 @@ for peer in "${peers[@]}"; do
             echo "WARNING: Unable to find IP for $domain; skipping peer $peer"
         else
             # Choose an IP.  All A records are assumed to be valid.  That's their purpose.
-            ip_idx=$(choose_ip_index $ips_len $peer_idx)
+            ip_idx="$(choose_ip_index $ips_len $peer_idx)"
             peer_ip="${ips[$ip_idx]}"
             echo "Using IP $peer_ip for peer $peer"
         fi
     fi
 
     # We only keep peers for which valid IPs were found.
-    if [ ! -z "$peer_ip" ]; then
+    if [ -n "$peer_ip" ]; then
         persistent_peers+=("$peer_id@$peer_ip:$peer_port")
     fi
     peer_idx=$((peer_idx + 1))
