@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:c41c8ba0f12c32d4017c28d133593b704c6a6f6b487da1b555634411cef7c781"
+  branch = "eas-tx"
+  digest = "1:a7f837a755eb05d57c0947187b2c1606ba82e91b5b9e929e689a7007402c76cf"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "a6ee1fb5626af38db619b56ecc10a44bf2c95a8e"
-  version = "v1.24.3"
+  revision = "9820fbcd932321814c83abd3a4968b32b2e4ee5b"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
