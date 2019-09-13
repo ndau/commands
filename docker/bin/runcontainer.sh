@@ -241,9 +241,12 @@ echo "Persistent peers: '$PERSISTENT_PEERS'"
 "$SCRIPT_DIR"/stopcontainer.sh "$CONTAINER"
 
 # If the image isn't present, fetch the "current" image from S3 for the given network.
+echo "fetching ndau image..."
 if [ "$NETWORK" = "localnet" ] || [ "$USE_LOCAL_IMAGE" = 1 ]; then
+    echo "  using local latest"
     NDAU_IMAGE_NAME="ndauimage:latest"
 else
+    echo "  determining appropriate sha..."
     NDAU_IMAGES_SUBDIR="ndau-images"
     NDAU_IMAGES_DIR="$SCRIPT_DIR/../$NDAU_IMAGES_SUBDIR"
     mkdir -p "$NDAU_IMAGES_DIR"
@@ -253,14 +256,14 @@ else
     echo "Fetching $CURRENT_FILE..."
     curl -o "$CURRENT_PATH" "$IMAGE_BASE_URL/$CURRENT_FILE"
     if [ ! -f "$CURRENT_PATH" ]; then
-        echo "Unable to fetch $IMAGE_BASE_URL/$CURRENT_FILE"
+        echo "  unable to fetch $IMAGE_BASE_URL/$CURRENT_FILE"
         exit 1
     fi
     SHA=$(cat "$CURRENT_PATH")
     NDAU_IMAGE_NAME="ndauimage:$SHA"
 
     if [ -z "$(docker image ls -q "$NDAU_IMAGE_NAME")" ]; then
-        echo "Unable to find $NDAU_IMAGE_NAME locally; fetching..."
+        echo "  unable to find $NDAU_IMAGE_NAME locally; fetching..."
 
         IMAGE_NAME="ndauimage-$SHA"
         IMAGE_ZIP="$IMAGE_NAME.docker.gz"
@@ -281,6 +284,7 @@ else
         fi
     fi
 fi
+echo "  using $NDAU_IMAGE_NAME"
 
 echo "Creating container..."
 # Some notes about the params to the run command:
