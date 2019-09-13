@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+# shellcheck source=docker-env.sh
 source "$SCRIPT_DIR"/docker-env.sh
 
 # NODE_NUM is which mainnet node we are.  It will be blank if we're not named "mainnet-N".
