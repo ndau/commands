@@ -552,7 +552,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "eas-tx"
   digest = "1:a7f837a755eb05d57c0947187b2c1606ba82e91b5b9e929e689a7007402c76cf"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "9820fbcd932321814c83abd3a4968b32b2e4ee5b"
+  revision = "c044e60eed8838e54526364224b570ec79f8e400"
+  version = "v1.24.4"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
