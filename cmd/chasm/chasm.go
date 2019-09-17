@@ -711,7 +711,7 @@ var g = &grammar{
 									label: "t",
 									expr: &ruleRefExpr{
 										pos:  position{line: 80, col: 19, offset: 3256},
-										name: "Timestamp",
+										name: "Value",
 									},
 								},
 							},

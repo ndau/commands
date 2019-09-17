@@ -77,7 +77,7 @@ Opcode =
     / "roll" _ offset:Value                    { return newBinaryOpcode(vm.OpRoll, offset.(string)) }
     / "ret"                                    { return newUnitaryOpcode(vm.OpRet) }
     / "rand"                                   { return newUnitaryOpcode(vm.OpRand) }
-    / "pusht" _ t:Timestamp                    { return newPushTimestamp(t.(string)) }
+    / "pusht" _ t:Value                        { return newPushTimestamp(t.(string)) }
     / "pushl"                                  { return newUnitaryOpcode(vm.OpPushL) }
     / "pushb" _ ba:Bytes                       { return newPushB(ba) }
     / "pick" _ offset:Value                    { return newBinaryOpcode(vm.OpPick, offset.(string)) }

@@ -292,10 +292,10 @@ func TestCallFromEvent(t *testing.T) {
 
 func TestConstantTimestamp(t *testing.T) {
 	code := `
-GENESIS = 2019-05-11T03:46:40.570549Z
-handler 0 {
-	pusht GENESIS
-}
+		GENESIS = 2019-05-11T03:46:40.570549Z
+		handler 0 {
+			pusht GENESIS
+		}
 	`
-	checkParse(t, "ConstantTimestamp", code, "")
+	checkParse(t, "ConstantTimestamp", code, "a000 2b b57cb54c 932b0200 88")
 }
