@@ -12,7 +12,7 @@ bin/venv/
 *.pid
 *.tgz
 
-# Python chaff
+# python chaff
 **/__pycache__/
 
 # Sensitive configuration

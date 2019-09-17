@@ -88,6 +88,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [SystemEAIRate](#systemeairate)
 
+* [DEPRECATED:TransactionByHash](#deprecated:transactionbyhash)
+
 * [TransactionByHash](#transactionbyhash)
 
 * [TransactionBefore](#transactionbefore)
@@ -1520,9 +1522,40 @@ _**Writes:**_
 
 
 ---
-## TransactionByHash
+## DEPRECATED:TransactionByHash
 
 ### `GET /transaction/:txhash`
+
+_This call is deprecated -- please use /transaction/detail._
+
+
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "BlockHeight": 1234,
+          "TxOffset": 3,
+          "Fee": 0,
+          "SIB": 0,
+          "Tx": null,
+          "TxBytes": null
+        }
+```
+
+
+
+---
+## TransactionByHash
+
+### `GET /transaction/detail/:txhash`
 
 _Returns a transaction from the blockchain given its tx hash._
 
@@ -1571,7 +1604,7 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- txhash | Path | Only transactions on or before this will be returned. Use 'start' to get the most recent page of transactions | string
+ txhash | Path | Only transactions on or before this will be returned. Use 'start' to get the most recent page of transactions. Use a numeric block height to get transactions in and before that block | string
  type | Query | Case-insensitive transaction type name to filter by. Use multiple instances of this parameter to get results for multiple transaction types. Leave off to get transactions of any type | string
  limit | Query | The maximum number of items to return. Use a positive limit, or 0 for getting max results; default=0, max=100 | int
 
