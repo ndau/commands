@@ -161,6 +161,9 @@ if __name__ == "__main__":
     else:
         outputfields = [ndau.accountNames()[f.lower()] for f in args.fields]
 
+    # force all to lowercase
+    outputfields = [f.lower() for f in outputfields]
+
     # parse all the constraints, building the comparators we will use to
     # evaluate them as we walk through the data
     constraints = []
