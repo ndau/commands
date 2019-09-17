@@ -194,13 +194,15 @@ if __name__ == "__main__":
 
         accts = result["Accounts"]
         resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
+        if resp.status_code != 200:
+            print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
+            exit(1)
+
         data = resp.json()
         # ok, now we can iterate through the batch of data
         for k in data:
             # add some manufactured fields to the account data
             data[k]["id"] = k
-            # print(f"1 {k}")
-            # print(f"2 {data[k]}")
             # we're unlocked if there's no lock object, OR if
             # the current time is after the "unlocksOn" time.
             unlocked = data[k].get("lock") is None or (
