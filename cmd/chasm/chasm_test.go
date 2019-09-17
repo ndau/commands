@@ -289,3 +289,13 @@ func TestCallFromEvent(t *testing.T) {
 	// at present, it is impossible to call any function except the first from
 	// within an event handler. This test will let us know when we have fixed that.
 }
+
+func TestConstantTimestamp(t *testing.T) {
+	code := `
+GENESIS = 2019-05-11T03:46:40.570549Z
+handler 0 {
+	pusht GENESIS
+}
+	`
+	checkParse(t, "ConstantTimestamp", code, "")
+}
