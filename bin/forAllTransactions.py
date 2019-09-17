@@ -20,43 +20,37 @@ def setupArgs():
         description=textwrap.dedent(
             """
         This program reads an ndau blockchain and returns information from the
-        accounts it finds there. By default, it reads all accounts and returns
-        a csv file containing the full details from all of the accounts.
+        transactions it finds there. By default, it reads all transactions and returns
+        a csv file containing the full details from all of them.
         However, it also supports the ability to generate JSON output, to
-        select a subset of fields for each account, and to select a subset of
-        accounts according to the values of their fields.
+        select a subset of fields for each transaction, and to select a subset of
+        transactions according to the values of their fields or their metadata.
 
          If multiple constraints are applied they must all be satisfied.
 
          Note that compared to the ndau API, this application:
-         * flattens the account data so that there are no nested structures
-         * injects three additional fields:
-             * id (the ndau account address)
-             * islocked (true if the lock exists and has not yet expired)
-             * hasrecourse (true if recourseSettings is non-empty)
+         * flattens the transaction data so that there are no nested structures
+         * injects some additional fields:
 
     """
         ),
         epilog=textwrap.dedent(
             """
         Examples:
-            # count the number of accounts with more than 1000 ndau that are unlocked
-            forAllAccounts.py --network=test --count --constraints "balance>=100000000000" "islocked == false"
+            # show the block heights for all Issue and RFE transactions
+            bin/forAllTransactions.py --network testnet --txtypes RFE Issue --fields blockheight txtype
 
-            # print the account IDs and balances of accounts with a balance of less than 10000 napu
-            forAllAccounts.py --network=test --constraints "balance<10000" --fields id balance
+            # count the number of transfer transactions between blocks 20,000 and 30,000
+            bin/forAllTransactions.py --network testnet --txtypes Transfer --blockrange 20000 30000 --count
 
-            # print the account IDs and balances of the top 10 largest accounts as JSON
-            forAllAccounts.py --network=test --json --fields id balance --sort /bal --max 10
+            # show the timestamps, blockheight, and quantity of all transfers between blocks 20,000 and 30,000
+            bin/forAllTransactions.py --network testnet --txtypes Transfer --fields blockheight txdata.qty blocktime --blockrange 20000 30000
 
-            # print the 3 largest accounts that are delegated to a specific node that ends with a given string
-            forAllAccounts.py --network=test --constraint "delegation%vuzhqxa"  --fields id  --sort /bal --max 3
+            # show the height and type of all price-related transactions
+            bin/forAllTransactions.py --network testnet --txtypes .price --fields blockheight txtype
 
-            # count the number of accounts that are locked with the maximum lock bonus of 5%
-            forAllAccounts.py --network=test --count --constraints "islocked==true" "bonus=50000000000"
-
-            # count the number of accounts that are locked for less than one year
-            forAllAccounts.py --network=test --count --constraints "islocked==true" "notice<1y"
+            # show the source accounts for all transfer transactions that paid SIB (and their fees)
+            bin/forAllTransactions.py --network testnet --txtypes Transfer  --fields txdata.source fee sib --constraint "sib>0"
 
     """  # noqa: E501
         ),
@@ -76,10 +70,32 @@ def setupArgs():
         "Use quotes around each individual constraint.",
     )
     parser.add_argument(
+        "--txtypes",
+        nargs="*",
+        default=[],
+        help="Accepts a set of names or aliases to limit the set of transaction types"
+        ", or tags prefixed with '.'. See --names for a list.",
+    )
+    parser.add_argument(
         "--fields",
         default=[],
         nargs="*",
         help="fields to send to the output (default all)",
+    )
+    parser.add_argument(
+        "--blockrange",
+        type=int,
+        nargs=2,
+        metavar="HEIGHT",
+        help="range of blocks to search",
+    )
+    parser.add_argument(
+        "--timespan",
+        nargs=2,
+        metavar="TIMESTAMP",
+        help="start and end times of the span of time to search (like "
+        "'2019-07-18T12:34:56Z' , just a date like 2019-08-01, "
+        "or a word like 'first' or 'now')",
     )
     parser.add_argument(
         "--sort",
@@ -130,7 +146,7 @@ def setupArgs():
         "--names",
         default=False,
         action="store_true",
-        help="print the list of valid field names and exit",
+        help="print the list of valid transaction names, aliases, and tags",
     )
     return parser
 
@@ -139,13 +155,15 @@ if __name__ == "__main__":
     parser = setupArgs()
     args = parser.parse_args()
 
+    transactions = ndau.Transactions()
+
     # if they just want a list of names, oblige them and quit
     if args.names:
-        ndau.printAccountFieldHelp()
-        exit(1)
+        transactions.print()
+        exit(0)
 
     # look up the network; if we don't find it, assume that the
-    # network value is an API URL
+    # network value is an API URL (but if it doesn't start with http, fail)
     name = args.network
     if name in ndau.networks:
         node = ndau.networks[name]
@@ -155,15 +173,49 @@ if __name__ == "__main__":
             exit(1)
         node = name
 
-    # if there are no fields specified, use all of them
-    if len(args.fields) == 0:
-        outputfields = ndau.accountFields.keys()
-    else:
-        outputfields = [ndau.accountNames()[f.lower()] for f in args.fields]
+    genesis = "2019-05-11T00:00:00Z"
+    timeNow = datetime.datetime.utcnow().isoformat("T") + "Z"
+    times = {
+        "start": genesis,
+        "first": genesis,
+        "genesis": genesis,
+        "now": timeNow,
+        "last": timeNow,
+        "end": timeNow,
+    }
 
     # parse all the constraints, building the comparators we will use to
     # evaluate them as we walk through the data
     constraints = []
+
+    # we treat timespan and blockrange as constraints until the API gets smarter
+    if args.timespan:
+        st, et = [t.lower() for t in args.timespan]
+        if st in times:
+            startts = times[st]
+        else:
+            startts = ndau.timestamp(st)
+        if et in times:
+            endts = times[et]
+        else:
+            endts = ndau.timestamp(et)
+
+        if startts > endts:
+            startts, endts = endts, startts
+        constraints.append(ndau.comparator("blocktime", ">=", startts))
+        constraints.append(ndau.comparator("blocktime", "<=", endts))
+
+    if args.blockrange:
+        lastblock = ndau.getData(node, "/block/current")
+        lastheight = lastblock["block_meta"]["header"]["height"]
+        sb, eb = args.blockrange
+        sb = ndau.clamp(sb, 1, lastheight)
+        eb = ndau.clamp(eb, 1, lastheight)
+        if sb > eb:
+            sb, eb = eb, sb
+        constraints.append(ndau.comparator("blockheight", ">=", sb))
+        constraints.append(ndau.comparator("blockheight", "<=", eb))
+
     for c in args.constraints:
         pat = re.compile("([a-zA-Z0-9._-]+) *(>=|<=|>|<|==|=|!=|%) *([^ ]+)")
         m = pat.match(c)
@@ -172,47 +224,31 @@ if __name__ == "__main__":
             continue
         name, op, value = m.groups()
 
-        if name.lower() not in ndau.accountNames():
-            print(f"no known field called '{name}'", file=sys.stderr)
-            continue
-
-        constraints.append(
-            ndau.comparator(ndau.accountNames()[name.lower()], op, value)
-        )
+        constraints.append(ndau.comparator(name.lower(), op, value))
 
     # limit is the number of accounts in a single query -- this is limited by the
     # blockchain API and so we have to do a set of requests to get all the data
     limit = 100
-    after = "-"
     output = []
+    types = transactions.getTxsByName(args.txtypes)
+    nexthash = "start"
     # we need the current time to evaluate "islocked"
-    timeNow = datetime.datetime.utcnow().isoformat("T")
-    while after != "":
-        qp = dict(limit=limit, after=after)
-        result = ndau.getData(node, "/account/list", parms=qp)
-        after = result["NextAfter"]
-
-        accts = result["Accounts"]
-        resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
-        if resp.status_code != 200:
-            print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
+    while nexthash != "":
+        url = f"/transaction/before/{nexthash}"
+        qp = dict(limit=limit, type=types)
+        resp = ndau.getData(node, url, parms=qp)
+        if not resp:
+            print("Failure fetching data.", file=sys.stderr)
             exit(1)
 
-        data = resp.json()
-        # ok, now we can iterate through the batch of data
-        for k in data:
-            # add some manufactured fields to the account data
-            data[k]["id"] = k
-            # we're unlocked if there's no lock object, OR if
-            # the current time is after the "unlocksOn" time.
-            unlocked = data[k].get("lock") is None or (
-                data[k]["lock"].get("unlocksOn") is not None
-                and data[k]["lock"]["unlocksOn"] < timeNow
-            )
-            data[k]["islocked"] = not unlocked
-            data[k]["hasrecourse"] = data[k]["recourseSettings"] is not None
+        nexthash = resp["NextTxHash"]
+        data = resp["Txs"]
+
+        # ok, now we can iterate through the batch of data, flatten it,
+        # and evaluate constraints
+        for i in range(len(data)):
             # now flatten it
-            flat = ndau.flatten(data[k])
+            flat = ndau.flatten(data[i])
 
             # by default we keep it but if it fails any constraint we drop it
             keep = True
@@ -230,6 +266,24 @@ if __name__ == "__main__":
     # These next steps are carefully ordered because we want to sort before truncation
     # and we might want to sort on data that's not included in the output set
 
+    # if they just want a count, we don't need to sort and filter fields,
+    # and max is meaningless.
+    if args.format == "count":
+        print(f"{len(output)}", file=args.output)
+        exit(0)
+
+    # if there are no fields specified, use all of the fields specified
+    # in the unified collection of txs
+    if len(args.fields) == 0:
+        fields = set()
+        for o in output:
+            fields.update(set([k.lower() for k in o.keys()]))
+        outputfields = sorted(
+            list(fields), key=lambda x: "zzz" + x if x.startswith("txdata") else x
+        )
+    else:
+        outputfields = [f.lower() for f in args.fields]
+
     # 1) sort the result
     if args.sort != "":
         field = args.sort
@@ -237,7 +291,7 @@ if __name__ == "__main__":
         if field[0] == "/":
             field = field[1:]
             reverse = True
-        f = ndau.accountNames()[field.lower()]
+        f = field.lower()
         output = sorted(output, key=lambda x: x[f], reverse=reverse)
 
     # 2) truncate the result set if desired
@@ -250,9 +304,7 @@ if __name__ == "__main__":
         i = dict([(k, v) for k, v in o.items() if k in outputfields])
         result.append(i)
 
-    if args.format == "count":
-        print(f"{len(result)}", file=args.output)
-    elif args.format == "json":
+    if args.format == "json":
         j = json.dump(result, args.output)
     elif args.format == "csv":
         w = csv.DictWriter(args.output, outputfields)
