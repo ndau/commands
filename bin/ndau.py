@@ -276,13 +276,13 @@ class Transactions(object):
 
 # these are the names of time units and their duration in microseconds
 timeConstants = {
-    "year": 365 * 24 * 60 * 60 * 1_000_000,
-    "month": 30 * 24 * 60 * 60 * 1_000_000,
-    "day": 24 * 60 * 60 * 1_000_000,
-    "hour": 60 * 60 * 1_000_000,
-    "min": 60 * 1_000_000,
-    "sec": 1_000_000,
-    "usec": 1,
+    "years": 365 * 24 * 60 * 60 * 1_000_000,
+    "months": 30 * 24 * 60 * 60 * 1_000_000,
+    "days": 24 * 60 * 60 * 1_000_000,
+    "hours": 60 * 60 * 1_000_000,
+    "minutes": 60 * 1_000_000,
+    "seconds": 1_000_000,
+    "micros": 1,
 }
 
 
@@ -294,28 +294,39 @@ def usec(x, unit):
     return timeConstants[unit] * t
 
 
+# This is exactly the regexp from the go code that parses durations
+# https://github.com/oneiro-ndev/ndaumath/blob/de5a90c45d3f079f1a263819493d2f7a70bb4b8b/pkg/constants/constants.go#L61
+# see https://github.com/oneiro-ndev/ndau/issues/405 and change
+# the 9 to 6 below when that is fixed
+durpat = re.compile(
+    r"(?i)^"  # case-insensitive
+    r"(?P<neg>-)?"  # durations can be negative
+    r"p?"  # and may contain a leading p
+    r"((?P<years>\d+)y)?"
+    r"((?P<months>\d{1,2})m)?"
+    r"((?P<days>\d{1,2})d)?"
+    r"(t"
+    r"((?P<hours>\d{1,2})h)?"
+    r"((?P<minutes>\d{1,2})m)?"
+    r"((?P<seconds>\d{1,2})s)?"
+    r"((?P<micros>\d{1,9})[μu]s?)?"  # 9 until bug is fixed
+    r")?$"
+)
+
+
+def isDuration(s):
+    """
+    see if a string can be evaluated as a duration
+    """
+    return durpat.match(s) is not None
+
+
 def parseDuration(s):
     """
     parse a duration and return an integer number of microseconds
     """
 
-    # this uses a tagged regexp to parse strings that we believe are already
-    # durations (this isn't perfect because the t is optional and without it
-    # the m is ambiguous).
-    p = re.compile(
-        "("
-        "((?P<year>[0-9]+)y)?"
-        "((?P<month>[0-9]+)m)?"
-        "((?P<day>[0-9]+)d)?)?"
-        "t?"
-        "(((?P<hour>[0-9]+)h)?"
-        "((?P<min>[0-9]+)m)?"
-        "((?P<sec>[0-9]+)s)?"
-        "((?P<usec>[0-9]+)us?"
-        ")?"
-        ")?"
-    )
-    m = p.match(s)
+    m = durpat.match(s)
 
     t = 0
     # the usec function deals with missing parts of the expression
@@ -365,11 +376,6 @@ def comparator(field, op, value):
     so that they are correctly comparable.
     """
 
-    durpat = re.compile(
-        "(([0-9+][ymd])*(t((h|m|s|us)[0-9]+)+)+)|"
-        "(([0-9+][ymd])+(t((h|m|s|us)[0-9]+)+)*)"
-    )
-
     def cmp(x):
         # if the field doesn't exist, it's None
         f = x.get(field, None)
@@ -384,9 +390,8 @@ def comparator(field, op, value):
         vl = str(value).lower()
 
         if isinstance(f, str):
-            m = durpat.match(f)
             # if f is a duration, also parse the value as a duration
-            if m:
+            if isDuration(f):
                 f = parseDuration(f)
                 v = parseDuration(vl)
         elif isinstance(f, bool):
