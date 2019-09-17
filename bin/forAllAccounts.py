@@ -19,12 +19,12 @@ def setupArgs():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(
             """
-          This program reads an ndau blockchain and returns information from the
-          accounts it finds there. By default, it reads all accounts and returns
-          a csv file containing the full details from all of the accounts.
-          However, it also supports the ability to generate JSON output, to
-          select a subset of fields for each account, and to select a subset of
-          accounts according to the values of their fields.
+        This program reads an ndau blockchain and returns information from the
+        accounts it finds there. By default, it reads all accounts and returns
+        a csv file containing the full details from all of the accounts.
+        However, it also supports the ability to generate JSON output, to
+        select a subset of fields for each account, and to select a subset of
+        accounts according to the values of their fields.
 
          If multiple constraints are applied they must all be satisfied.
 
@@ -194,12 +194,13 @@ if __name__ == "__main__":
 
         accts = result["Accounts"]
         resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
-
         data = resp.json()
         # ok, now we can iterate through the batch of data
         for k in data:
             # add some manufactured fields to the account data
             data[k]["id"] = k
+            # print(f"1 {k}")
+            # print(f"2 {data[k]}")
             # we're unlocked if there's no lock object, OR if
             # the current time is after the "unlocksOn" time.
             unlocked = data[k].get("lock") is None or (

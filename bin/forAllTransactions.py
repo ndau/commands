@@ -19,12 +19,12 @@ def setupArgs():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(
             """
-          This program reads an ndau blockchain and returns information from the
-          transactions it finds there. By default, it reads all transactions and returns
-          a csv file containing the full details from all of them.
-          However, it also supports the ability to generate JSON output, to
-          select a subset of fields for each transaction, and to select a subset of
-          transactions according to the values of their fields or their metadata.
+        This program reads an ndau blockchain and returns information from the
+        transactions it finds there. By default, it reads all transactions and returns
+        a csv file containing the full details from all of them.
+        However, it also supports the ability to generate JSON output, to
+        select a subset of fields for each transaction, and to select a subset of
+        transactions according to the values of their fields or their metadata.
 
          If multiple constraints are applied they must all be satisfied.
 
@@ -37,6 +37,21 @@ def setupArgs():
         epilog=textwrap.dedent(
             """
         Examples:
+            # show the block heights for all Issue and RFE transactions
+            bin/forAllTransactions.py --network testnet --txtypes RFE Issue --fields blockheight txtype
+
+            # count the number of transfer transactions between blocks 20,000 and 30,000
+            bin/forAllTransactions.py --network testnet --txtypes Transfer --blockrange 20000 30000 --count
+
+            # show the timestamps, blockheight, and quantity of all transfers between blocks 20,000 and 30,000
+            bin/forAllTransactions.py --network testnet --txtypes Transfer --fields blockheight txdata.qty blocktime --blockrange 20000 30000
+
+            # show the height and type of all price-related transactions
+            bin/forAllTransactions.py --network testnet --txtypes .price --fields blockheight txtype
+
+            # show the source accounts for all transfer transactions that paid SIB (and their fees)
+            bin/forAllTransactions.py --network testnet --txtypes Transfer  --fields txdata.source fee sib --constraint "sib>0"
+
     """  # noqa: E501
         ),
     )
@@ -227,16 +242,7 @@ if __name__ == "__main__":
             exit(1)
 
         nexthash = resp["NextTxHash"]
-
         data = resp["Txs"]
-
-        # # annotate blocktimes for all blocks
-        # allblocks = [d["BlockHeight"] for d in data]
-        # ndau.cacheBlockTimes(node, allblocks)
-        # for i in range(len(data)):
-        #     # add blocktimes to the tx data
-        #     bt = ndau.getBlockTime(node, data[i]["BlockHeight"])
-        #     data[i]["blocktime"] = ndau.timestamp(bt)
 
         # ok, now we can iterate through the batch of data, flatten it,
         # and evaluate constraints
