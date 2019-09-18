@@ -1,12 +1,12 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/pkg/errors"
 )
 
 // command is a type that is used to create a table of commands for the repl
@@ -228,6 +228,34 @@ Value syntax:
 					fmt.Println(k)
 				}
 			}
+			return nil
+		},
+	},
+	"set-now": command{
+		aliases: []string{"setnow", "sn"},
+		summary: "sets the value which the vm will return for the `now` opcode",
+		detail: `
+argument must be RFC3339 format timestamp, or empty
+
+empty argument means that the VM should return the current time
+`,
+		handler: func(rs *runtimeState, args string) error {
+			args = strings.TrimSpace(args)
+			var n vm.Nower
+			if args == "" {
+				var err error
+				n, err = vm.NewDefaultNow()
+				if err != nil {
+					return errors.Wrap(err, "constructing default now")
+				}
+			} else {
+				ts, err := vm.ParseTimestamp(args)
+				if err != nil {
+					return errors.Wrap(err, "parsing arg as timestamp")
+				}
+				n = nower{ts}
+			}
+			rs.vm.SetNow(n)
 			return nil
 		},
 	},
