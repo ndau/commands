@@ -95,9 +95,13 @@ var commands = map[string]command{
 		aliases: []string{"r"},
 		summary: "runs the currently loaded VM from the current IP",
 		detail:  `if arg is "fail" or "succeed" will exit if the result disagrees`,
-		handler: func(rs *runtimeState, args string) error {
-			err := rs.run(nil)
-			switch strings.ToLower(args) {
+		handler: func(rs *runtimeState, rargs string) error {
+			var dumper vm.Dumper
+			if args.Verbose {
+				dumper = vm.Trace
+			}
+			err := rs.run(dumper)
+			switch strings.ToLower(rargs) {
 			case "fail":
 				if err == nil {
 					val, err := rs.vm.Stack().PopAsInt64()
