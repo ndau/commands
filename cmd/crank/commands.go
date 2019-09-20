@@ -315,8 +315,8 @@ func (ep expectParser) vmValues() ([]vm.Value, error) {
 }
 
 // Parse consumes an argument string and returns a list of values
-func (ep expectParser) Parse(args string, rs *runtimeState) ([]vm.Value, error) {
-	parser, err := arg.NewParser(arg.Config{}, &ep)
+func (ep *expectParser) Parse(args string, rs *runtimeState) ([]vm.Value, error) {
+	parser, err := arg.NewParser(arg.Config{}, ep)
 	if err != nil {
 		return nil, newExitError(254, err, rs)
 	}
