@@ -14,3 +14,5 @@ NodeRewardWebhookDelay = 10.0
   FixEAIUnlockBug = 30_419
   TargetPrice9999 = 30_419
   SysvarValidityCheck = 30_419
+  # new features: change to a sane number before upgrading testnet
+  NodeRegistrationDate = 1_000_000
