@@ -13,3 +13,5 @@ NodeRewardWebhookDelay = 10.0
   FixEAIUnlockBug = 31_025
   TargetPrice9999 = 31_025
   SysvarValidityCheck = 31_025
+  # new features: change to a sane number before upgrading mainnet
+  NodeRegistrationDate = 1_000_000
