@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:a7f837a755eb05d57c0947187b2c1606ba82e91b5b9e929e689a7007402c76cf"
+  branch = "prgn-node-rewards-by-goodness"
+  digest = "1:1b43cd96ab26df58958c14e29eef1859bc6c814144094db149d216c1a87aae9c"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "c044e60eed8838e54526364224b570ec79f8e400"
-  version = "v1.24.4"
+  revision = "72a0d50896886a72defa153f7a48c9802945d65c"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -625,7 +625,8 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:05177ac5165995d13fe65c5fb1e9b481f5d32e2dc2a9501c08a1f391b7668887"
+  branch = "prgn-node-rewards-sysvars"
+  digest = "1:b7cb69e697f0cc9829a3036e269f38ca5d8ed9a27cc8547fd05e817c7e84941d"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -633,8 +634,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "372cdfc76e3aa63c55724b9c2022dfa4c3ff74f8"
-  version = "v1.5.0"
+  revision = "de83ca5876124cc5601f4591dafd8e0bbc925b93"
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"

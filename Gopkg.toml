@@ -16,7 +16,8 @@ version = "~v1.8"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.24"
+# version = "~v1.24"
+branch = "prgn-node-rewards-by-goodness"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -32,7 +33,8 @@ version = "~v0.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/system_vars"
-version = "~v1.5"
+# version = "~v1.5"
+branch = "prgn-node-rewards-sysvars"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/writers"
