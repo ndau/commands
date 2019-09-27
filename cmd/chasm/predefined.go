@@ -47,6 +47,7 @@ func predefinedConstants() map[string]string {
 		"EVENT_SETSTAKERULES":          "24",
 		"EVENT_RECORDENDOWMENTNAV":     "25",
 		"EVENT_RESOLVESTAKE":           "26",
+		"EVENT_BURN":                   "27",
 		"EVENT_CHANGESCHEMA":           "30",
 		"LOCK_NOTICEPERIOD":            "91",
 		"LOCK_UNLOCKSON":               "92",
