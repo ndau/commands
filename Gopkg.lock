@@ -490,15 +490,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:78dd095f4966b8b018d00f6e60af8b44f7ada205d60ee0a6a9c5b76b798a58d3"
+  digest = "1:b8228b03f49a820ef9a5e82d9b338cb5329cdcb56981a0cd00cc26db24103319"
   name = "github.com/oneiro-ndev/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "a66f3e5f25cb650cb7b0d055245b2854aa1e020a"
-  version = "v1.2.3"
+  revision = "d6dfdae731faf8e86a6a0fff4fe386f513c831e1"
+  version = "v1.2.4"
 
 [[projects]]
   digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
