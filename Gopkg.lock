@@ -552,8 +552,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-node-rewards-by-goodness"
-  digest = "1:1b43cd96ab26df58958c14e29eef1859bc6c814144094db149d216c1a87aae9c"
+  digest = "1:17adb86bed14a233bb2a93ad86e913c96a51d8f0319d20d3751e5f16cf3f738a"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "72a0d50896886a72defa153f7a48c9802945d65c"
+  revision = "d0df3d47bd3f8de899743e774ba321fa47099001"
+  version = "v1.25.1"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -625,7 +625,6 @@
   version = "v0.1.0"
 
 [[projects]]
-  branch = "prgn-node-rewards-sysvars"
   digest = "1:b7cb69e697f0cc9829a3036e269f38ca5d8ed9a27cc8547fd05e817c7e84941d"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
@@ -634,7 +633,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "de83ca5876124cc5601f4591dafd8e0bbc925b93"
+  revision = "51a94a0f504d3e08b9f0c2ccb95b65469efe1c92"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
