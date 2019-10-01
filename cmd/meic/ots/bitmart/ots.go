@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
@@ -30,8 +31,13 @@ var _ ots.OrderTrackingSystem = (*OTS)(nil)
 // usually by cancelling and replacing
 func (e OTS) UpdateQty(order ots.SellOrder) error {
 	log.Println("update = ", order)
-	err := error(nil)
-	//	err = CancelOrder(&e.auth, order.ID)
+	//	err := error(nil)
+	oID, err := strconv.ParseUint(order.ID, 10, 64)
+	if err != nil {
+		err = errors.Wrap(err, "parsing order ID")
+		return err
+	}
+	err = CancelOrder(&e.auth, oID)
 	if err != nil {
 		err = errors.Wrap(err, "cancel order request")
 		return err
@@ -41,17 +47,22 @@ func (e OTS) UpdateQty(order ots.SellOrder) error {
 	log.Println("qty = ", qty)
 	price := float64(order.Price) / 100000000000
 	log.Println("price = ", price)
-	id := uint64(0)
-	//	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
-	order.ID = uint64(id)
+	//	id := "0"
+	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
+	order.ID = strconv.FormatInt(id, 16)
 	return err
 }
 
 // Delete deletes an order off the order stack on the exchange
 func (e OTS) Delete(order ots.SellOrder) error {
 	log.Println("delete = ", order)
-	err := error(nil)
-	//	err = CancelOrder(&e.auth, order.ID)
+	//	err := error(nil)
+	oID, err := strconv.ParseUint(order.ID, 10, 64)
+	if err != nil {
+		err = errors.Wrap(err, "parsing order ID")
+		return err
+	}
+	err = CancelOrder(&e.auth, oID)
 	return err
 }
 
@@ -64,9 +75,9 @@ func (e OTS) Submit(order ots.SellOrder) error {
 	price := float64(order.Price) / 100000000000
 	log.Println("price = ", price)
 	err := error(nil)
-	id := uint64(0)
-	//	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
-	order.ID = uint64(id)
+	//	id := "0"
+	id, err := PlaceOrder(&e.auth, e.Symbol, "sell", price, qty)
+	order.ID = strconv.FormatInt(id, 16)
 	return err
 }
 
@@ -159,7 +170,7 @@ func (e OTS) Run(
 					curStack = append(curStack, ots.SellOrder{
 						Qty:   qty,
 						Price: price,
-						ID:    uint64(orders[i].EntrustID),
+						ID:    strconv.FormatInt(orders[i].EntrustID, 10),
 					})
 				}
 			}

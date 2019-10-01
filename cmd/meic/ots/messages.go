@@ -18,7 +18,7 @@ type TargetPriceSale struct {
 type SellOrder struct {
 	Qty   math.Ndau
 	Price pricecurve.Nanocent
-	ID    uint64
+	ID    string
 }
 
 // An UpdateOrders message is transmitted from the IUS to each OTS instance

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
 	"github.com/oneiro-ndev/commands/cmd/meic/ots/bitmart"
+	"github.com/oneiro-ndev/commands/cmd/meic/ots/kryptono"
 )
 
 // this list is broken out into a separate file to make it easy to find when
@@ -14,5 +15,9 @@ var otsImpls = []ots.OrderTrackingSystem{
 	bitmart.OTS{
 		Symbol:     "NDAU_USDT",
 		APIKeyPath: "test.apikey.json",
+	},
+	kryptono.OTS{
+		Symbol:     "XND_USDT",
+		APIKeyPath: "kryptono.apikey.json",
 	},
 }
