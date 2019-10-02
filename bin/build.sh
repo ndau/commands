@@ -67,7 +67,8 @@ build_tools() {
 build_tm() {
     echo building tendermint
     cd "$TENDERMINT_DIR"
-    go build ./"$TENDERMINT_CMD"
+#    go build ./"$TENDERMINT_CMD"
+    make build
 }
 
 build_noms() {
