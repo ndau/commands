@@ -27,17 +27,16 @@ ${endc}
 values = dict(
     header="----- ---- --- -- -",
     footer="- -- --- ---- -----",
-    year=datetime.datetime.now().year,
     holder="Oneiro NA, Inc",
     license_name="the Apache License 2.0",
     license_link="https://www.apache.org/licenses/LICENSE-2.0.txt",
 )
 
 comments = dict(
-    go=dict(stc="//", c="//", endc="//"),
-    js=dict(stc="/*", c=" *", endc=" */"),
-    py=dict(stc="##", c="##", endc="##"),
-    chasm=dict(stc=";;", c=";;", endc=";;"),
+    go=dict(stc="//", c="//", endc="", skip=["package"]),
+    js=dict(stc="/*", c=" *", endc=" */", skip=[]),
+    py=dict(stc="##", c="##", endc="", skip="#!"),
+    chasm=dict(stc=";;", c=";;", endc=""),
 )
 
 
@@ -136,8 +135,9 @@ def findCopyrightInfo(lines):
             footerline = ctr + 1
             break
         if yearline == -1:
-            years = [int(y) for y in yearpat.findall(lines[ctr])]
-            if years:
+            yrs = sorted([int(y) for y in yearpat.findall(lines[ctr])])
+            if yrs:
+                years = yrs
                 yearline = ctr
 
     if footerline == -1:
@@ -149,7 +149,7 @@ def findCopyrightInfo(lines):
         footerline=footerline,
         yearline=yearline,
         years=years,
-        coprBlock=lines[headerline:footerline + 1],
+        coprBlock=lines[headerline : footerline + 1],
     )
 
 
@@ -190,29 +190,37 @@ def maybeUpdateFile(filename, ext, values, readonly):
         if len(lines) == 0:
             return False
         coprInfo = findCopyrightInfo(lines)
-        values["years"] = [values["year"]]
 
     update = False
     if coprInfo is None:
+        values["years"] = [values["year"]]
         update = True
     else:
         years = coprInfo["years"]
         if values["year"] not in years:
             years.append(values["year"])
-            values["years"] = years
             update = True
+        values["years"] = sorted(years)
 
     newBlock = createCopyright(values)
     if coprInfo is not None and different(coprInfo["coprBlock"], newBlock):
         update = True
 
+    # if it doesn't end with a blank line, add one
+    if newBlock[-1] != "":
+        print(len(newBlock[-1]))
+        newBlock.append("")
+
     if update and not readonly:
         with open(filename, "w") as f:
+            skipcount = 0
             if coprInfo is None:
-                if lines[0].startswith("#!"):
-                    lines = lines[:1] + newBlock + lines[1:]
-                else:
-                    lines = newBlock + lines
+                for s in values["skip"]:
+                    if lines[skipcount].startswith(s):
+                        skipcount += 1
+                if skipcount and lines[skipcount] == "":
+                    skipcount += 1
+                lines = lines[:skipcount] + newBlock + lines[skipcount:]
             else:
                 lines = (
                     lines[: coprInfo["headerline"]]
@@ -221,6 +229,7 @@ def maybeUpdateFile(filename, ext, values, readonly):
                 )
 
             f.write("\n".join(lines))
+            f.write("\n")
 
     return update
 
@@ -254,6 +263,8 @@ if __name__ == "__main__":
         args.files.append(f"./**/*.{x}")
 
     files = generateFileList(args.files)
+
+    values["year"] = args.year
 
     changedFiles = updateFiles(files, args.lang, values, args.check)
     if args.check:
