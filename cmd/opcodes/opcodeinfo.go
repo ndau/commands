@@ -58,7 +58,7 @@ func (p timeParm) Nbytes() string {
 }
 
 func (p timeParm) PeggoParm() string {
-	return fmt.Sprintf("Timestamp")
+	return fmt.Sprintf("Value")
 }
 
 func (p timeParm) PeggoTmpl() string {

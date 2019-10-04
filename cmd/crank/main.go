@@ -22,7 +22,7 @@ import (
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
 )
 
-type args struct {
+type argst struct {
 	Binary  string `arg:"-b" help:"File to load as a chasm binary (*.chbin)."`
 	Script  string `arg:"-s" help:"Command script file (*.chasm) (sets test mode)."`
 	Bytes   string `arg:"-B" help:"Raw chaincode bytes to preload as a script. Must be space-separated base10 unless --hex-bytes or --base64-bytes is set."`
@@ -33,7 +33,7 @@ type args struct {
 	Debug   bool   `arg:"-d" help:"Forces debug mode."`
 }
 
-func (args) Description() string {
+func (argst) Description() string {
 	return `crank is a repl for chaincode.
 
 	crank starts up and creates a new VM with no contents.
@@ -58,6 +58,8 @@ func (args) Description() string {
 	`
 }
 
+var args argst
+
 func main() {
 	// this needs to be filled in dynamically because the help function traverses
 	// the commands list.
@@ -65,43 +67,41 @@ func main() {
 	h.handler = help
 	commands["help"] = h
 
-	var a args
-
-	arg.MustParse(&a)
+	arg.MustParse(&args)
 	rs := runtimeState{mode: DEBUG, in: os.Stdin, out: newOutputter()}
 
 	switch {
-	case a.Script != "":
-		inf, err := os.Open(a.Script)
+	case args.Script != "":
+		inf, err := os.Open(args.Script)
 		if err != nil {
-			log.Fatalf("Unable to load script file %s: %s", a.Script, err)
+			log.Fatalf("Unable to load script file %s: %s", args.Script, err)
 		}
-		rs.script = a.Script
+		rs.script = args.Script
 		rs.in = inf
 		rs.mode = TEST
-	case a.Binary != "":
-		err := rs.load(a.Binary)
+	case args.Binary != "":
+		err := rs.load(args.Binary)
 		if err != nil {
-			log.Fatalf("Unable to load binary file %s: %s", a.Binary, err)
+			log.Fatalf("Unable to load binary file %s: %s", args.Binary, err)
 		}
-	case a.Bytes != "":
+	case args.Bytes != "":
 		// strip enclosing brackets if present
-		if a.Bytes[0] == '[' && a.Bytes[len(a.Bytes)-1] == ']' {
-			a.Bytes = a.Bytes[1 : len(a.Bytes)-1]
+		if args.Bytes[0] == '[' && args.Bytes[len(args.Bytes)-1] == ']' {
+			args.Bytes = args.Bytes[1 : len(args.Bytes)-1]
 		}
 
 		// decode bytes
 		var bytes []byte
 		var err error
 		switch {
-		case a.Base64:
-			bytes, err = base64.StdEncoding.DecodeString(a.Bytes)
-		case a.Hex:
+		case args.Base64:
+			bytes, err = base64.StdEncoding.DecodeString(args.Bytes)
+		case args.Hex:
 			// strip spaces from hex input so it all parses properly
-			a.Bytes = strings.Replace(a.Bytes, " ", "", -1)
-			bytes, err = hex.DecodeString(a.Bytes)
+			args.Bytes = strings.Replace(args.Bytes, " ", "", -1)
+			bytes, err = hex.DecodeString(args.Bytes)
 		default:
-			numbers := strings.Fields(a.Bytes)
+			numbers := strings.Fields(args.Bytes)
 			bytes = make([]byte, 0, len(numbers))
 			for _, numberS := range numbers {
 				var number uint64
@@ -126,7 +126,7 @@ func main() {
 		}
 		rs.vm = cvm.MakeMutable()
 
-		if a.Verbose {
+		if args.Verbose {
 			rs.dispatch("dis")
 		}
 
@@ -134,13 +134,13 @@ func main() {
 	}
 
 	switch {
-	case a.Debug:
+	case args.Debug:
 		rs.mode = DEBUG
-	case a.Test:
+	case args.Test:
 		rs.mode = TEST
 	}
 
-	rs.verbose = a.Verbose
+	rs.verbose = args.Verbose
 
 	rs.repl()
 }

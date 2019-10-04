@@ -43,13 +43,18 @@ within a subsequent one. However, recursion is not supported.
 Because LAMBDA and VAR aggressively attempt to analyze the type of their arguments,
 it is sometimes necessary to tell VAR to simply treat them as strings. In this instance,
 you can use SVAR instead of VAR.
+
+In order to support timestamp calculations, a helper function exists in the LAMBDA
+namespace called `ts`. This accepts a string in RFC3339 format, exactly as
+accepted by chaincode, and returns a `datetime.datetime` object.
 """
 
+import itertools
 import os
 import re
 import sys
-import itertools
 from collections import OrderedDict
+from datetime import datetime
 from string import Template
 
 EVAL_PAT = re.compile(r"{-{(.*?)}-}", re.DOTALL)
@@ -78,6 +83,17 @@ def parse_as(val, *types):
         except ValueError:
             pass
     return quote(val)
+
+
+def parse_ts(timestamp):
+    # microseconds are optinal, which means we have to check multiple formats;
+    # timestamp formats can't have optional values
+    for fmt in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            return datetime.strptime(timestamp, fmt)
+        except ValueError:
+            pass  # just try the next format
+    raise ValueError(f"timestamp {timestamp} did not match any parseable time format")
 
 
 def quote(s):
@@ -116,6 +132,9 @@ def generate(fname):
     values = vars.values()
     combos = [dict(x) for x in itertools.product(*values)]
     for idx, combo in enumerate(combos):
+        # add utility functions to each combo
+        combo["ts"] = parse_ts
+
         for name, lam in lams.items():
             try:
                 combo[name] = eval(lam, combo)

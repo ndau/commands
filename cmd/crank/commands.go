@@ -1,12 +1,14 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
+	arg "github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/pkg/errors"
 )
 
 // command is a type that is used to create a table of commands for the repl
@@ -59,10 +61,15 @@ var commands = map[string]command{
 	},
 	"expect": command{
 		aliases: []string{},
-		summary: "Compares it to the given value(s).",
-		detail:  `If the expected values are not found or an error occurs, exits with a nonzero return code`,
+		summary: "Compares stack to the given value(s).",
+		detail:  expectParser{}.Description(),
 		handler: func(rs *runtimeState, args string) error {
-			values, err := parseValues(args)
+			ep := expectParser{}
+			values, err := ep.Parse(args, rs)
+			if err != nil {
+				return newExitError(255, err, rs)
+			}
+			compare, err := ep.Comparitor(rs)
 			if err != nil {
 				return newExitError(255, err, rs)
 			}
@@ -71,8 +78,8 @@ var commands = map[string]command{
 				if err != nil {
 					return newExitError(255, err, rs)
 				}
-				if !v.Equal(stk) {
-					return newExitError(1, fmt.Errorf("%s (on stack) does not equal %s (given) - exiting", stk, v), rs)
+				if err = compare(stk, v); err != nil {
+					return newExitError(1, err, rs)
 				}
 			}
 			return nil
@@ -88,9 +95,13 @@ var commands = map[string]command{
 		aliases: []string{"r"},
 		summary: "runs the currently loaded VM from the current IP",
 		detail:  `if arg is "fail" or "succeed" will exit if the result disagrees`,
-		handler: func(rs *runtimeState, args string) error {
-			err := rs.run(nil)
-			switch strings.ToLower(args) {
+		handler: func(rs *runtimeState, rargs string) error {
+			var dumper vm.Dumper
+			if args.Verbose {
+				dumper = vm.Trace
+			}
+			err := rs.run(dumper)
+			switch strings.ToLower(rargs) {
 			case "fail":
 				if err == nil {
 					val, err := rs.vm.Stack().PopAsInt64()
@@ -231,4 +242,154 @@ Value syntax:
 			return nil
 		},
 	},
+	"set-now": command{
+		aliases: []string{"setnow", "sn"},
+		summary: "sets the value which the vm will return for the `now` opcode",
+		detail: `
+argument must be RFC3339 format timestamp, or empty
+
+empty argument means that the VM should return the current time
+`,
+		handler: func(rs *runtimeState, args string) error {
+			args = strings.TrimSpace(args)
+			var n vm.Nower
+			if args == "" {
+				var err error
+				n, err = vm.NewDefaultNow()
+				if err != nil {
+					return errors.Wrap(err, "constructing default now")
+				}
+			} else {
+				ts, err := vm.ParseTimestamp(args)
+				if err != nil {
+					return errors.Wrap(err, "parsing arg as timestamp")
+				}
+				n = nower{ts}
+			}
+			rs.vm.SetNow(n)
+			return nil
+		},
+	},
+}
+
+type expectParser struct {
+	Delta   string   `arg:"-d,--delta" help:"absolute allowed error"`
+	Epsilon string   `arg:"-e,--epsilon" help:"relative allowed error"`
+	Values  []string `arg:"positional"`
+}
+
+func (expectParser) Description() string {
+	return `
+If the expected values are not found or an error occurs, exits with a nonzero
+return code.
+
+If --delta is set, the DELTA value is the absolute allowed error. For example:
+
+	expect 100 --delta 1
+
+In this case, the expect will succeed if the stack head is in the
+inclusive range [99..101].
+
+If --epsilon is set, the EPSILON value is the relative allowed error. For example:
+
+	expect 100 --epsilon 0.1
+
+In this case, the expect will succeed if the stack head is in the
+inclusive range [90..110].
+
+--delta and --epsilon are mutually exclusive. Both options apply to all values
+in the stack.
+	`
+}
+
+func (ep expectParser) vmValues() ([]vm.Value, error) {
+	out := make([]vm.Value, 0, len(ep.Values))
+	for _, v := range ep.Values {
+		vs, err := parseValues(v)
+		if err != nil {
+			return out, err
+		}
+		out = append(out, vs...)
+	}
+	return out, nil
+}
+
+// Parse consumes an argument string and returns a list of values
+func (ep *expectParser) Parse(args string, rs *runtimeState) ([]vm.Value, error) {
+	parser, err := arg.NewParser(arg.Config{}, ep)
+	if err != nil {
+		return nil, newExitError(254, err, rs)
+	}
+	err = parser.Parse(strings.Split(args, " "))
+	if err != nil {
+		return nil, newExitError(255, err, rs)
+	}
+	if ep.Delta != "" && ep.Epsilon != "" {
+		return nil, newExitError(255, errors.New("--delta and --epsilon are incompatible"), rs)
+	}
+	return ep.vmValues()
+}
+
+func (ep expectParser) Comparitor(rs *runtimeState) (func(have, want vm.Value) error, error) {
+	if ep.Delta != "" {
+		delta, err := strconv.ParseInt(ep.Delta, 0, 64)
+		if err != nil {
+			return nil, newExitError(255, err, rs)
+		}
+		return func(have, want vm.Value) error {
+			hn, ok := have.(vm.Numeric)
+			if !ok {
+				return fmt.Errorf("%s (on stack) is not numeric", have)
+			}
+			wn, ok := want.(vm.Numeric)
+			if !ok {
+				return fmt.Errorf("%s (given) is not numeric", want)
+			}
+
+			d := hn.AsInt64() - wn.AsInt64()
+			if d < 0 {
+				d = -d
+			}
+			if d > delta {
+				return fmt.Errorf("%s (on stack) not within delta %v of %s (given) - exiting", have, delta, want)
+			}
+			return nil
+		}, nil
+	}
+
+	if ep.Epsilon != "" {
+		epsilon, err := strconv.ParseFloat(ep.Epsilon, 64)
+		if err != nil {
+			return nil, newExitError(255, err, rs)
+		}
+		return func(have, want vm.Value) error {
+			hn, ok := have.(vm.Numeric)
+			if !ok {
+				return fmt.Errorf("%s (on stack) is not numeric", have)
+			}
+			wn, ok := want.(vm.Numeric)
+			if !ok {
+				return fmt.Errorf("%s (given) is not numeric", want)
+			}
+
+			h := float64(hn.AsInt64())
+			w := float64(wn.AsInt64())
+			d := h - w
+			if d < 0 {
+				d = -d
+			}
+			e := w * epsilon
+			if d > e {
+				return fmt.Errorf("%s (on stack) not within epsilon %v of %s (given) - exiting", have, epsilon, want)
+			}
+			return nil
+		}, nil
+	}
+
+	return func(have, want vm.Value) error {
+		if !want.Equal(have) {
+			return fmt.Errorf("%s (on stack) does not equal %s (given) - exiting", have, want)
+		}
+		return nil
+	}, nil
 }
