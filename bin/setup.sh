@@ -96,17 +96,17 @@ if [ -d "tendermint" ]; then
     echo SETUP: Updating tendermint...
     cd tendermint
     # Simulate same state as the else case for consistency and to prepare for version checkout.
-    git checkout -- .
-    git checkout master
-    git pull origin master
+    # git checkout -- .
+    # git checkout master
+    # git pull origin master
 else
     echo SETUP: Cloning tendermint...
     git clone "$TENDERMINT_REPO"
     cd tendermint
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
-git fetch --prune
-git checkout "$TENDERMINT_VER"
+# git fetch --prune
+# git checkout "$TENDERMINT_VER"
 # TODO: dep is no longer supported by tendermint; replace this.
 #echo SETUP: Ensuring dependencies for tendermint...
 #run_dep_ensure

@@ -3,7 +3,7 @@
 # 3rd party repos and version to use.
 export NOMS_REPO=https://github.com/attic-labs/noms.git
 export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
-export TENDERMINT_VER=v0.32.3
+export TENDERMINT_VER=v0.32.5
 
 # For multi-node support.
 export MAX_NODE_COUNT=10
