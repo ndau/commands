@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/signature"
 	"github.com/oneiro-ndev/recovery/pkg/signer"
 	"github.com/pkg/errors"
@@ -31,6 +30,7 @@ type IssuanceUpdateSystem struct {
 	updates       []chan ots.UpdateOrders
 	manualUpdates chan struct{}
 	tmNode        *tmclient.HTTP
+	reqMan        *RequestManager
 	stackGen      uint
 	stackDefault  uint
 	config        *Config
@@ -53,29 +53,30 @@ func NewIUS(
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing server address")
 	}
-	nodeAddr, err := url.Parse(nodeAddress)
-	if err != nil {
-		return nil, errors.Wrap(err, "parsing node address")
-	}
-	nodeAddr.Path = ""
-	tmNode := tool.Client(nodeAddr.String())
-	nodeAddr.Path = "/websocket"
+	// nodeAddr, err := url.Parse(nodeAddress)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "parsing node address")
+	// }
+	// nodeAddr.Path = ""
+	// tmNode := tool.Client(nodeAddr.String())
+	// nodeAddr.Path = "/websocket"
 
 	ius := IssuanceUpdateSystem{
 		logger:     logger,
 		serverAddr: serverAddr,
-		nodeAddr:   nodeAddr,
-		selfKeys:   selfKeys,
+		// nodeAddr:   nodeAddr,
+		selfKeys: selfKeys,
 		// We never want OTSs to have to block when reporting sales, so we
 		// allocate a buffer in the sales channel.
 		sales:         make(chan ots.TargetPriceSale, 256),
 		updates:       make([]chan ots.UpdateOrders, 0, len(otsImpls)),
 		manualUpdates: make(chan struct{}),
-		tmNode:        tmNode,
-		stackGen:      stackDefault,
-		stackDefault:  stackDefault,
-		config:        config,
-		errs:          make(chan error),
+		// tmNode:        tmNode,
+		reqMan:       NewRequestManager(nodeAddress),
+		stackGen:     stackDefault,
+		stackDefault: stackDefault,
+		config:       config,
+		errs:         make(chan error),
 	}
 
 	if ius.config != nil {
@@ -162,7 +163,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 			ius.handleSale(sale, sigserv)
 			fmt.Println("sale = ", sale)
 			// wait for Issue TX to settle on blockchain
-			time.Sleep(1 * time.Second)
+			// time.Sleep(1 * time.Second)
 			ius.updateOTSs()
 		case err := <-ius.errs:
 			// for now, just quit and depend on procmon to restart us after a

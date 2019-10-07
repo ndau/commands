@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
 	"github.com/oneiro-ndev/ndaumath/pkg/constants"
 	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
 	ndaumath "github.com/oneiro-ndev/ndaumath/pkg/types"
@@ -14,7 +13,20 @@ import (
 // this helper computes the desired stack and forwards it to all OTSs
 func (ius *IssuanceUpdateSystem) updateOTSs() {
 	// 1. get the total issuance from the blockchain
-	summary, _, err := tool.GetSummary(ius.tmNode)
+	// summary, _, err := tool.GetSummary(ius.tmNode)
+
+	summary := struct {
+		MarketPrice int64         `json:"marketPrice"`
+		TargetPrice int64         `json:"targetPrice"`
+		FloorPrice  int64         `json:"floorPrice"`
+		TotalIssued ndaumath.Ndau `json:"totalIssued"`
+		TotalNdau   ndaumath.Ndau `json:"totalNdau"`
+		TotalSIB    int64         `json:"totalSIB"`
+		SIB         int64         `json:"sib"`
+	}{}
+
+	err := ius.reqMan.Get("/price/current", &summary)
+
 	if err != nil {
 		// maybe we should figure out a better error-handling solution than all
 		// these panics
@@ -25,7 +37,7 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 	stack := make([]ots.SellOrder, 0, ius.stackGen+1)
 	partial := uint(0)
 	// JSG round remaining to 2 significant digs of ndau for exchange
-	issued := ndaumath.Ndau(math.Round(float64(summary.TotalIssue)/1000000) * 1000000)
+	issued := ndaumath.Ndau(math.Round(float64(summary.TotalIssued)/1000000) * 1000000)
 
 	napuInBlock := ndaumath.Ndau(pricecurve.SaleBlockQty * constants.NapuPerNdau)
 	issuedInBlock := issued % napuInBlock
