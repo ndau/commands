@@ -33,10 +33,10 @@ values = dict(
 )
 
 comments = dict(
-    go=dict(stc="//", c="//", endc="", skip=["package"]),
+    go=dict(stc="//", c="//", endc="", skip=["package", "generate"]),
     js=dict(stc="/*", c=" *", endc=" */", skip=[]),
     py=dict(stc="##", c="##", endc="", skip="#!"),
-    chasm=dict(stc=";;", c=";;", endc=""),
+    chasm=dict(stc="; ", c="; ", endc="", skip=[]),
 )
 
 
@@ -86,6 +86,12 @@ def setupArgs():
         help="Specifies file extensions (like 'go' or 'js') to examine",
     )
     parser.add_argument(
+        "--exclude",
+        nargs="*",
+        default=[],
+        help="Specifies filenames or glob patterns of files to ignore",
+    )
+    parser.add_argument(
         "--verbose",
         default=False,
         action="store_true",
@@ -105,12 +111,18 @@ def setupArgs():
     return parser
 
 
-def generateFileList(globs):
+def generateFileList(globs, excludes):
     allfiles = set()
     for g in globs:
         gs = glob.glob(g, recursive=True)
         allfiles.update(gs)
-    return allfiles
+
+    exclfiles = set()
+    for e in excludes:
+        es = glob.glob(e, recursive=True)
+        exclfiles.update(es)
+
+    return allfiles.difference(exclfiles)
 
 
 def findCopyrightInfo(lines):
@@ -215,11 +227,22 @@ def maybeUpdateFile(filename, ext, values, readonly):
         with open(filename, "w") as f:
             skipcount = 0
             if coprInfo is None:
-                for s in values["skip"]:
-                    if lines[skipcount].startswith(s):
+                # see if we should skip some lines at the beginning
+                skipping = (len(values['skip']) > 0)
+                while skipping and skipcount < len(lines):
+                    for s in values["skip"]:
+                        skipping = False
+                        if s in lines[skipcount]:
+                            skipping = True
+                            skipcount += 1
+                            break  # restart the inner loop
+                    # skip one more blank line if we skipped anything
+                    if (
+                        skipcount > 0
+                        and skipcount < len(lines)
+                        and lines[skipcount] == ""
+                    ):
                         skipcount += 1
-                if skipcount and lines[skipcount] == "":
-                    skipcount += 1
                 lines = lines[:skipcount] + newBlock + lines[skipcount:]
             else:
                 lines = (
@@ -262,7 +285,7 @@ if __name__ == "__main__":
     for x in args.exts:
         args.files.append(f"./**/*.{x}")
 
-    files = generateFileList(args.files)
+    files = generateFileList(args.files, args.exclude)
 
     values["year"] = args.year
 
