@@ -243,6 +243,8 @@ if __name__ == "__main__":
 
         nexthash = resp["NextTxHash"]
         data = resp["Txs"]
+        if data is None:
+            break
 
         # ok, now we can iterate through the batch of data, flatten it,
         # and evaluate constraints

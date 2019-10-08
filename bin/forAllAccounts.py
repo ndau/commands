@@ -196,10 +196,14 @@ if __name__ == "__main__":
         after = result["NextAfter"]
 
         accts = result["Accounts"]
-        resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
-        if resp.status_code != 200:
-            print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
-            exit(1)
+        failcount = 0
+        while failcount < 5:
+            resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
+            if resp.status_code == 200:
+                break
+            else:
+                print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
+                failcount += 1
 
         data = resp.json()
         # ok, now we can iterate through the batch of data

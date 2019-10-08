@@ -105,7 +105,7 @@ if [ "$1" = "--all" ]; then
     done
 else
     # this is the list of expected folders
-    for f in {automation,chaincode,commands,generator,integration-tests,metanode,ndau,ndaumath,o11y}; do
+    for f in {automation,chaincode,commands,generator,integration-tests,json2msgp,metanode,ndau,ndaumath,o11y,recovery,system_vars,writers}; do
         status_one "$f"
     done
 fi
