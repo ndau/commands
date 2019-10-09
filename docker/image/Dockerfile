@@ -22,8 +22,6 @@ COPY --from=redis:5.0.4-alpine [ \
     "/usr/local/bin/" \
     ]
 
-# Use pre-built tendermint image
-COPY --from=tendermint/tendermint:v0.32.5 /usr/bin/tendermint /image/bin/
 
 
 # The go_build stage has all the tooling necessary to clone repos and build
@@ -31,7 +29,8 @@ COPY --from=tendermint/tendermint:v0.32.5 /usr/bin/tendermint /image/bin/
 FROM golang:1.12-alpine3.9 AS go_build
 
 # Install extra tools.
-RUN apk add --no-cache bash git openssh
+RUN apk add --no-cache bash git openssh make
+
 
 # Arguments passed via --build-arg.
 ARG SSH_PRIVATE_KEY
@@ -57,6 +56,18 @@ RUN git clone git@github.com:attic-labs/noms.git "$ATTICLABS_DIR"/noms
 RUN go get -u "$ATTICLABS_DIR"/noms/...
 RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 
+# The build_tendermint stage builds tendermint, caching results when posssible
+FROM go_build AS build_tendermint
+# Use pre-built tendermint image
+# COPY --from=tendermint/tendermint:v0.32.3 /usr/bin/tendermint /image/bin/
+# build tendermint because pre-built 0.32.5 doesn't exist
+ENV TENDERMINT_DIR=$GOPATH/src/github.com/tendermint
+ENV TENDERMINT_VER=v0.32.5
+RUN mkdir -p "$TENDERMINT_DIR"
+RUN cd "$TENDERMINT_DIR" && git clone https://github.com/tendermint/tendermint.git
+RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
+RUN cd "$TENDERMINT_DIR"/tendermint && GO111MODULE=on make build
+RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
 
 # The get_commands_deps stage gets the dependencies used to build the commands
 # repo. It's in a separate stage for caching: often, the commands repo's sha
@@ -117,6 +128,9 @@ COPY ./docker-conf.sh \
 
 # Copy the noms image we built
 COPY --from=build_noms /bin/noms /image/bin/
+
+# Copy the tendermint image we built
+COPY --from=build_tendermint /bin/tendermint /image/bin/
 
 # Copy the output from the intermediate image.
 COPY --from=build_commands /image/bin/* /image/bin/
