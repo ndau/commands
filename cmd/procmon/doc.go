@@ -1,5 +1,14 @@
 package main
 
+// ----- ---- --- -- -
+// Copyright 2019 Oneiro NA, Inc. All Rights Reserved.
+//
+// Licensed under the Apache License 2.0 (the "License").  You may not use
+// this file except in compliance with the License.  You can obtain a copy
+// in the file LICENSE in the source distribution or at
+// https://www.apache.org/licenses/LICENSE-2.0.txt
+// - -- --- ---- -----
+
 /*
 Procmon is a command that manages a tree of os-level tasks. If any task terminates or
 otherwise fails a validity test, that task and all of its descendants are stopped
