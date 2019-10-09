@@ -67,8 +67,10 @@ build_tools() {
 build_tm() {
     echo building tendermint
     cd "$TENDERMINT_DIR"
+    # JSG move to make to satisfy new go dependcy reqs in v0.32.5, we might need to go back
+    # to "go build" in the future
 #    go build ./"$TENDERMINT_CMD"
-    make build
+    GO111MODULE=on make build
 }
 
 build_noms() {
