@@ -35,6 +35,7 @@ type IssuanceUpdateSystem struct {
 	stackDefault  uint
 	config        *Config
 	errs          chan error
+	lastStack     []ots.SellOrder
 }
 
 // NewIUS creates a new IUS and performs required initialization
@@ -77,6 +78,7 @@ func NewIUS(
 		stackDefault: stackDefault,
 		config:       config,
 		errs:         make(chan error),
+		lastStack:    make([]ots.SellOrder, 0, stackDefault+1),
 	}
 
 	if ius.config != nil {
@@ -151,7 +153,7 @@ func (ius *IssuanceUpdateSystem) Run(stop <-chan struct{}) error {
 	ius.updateOTSs()
 	// everything's set up, let's handle some messages!
 	for {
-		timeout := time.After(10 * time.Minute)
+		timeout := time.After(1 * time.Minute)
 		select {
 		case <-stop:
 			break

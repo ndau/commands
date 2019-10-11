@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math"
 
 	"github.com/oneiro-ndev/commands/cmd/meic/ots"
@@ -31,8 +31,9 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 		// maybe we should figure out a better error-handling solution than all
 		// these panics
 		check(err, "failed to get blockchain summary")
+		return
 	}
-	fmt.Println("summary = ", summary)
+	log.Println("summary = ", summary)
 	// 2. compute the current desired target sales stack
 	stack := make([]ots.SellOrder, 0, ius.stackGen+1)
 	partial := uint(0)
@@ -66,6 +67,17 @@ func (ius *IssuanceUpdateSystem) updateOTSs() {
 		})
 		issued += napuInBlock
 	}
+
+	if len(ius.lastStack) > 0 {
+		for i := range stack {
+			if stack[i].Price < ius.lastStack[i].Price {
+				check(err, "stack price too low")
+				log.Println("stack = ", stack)
+				return
+			}
+		}
+	}
+	ius.lastStack = append([]ots.SellOrder(nil), stack...)
 
 	// 3. send that stack individually to each OTS
 	for idx, uoChan := range ius.updates {
