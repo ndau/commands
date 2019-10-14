@@ -1,5 +1,14 @@
 package main
 
+// ----- ---- --- -- -
+// Copyright 2019 Oneiro NA, Inc. All Rights Reserved.
+//
+// Licensed under the Apache License 2.0 (the "License").  You may not use
+// this file except in compliance with the License.  You can obtain a copy
+// in the file LICENSE in the source distribution or at
+// https://www.apache.org/licenses/LICENSE-2.0.txt
+// - -- --- ---- -----
+
 // This is a formatter/indenter for .peggo files. It could use a lot of polish, but it's also
 // adequate for our needs at the moment. Don't run it on new files you haven't committed
 // to source control; it probably won't corrupt things but it's best to be safe.
