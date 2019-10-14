@@ -62,7 +62,7 @@ FROM go_build AS build_tendermint
 # COPY --from=tendermint/tendermint:v0.32.3 /usr/bin/tendermint /image/bin/
 # build tendermint because pre-built 0.32.5 doesn't exist
 ENV TENDERMINT_DIR=$GOPATH/src/github.com/tendermint
-ENV TENDERMINT_VER=v0.32.5
+ENV TENDERMINT_VER=v0.32.6
 RUN mkdir -p "$TENDERMINT_DIR"
 RUN cd "$TENDERMINT_DIR" && git clone https://github.com/tendermint/tendermint.git
 RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
