@@ -184,8 +184,14 @@ This approach shouldn't be needed.  The Update approach is preferred.  But it's 
     - Maximum percent: `100`
     - Placement Templates: One Task Per Host
     - Next step
+    - Load balancer type: `Classic Load Balancer`
+    - Health check grace period: `300`
+    - Service IAM role: `AWSServiceRoleForECS`
+    - Load balancer name: same as node
+    - Container for ELB healthcheck: "nodename"`:3030:tcp`
     - Uncheck "Enable service discovery integration"
     - Next step
+    - Service Auto Scaling: `Do not adjust the service’s desired count`
     - Next step (again)
     - Create Service (if it gives an error about the old service still draining, click Back, then Create Service again until it works)
 
