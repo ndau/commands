@@ -105,8 +105,8 @@ else
     cd tendermint
 fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
-# git fetch --prune
-# git checkout "$TENDERMINT_VER"
+git fetch --prune
+git checkout "$TENDERMINT_VER"
 # TODO: dep is no longer supported by tendermint; replace this.
 #echo SETUP: Ensuring dependencies for tendermint...
 #run_dep_ensure
