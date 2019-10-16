@@ -66,7 +66,9 @@ Each of these, in turn, has several endpoints within it.
 
 * [NodeConsensusState](#nodeconsensusstate)
 
-* [NodeList](#nodelist)
+* [DEPRECATED:NodeList](#deprecated:nodelist)
+
+* [RegisteredNodes](#registerednodes)
 
 * [NodeID](#nodeid)
 
@@ -256,7 +258,8 @@ _**Writes:**_
               "TxHash": "L4hD20bp7w4Hi19vpn46wQ",
               "Height": 0
             }
-          ]
+          ],
+          "Next": ""
         }
 ```
 
@@ -1127,11 +1130,11 @@ _**Writes:**_
 
 
 ---
-## NodeList
+## DEPRECATED:NodeList
 
 ### `GET /node/nodes`
 
-_Returns a list of all nodes._
+_deprecated: please use /node/registered-nodes_
 
 
 
@@ -1147,6 +1150,40 @@ _**Writes:**_
 ```
         {
           "nodes": null
+        }
+```
+
+
+
+---
+## RegisteredNodes
+
+### `GET /node/registered-nodes`
+
+_Returns the set of registered nodes, and some information about each_
+
+
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue": {
+            "node": {
+              "active": true,
+              "distribution_script": "oACI",
+              "tm_address": "6E64616D676D6D6E746A77687133376769367277",
+              "public_key": "npuba8jadtbbedhhdcad42tysymzpi5ec77vpi4exabh3unu2yem8wn4wv22kvvt24kpm3ghikst"
+            },
+            "registration": "2018-07-10T20:01:02.000000Z"
+          }
         }
 ```
 
@@ -1210,7 +1247,7 @@ _**Writes:**_
           "floorPrice": 0,
           "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
-          "totalSIB": 12300000000,
+          "totalBurned": 12300000000,
           "sib": 9876543210
         }
 ```
@@ -1249,7 +1286,7 @@ _**Writes:**_
           "floorPrice": 0,
           "totalIssued": 0,
           "totalNdau": 0,
-          "totalSIB": 0,
+          "totalBurned": 0,
           "sib": 0
         }
 ```
@@ -1699,7 +1736,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names and aliases are: change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names and aliases are: burn, change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
