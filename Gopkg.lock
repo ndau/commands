@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:17adb86bed14a233bb2a93ad86e913c96a51d8f0319d20d3751e5f16cf3f738a"
+  branch = "prgn-history-next"
+  digest = "1:34d2d878f7ca7359105c795c964decc6db2b8524bdea5c1b7104a35ee72925b1"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "d0df3d47bd3f8de899743e774ba321fa47099001"
-  version = "v1.25.1"
+  revision = "3a80b1c885a6883875f46ad366e4eb4ff78c1859"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
