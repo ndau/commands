@@ -1,5 +1,14 @@
 #! /usr/bin/env python3
 
+#  ----- ---- --- -- -
+#  Copyright 2019 Oneiro NA, Inc. All Rights Reserved.
+#
+#  Licensed under the Apache License 2.0 (the "License").  You may not use
+#  this file except in compliance with the License.  You can obtain a copy
+#  in the file LICENSE in the source distribution or at
+#  https://www.apache.org/licenses/LICENSE-2.0.txt
+#  - -- --- ---- -----
+
 # system imports
 import argparse
 import csv
@@ -196,10 +205,14 @@ if __name__ == "__main__":
         after = result["NextAfter"]
 
         accts = result["Accounts"]
-        resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
-        if resp.status_code != 200:
-            print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
-            exit(1)
+        failcount = 0
+        while failcount < 5:
+            resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
+            if resp.status_code == 200:
+                break
+            else:
+                print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
+                failcount += 1
 
         data = resp.json()
         # ok, now we can iterate through the batch of data
