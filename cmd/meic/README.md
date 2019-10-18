@@ -5,6 +5,19 @@ We need a way to coordinate activity on the ndau blockchain with an arbitrary nu
 - When target price sales occur on the exchange, `Issue` transactions must be created and dispatched to the blockchain.
 - Whenever the sales offers change, all exchanges must then update their target price sales offers appropriately.
 
+## Execution
+
+The MEIC service is meant to run on the Mac Mini, here are the steps:
+
+- clone commands repo into `~/go/src/github.com/oneiro-ndev/commands`
+- `go build cmd/meic`
+- get `exchange.apikey.toml` from 1pass, place in `~/go/src/github.com/oneiro-ndev/commands/cmd/meic/testing`
+- place the file `com.oneiro.MEIC.plist` in the directory `/Library/LaunchDaemons/`
+- the signer will automagically be started the next time you reboot the machine, to start it immediately run the command: 
+    ```
+    % sudo launchctl load /Library/LaunchDaemons/com.oneiro.MEIC.plist
+    ```
+
 ## General Architecture
 
 This software is divided into two major components. The **Issuance Update System** (IUS) is the heart: it maintains a persistent websocket connection from the signing service, which it uses to sign `Issue` transactions. The **Order Tracking System** (OTS) is an interface implemented by custom software for each exchange. Its role is to hide the exchange's implementation details from the IUS.

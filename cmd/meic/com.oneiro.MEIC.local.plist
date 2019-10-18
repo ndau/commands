@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>Label</key>
+		<string>com.oneiro.MEIC</string>
+		<key>Program</key>
+		<string>/Users/johnsgreenlandjr/go/src/github.com/oneiro-ndev/commands/cmd/meic/meic</string>
+		<key>ProgramArguments</key>
+		<array>
+			<string>/Users/johnsgreenlandjr/go/src/github.com/oneiro-ndev/commands/cmd/meic/meic</string>
+			<string>--server-addr</string>
+			<string>ws://localhost:20036/signer</string>
+			<string>--node-addr</string>
+			<string>https://testnett-0.ndau.tech:3030</string>
+			<string>--server-pub-key</string>
+			<string>npuba4jaftckeeb62jgz7zuapruvw8y9ep7sckqaum2ff7ytwqhu9kzn2g2f98hkqziaaaaaaaaaaaanqh8tk6cccxz5vb5zqpy73kqnhaur4b4ifcavkyxuq9j6n32k6n3qtut6z2bs</string>
+			<string>--server-pvt-key</string>
+			<string>npvta8jaftcjebxdcdpe69fevqvr6yi4wdn4s7ysyc9h3ifkj8yxfdyicps6hu6asaaaaaaaaaaaaddt9wkzassxp862q75vpzqkvvb2ev8squbise4xxnvz4rdgqczdh2z69emdyg7q</string>
+			<string>-c</string>
+			<string>./config.toml</string>
+		</array>
+		<key>WorkingDirectory</key>
+		<string>/Users/johnsgreenlandjr/go/src/github.com/oneiro-ndev/commands/cmd/meic/testing</string>
+		<key>EnvironmentVariables</key>
+		<dict>
+			<key>HONEYCOMB_KEY</key>
+			<string>b5d540e08c05885849ae13cd7886df04</string>
+			<key>HONEYCOMB_DATASET</key>
+			<string>mainnet_meic</string>
+		</dict>
+		<key>RunAtLoad</key>
+		<true/>
+		<key>KeepAlive</key>
+		<true/>
+		<key>UserName</key>
+		<string>johnsgreenlandjr</string>
+		<key>StandardOutPath</key>
+		<string>./meic.log</string>
+		<key>StandardErrorPath</key>
+		<string>./meic.log</string>
+	</dict>
+</plist>
