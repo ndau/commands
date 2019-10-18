@@ -59,7 +59,11 @@ func SynchronizeOrders(
 		switch {
 		case current[ci].Price < desired[di].Price:
 			// there is ndau for sale at too low a price
-			delete(current[ci])
+			err = delete(current[ci])
+			if err != nil {
+				err = errors.Wrap(err, "deleting too low order")
+				return err
+			}
 			ci++
 		case current[ci].Price == desired[di].Price:
 			// the price is right
@@ -89,7 +93,7 @@ func SynchronizeOrders(
 	for ; ci < len(current); ci++ {
 		err = delete(current[ci])
 		if err != nil {
-			err = errors.Wrap(err, "deleting order")
+			err = errors.Wrap(err, "deleting extra order")
 			return err
 		}
 	}

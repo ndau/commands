@@ -177,10 +177,15 @@ func (e OTS) Run(
 
 	// make first call to get max trade ID
 	var maxTradeID int64
-	_, maxTradeID, err = GetTradeHistory(&e.auth, e.Symbol)
-	if err != nil {
-		errs <- errors.Wrap(err, "get order history")
-		return
+	for {
+		_, maxTradeID, err = GetTradeHistory(&e.auth, e.Symbol)
+		if err != nil {
+			errs <- errors.Wrap(err, "get order history")
+			time.Sleep(1 * time.Second)
+			continue
+		} else {
+			break
+		}
 	}
 	log.Println("max trade = ", maxTradeID)
 	var trades []Trade
