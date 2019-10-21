@@ -26,6 +26,7 @@ export CLAIMER_PORT=3000
 export ULIMIT_AMOUNT=1024
 export REDIS_MAX_CLIENTS=$((ULIMIT_AMOUNT - 32))
 
+export GO111MODULE=off
 # Go source path.
 GO_DIR=$(go env GOPATH)
 if [[ "$GO_DIR" == *":"* ]]; then
