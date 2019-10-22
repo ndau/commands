@@ -96,9 +96,9 @@ if [ -d "tendermint" ]; then
     echo SETUP: Updating tendermint...
     cd tendermint
     # Simulate same state as the else case for consistency and to prepare for version checkout.
-    # git checkout -- .
-    # git checkout master
-    # git pull origin master
+    git checkout -- .
+    git checkout master
+    git pull origin master
 else
     echo SETUP: Cloning tendermint...
     git clone "$TENDERMINT_REPO"

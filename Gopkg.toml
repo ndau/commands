@@ -16,7 +16,7 @@ version = "~v1.8"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-branch = "jsg-fix-getnode"
+branch = "jsg-fix-getnode-history-next"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"

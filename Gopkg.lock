@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:17adb86bed14a233bb2a93ad86e913c96a51d8f0319d20d3751e5f16cf3f738a"
+  branch = "jsg-fix-getnode-history-next"
+  digest = "1:46d7120cbf7e70595177d9ec9afb879b91e330c90e3207ce7a8396bd8c88fb48"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "d0df3d47bd3f8de899743e774ba321fa47099001"
-  version = "v1.25.1"
+  revision = "b3a10b2e5bbd1071dd88b29b5a8111b0337eab69"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"

@@ -258,7 +258,8 @@ _**Writes:**_
               "TxHash": "L4hD20bp7w4Hi19vpn46wQ",
               "Height": 0
             }
-          ]
+          ],
+          "Next": ""
         }
 ```
 
