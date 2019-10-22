@@ -522,7 +522,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "prgn-search-use-math-time"
   digest = "1:c0f100b624ec44d296556fbc999c7bf4465b659b2e8431963ba12dd0ab04f1e8"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
@@ -533,7 +532,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "70186dae0792d7d5d2dceb350c37865a56abbf9e"
+  revision = "25e4e625a281e7be3bdc40d01efb00159ea733e5"
+  version = "v1.9.0"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -552,8 +552,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-target-price-history"
-  digest = "1:42a78b9cfe16fd93389f138444ff1dcd40cd367ce4c87f117a9483f39c16c627"
+  digest = "1:7788cd8b62d21a6bb3f5f058171af6cde68f0b4f4a481366b0639f15a08d1c4e"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "60fba73f6cf21641ee589499960c569752916ce9"
+  revision = "3895a6ad3ebc6437db1a1483820e24fc4f7a1416"
+  version = "v1.26.0"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
