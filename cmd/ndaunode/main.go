@@ -43,7 +43,8 @@ var asscfilePath = flag.String("asscfile", "", "if set, create special accounts 
 //   0 = initial version
 //   1 = new format for indxing transaction fee/sib
 //   2 = new index for transaction types
-const indexVersion = 2
+//   3 = record price history, change date fmt, expand all prefixes
+const indexVersion = 3
 
 func getNdauhome() string {
 	nh := os.ExpandEnv("$NDAUHOME")

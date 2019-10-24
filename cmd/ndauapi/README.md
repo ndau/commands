@@ -74,7 +74,7 @@ Each of these, in turn, has several endpoints within it.
 
 * [PriceInfo](#priceinfo)
 
-* [PriceHeight](#priceheight)
+* [PriceHistory](#pricehistory)
 
 * [PriceHistory](#pricehistory)
 
@@ -1134,7 +1134,7 @@ _**Writes:**_
 
 ### `GET /node/nodes`
 
-_deprecated: please use /node/registered-nodes_
+_deprecated: please use /node/registerednodes_
 
 
 
@@ -1158,7 +1158,7 @@ _**Writes:**_
 ---
 ## RegisteredNodes
 
-### `GET /node/registered-nodes`
+### `GET /node/registerednodes`
 
 _Returns the set of registered nodes, and some information about each_
 
@@ -1255,11 +1255,11 @@ _**Writes:**_
 
 
 ---
-## PriceHeight
+## PriceHistory
 
-### `GET /price/height/:height`
+### `POST /price/target/history`
 
-_Returns the collection of price data as of a specific ndau block height._
+_Returns an array of data at each change point of the target price over time, sorted chronologically._
 
 
 
@@ -1268,26 +1268,42 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- height | Path | Height from the ndau chain. | int
+ body | Body |  | search.PriceQueryParams
 
 
 
 
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        {
+          "after": {
+            "block_height": 1234
+          },
+          "before": {
+            "timestamp": "2019-12-27T00:00:00.000000Z"
+          },
+          "limit": 1
+        }
+```
 
 
 _**Produces:**_ `[application/json]`
 
 
 _**Writes:**_
-```
+```json
         {
-          "marketPrice": 0,
-          "targetPrice": 0,
-          "floorPrice": 0,
-          "totalIssued": 0,
-          "totalNdau": 0,
-          "totalBurned": 0,
-          "sib": 0
+          "items": [
+            {
+              "price_nanocents": 2000000000000,
+              "block_height": 1235,
+              "timestamp": "2019-09-05T00:00:00.000000Z"
+            }
+          ],
+          "next": ""
         }
 ```
 
@@ -1296,9 +1312,9 @@ _**Writes:**_
 ---
 ## PriceHistory
 
-### `GET /price/history`
+### `POST /price/market/history`
 
-_Returns an array of data from the order chain at periodic intervals over time, sorted chronologically._
+_Returns an array of data at each change point of the target price over time, sorted chronologically._
 
 
 
@@ -1307,22 +1323,43 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- limit | Query | Maximum number of values to return; default=100, max=1000. | string
- period | Query | Duration between samples (ex: 1d, 5m); default=1d. | string
- before | Query | Timestamp (ISO 8601) to end (exclusive); default=now. | string
- after | Query | Timestamp (ISO 8601) to start (inclusive); default=before-(limit*period). | string
+ body | Body |  | search.PriceQueryParams
 
 
 
 
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        {
+          "after": {
+            "block_height": 1234
+          },
+          "before": {
+            "timestamp": "2019-12-27T00:00:00.000000Z"
+          },
+          "limit": 1
+        }
+```
 
 
 _**Produces:**_ `[application/json]`
 
 
 _**Writes:**_
-```
-        []
+```json
+        {
+          "items": [
+            {
+              "price_nanocents": 2000000000000,
+              "block_height": 1235,
+              "timestamp": "2019-09-05T00:00:00.000000Z"
+            }
+          ],
+          "next": ""
+        }
 ```
 
 
