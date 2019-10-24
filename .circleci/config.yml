@@ -543,8 +543,6 @@ jobs:
             echo "Cloning integration-tests..."
             git clone git@github.com:oneiro-ndev/integration-tests.git /integration-tests
             cd /integration-tests
-            # TODO: remove this addition before merging!
-            git checkout prgn-history-next
             echo "integration-tests repo at $(git rev-parse --short HEAD)"
 
             # Create a container that integration tests can run out of.  Use the ndauimage.
