@@ -12,12 +12,11 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/metanode"
-version = "~v1.8"
+version = "~v1.9"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.25"
-branch = "prgn-history-next"
+version = "~v1.26"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
@@ -42,6 +41,10 @@ version = "~v1.1"
 [[constraint]]
 name = "github.com/alexflint/go-arg"
 version = "v1.1"
+
+[[constraint]]
+name = "github.com/stretchr/testify"
+version = "v1.4"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
