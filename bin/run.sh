@@ -142,7 +142,7 @@ ndau_tm() {
     # value choices are debug/info/error/none
     # module options include consensus, state, p2p, mempool, proxy, node, main
     NODE_ID="$MONIKER_PREFIX-$node_num" \
-    ./tendermint node --home "$data_dir" \
+    ./build/tendermint node --home "$data_dir" \
                       --proxy_app tcp://localhost:"$node_port" \
                       --p2p.laddr tcp://0.0.0.0:"$p2p_port" \
                       --rpc.laddr tcp://0.0.0.0:"$rpc_port" \
