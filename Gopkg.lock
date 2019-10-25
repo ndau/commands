@@ -522,7 +522,8 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:c0f100b624ec44d296556fbc999c7bf4465b659b2e8431963ba12dd0ab04f1e8"
+  branch = "prgn-meta-panic-logging"
+  digest = "1:a3032ca6a1bf0c2dd3bd8e93d5ba5e0826c14c21f901cc0ce87fb0b0461e1d5b"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -532,8 +533,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "25e4e625a281e7be3bdc40d01efb00159ea733e5"
-  version = "v1.9.0"
+  revision = "90a9b8225dc1403f0a501c466f930b90e40d6280"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -609,12 +609,12 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:04246474fb2668bfaea7ca0d5a4d1c5d5040cf1cd2fe6b09c38e1fede73f7d93"
+  branch = "prgn-add-flush-method"
+  digest = "1:3d7ae491d8f22e2c8d886ef0dd7e3b91e776ade63a0def5b9a83e601c3b1930f"
   name = "github.com/oneiro-ndev/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "9008d5eb126d49f45422114ff123f65e38e2fbe7"
-  version = "v1.3.3"
+  revision = "c662b7d533071090be1f2145c606b0e7c3fb897b"
 
 [[projects]]
   digest = "1:421a898995cef1628dcad6fb07c282c1589fb54c8cf36af93ba538ae980f4cbb"
