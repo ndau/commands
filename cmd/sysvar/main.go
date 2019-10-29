@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/tinylib/msgp/msgp"
+
 	"github.com/alexflint/go-arg"
 	"github.com/oneiro-ndev/ndaumath/pkg/address"
 )
 
 type args struct {
 	Address address.Address `arg:"-a" help:"encode this ndau address"`
+	Num     int64           `arg:"-i" help:"encode this integer"`
 }
 
 func (args) Description() string {
@@ -39,6 +42,11 @@ func main() {
 	if args.Address != ea {
 		bytes, err := args.Address.MarshalMsg(nil)
 		check(err, "msgp marshaling")
+		fmt.Println(base64.StdEncoding.EncodeToString(bytes))
+	} else {
+		var bytes []byte
+		bytes = msgp.Require(nil, msgp.Int64Size)
+		bytes = msgp.AppendInt64(bytes, int64(args.Num))
 		fmt.Println(base64.StdEncoding.EncodeToString(bytes))
 	}
 }
