@@ -75,7 +75,7 @@ func main() {
 	}
 	for _, v := range args.StringArg {
 		bytes, err := wkt.String(v).MarshalMsg(nil)
-		check(err, "msgp marshaling uint64")
+		check(err, "msgp marshaling string")
 		output(v, bytes)
 	}
 }
