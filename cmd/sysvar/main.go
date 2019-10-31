@@ -12,11 +12,12 @@ import (
 )
 
 type args struct {
-	Address  []address.Address `arg:"-a,separate" help:"encode this ndau address"`
-	Duration []math.Duration   `arg:"-d,separate" help:"encode this duration"`
-	Int64    []int64           `arg:"-i,separate" help:"encode this signed integer"`
-	Ndau     []math.Ndau       `arg:"-n,separate" help:"encode this qty of ndau"`
-	Uint64   []uint64          `arg:"-u,separate" help:"encode this unsigned integer"`
+	Address   []address.Address `arg:"-a,separate" help:"encode this ndau address"`
+	Duration  []math.Duration   `arg:"-d,separate" help:"encode this duration"`
+	Int64     []int64           `arg:"-i,separate" help:"encode this signed integer"`
+	Ndau      []math.Ndau       `arg:"-n,separate" help:"encode this qty of ndau"`
+	Uint64    []uint64          `arg:"-u,separate" help:"encode this unsigned integer"`
+	StringArg []string          `arg:"-s,separate" help:"encode this stringr"`
 }
 
 func (args) Description() string {
@@ -69,6 +70,11 @@ func main() {
 	}
 	for _, v := range args.Uint64 {
 		bytes, err := wkt.Uint64(v).MarshalMsg(nil)
+		check(err, "msgp marshaling uint64")
+		output(v, bytes)
+	}
+	for _, v := range args.StringArg {
+		bytes, err := wkt.String(v).MarshalMsg(nil)
 		check(err, "msgp marshaling uint64")
 		output(v, bytes)
 	}
