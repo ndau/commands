@@ -33,7 +33,7 @@ for node_num in $(seq 0 "$HIGH_NODE_NUM");
 do
     tm_ndau_home="$TENDERMINT_NDAU_DATA_DIR-$node_num"
 
-    ./tendermint init --home "$tm_ndau_home"
+    ./build/tendermint init --home "$tm_ndau_home"
 
     sed -i '' -E \
         -e 's/^(create_empty_blocks = .*)/# \1/' \
