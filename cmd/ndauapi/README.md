@@ -66,13 +66,15 @@ Each of these, in turn, has several endpoints within it.
 
 * [NodeConsensusState](#nodeconsensusstate)
 
-* [NodeList](#nodelist)
+* [DEPRECATED:NodeList](#deprecated:nodelist)
+
+* [RegisteredNodes](#registerednodes)
 
 * [NodeID](#nodeid)
 
 * [PriceInfo](#priceinfo)
 
-* [PriceHeight](#priceheight)
+* [PriceHistory](#pricehistory)
 
 * [PriceHistory](#pricehistory)
 
@@ -256,7 +258,8 @@ _**Writes:**_
               "TxHash": "L4hD20bp7w4Hi19vpn46wQ",
               "Height": 0
             }
-          ]
+          ],
+          "Next": ""
         }
 ```
 
@@ -1127,11 +1130,11 @@ _**Writes:**_
 
 
 ---
-## NodeList
+## DEPRECATED:NodeList
 
 ### `GET /node/nodes`
 
-_Returns a list of all nodes._
+_deprecated: please use /node/registerednodes_
 
 
 
@@ -1147,6 +1150,40 @@ _**Writes:**_
 ```
         {
           "nodes": null
+        }
+```
+
+
+
+---
+## RegisteredNodes
+
+### `GET /node/registerednodes`
+
+_Returns the set of registered nodes, and some information about each_
+
+
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "ndamgmmntjwhq37gi6rwpazy4fka6zgzix55x85kkhepvuue": {
+            "node": {
+              "active": true,
+              "distribution_script": "oACI",
+              "tm_address": "6E64616D676D6D6E746A77687133376769367277",
+              "public_key": "npuba8jadtbbedhhdcad42tysymzpi5ec77vpi4exabh3unu2yem8wn4wv22kvvt24kpm3ghikst"
+            },
+            "registration": "2018-07-10T20:01:02.000000Z"
+          }
         }
 ```
 
@@ -1210,47 +1247,8 @@ _**Writes:**_
           "floorPrice": 0,
           "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
-          "totalSIB": 12300000000,
+          "totalBurned": 12300000000,
           "sib": 9876543210
-        }
-```
-
-
-
----
-## PriceHeight
-
-### `GET /price/height/:height`
-
-_Returns the collection of price data as of a specific ndau block height._
-
-
-
-
-_**Parameters:**_
-
-Name | Kind | Description | DataType
----- | ---- | ----------- | --------
- height | Path | Height from the ndau chain. | int
-
-
-
-
-
-
-_**Produces:**_ `[application/json]`
-
-
-_**Writes:**_
-```
-        {
-          "marketPrice": 0,
-          "targetPrice": 0,
-          "floorPrice": 0,
-          "totalIssued": 0,
-          "totalNdau": 0,
-          "totalSIB": 0,
-          "sib": 0
         }
 ```
 
@@ -1259,9 +1257,9 @@ _**Writes:**_
 ---
 ## PriceHistory
 
-### `GET /price/history`
+### `POST /price/target/history`
 
-_Returns an array of data from the order chain at periodic intervals over time, sorted chronologically._
+_Returns an array of data at each change point of the target price over time, sorted chronologically._
 
 
 
@@ -1270,22 +1268,98 @@ _**Parameters:**_
 
 Name | Kind | Description | DataType
 ---- | ---- | ----------- | --------
- limit | Query | Maximum number of values to return; default=100, max=1000. | string
- period | Query | Duration between samples (ex: 1d, 5m); default=1d. | string
- before | Query | Timestamp (ISO 8601) to end (exclusive); default=now. | string
- after | Query | Timestamp (ISO 8601) to start (inclusive); default=before-(limit*period). | string
+ body | Body |  | search.PriceQueryParams
 
 
 
 
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        {
+          "after": {
+            "block_height": 1234
+          },
+          "before": {
+            "timestamp": "2019-12-27T00:00:00.000000Z"
+          },
+          "limit": 1
+        }
+```
 
 
 _**Produces:**_ `[application/json]`
 
 
 _**Writes:**_
+```json
+        {
+          "items": [
+            {
+              "price_nanocents": 2000000000000,
+              "block_height": 1235,
+              "timestamp": "2019-09-05T00:00:00.000000Z"
+            }
+          ],
+          "next": ""
+        }
 ```
-        []
+
+
+
+---
+## PriceHistory
+
+### `POST /price/market/history`
+
+_Returns an array of data at each change point of the target price over time, sorted chronologically._
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ body | Body |  | search.PriceQueryParams
+
+
+
+
+_**Consumes:**_ `[application/json]`
+
+
+_**Reads:**_
+```json
+        {
+          "after": {
+            "block_height": 1234
+          },
+          "before": {
+            "timestamp": "2019-12-27T00:00:00.000000Z"
+          },
+          "limit": 1
+        }
+```
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```json
+        {
+          "items": [
+            {
+              "price_nanocents": 2000000000000,
+              "block_height": 1235,
+              "timestamp": "2019-09-05T00:00:00.000000Z"
+            }
+          ],
+          "next": ""
+        }
 ```
 
 
@@ -1699,7 +1773,7 @@ _**Writes:**_
 
 _Submits a transaction._
 
-Transactions consist of JSON for any defined transaction type. Valid transaction names and aliases are: change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
+Transactions consist of JSON for any defined transaction type. Valid transaction names and aliases are: burn, change-recourse-period, changerecourseperiod, changeschema, changevalidation, claimnodereward, commandvalidatorchange, create-child, create-child-account, createchildaccount, crediteai, crp, cvc, delegate, issue, lock, nnr, nominatenodereward, notify, record-price, recordendowmentnav, recordprice, registernode, releasefromendowment, resolvestake, rfe, set-validation, setrewardsdestination, setstakerules, setsysvar, setv, setvalidation, ssv, stake, transfer, transferandlock, unregisternode, unstake
 
 
 _**Parameters:**_
