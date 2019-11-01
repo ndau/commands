@@ -17,7 +17,8 @@ type args struct {
 	Int64     []int64           `arg:"-i,separate" help:"encode this signed integer"`
 	Ndau      []math.Ndau       `arg:"-n,separate" help:"encode this qty of ndau"`
 	Uint64    []uint64          `arg:"-u,separate" help:"encode this unsigned integer"`
-	StringArg []string          `arg:"-s,separate" help:"encode this stringr"`
+	StringArg []string          `arg:"-s,separate" help:"encode this string"`
+	B64Bytes  []string          `arg:"-b,separate" help:"encode this base64-encoded array of bytes"`
 }
 
 func (args) Description() string {
@@ -76,6 +77,16 @@ func main() {
 	for _, v := range args.StringArg {
 		bytes, err := wkt.String(v).MarshalMsg(nil)
 		check(err, "msgp marshaling string")
+<<<<<<< Updated upstream
+=======
+		output(v, bytes)
+	}
+	for _, v := range args.B64Bytes {
+		b, err := base64.StdEncoding.DecodeString(v)
+		check(err, "decoding base64 input")
+		bytes, err := wkt.Bytes(b).MarshalMsg(nil)
+		check(err, "msgp marshaling uint64")
+>>>>>>> Stashed changes
 		output(v, bytes)
 	}
 }
