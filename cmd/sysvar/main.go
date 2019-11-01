@@ -54,6 +54,13 @@ func main() {
 		check(err, "msgp marshaling address")
 		output(v.String(), bytes)
 	}
+	for _, v := range args.Bytes {
+		bytes, err := base64.StdEncoding.DecodeString(v)
+		check(err, "decoding base64 encoding")
+		bytes, err = wkt.Bytes(bytes).MarshalMsg(nil)
+		check(err, "msgp marshaling bytes")
+		output(v, bytes)
+	}
 	for _, v := range args.Duration {
 		bytes, err := v.MarshalMsg(nil)
 		check(err, "msgp marshaling duration")
@@ -67,6 +74,11 @@ func main() {
 	for _, v := range args.Ndau {
 		bytes, err := v.MarshalMsg(nil)
 		check(err, "msgp marshaling ndau")
+		output(v, bytes)
+	}
+	for _, v := range args.String {
+		bytes, err := wkt.String(v).MarshalMsg(nil)
+		check(err, "msgp marshaling string")
 		output(v, bytes)
 	}
 	for _, v := range args.Uint64 {
