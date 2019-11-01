@@ -552,7 +552,6 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-log-in-endblock"
   digest = "1:ec49db838950c3da3eede5d1f955a9d5acac4b159589e91af1025cd9c4a2eab3"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "41b1991bb1da839a94be4a62000e81bd64c5c274"
+  revision = "f918522401c057a59390ada33d6411967c2f873e"
+  version = "v1.26.3"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"

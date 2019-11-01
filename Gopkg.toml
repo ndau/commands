@@ -16,8 +16,7 @@ version = "~v1.9"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-# version = "~v1.26"
-branch = "prgn-log-in-endblock"
+version = "~v1.26"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"
