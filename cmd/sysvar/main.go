@@ -77,8 +77,6 @@ func main() {
 	for _, v := range args.StringArg {
 		bytes, err := wkt.String(v).MarshalMsg(nil)
 		check(err, "msgp marshaling string")
-<<<<<<< Updated upstream
-=======
 		output(v, bytes)
 	}
 	for _, v := range args.B64Bytes {
@@ -86,7 +84,6 @@ func main() {
 		check(err, "decoding base64 input")
 		bytes, err := wkt.Bytes(b).MarshalMsg(nil)
 		check(err, "msgp marshaling uint64")
->>>>>>> Stashed changes
 		output(v, bytes)
 	}
 }
