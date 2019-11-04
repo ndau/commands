@@ -5,10 +5,10 @@ set -e
 NDEV_SUBDIR=github.com/oneiro-ndev
 NDEV_DIR="$GOPATH/src/$NDEV_SUBDIR"
 
-BIN_DIR=/image/bin
-mkdir "$BIN_DIR"
-
 cd "$NDEV_DIR"/commands || exit 1
+
+BIN_DIR=image/bin
+mkdir -p "$BIN_DIR"
 
 echo Building ndau...
 VERSION=$(git describe --long --tags --match="v*")
