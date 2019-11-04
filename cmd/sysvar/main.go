@@ -17,7 +17,7 @@ type args struct {
 	Duration []math.Duration   `arg:"-d,separate" help:"encode this duration"`
 	Int64    []int64           `arg:"-i,separate" help:"encode this signed integer"`
 	Ndau     []math.Ndau       `arg:"-n,separate" help:"encode this qty of ndau"`
-	String   []string          `arg:"-s,separate" help:"encode this stringr"`
+	String   []string          `arg:"-s,separate" help:"encode this string"`
 	Uint64   []uint64          `arg:"-u,separate" help:"encode this unsigned integer"`
 }
 
