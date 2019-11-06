@@ -552,8 +552,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "prgn-state-thunks"
-  digest = "1:aeb9a56238b273a397cbf5b19015fdbf7a40b7b90763074a1615e675e5d51418"
+  digest = "1:e4c7eba2427ea9b89bf0f78b4abbe26058c844a962814fc518e94c07440064dc"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "dae508619974ea3308d46dc6fd89ffb0b20a00b8"
+  revision = "fc70c5c04df9f886ae55ec9174491ef03ae47ba9"
+  version = "v1.26.4"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
