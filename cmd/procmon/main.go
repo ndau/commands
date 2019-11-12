@@ -62,7 +62,7 @@ func loadConfig() Config {
 		}
 		return cfg
 	}
-	fmt.Printf("a config file name is required!")
+	fmt.Println("a config file name is required!")
 	os.Exit(1)
 	return cfg
 }
