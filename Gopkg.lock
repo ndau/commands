@@ -625,7 +625,7 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:b7cb69e697f0cc9829a3036e269f38ca5d8ed9a27cc8547fd05e817c7e84941d"
+  digest = "1:1efbf3115a9b31e5e19494e7eb5c7650c8e148804cbfcdc545b54ffca674ee98"
   name = "github.com/oneiro-ndev/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -633,8 +633,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "51a94a0f504d3e08b9f0c2ccb95b65469efe1c92"
-  version = "v1.5.1"
+  revision = "7a77416249648e9805c95a663f56be55875e4dec"
+  version = "v1.5.2"
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
