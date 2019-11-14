@@ -9,18 +9,15 @@ package main
 // https://www.apache.org/licenses/LICENSE-2.0.txt
 // - -- --- ---- -----
 
-import (
-	"github.com/attic-labs/noms/go/datas"
-	metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
-)
+func (st state) summary(out record) {
+	bs := st.state()
+	if bs == nil {
+		out.Emit("state is nil")
+		return
+	}
 
-type state struct {
-	db datas.Database
-	ds datas.Dataset
-	ms metast.Metastate
-}
-
-func (st state) state() *backing.State {
-	return st.ms.ChildState.(*backing.State)
+	out.Field("block height", st.ms.Height).
+		Field("accounts", len(bs.Accounts)).
+		Field("nodes", len(bs.Nodes)).
+		Emit("state summary")
 }
