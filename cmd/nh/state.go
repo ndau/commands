@@ -10,12 +10,10 @@ package main
 // - -- --- ---- -----
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/attic-labs/noms/go/datas"
 	metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
 )
 
 type state struct {
@@ -28,27 +26,16 @@ func (st state) state() *backing.State {
 	return st.ms.ChildState.(*backing.State)
 }
 
-func (st state) summary() (out string) {
-	var b strings.Builder
-	defer func() {
-		out = b.String()
-	}()
-
-	print := func(f string, as ...interface{}) {
-		fmt.Fprintf(&b, f, as...)
-		if f == "" || f[len(f)-1] != '\n' {
-			b.WriteByte('\n')
-		}
-	}
-
+func (st state) summary(out record) {
 	bs := st.state()
 	if bs == nil {
-		print("state is nil")
+		out.Emit("state is nil")
 		return
 	}
 
-	print("state summary:")
-	print("  %6d accounts", len(bs.Accounts))
-	print("  %6d nodes", len(bs.Nodes))
-	return
+	out.Field("block height", st.ms.Height).Field("accounts", len(bs.Accounts)).Field("nodes", len(bs.Nodes)).Emit("state summary")
+}
+
+func (st state) trace(addr address.Address, out record) {
+
 }

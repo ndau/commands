@@ -17,6 +17,7 @@ import (
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
 	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
+	"github.com/oneiro-ndev/ndaumath/pkg/address"
 )
 
 func check(err error, context string, formatters ...interface{}) {
@@ -43,8 +44,10 @@ func bail(err string) {
 }
 
 type args struct {
-	Path string `arg:"positional,required" help:"path to noms db"`
-	App  string `help:"app name (dataset name)"`
+	Path  string          `arg:"positional,required" help:"path to noms db"`
+	App   string          `help:"app name (dataset name)"`
+	Trace address.Address `help:"trace this account's history"`
+	JSON  bool            `help:"when set, emit output as structured JSON"`
 }
 
 func main() {
@@ -68,9 +71,18 @@ func main() {
 	st.ds, err = st.ms.Load(st.db, st.db.GetDataset(args.App), st.ms.ChildState)
 	check(err, "loading existing state")
 
-	switch {
+	// configure output
+	var out record
+	if args.JSON {
+		out = new(JSONRecord).Writer(os.Stdout)
+	} else {
+		out = new(TextRecord).Writer(os.Stdout)
+	}
 
+	switch {
+	case args.Trace.String() != "":
+		st.trace(args.Trace, out)
 	default:
-		fmt.Print(st.summary())
+		st.summary(out)
 	}
 }
