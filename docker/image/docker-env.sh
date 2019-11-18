@@ -6,6 +6,7 @@ export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 export NDAUAPI_PORT=3030
+export PG_PORT=5432
 
 export ULIMIT_AMOUNT=1024
 export REDIS_MAX_CLIENTS=$((ULIMIT_AMOUNT - 32))
@@ -19,6 +20,7 @@ export NODE_DATA_DIR="$DATA_DIR"/ndau
 export NOMS_DATA_DIR="$DATA_DIR"/noms
 export REDIS_DATA_DIR="$DATA_DIR"/redis
 export TM_DATA_DIR="$DATA_DIR"/tendermint
+export PGDATA="$DATA_DIR"/postgres
 
 export SYSTEM_VARS_TOML="$ROOT_DIR/system_vars.toml"
 export SYSTEM_ACCOUNTS_TOML="$ROOT_DIR/system_accounts.toml"

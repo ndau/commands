@@ -102,6 +102,14 @@ output = ""
         type = "redis"
         addr = "localhost:$REDIS_PORT"
 
+[[task]]
+    name = "postgres"
+    path = "postgres-docker-entrypoint.sh postgres"
+    # paths to log files for caputuring this task's stdout and stderr,
+    stdout = "$LOG_DIR/postgres.log"
+    stderr = "$LOG_DIR/postgres.log"
+    # durations are done as time.Duration
+    maxshutdown = "5s"
 
 [[task]]
     name = "noms"

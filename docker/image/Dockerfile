@@ -7,7 +7,7 @@
 FROM alpine:3.9 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 && \
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 su-exec && \
     python3 -m pip install remarshal && \
     update-ca-certificates 2>/dev/null
 
@@ -22,7 +22,15 @@ COPY --from=redis:5.0.4-alpine [ \
     "/usr/local/bin/" \
     ]
 
-
+COPY --from=postgres:12-alpine \
+    /usr/local/share/postgresql/* \
+    /usr/local/share/postgresql/
+COPY --from=postgres:12-alpine \
+    /usr/local/bin/postgres \
+    /usr/local/bin/pg_ctl \
+    /usr/local/bin/docker-entrypoint.sh \
+    /usr/local/bin/
+RUN mv /usr/local/bin/docker-entrypoint.sh /usr/local/bin/postgres-docker-entrypoint.sh
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
