@@ -39,8 +39,8 @@ COPY --from=postgres:12-alpine \
     /usr/local/share/postgresql \
     /usr/local/share/postgresql
 COPY --from=postgres:12-alpine \
-    /usr/share/zoneinfo/* \
-    /usr/share/zoneinfo/
+    /usr/share/zoneinfo \
+    /usr/share/zoneinfo
 # Note: psql isn't strictly required downstream, but it's very helpful for debugging
 # the container itself
 COPY --from=postgres:12-alpine \
@@ -153,6 +153,9 @@ COPY ./docker-conf.sh \
     ./docker-run.sh \
     ./docker-snapshot.sh \
     /image/
+# copy the postgres db initialization file into the magic location which will
+# cause it to be run on node startup
+COPY ./ndau.sql /docker-entrypoint-initdb.d/
 
 # Copy the noms image we built
 COPY --from=build_noms /bin/noms /image/bin/
