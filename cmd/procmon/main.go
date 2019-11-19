@@ -62,7 +62,7 @@ func loadConfig() Config {
 		}
 		return cfg
 	}
-	fmt.Printf("a config file name is required!")
+	fmt.Println("a config file name is required!")
 	os.Exit(1)
 	return cfg
 }
@@ -181,14 +181,14 @@ func setupPeriodic(root *Task, mainTasks, periodicTasks []*Task) {
 		f := runfunc(t, root, mainTasks, periodicTasks)
 		dur := t.Periodic
 		logger := t.Logger
-		logger.WithField("period", dur).Info("setting up periodic task")
+		logger.WithField("task", root.Name).WithField("period", dur).Info("setting up periodic task")
 		go func() {
 			ticker := time.NewTicker(dur)
 			defer ticker.Stop()
 			for {
 				select {
 				case <-ticker.C:
-					logger.Info("periodic task running")
+					logger.WithField("task", root.Name).Info("periodic task running")
 					f()
 				case <-root.Stopped:
 					return
