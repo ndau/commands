@@ -22,13 +22,33 @@ COPY --from=redis:5.0.4-alpine [ \
     "/usr/local/bin/" \
     ]
 
+# set up postgres: this requires several shared libraries, configuration files,
+# as well as the actual postgres and psql binaries
 COPY --from=postgres:12-alpine \
-    /usr/local/share/postgresql/* \
-    /usr/local/share/postgresql/
+    /usr/lib/libedit.so.0 \
+    /usr/lib/libicudata.so.64 \
+    /usr/lib/libicui18n.so.64 \
+    /usr/lib/libicuuc.so.64 \
+    /usr/lib/libstdc++.so.6 \
+    /usr/local/lib/libpq.so.5 \
+    /usr/lib/
 COPY --from=postgres:12-alpine \
-    /usr/local/bin/postgres \
-    /usr/local/bin/pg_ctl \
+    /usr/local/lib/postgresql \
+    /usr/local/lib/postgresql
+COPY --from=postgres:12-alpine \
+    /usr/local/share/postgresql \
+    /usr/local/share/postgresql
+COPY --from=postgres:12-alpine \
+    /usr/share/zoneinfo/* \
+    /usr/share/zoneinfo/
+# Note: psql isn't strictly required downstream, but it's very helpful for debugging
+# the container itself
+COPY --from=postgres:12-alpine \
     /usr/local/bin/docker-entrypoint.sh \
+    /usr/local/bin/initdb \
+    /usr/local/bin/pg_ctl \
+    /usr/local/bin/postgres \
+    /usr/local/bin/psql \
     /usr/local/bin/
 RUN mv /usr/local/bin/docker-entrypoint.sh /usr/local/bin/postgres-docker-entrypoint.sh
 

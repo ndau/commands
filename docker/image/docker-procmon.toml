@@ -53,6 +53,16 @@ output = ""
     path = "$REDIS_DATA_DIR"
 
 [[prologue]]
+    name = "postgres_data_dir_exists"
+    type = "ensuredir"
+    path = "$PGDATA"
+
+[[prologue]]
+    name = "postgres_port_clear"
+    type = "portavailable"
+    port = "$PG_PORT"
+
+[[prologue]]
     name = "nomsdatadirexists"
     type = "ensuredir"
     path = "$NOMS_DATA_DIR"
@@ -104,12 +114,24 @@ output = ""
 
 [[task]]
     name = "postgres"
-    path = "postgres-docker-entrypoint.sh postgres"
+    path = "postgres-docker-entrypoint.sh"
+    args = ["postgres"]
     # paths to log files for caputuring this task's stdout and stderr,
     stdout = "$LOG_DIR/postgres.log"
     stderr = "$LOG_DIR/postgres.log"
     # durations are done as time.Duration
     maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$PG_PORT"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$PG_PORT"
+        period = "2s"
 
 [[task]]
     name = "noms"
