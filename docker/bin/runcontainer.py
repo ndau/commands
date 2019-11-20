@@ -98,6 +98,12 @@ def main(args):
         )
 
     if args.snapshot is None or args.snapshot == "":
+        if args.network == "localnet":
+            args.snapshot = GENERATED_GENESIS_SNAPSHOT
+        else:
+            args.snapshot = ""
+
+    if args.snapshot == "":
         args.snapshot = ""
         snaps = "(latest)"
     elif args.snapshot == GENERATED_GENESIS_SNAPSHOT:
@@ -120,9 +126,12 @@ def main(args):
 
     # If no peers were given, we can get them automatically for non-localnet networks.
     # When running a localnet, the first peer can start w/o knowing any other peers.
-    if args.network != "localnet" and (
-        args.peers_p2p is None or args.peers_rpc is None
-    ):
+    if args.network == "localnet":
+        if args.peers_p2p is None:
+            args.peers_p2p = []
+        if args.peers_rpc is None:
+            args.peers_rpc = []
+    elif args.peers_p2p is None or args.peers_rpc is None:
         print(f"fetching {SERVICES_URL}...")
         sjr = requests.get(SERVICES_URL)
         sjr.raise_for_status()
