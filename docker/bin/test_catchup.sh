@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR" || exit 1
 nodename="catchup-node-local"
 snapshot="snapshot-mainnet-1"
 USE_LOCAL_IMAGE=1 \
-../bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+../bin/runcontainer.py mainnet "$nodename" --snapshot "$snapshot"
 
 echo
 

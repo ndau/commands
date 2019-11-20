@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains examples demonstrating how to use `runcontainer.sh` to create and run nodes on a network.
+This directory contains examples demonstrating how to use `runcontainer.py` to create and run nodes on a network.
 
 You'll need to be set up with a localnet before any of the demo scripts will work.  See the README at the root of the [commands](https://github.com/oneiro-ndev/commands) repo for how to set up a localnet.
 

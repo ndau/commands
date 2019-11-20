@@ -169,7 +169,8 @@ COPY --from=build_commands /image/bin/* /image/bin/
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
 # Tendermint itself will communicate with other containers through the P2P ports.
+# Postgres has a guest account requiring no password which anyone can query.
 # All other processes in the container will communicate with each other through internal ports.
-EXPOSE 26660 26670 3030
+EXPOSE 26660 26670 3030 5432
 
 CMD ["/image/docker-run.sh"]
