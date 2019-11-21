@@ -155,7 +155,7 @@ COPY ./docker-conf.sh \
     /image/
 # copy the postgres db initialization file into the magic location which will
 # cause it to be run on node startup
-COPY ./ndau.sql /docker-entrypoint-initdb.d/
+COPY ./ndau.sql ./secure-pg_hba.conf.sh /docker-entrypoint-initdb.d/
 
 # Copy the noms image we built
 COPY --from=build_noms /bin/noms /image/bin/

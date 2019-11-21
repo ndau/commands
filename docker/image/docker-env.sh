@@ -33,3 +33,22 @@ export GENERATED_GENESIS_SNAPSHOT="*"
 export LOCAL_SNAPSHOT="$ROOT_DIR/snapshot-$NETWORK-0.tgz"
 
 export WEBHOOK_URL="https://7ovwffck3i.execute-api.us-east-1.amazonaws.com/$NETWORK/claim_winner"
+
+# Set up the postgres master password. There are a few factors to consider for this:
+#
+# 1. Postgres is set up with trust authentication for socket connections, so anyone
+#    who can shell into the container has root access regardless.
+# 2. This should be a random value at container init, but should be stable during
+#    the lifetime of the container.
+#
+# Together, those two factors mean that it's both safe and necessary to generate
+# this password from a file.
+postgres_pw_file="/image/postgres-pw"
+if [ ! -s "$postgres_pw_file" ]; then
+    head -c 12 /dev/urandom | base64 > "$postgres_pw_file"
+    chmod u=r,g=,o= "$postgres_pw_file"
+    chown postgres:postgres "$postgres_pw_file"
+fi
+# we can still export the variable, because this script is run as root
+POSTGRES_PASSWORD=$(cat "$postgres_pw_file")
+export POSTGRES_PASSWORD
