@@ -43,12 +43,21 @@ export WEBHOOK_URL="https://7ovwffck3i.execute-api.us-east-1.amazonaws.com/$NETW
 #
 # Together, those two factors mean that it's both safe and necessary to generate
 # this password from a file.
-postgres_pw_file="/image/postgres-pw"
-if [ ! -s "$postgres_pw_file" ]; then
-    head -c 12 /dev/urandom | base64 > "$postgres_pw_file"
-    chmod u=r,g=,o= "$postgres_pw_file"
-    chown postgres:postgres "$postgres_pw_file"
-fi
+makepwfile() {
+    pw_file="$1"
+    if [ ! -s "$pw_file" ]; then
+        head -c 12 /dev/urandom | base64 > "$pw_file"
+        chmod u=r,g=,o= "$pw_file"
+        chown postgres:postgres "$pw_file"
+    fi
+}
+makepwfile "/image/postgres-pw"
 # we can still export the variable, because this script is run as root
-POSTGRES_PASSWORD=$(cat "$postgres_pw_file")
+POSTGRES_PASSWORD=$(cat "$pw_file")
 export POSTGRES_PASSWORD
+
+# we also need to create the node password in the same way.
+# we can get away with it for the same reason.
+makepwfile "/image/postgres-node-pw"
+# As this file has no special environment variables associated with it,
+# we don't need to export its contents.

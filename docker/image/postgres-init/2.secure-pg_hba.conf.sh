@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e -x
+set -e
 
 # shellcheck source=docker-env.sh
 source /image/docker-env.sh
