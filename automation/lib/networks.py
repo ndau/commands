@@ -20,6 +20,7 @@ class Network(Enum):
     devnet = "devnet"
     testnet = "testnet"
     mainnet = "mainnet"
+    localnet = "localnet"
 
     def __str__(self):
         return self.value

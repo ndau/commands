@@ -11,6 +11,7 @@ source "$CMDBIN_DIR"/env.sh
 # Process command line arguments.
 node_count="$1"
 chain_id="$2"
+SNAPSHOT="$3"
 if [ -z "$node_count" ]; then
     node_count=1
     echo "node_count not set; defaulting to $node_count"
@@ -151,6 +152,10 @@ echo SETUP: Testing...
 
 # Configure everything.
 echo SETUP: Configuring...
-"$CMDBIN_DIR"/conf.sh --needs-update
+if [ -z "$SNAPSHOT" ]; then
+    "$CMDBIN_DIR"/conf.sh --needs-update
+else
+    "$CMDBIN_DIR"/conf.sh --snapshot $SNAPSHOT
+fi 
 
 echo SETUP: Setup complete

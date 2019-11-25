@@ -13,10 +13,11 @@ from lib.fetch import fetch_url
 from lib.networks import Network
 import json
 import sys
+import pdb
 
 
 # Public location of the services.json file.
-SERVICES_URL = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
+SERVICES_URL = "https://s3.us-east-2.amazonaws.com/ndau-json/services_localnet.json"
 
 
 def fetch_services():
@@ -24,11 +25,17 @@ def fetch_services():
     Fetch and return the json text from services.json.
     """
 
-    services_response = fetch_url(SERVICES_URL)
-    if services_response is None:
-        sys.exit(f"Unable to fetch {SERVICES_URL}")
+    # services_response = fetch_url(SERVICES_URL)
+    # if services_response is None:
+    #     sys.exit(f"Unable to fetch {SERVICES_URL}")
 
-    return services_response.content
+    with open('services_localnet.json') as json_data:
+        services_response = json_data.read()
+        json_data.close()
+#    pdb.set_trace()
+
+#    return services_response.content
+    return services_response
 
 
 def parse_all_services(services_json):
@@ -101,7 +108,11 @@ def parse_services(network_name, node_name, services_json):
                 sys.exit(f"Unable to find api object in {node_obj}")
             if not rpc_name in node_obj:
                 sys.exit(f"Unable to find rpc object in {node_obj}")
-            apis[node_obj_name] = f"https://{node_obj[api_name]}"
-            rpcs[node_obj_name] = f"https://{node_obj[rpc_name]}"
+            if network_name == "localnet":
+                apis[node_obj_name] = f"http://{node_obj[api_name]}"
+                rpcs[node_obj_name] = f"http://{node_obj[rpc_name]}"
+            else:
+                apis[node_obj_name] = f"https://{node_obj[api_name]}"
+                rpcs[node_obj_name] = f"https://{node_obj[rpc_name]}"
 
     return apis, rpcs

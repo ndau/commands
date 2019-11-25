@@ -20,6 +20,7 @@ from lib.networks import Network
 from lib.services import fetch_services, parse_all_services
 import os
 import sys
+import time
 
 
 def print_at(x, y, text):
@@ -108,6 +109,9 @@ def render_hud():
             print_node_info(x_peers, y_network, get_peers, rpcs)
 
             y_network += len(apis) + 1
+
+            if network_name == "localnet":
+                time.sleep(1)
 
 
 def main():

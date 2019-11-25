@@ -1,4 +1,5 @@
 #!/bin/bash
+# Usage: bin/kill.sh [NODE_NUM] [COMMAND]
 
 # This will get set to true if we found any pid and attempted to kill it gracefully.
 pid_found=false
@@ -57,12 +58,16 @@ if [ -z "$1" ]; then
     while IFS=$'\n' read -r line; do node_nums+=("$line"); done < <(seq "$HIGH_NODE_NUM" 0)
 else
     # We support killing a single process for a given node.
-    cmds=("$1")
-    node_num="$2"
+    node_num="$1"
+    cmds=("$2")
 
     # Default to the first node in a single-node localnet.
     if [ -z "$node_num" ]; then
         node_num=0
+    fi
+
+    if [ -z "$2" ]; then
+        cmds=(ndauapi ndau_tm ndau_node ndau_noms ndau_redis claimer)
     fi
 
     node_nums=("$node_num")
