@@ -28,6 +28,13 @@ The Homebrew package manager is by far the easiest way to install these tools, b
     - Run `which redis-server` to see if you've got redis currently installed on your machine
     - If it's already installed, run `brew upgrade redis@5.0`
     - Otherwise, run `brew install redis@5.0`
+1. Install Postgres: `brew install postgres@12`
+1. Install `pg_tmp` script:
+    ```sh
+    epg=$(mktemp -d)
+    git clone https://github.com/eradman/ephemeralpg.git "$epg"
+    (cd "$epg" && sudo make install)
+    ```
 1. Install `jq`: `brew install jq`
 
 #### Ubuntu:
@@ -50,16 +57,16 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
 ### Custom genesis configuration
 
 To create a custom configuration (usually to replicate a testnet or mainnet configuration), do the following **before** running `./bin/run.sh` for the first time. If you're already running with the default pre-installed configuration, remove the `~/.localnet` directory first.
-    
+
 1. Create the directory `~/.localnet/genesis_files`
 1. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
-    
+
     ```sh
     go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
        -g ~/.localnet/genesis_files/system_vars.toml \
        -a ~/.localnet/genesis_files/system_accounts.toml
     ```
-     
+
 1. Edit those files as desired for a custom configuration
 
 ### Running
