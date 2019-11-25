@@ -17,7 +17,8 @@ branch = "prgn-meta-panic-logging"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndau"
-version = "~v1.26"
+# version = "~v1.26"
+branch = "jsg-nodereg-fix"
 
 [[constraint]]
 name = "github.com/oneiro-ndev/ndaumath"

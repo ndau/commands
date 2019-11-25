@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:2db85a8e5ce533c59cd7732e52b9d3c2afc40ec0f91b525e904efd4f57edfa8c"
+  branch = "jsg-nodereg-fix"
+  digest = "1:741d49f17734c2384f3551da5d2c7e2b80efa7ec349f40cd8c4eec87fae61fd4"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "0890b718cb8479f7213c6b43bf570fcdd74ff157"
-  version = "v1.26.2"
+  revision = "e6c157c4b19f2978f66ec1880d3ee87c571649b1"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
