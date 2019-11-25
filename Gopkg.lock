@@ -523,7 +523,7 @@
 
 [[projects]]
   branch = "prgn-meta-panic-logging"
-  digest = "1:a3032ca6a1bf0c2dd3bd8e93d5ba5e0826c14c21f901cc0ce87fb0b0461e1d5b"
+  digest = "1:6b5917ed5deb9a8610d82dfb80f2df309183f0fd8b30a929dbadc172f406dbb2"
   name = "github.com/oneiro-ndev/metanode"
   packages = [
     "pkg/meta/app",
@@ -533,7 +533,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "90a9b8225dc1403f0a501c466f930b90e40d6280"
+  revision = "3e54ff935f0c227176ad280249938602a8d09a36"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
