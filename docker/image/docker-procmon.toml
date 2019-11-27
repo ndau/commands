@@ -23,11 +23,6 @@ level = "$LOG_LEVEL"
 output = ""
 
 [[prologue]]
-    name = "redisportclear"
-    type = "portavailable"
-    port = "$REDIS_PORT"
-
-[[prologue]]
     name = "nomsportclear"
     type = "portavailable"
     port = "$NOMS_PORT"
@@ -46,11 +41,6 @@ output = ""
     name = "ndauapiportclear"
     type = "portavailable"
     port = "$NDAUAPI_PORT"
-
-[[prologue]]
-    name = "redisdatadirexists"
-    type = "ensuredir"
-    path = "$REDIS_DATA_DIR"
 
 [[prologue]]
     name = "postgres_data_dir_exists"
@@ -77,41 +67,8 @@ output = ""
     type = "ensuredir"
     path = "$TM_DATA_DIR"
 
-
 # environment variables are expanded in all config values that are
 # strings
-[[task]]
-    name = "redis"
-    path = "redis-server"
-    args = [
-        "--dir", "$REDIS_DATA_DIR",
-        "--maxclients", "$REDIS_MAX_CLIENTS",
-        "--port", "$REDIS_PORT",
-        "--save", "60", "1",
-    ]
-    # paths to log files for caputuring this task's stdout and stderr,
-    # special values are:
-    # "SUPPRESS" meaning "discard this stream"
-    # "STDOUT" means "send to stdout"
-    # "STDERR" means "send to stderr"
-    # If omitted or "", it'll use the default (i.e. stdout = "STDOUT", stderr = "STDERR").
-    # If the HONEYCOMB_* env vars are set, all logging from this task is redirected to honeycomb.
-    stdout = "$LOG_DIR/redis.log"
-    stderr = "$LOG_DIR/redis.log"
-    # durations are done as time.Duration
-    maxshutdown = "5s"
-
-    [[task.monitors]]
-        name = "health"
-        type = "redis"
-        addr = "localhost:$REDIS_PORT"
-        period = "2s"
-
-    [[task.monitors]]
-        name = "ready"
-        type = "redis"
-        addr = "localhost:$REDIS_PORT"
-
 [[task]]
     name = "postgres"
     path = "postgres-docker-entrypoint.sh"

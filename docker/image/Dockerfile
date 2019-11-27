@@ -11,17 +11,6 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
     python3 -m pip install remarshal && \
     update-ca-certificates 2>/dev/null
 
-# Use a specific version of redis.
-COPY --from=redis:5.0.4-alpine [ \
-    "usr/local/bin/redis-server", \
-    "usr/local/bin/redis-sentinel", \
-    "usr/local/bin/redis-cli", \
-    "usr/local/bin/redis-benchmark", \
-    "usr/local/bin/redis-check-rdb", \
-    "usr/local/bin/redis-check-aof", \
-    "/usr/local/bin/" \
-    ]
-
 # set up postgres: this requires several shared libraries, configuration files,
 # as well as the actual postgres and psql binaries
 COPY --from=postgres:12-alpine \
