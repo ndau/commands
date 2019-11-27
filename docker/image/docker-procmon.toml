@@ -92,7 +92,7 @@ output = ""
 
 [[task]]
     name = "noms"
-    parent = "redis"
+    parent = "postgres"
     path = "$BIN_DIR/noms"
     args = [
         "serve",
