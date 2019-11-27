@@ -37,7 +37,7 @@ build_ndau() {
     # then use it to stamp the ndau executable as part of the build.
     VERSION=$(git describe --long --tags --match="v*")
     echo "  VERSION=$VERSION"
-    VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
+    VERSION_PKG="$NDEV_SUBDIR/ndau/pkg/version"
     export GO111MODULE="on"
 
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAU_CMD"
