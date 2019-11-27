@@ -120,6 +120,8 @@ RUN git clone git@github.com:oneiro-ndev/commands.git \
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
+# pull from SSH URLs
+RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 RUN /image/docker-build.sh
 
 # Build the final image.  If published, this should leave no trace of earlier stages.
