@@ -7,9 +7,6 @@
 # don't get out of sync with each other.
 ###################################
 
-# we depend on the lockfile whenever we build something
-PACKAGES = Gopkg.toml
-LOCK = Gopkg.lock
 
 # define a few of the executables we're building
 CHASM = cmd/chasm/chasm
@@ -45,9 +42,6 @@ peggofmt: $(PEGGOFMT)
 
 ###################################
 ### Utilities
-
-$(LOCK): $(PACKAGES)
-	dep ensure
 
 default: build
 
@@ -106,7 +100,7 @@ cmd/chasm/predefined.go: $(OPCODES)
 cmd/crank/predefined.go: $(OPCODES)
 	$(OPCODES) --consts cmd/crank/predefined.go
 
-$(OPCODES): cmd/opcodes/*.go $(LOCK)
+$(OPCODES): cmd/opcodes/*.go
 	cd cmd/opcodes && go build
 
 ###################################
@@ -132,7 +126,7 @@ benchmarks:
 ###################################
 ### The chasm assembler
 
-$(CHASM): cmd/chasm/chasm.go $(CHAINCODEPKG)/vm/opcodes.go cmd/chasm/*.go $(LOCK)
+$(CHASM): cmd/chasm/chasm.go $(CHAINCODEPKG)/vm/opcodes.go cmd/chasm/*.go
 	go build -o $(CHASM) ./cmd/chasm
 
 cmd/chasm/chasm.go: cmd/chasm/chasm.peggo
@@ -180,7 +174,7 @@ format: $(CHFMT)
 cmd/chfmt/chfmt.go: cmd/chfmt/chfmt.peggo
 	pigeon -o ./cmd/chfmt/chfmt.go ./cmd/chfmt/chfmt.peggo
 
-$(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go $(LOCK)
+$(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go
 	go build -o $(CHFMT) ./cmd/chfmt
 
 
@@ -190,7 +184,7 @@ $(CHFMT): cmd/chfmt/*.go cmd/chfmt/chfmt.go $(LOCK)
 cmd/peggofmt/peggo.go: cmd/peggofmt/peggo.peggo
 	pigeon -o ./cmd/peggofmt/peggo.go ./cmd/peggofmt/peggo.peggo
 
-$(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go $(LOCK)
+$(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go
 	go build -o $(PEGGOFMT) ./cmd/peggofmt
 
 
@@ -200,6 +194,6 @@ $(PEGGOFMT): cmd/peggofmt/*.go cmd/peggofmt/peggo.go $(LOCK)
 cmd/crank/crankvalues.go: cmd/crank/crankvalues.peggo
 	pigeon -o ./cmd/crank/crankvalues.go ./cmd/crank/crankvalues.peggo
 
-$(CRANK): cmd/crank/*.go $(LOCK)
+$(CRANK): cmd/crank/*.go
 	go build -o $(CRANK) ./cmd/crank
 
