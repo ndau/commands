@@ -54,11 +54,10 @@ RUN mv /usr/local/bin/docker-entrypoint.sh /usr/local/bin/postgres-docker-entryp
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.12-alpine3.9 AS go_build
+FROM golang:1.13-alpine AS go_build
 
 # Install extra tools.
-RUN apk add --no-cache bash git openssh make
-
+RUN apk add --no-cache bash git openssh make build-base
 
 # Arguments passed via --build-arg.
 ARG SSH_PRIVATE_KEY
@@ -97,20 +96,6 @@ RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
 RUN cd "$TENDERMINT_DIR"/tendermint && GO111MODULE=on make build
 RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
 
-# The get_commands_deps stage gets the dependencies used to build the commands
-# repo. It's in a separate stage for caching: often, the commands repo's sha
-# will change without actually changing the dependencies.
-FROM go_build as get_commands_deps
-# ensure we have dep
-RUN go get -u github.com/golang/dep/...
-ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
-ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
-RUN mkdir -p ${COMMANDS_DIR}
-# bust cache only when deps are updated
-COPY ./Gopkg.* "$COMMANDS_DIR"/
-RUN cd ${COMMANDS_DIR} && dep ensure --vendor-only
-
-
 # The build_commands stage builds ndev programs from the commands repo,
 # caching results when possible.
 FROM go_build AS build_commands
@@ -118,8 +103,10 @@ FROM go_build AS build_commands
 # Arguments passed via --build-arg.
 ARG COMMANDS_BRANCH
 ENV COMMANDS_BRANCH=${COMMANDS_BRANCH}
+
 ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
+ENV GOPRIVATE="github.com/oneiro-ndev"
 
 # this shouldn't normally bust the cache
 COPY docker-build.sh /image/
@@ -130,14 +117,10 @@ RUN git clone git@github.com:oneiro-ndev/commands.git \
     --branch "$COMMANDS_BRANCH" \
     "${COMMANDS_DIR}"
 
-# get the vendor folder
-COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
-
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
 RUN /image/docker-build.sh
-
 
 # Build the final image.  If published, this should leave no trace of earlier stages.
 FROM combined_node_base AS combined_node
