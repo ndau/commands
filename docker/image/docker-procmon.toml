@@ -163,7 +163,6 @@ output = ""
     path = "$BIN_DIR/ndaunode"
     args = [
         "-spec", "http://localhost:$NOMS_PORT",
-        "-index", "localhost:$REDIS_PORT",
         "-addr", "0.0.0.0:$NODE_PORT",
     ]
     stdout = "$LOG_DIR/ndaunode.log"
