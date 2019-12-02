@@ -75,31 +75,44 @@ RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 # The build_tendermint stage builds tendermint, caching results when posssible
 FROM go_build AS build_tendermint
 # Use pre-built tendermint image
-# COPY --from=tendermint/tendermint:v0.32.3 /usr/bin/tendermint /image/bin/
-# build tendermint because pre-built 0.32.5 doesn't exist
-ENV TENDERMINT_DIR=$GOPATH/src/github.com/tendermint
-ENV TENDERMINT_VER=v0.32.6
-RUN mkdir -p "$TENDERMINT_DIR"
-RUN cd "$TENDERMINT_DIR" && git clone https://github.com/tendermint/tendermint.git
-RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
-RUN cd "$TENDERMINT_DIR"/tendermint && GO111MODULE=on make build
-RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
+# build tendermint because pre-built 0.32.6 doesn't exist
+# when we fix this, see https://github.com/moby/moby/issues/34482#issuecomment-332298635
+# we want to use the arg TENDERMINT_VER, not anything hardcoded, anyway
+ENV TENDERMINT_ORG_DIR="$GOPATH/src/github.com/tendermint"
+ENV TENDERMINT_DIR="$TENDERMINT_ORG_DIR/tendermint"
+# get the tendermint version from the build args, where it comes from commands/bin/env.sh
+RUN mkdir -p "$TENDERMINT_ORG_DIR"
+ARG TENDERMINT_VER
+RUN [ -n "$TENDERMINT_VER" ] && echo "building tm $TENDERMINT_VER"
+RUN git clone --branch "$TENDERMINT_VER" https://github.com/tendermint/tendermint.git "$TENDERMINT_DIR"
+RUN cd "$TENDERMINT_DIR" && GO111MODULE=on make build && \
+    cp build/tendermint /bin
+
+# The get_commands_deps stage gets the dependencies used to build the commands
+# repo. It's in a separate stage for caching: often, the commands repo's sha
+# will change without actually changing the dependencies.
+FROM go_build as get_commands_deps
+# ensure we have dep
+ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
+ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
+ENV GOPRIVATE="github.com/oneiro-ndev"
+RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
+RUN mkdir -p ${COMMANDS_DIR}
+# bust cache only when deps are updated
+COPY ./go.mod ./go.sum "$COMMANDS_DIR"/
+RUN cd ${COMMANDS_DIR} && go mod download
 
 # The build_commands stage builds ndev programs from the commands repo,
 # caching results when possible.
-FROM go_build AS build_commands
+FROM get_commands_deps AS build_commands
 
 # Arguments passed via --build-arg.
 ARG COMMANDS_BRANCH
 ENV COMMANDS_BRANCH=${COMMANDS_BRANCH}
 
-ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
-ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
-ENV GOPRIVATE="github.com/oneiro-ndev"
-
+RUN rm -rf "$COMMANDS_DIR"
 # this shouldn't normally bust the cache
 COPY docker-build.sh /image/
-
 # bust the cache when the commands repo has changed
 COPY commands_sha /image/
 RUN git clone git@github.com:oneiro-ndev/commands.git \
@@ -109,8 +122,7 @@ RUN git clone git@github.com:oneiro-ndev/commands.git \
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
-# pull from SSH URLs
-RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
+
 RUN /image/docker-build.sh
 
 # Build the final image.  If published, this should leave no trace of earlier stages.

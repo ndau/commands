@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 COMMANDS_BRANCH="$1"
@@ -15,6 +17,14 @@ echo "Using commands branch/tag: $COMMANDS_BRANCH"
 DOCKER_DIR="$SCRIPT_DIR/.."
 IMAGE_DIR="$DOCKER_DIR/image"
 COMMANDS_DIR="$DOCKER_DIR/.."
+
+# shellcheck source=../bin/env.sh
+source "$COMMANDS_DIR"/bin/env.sh
+if [ -z "$TENDERMINT_VER" ]; then
+    echo "tendermint version not set!"
+    exit 1
+fi
+
 SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
 if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
     # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
@@ -40,7 +50,7 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 # update dependencies for cache-busting when appropriate
-cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
+cp "$COMMANDS_DIR"/go.mod "$COMMANDS_DIR"/go.sum "$IMAGE_DIR"/
 
 cd "$COMMANDS_DIR" || exit 1
 SHA=$(git rev-parse --short HEAD)
@@ -50,6 +60,7 @@ if ! docker build \
        --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
+       --build-arg TENDERMINT_VER="$TENDERMINT_VER" \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$SHA" \
        --tag="$NDAU_IMAGE_NAME:latest"
