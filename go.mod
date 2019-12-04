@@ -25,9 +25,9 @@ require (
 	github.com/oneiro-ndev/chaincode v1.2.5
 	github.com/oneiro-ndev/genesis v1.2.1-0.20191127113800-5a7babbe6a0d
 	github.com/oneiro-ndev/json2msgp v1.1.0
-	github.com/oneiro-ndev/metanode v1.9.2-0.20191126145543-cefaec7b973d
+	github.com/oneiro-ndev/metanode v1.9.2-0.20191204140225-31108ad30997
 	github.com/oneiro-ndev/msgp-well-known-types v0.1.2
-	github.com/oneiro-ndev/ndau v1.26.6-0.20191202104108-a575e8132267
+	github.com/oneiro-ndev/ndau v1.26.6-0.20191204143639-a319429af57a
 	github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1
 	github.com/oneiro-ndev/noms-util v0.0.0-20190226204556-89919acd3bae
 	github.com/oneiro-ndev/o11y v1.3.3

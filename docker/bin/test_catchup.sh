@@ -45,6 +45,8 @@ for i in {1..240}; do
         docker exec "$nodename" tar c -j -f "/$noms_fn" -C "/image/data" noms
         echo "extracting noms tarball from container"
         docker cp "$nodename:/$noms_fn" ../..
+        tar -xjf "../../$noms_fn"
+        mv "noms" "../../catchup-$last_height-noms"
 
         echo "attempting to find a mainnet snapshot high enough"
         snapshot_pair=$(
@@ -67,6 +69,12 @@ for i in {1..240}; do
         mainnet_snapshot_name=$(echo "$snapshot_pair" | cut -d' ' -f2)
         echo "fetching mainnet snapshot: $mainnet_snapshot_name"
         aws s3 cp "s3://ndau-snapshots/$mainnet_snapshot_name" ../..
+        tar -xzf "../../$mainnet_snapshot_name" "data/noms"
+        mv data/noms "../../mainnet-$mainnet_snapshot_height-noms"
+        rm -rf data
+
+        echo "try doing:"
+        echo "  ./nomscompare mainnet-$mainnet_snapshot_height-noms::ndau catchup-$last_height-noms::ndau"
 
         break
     fi
