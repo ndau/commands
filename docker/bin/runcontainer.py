@@ -148,17 +148,7 @@ def main(args):
     if len(args.peers_p2p) != len(args.peers_rpc):
         bail("length of p2p and rpc peers must match")
 
-    # for p2p in args.peers_p2p:
-    #     ip, port = p2p.split(":")
-    #     test_peer("p2p", ip, port)
-
     persistent_peers = []
-    # for rpc in args.peers_rpc:
-    #     protocol, ip, port = rpc.split(":")
-    #     ip = ip.lstrip("/")
-    #     test_peer("rpc", ip, port)
-    #     persistent_peers.append(f"{get_peer_id(protocol, ip, port)}@{ip}:{port}")
-
     for index, p2p in enumerate(args.peers_p2p):
         p2p_ip, p2p_port = p2p.split(":")
         test_peer("p2p", p2p_ip, p2p_port)
@@ -166,8 +156,10 @@ def main(args):
         protocol, ip, port = rpc.split(":")
         ip = ip.lstrip("/")
         test_peer("rpc", ip, port)
-        persistent_peers.append(f"{get_peer_id(protocol, ip, port)}@{p2p_ip}:{p2p_port}")
-        
+        persistent_peers.append(
+            f"{get_peer_id(protocol, ip, port)}@{p2p_ip}:{p2p_port}"
+        )
+
     print("Persistent peers:")
     for peer in persistent_peers:
         print(f"  {peer}")
