@@ -12,7 +12,7 @@
 from get_catchup import get_catchup
 from get_health import get_health
 from get_sha import get_sha
-from lib.args import get_net_node_sha_snapshot
+from lib.args import get_net_node_sha_snapshot_repave
 from lib.services import fetch_services, parse_services
 from lib.slack import post_to_slack
 from lib.networks import NETWORK_LOCATIONS
@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 import time
+import pdb
 
 
 # Number of seconds we wait between node upgrades.
@@ -145,6 +146,41 @@ def update_service(node_name, region, cluster):
             node_name,
             "--task-definition",
             node_name,
+            "--desired-count",
+            "1",
+        ],
+        stdout=subprocess.PIPE,
+    )
+    if r.returncode != 0:
+        sys.exit(f"ecs-cli configure failed with code {r.returncode}")
+
+    # Print the useful-for-debugging json ourselves so we can collapse it all on one line.
+    try:
+        service_json = json.loads(r.stdout)
+    except:
+        service_json = None
+    if service_json is not None:
+        print(json.dumps(service_json, separators=(",", ":")))
+
+def stop_service(node_name, region, cluster):
+    """
+    Stop the given node on the given
+    cluster in the given region.
+    """
+
+    r = subprocess.run(
+        [
+            "aws",
+            "ecs",
+            "update-service",
+            "--cluster",
+            cluster,
+            "--region",
+            region,
+            "--service",
+            node_name,
+            "--desired-count",
+            "0",
         ],
         stdout=subprocess.PIPE,
     )
@@ -223,7 +259,7 @@ def is_service_running(node_name, region, cluster, task_definition_arn):
 
 
 def wait_for_service(
-    node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn
+    node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn, repave
 ):
     """
     Wait for a node's service to become healthy and fully caught up on its network.
@@ -249,10 +285,11 @@ def wait_for_service(
         time.sleep(1)
 
         # Once the catch up is complete, the upgraded node is happy with the network.
-        if get_catchup(rpc_url) != "COMPLETE":
-            continue
+        if not repave:
+            if get_catchup(rpc_url) != "COMPLETE":
+                continue
 
-        time.sleep(1)
+            time.sleep(1)
 
         # Once all else looks good, check the health.  It'll likely be OK at this point since
         # an unhealthy node would certainly fail the catch up test above.
@@ -296,7 +333,7 @@ def set_snapshot(snapshot, container_definition):
         environment_variables.append(environment_variable)
 
 
-def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
+def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url, repave):
     """
     Upgrade the given node to the given SHA on the given cluster in the given region using the
     given snapshot name ("" means "latest snapshot") from which to catch up.
@@ -333,11 +370,11 @@ def upgrade_node(node_name, region, cluster, sha, snapshot, api_url, rpc_url):
 
     print(f"Waiting for {node_name} to restart and catch up...")
     return wait_for_service(
-        node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn
+        node_name, region, cluster, sha, api_url, rpc_url, task_definition_arn, repave
     )
 
 
-def upgrade_nodes(network_name, node_name, sha, snapshot):
+def upgrade_nodes(network_name, node_name, sha, snapshot, repave):
     """
     Upgrade the given node (or all nodes if node_name is None) on the given network.
     """
@@ -348,8 +385,25 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
 
     apis, rpcs = parse_services(network_name, node_name, fetch_services())
 
+    if repave:
+        for node_name in sorted(apis):
+            node_info = node_infos[node_name]
+
+            cluster = node_info["cluster"]
+            region = node_info["region"]
+
+            print(f"Stopping {node_name} service...")
+            stop_service(node_name, region, cluster)
+        # wait for nodes to stop and drain
+        print("Waiting for nodes to stop...")
+        time.sleep(75)
+        sorted_apis = sorted(apis)
+    else:
+        sorted_apis = sorted(apis, reverse=True)
+
+
     time_spent_waiting = -1
-    for node_name in sorted(apis, reverse=True):
+    for node_name in sorted_apis:
         api_url = apis[node_name]
         rpc_url = rpcs[node_name]
 
@@ -368,13 +422,13 @@ def upgrade_nodes(network_name, node_name, sha, snapshot):
             time.sleep(wait_seconds)
 
         time_spent_waiting = upgrade_node(
-            node_name, region, cluster, sha, snapshot, api_url, rpc_url
+            node_name, region, cluster, sha, snapshot, api_url, rpc_url, repave
         )
 
         # If we just upgraded a node with a snapshot, the node has now caught up and regenerated
         # all its data from that snapshot.  Have it generate a new snapshot and make it the new
         # latest snapshot, so that all remaining nodes can catch up from that and save time.
-        if len(snapshot) > 0:
+        if len(snapshot) > 0 and repave is None:
             if not snapshot_node(node_name):
                 sys.exit(f"Unable to take a snapshot on {node_name}")
 
@@ -419,8 +473,9 @@ def main():
     Upgrade one or all nodes on the given network.
     """
 
-    network, node_name, sha, snapshot = get_net_node_sha_snapshot()
+    network, node_name, sha, snapshot, repave = get_net_node_sha_snapshot_repave()
     network_name = str(network)
+    # pdb.set_trace()
 
     # If no snapshot was given, use the latest.
     if snapshot is None:
@@ -448,7 +503,7 @@ def main():
 
     start_time = time.time()
 
-    upgrade_nodes(network_name, node_name, sha, snapshot)
+    upgrade_nodes(network_name, node_name, sha, snapshot, repave)
 
     # Auto-register the upgraded sha, even if only one node was upgraded.  The assumption is that
     # if we upgrade at least one node that we'll eventually upgrade all of them on the network.
