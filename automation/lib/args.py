@@ -61,7 +61,7 @@ def get_node():
     return args.node
 
 
-def get_net_node_sha_snapshot():
+def get_net_node_sha_snapshot_repave():
     """
     Return the net argument and optional node name and sha arguments.
     """
@@ -71,6 +71,9 @@ def get_net_node_sha_snapshot():
     parser.add_argument(
         "--node", required=False, help="node name (defaults to all nodes)"
     )
+    parser.add_argument(
+        "--repave", required=False, action='store_true', help="repave network to specified snapshot"
+    )
     parser.add_argument("--sha", required=True, help="ECR ndauimage SHA to use")
     parser.add_argument(
         "--snapshot",
@@ -78,4 +81,4 @@ def get_net_node_sha_snapshot():
         help="snapshot from which to catch up (e.g. snapshot-mainnet-1; defaults to latest)",
     )
     args = parser.parse_args()
-    return args.net, args.node, args.sha, args.snapshot
+    return args.net, args.node, args.sha, args.snapshot, args.repave
