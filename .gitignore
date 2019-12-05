@@ -11,6 +11,8 @@ bin/venv/
 *.log
 *.pid
 *.tgz
+*.tar.gz
+*.tar.bz2
 
 # python chaff
 **/__pycache__/
