@@ -266,6 +266,8 @@ github.com/oneiro-ndev/rest v0.1.0 h1:29upuPwS1Xm6rXIu3XRnjqAnlkv5dDnfP05RG4JMXc
 github.com/oneiro-ndev/rest v0.1.0/go.mod h1:0JsQm2UOMCWG1UmeZZQNAdqWRZ9l07gqLzx5BitUnOo=
 github.com/oneiro-ndev/system_vars v1.5.2 h1:z7HlQaIYPKOchatIUNVqw+H5X8FV0vV8wEVvz4DDmew=
 github.com/oneiro-ndev/system_vars v1.5.2/go.mod h1:LevkEF6dOhanZi9RJ1nMKrVAenWa0rR5VPqxkXvx8BQ=
+github.com/oneiro-ndev/system_vars v1.5.3-0.20191114141946-24ece15624ad h1:cCZFCfm40yQbP/dQQTNiYk+ItoLbUhIuFhQ7hM8OgvU=
+github.com/oneiro-ndev/system_vars v1.5.3-0.20191114141946-24ece15624ad/go.mod h1:LevkEF6dOhanZi9RJ1nMKrVAenWa0rR5VPqxkXvx8BQ=
 github.com/oneiro-ndev/writers v1.1.0 h1:tEk7soJqriMHW32VLaWCB2nhOc1jjGBleZEuky/pceg=
 github.com/oneiro-ndev/writers v1.1.0/go.mod h1:XYstdFGd1FWSo7hblrtINwPVdihk0yJiNKbSrgdURbg=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

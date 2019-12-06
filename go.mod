@@ -32,7 +32,7 @@ require (
 	github.com/oneiro-ndev/noms-util v0.0.0-20190226204556-89919acd3bae
 	github.com/oneiro-ndev/o11y v1.3.4
 	github.com/oneiro-ndev/rest v0.1.0
-	github.com/oneiro-ndev/system_vars v1.5.2
+	github.com/oneiro-ndev/system_vars v1.5.3-0.20191114141946-24ece15624ad
 	github.com/oneiro-ndev/writers v1.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/common v0.6.0 // indirect
