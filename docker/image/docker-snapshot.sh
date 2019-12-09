@@ -37,6 +37,7 @@ cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
 cp "$TM_DATA_DIR/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TM_DATA_DIR/data/blockstore.db" "$TM_TEMP/data"
 cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"
+pg_dump -U postgres ndau > "$SNAPSHOT_DATA_DIR"/ndau.sql
 
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$BIN_DIR"/noms show "$NOMS_DATA_DIR"::ndau.value.Height | tr -d '"')))

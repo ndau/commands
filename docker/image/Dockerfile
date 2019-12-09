@@ -36,6 +36,7 @@ COPY --from=postgres:12-alpine \
     /usr/local/bin/docker-entrypoint.sh \
     /usr/local/bin/initdb \
     /usr/local/bin/pg_ctl \
+    /usr/local/bin/pg_dump \
     /usr/local/bin/postgres \
     /usr/local/bin/psql \
     /usr/local/bin/
