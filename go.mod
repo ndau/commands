@@ -27,7 +27,7 @@ require (
 	github.com/oneiro-ndev/json2msgp v1.1.0
 	github.com/oneiro-ndev/metanode v1.9.2-0.20191205141522-2aaae5d0e15b
 	github.com/oneiro-ndev/msgp-well-known-types v0.1.2
-	github.com/oneiro-ndev/ndau v1.26.6-0.20191206152002-9d94bd8dc375
+	github.com/oneiro-ndev/ndau v1.26.6-0.20191209072627-4e18a864b3bf
 	github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1
 	github.com/oneiro-ndev/noms-util v0.0.0-20190226204556-89919acd3bae
 	github.com/oneiro-ndev/o11y v1.3.4
