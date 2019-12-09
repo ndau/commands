@@ -254,10 +254,8 @@ github.com/oneiro-ndev/msgp-well-known-types v0.1.2 h1:pYVwVhP1eeIalNC3RCqLnHrOk
 github.com/oneiro-ndev/msgp-well-known-types v0.1.2/go.mod h1:6B29AjwNYczu2o1lWtNDf3jhwJ8v+5WCbAPf9RKGmjk=
 github.com/oneiro-ndev/mt19937_64 v0.0.0-20181210114828-3f74adc550ba h1:7waWPonQpxQthfpesqt3pog78dsn1S+EFxgbqIObYmA=
 github.com/oneiro-ndev/mt19937_64 v0.0.0-20181210114828-3f74adc550ba/go.mod h1:nSQjE6lTn4+b0ll2mL5ausSYarXNTTMMJNp592Czt3g=
-github.com/oneiro-ndev/ndau v1.26.6-0.20191206152002-9d94bd8dc375 h1:0w4UZRzw8aDJwv999Te0597GBh9MD//SIx/R9btqK0Y=
-github.com/oneiro-ndev/ndau v1.26.6-0.20191206152002-9d94bd8dc375/go.mod h1:52MLi9I13IcpWzFbATqZG69TJbnU6DhcjbKHye+7PlE=
-github.com/oneiro-ndev/ndau v1.26.6-0.20191209072627-4e18a864b3bf h1:ofjiQdRaAkkhTqUeaMBoFGdlhyDHDGEJ++QHlufca04=
-github.com/oneiro-ndev/ndau v1.26.6-0.20191209072627-4e18a864b3bf/go.mod h1:52MLi9I13IcpWzFbATqZG69TJbnU6DhcjbKHye+7PlE=
+github.com/oneiro-ndev/ndau v1.26.6-0.20191209081311-b00c1e8a076a h1:qWVgbcDFKL8FKZkqjl6QNbz2RJIxUP/eiAn8fVP/xNs=
+github.com/oneiro-ndev/ndau v1.26.6-0.20191209081311-b00c1e8a076a/go.mod h1:Aa+3fDykM1teIgp2BQ61plZHiwxAG6t0mm9wLa4cvLs=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1 h1:pRI+sgsStYueAfvbfe1jXhb1O8U3seVKKrMXfuRtCU4=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1/go.mod h1:84mgRGnhSwnNCtoxYq5UYUGK5suBDZaKreJgh8JaWeI=
 github.com/oneiro-ndev/noms-util v0.0.0-20190226204556-89919acd3bae h1:5HkMVyz2i/wPvcnF8Pg+tZtnxcoEzECha3gte87t8Pw=
@@ -266,10 +264,8 @@ github.com/oneiro-ndev/o11y v1.3.4 h1:4lrmD+e8TXURjqBN+YVK1PiWw7maHMnO6yvLGHopf4
 github.com/oneiro-ndev/o11y v1.3.4/go.mod h1:lvD/ss9tt7xlz8TtHcrPfnP2kmP1ejhNAdU+4Bu1FZI=
 github.com/oneiro-ndev/rest v0.1.0 h1:29upuPwS1Xm6rXIu3XRnjqAnlkv5dDnfP05RG4JMXc4=
 github.com/oneiro-ndev/rest v0.1.0/go.mod h1:0JsQm2UOMCWG1UmeZZQNAdqWRZ9l07gqLzx5BitUnOo=
-github.com/oneiro-ndev/system_vars v1.5.2 h1:z7HlQaIYPKOchatIUNVqw+H5X8FV0vV8wEVvz4DDmew=
-github.com/oneiro-ndev/system_vars v1.5.2/go.mod h1:LevkEF6dOhanZi9RJ1nMKrVAenWa0rR5VPqxkXvx8BQ=
-github.com/oneiro-ndev/system_vars v1.5.3-0.20191114141946-24ece15624ad h1:cCZFCfm40yQbP/dQQTNiYk+ItoLbUhIuFhQ7hM8OgvU=
-github.com/oneiro-ndev/system_vars v1.5.3-0.20191114141946-24ece15624ad/go.mod h1:LevkEF6dOhanZi9RJ1nMKrVAenWa0rR5VPqxkXvx8BQ=
+github.com/oneiro-ndev/system_vars v1.5.3 h1:KxI3CasnMIHev1rGgNABFcvwJT5/N+7JWXa1dBTNexg=
+github.com/oneiro-ndev/system_vars v1.5.3/go.mod h1:LevkEF6dOhanZi9RJ1nMKrVAenWa0rR5VPqxkXvx8BQ=
 github.com/oneiro-ndev/writers v1.1.0 h1:tEk7soJqriMHW32VLaWCB2nhOc1jjGBleZEuky/pceg=
 github.com/oneiro-ndev/writers v1.1.0/go.mod h1:XYstdFGd1FWSo7hblrtINwPVdihk0yJiNKbSrgdURbg=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
