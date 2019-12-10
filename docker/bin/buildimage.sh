@@ -4,6 +4,13 @@ set -e
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+# shellcheck source=../bin/env.sh
+source "$SCRIPT_DIR"/../../bin/env.sh
+if [ -z "$TENDERMINT_VER" ]; then
+    echo "tendermint version not set!"
+    exit 1
+fi
+
 COMMANDS_BRANCH="$1"
 if [ -z "$COMMANDS_BRANCH" ]; then
     COMMANDS_BRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
@@ -14,24 +21,12 @@ if [ -z "$COMMANDS_BRANCH" ]; then
 fi
 echo "Using commands branch/tag: $COMMANDS_BRANCH"
 
+# overwrite certain directories so circle can find them
 DOCKER_DIR="$SCRIPT_DIR/.."
 IMAGE_DIR="$DOCKER_DIR/image"
 COMMANDS_DIR="$DOCKER_DIR/.."
 
-# shellcheck source=../bin/env.sh
-source "$COMMANDS_DIR"/bin/env.sh
-if [ -z "$TENDERMINT_VER" ]; then
-    echo "tendermint version not set!"
-    exit 1
-fi
-
-muks=( "$COMMANDS_DIR"/machine_user_key /commands/machine_user_key )
-for muk in "${muks[@]}"; do
-    if [ -e "$muk" ]; then
-        SSH_PRIVATE_KEY_FILE="$muk"
-        break
-    fi
-done
+SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
 if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
     # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
     echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private oneiro-ndev repositories"
