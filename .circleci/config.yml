@@ -106,9 +106,6 @@ commands:
             fi
             git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /commands
 
-            # ensure requests library is available
-            pip3 install requests
-
             cd /commands
             SHA=$(git rev-parse --short $CIRCLE_SHA1)
 
@@ -277,7 +274,7 @@ workflows:
 general_config: &general_config
     working_directory: /commands
     docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.12
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.13
     environment:
         shell: /bin/bash
         <<: *aws_defaults
