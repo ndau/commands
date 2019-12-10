@@ -360,8 +360,7 @@ jobs:
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
-              /commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
-                "" "$snapshot"
+              /commands/docker/bin/runcontainer.py mainnet "$nodename" --snapshot "$snapshot"
 
             echo
 
@@ -485,7 +484,7 @@ jobs:
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
-              "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
+              "$bin_dir"/runcontainer.py localnet localnet-0 --snapshot "*"
 
             # Get the ip of the first node.
             ip=$(docker container inspect localnet-0 | \
