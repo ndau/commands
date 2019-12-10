@@ -34,7 +34,7 @@ The Homebrew package manager is by far the easiest way to install these tools, b
     - If it's already installed, run `brew upgrade redis@5.0`
     - Otherwise, run `brew install redis@5.0`
 1. Install Postgres: `brew install postgres@12`
-1. Install `pg_tmp` script:
+1. Install `pg_tmp` script so a temporary postgres can be brought up for unit testing:
     ```sh
     epg=$(mktemp -d)
     git clone https://github.com/eradman/ephemeralpg.git "$epg"
