@@ -34,7 +34,7 @@ mv procmon "$BIN_DIR"
 if [ -n "$RUN_UNIT_TESTS" ]; then
     echo "Running unit tests..."
     export CGO_ENABLED=0
-    for dir in "$NDEV_DIR"/*
+    for dir in $(go list -f '{{.Dir}}' -m github.com/oneiro-ndev/...)
     do
         cd "$dir"
         pwd
