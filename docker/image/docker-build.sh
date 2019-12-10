@@ -34,7 +34,7 @@ mv procmon "$BIN_DIR"
 if [ -n "$RUN_UNIT_TESTS" ]; then
     echo "Running unit tests..."
     export CGO_ENABLED=0
-    for dir in "$NDEV_DIR"/commands/vendor/"$NDEV_SUBDIR"/*
+    for dir in "$NDEV_DIR"/*
     do
         cd "$dir"
         pwd
