@@ -142,14 +142,14 @@ func (t *Task) masterMonitor(parentstop chan struct{}) {
 	for {
 		select {
 		case <-parentstop:
-			t.Logger.Info("parent task stopped; shutting down")
+			t.Logger.WithField("task", t.Name).Info("parent task stopped; shutting down")
 			close(t.Stopped)
 			time.Sleep(50 * time.Millisecond)
 			return
 		case e := <-t.Status:
-			t.Logger.WithField("status", e).Debug("event")
+			t.Logger.WithField("status", e).WithField("task", t.Name).Debug("event")
 			if e == Stop {
-				t.Logger.Warn("received Stop message; shutting down")
+				t.Logger.WithField("task", t.Name).Warn("received Stop message; shutting down")
 				close(t.Stopped)
 				time.Sleep(50 * time.Millisecond)
 				return
@@ -169,9 +169,9 @@ func (t *Task) exitMonitor() {
 	status := t.Status
 	err := t.cmd.Wait()
 	if err != nil {
-		t.Logger.WithError(err).Error("task terminated")
+		t.Logger.WithField("task", t.Name).WithError(err).Error("task terminated")
 	} else {
-		t.Logger.Warn("terminated")
+		t.Logger.WithField("task", t.Name).Warn("terminated")
 	}
 	status <- Stop
 }
@@ -214,13 +214,13 @@ func (t *Task) childMonitor(child *Task) {
 				child.FailCount++
 				child.RestartDelay *= 2
 				// this will replace the child's Stopped channel
-				t.Logger.WithField("child", child.Name).
+				t.Logger.WithField("task", t.Name).WithField("child", child.Name).
 					WithField("delay", child.RestartDelay).
 					WithField("failcount", child.FailCount).
 					Debugf("childmonitor restarting child")
 				child.Start(t.Stopped)
 			case <-t.Stopped:
-				t.Logger.WithField("child", child.Name).
+				t.Logger.WithField("task", t.Name).WithField("child", child.Name).
 					Debugf("childmonitor detected child stop but parent also stopped")
 				return
 			}
@@ -233,7 +233,7 @@ func (t *Task) childMonitor(child *Task) {
 func (t *Task) stopMonitor() {
 	select {
 	case <-t.Stopped:
-		t.Logger.Info("Stopped channel closed; killing task")
+		t.Logger.WithField("task", t.Name).Info("Stopped channel closed; killing task")
 		t.Kill()
 		return
 	}
@@ -252,7 +252,7 @@ func (t *Task) setOutputStreams() {
 	if t.Stdout != nil {
 		pipe, err := t.cmd.StdoutPipe()
 		if err != nil {
-			t.Logger.WithError(err).Error("could not construct stdout pipe")
+			t.Logger.WithField("task", t.Name).WithError(err).Error("could not construct stdout pipe")
 		} else {
 			go streamCopy(t.Stdout, pipe)
 		}
@@ -261,7 +261,7 @@ func (t *Task) setOutputStreams() {
 	if t.Stderr != nil {
 		pipe, err := t.cmd.StderrPipe()
 		if err != nil {
-			t.Logger.WithError(err).Error("could not construct stderr pipe")
+			t.Logger.WithField("task", t.Name).WithError(err).Error("could not construct stderr pipe")
 		} else {
 			go streamCopy(t.Stderr, pipe)
 		}
@@ -280,13 +280,14 @@ func (t *Task) Start(parentstop chan struct{}) {
 		return
 	}
 
-	t.Logger.Info("Starting")
+	t.Logger.WithField("task", t.Name).Info("Starting")
 	t.cmd = exec.Command(t.Path, t.Args...)
 	t.setOutputStreams()
 
 	// start the task and wait for it to be ready
-	t.Logger.Info("Running process")
-	t.Logger.WithField("path", t.Path).
+	t.Logger.WithField("task", t.Name).Info("Running process")
+	t.Logger.WithField("task", t.Name).
+		WithField("path", t.Path).
 		WithField("args", t.Args).
 		WithField("failcount", t.FailCount).
 		Debug("task info")
@@ -295,24 +296,24 @@ func (t *Task) Start(parentstop chan struct{}) {
 
 	// if it's a onetime task, just run it and be done
 	if t.Onetime {
-		t.Logger.Debug("running onetime task")
+		t.Logger.WithField("task", t.Name).Debug("running onetime task")
 		err := t.cmd.Run()
 		if err != nil {
-			t.Logger.WithError(err).Error("onetime task failed")
+			t.Logger.WithField("task", t.Name).WithError(err).Error("onetime task failed")
 		} else {
-			t.Logger.Debug("onetime task succeeded")
+			t.Logger.WithField("task", t.Name).Debug("onetime task succeeded")
 		}
 		return
 	}
 
 	err := t.cmd.Start()
 	if err != nil {
-		t.Logger.WithError(err).Error("errored on startup")
+		t.Logger.WithField("task", t.Name).WithError(err).Error("errored on startup")
 		return
 	}
 
 	if t.cmd != nil && t.cmd.Process != nil {
-		t.Logger.WithField("pid", t.cmd.Process.Pid).Info("waiting for ready")
+		t.Logger.WithField("task", t.Name).WithField("pid", t.cmd.Process.Pid).WithField("task", t.Name).Info("waiting for ready")
 	}
 	looptime := 50 * time.Millisecond
 	loopticker := time.NewTicker(looptime)
@@ -321,17 +322,17 @@ func (t *Task) Start(parentstop chan struct{}) {
 		select {
 		case <-loopticker.C:
 			if t.Exited() {
-				t.Logger.Error("task exited while starting up")
+				t.Logger.WithField("task", t.Name).Error("task exited while starting up")
 				return
 			}
 			// go check again
 		case <-toolong.C:
-			t.Logger.Error("took too long to start up")
+			t.Logger.WithField("task", t.Name).Error("took too long to start up")
 			t.Kill()
 			return
 		}
 	}
-	t.Logger.WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
+	t.Logger.WithField("task", t.Name).WithField("pid", t.cmd.Process.Pid).Debug("task started and is ready")
 
 	// now we need the Status channel
 	t.Status = make(chan Eventer, 1)
@@ -352,7 +353,7 @@ func (t *Task) Start(parentstop chan struct{}) {
 
 // StartChildren starts all of the task's children
 func (t *Task) StartChildren() {
-	t.Logger.Info("starting children")
+	t.Logger.WithField("task", t.Name).Info("starting children")
 
 	// we're going to start all the children in parallel and wait until
 	// the slowest of them gets going
@@ -369,7 +370,7 @@ func (t *Task) StartChildren() {
 		}()
 	}
 	wg.Wait()
-	t.Logger.Debug("done with children")
+	t.Logger.WithField("task", t.Name).Debug("done with children")
 }
 
 // startBehaviorMonitors starts all the monitors
@@ -378,7 +379,7 @@ func (t *Task) startBehaviorMonitors() {
 	for _, m := range t.Monitors {
 		go m.Listen(t.Stopped)
 	}
-	t.Logger.WithField("monitorcount", len(t.Monitors)).Debug("behavior monitors started")
+	t.Logger.WithField("task", t.Name).WithField("monitorcount", len(t.Monitors)).Debug("behavior monitors started")
 }
 
 // waitForShutdown assumes the task has already begun shutdown and
@@ -394,7 +395,7 @@ func (t *Task) waitForShutdown() {
 			looptime *= 2
 			looptimer.Reset(looptime)
 		case <-toolong.C:
-			t.Logger.Error("did not shut down nicely, killing it")
+			t.Logger.WithField("task", t.Name).Error("did not shut down nicely, killing it")
 			t.Destroy()
 		}
 	}
@@ -415,14 +416,14 @@ func (t *Task) Kill() {
 
 	// record that we're stopping
 	t.dying = true
-	t.Logger.Warn("starting to kill process")
+	t.Logger.WithField("task", t.Name).Warn("starting to kill process")
 	t.killDependents()
 	if !t.Exited() {
-		t.Logger.Info("shutting down")
+		t.Logger.WithField("task", t.Name).Info("shutting down")
 		t.cmd.Process.Signal(syscall.SIGTERM)
 		t.waitForShutdown()
 	}
-	t.Logger.Debug("done killing")
+	t.Logger.WithField("task", t.Name).Debug("done killing")
 	return
 }
 
@@ -444,7 +445,7 @@ func (t *Task) killDependents() {
 		}()
 	}
 	wg.Wait()
-	t.Logger.Info("Done killing dependents")
+	t.Logger.WithField("task", t.Name).Info("Done killing dependents")
 	return
 }
 
@@ -455,18 +456,18 @@ func (t *Task) Exited() bool {
 	}
 	if t.cmd.ProcessState == nil {
 		if t.cmd.Process == nil {
-			t.Logger.Error("process was nil")
+			t.Logger.WithField("task", t.Name).Error("process was nil")
 			return true
 		}
 		if err := t.cmd.Process.Signal(syscall.Signal(0)); err != nil {
-			t.Logger.Error("process did not respond")
+			t.Logger.WithField("task", t.Name).Error("process did not respond")
 			return true
 		}
 		return false
 	}
 	b := t.cmd.ProcessState.Exited()
 	if b {
-		t.Logger.Warn("process exited")
+		t.Logger.WithField("task", t.Name).Warn("process exited")
 	}
 	return b
 }
@@ -486,21 +487,21 @@ func (t *Task) Destroy() {
 	}
 
 	if t.cmd == nil || t.cmd.Process == nil {
-		t.Logger.Error("destroy called with no process to kill")
+		t.Logger.WithField("task", t.Name).Error("destroy called with no process to kill")
 		return
 	}
-	t.Logger.WithField("pid", t.cmd.Process.Pid).Print("cancelling task")
+	t.Logger.WithField("task", t.Name).WithField("pid", t.cmd.Process.Pid).Print("cancelling task")
 	err := t.cmd.Process.Kill()
 	if err != nil {
-		t.Logger.WithError(err).Error("unable to kill process")
+		t.Logger.WithField("task", t.Name).WithError(err).Error("unable to kill process")
 		return
 	}
 	state, err := t.cmd.Process.Wait()
 	if err != nil {
-		t.Logger.WithError(err).Error("cancel error")
+		t.Logger.WithField("task", t.Name).WithError(err).Error("cancel error")
 		return
 	}
-	t.Logger.WithField("processstate", state).Info("terminated")
+	t.Logger.WithField("task", t.Name).WithField("processstate", state).Info("terminated")
 
 }
 
