@@ -25,7 +25,13 @@ if [ -z "$TENDERMINT_VER" ]; then
     exit 1
 fi
 
-SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
+muks=( "$COMMANDS_DIR"/machine_user_key /commands/machine_user_key )
+for muk in "${muks[@]}"; do
+    if [ -e "$muk" ]; then
+        SSH_PRIVATE_KEY_FILE="$muk"
+        break
+    fi
+done
 if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
     # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
     echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private oneiro-ndev repositories"

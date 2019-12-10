@@ -333,6 +333,7 @@ jobs:
 
             # Create the machine_user_key file for buildimage.sh to use.
             echo -e "$machine_user_key" > /commands/machine_user_key
+            wc -c /commands/machine_user_key
 
             # Run unit tests at build-time.  The Go code exists at that point and this saves us
             # from having an extra job when "build" and "test" are generally done concurrently,
