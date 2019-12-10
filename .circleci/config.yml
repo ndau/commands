@@ -106,6 +106,9 @@ commands:
             fi
             git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /commands
 
+            # ensure requests library is available
+            pip3 install requests
+
             cd /commands
             SHA=$(git rev-parse --short $CIRCLE_SHA1)
 
