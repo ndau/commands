@@ -11,7 +11,7 @@ RPC=http://"$IP":2667
 SNAPSHOT=$(./get_snapshot.sh)
 IDENTITY=../ndau-snapshots/node-identity-3.tgz
 
-../bin/runcontainer.sh \
+../bin/runcontainer.py \
     localnet localnet-3 26663 26673 3033 \
     "$IDENTITY" \
     "$SNAPSHOT" \

@@ -15,7 +15,7 @@ This page outlines all of the features of the ndau Docker container, useful to O
 
 ## Run
 
-In order to run a container, we feed the following arguments to `docker/bin/runcontainer.sh`:
+In order to run a container, we feed the following arguments to `docker/bin/runcontainer.py`:
 - Container name
 - Tendermint P2P port
 - Tendermint RPC port
@@ -28,7 +28,7 @@ For example:
 ```sh
 IP=52.90.26.139
 SNAPSHOT=snapshot-devnet-12345.tgz
-docker/bin/runcontainer.sh \
+docker/bin/runcontainer.py \
     devnet-2 \
     26662 26672 3032 \
     node-identity-2.tgz \
@@ -55,7 +55,7 @@ Pass in the ports you'd like to use for communicating with the running node.  Th
 
 This can be `""` for the first node that is spun up on a network.
 
-Currently, the persistent peers must be up and running before you start a new node that references them.  We could consider loosening this restriction, but it would require us to pass in "Tendermint node ids" otherwise.  Currently, `runcontainer.sh` requires the peers to be running and healthy as a way to verify that they are valid before attempting to run a container.
+Currently, the persistent peers must be up and running before you start a new node that references them.  We could consider loosening this restriction, but it would require us to pass in "Tendermint node ids" otherwise.  Currently, `runcontainer.py` requires the peers to be running and healthy as a way to verify that they are valid before attempting to run a container.
 
 That means the first node takes no peers.  The 2nd node points to the first peer.  The 3rd node points to the first two peers, and so on.  After the initial N validator peers fire up, new verifier peers can start up and point to any subset of other currently running nodes on the network.
 
@@ -79,7 +79,7 @@ In the above example, the snapshot name would be `snapshot-devnet-12345` and whe
 
 This is a `node-identity.tgz` file generated either by the initial `snapshot.sh` or, more commonly, when new nodes are spun up for the first time by 3rd parties.
 
-If you have a node identity file, pass it to `runcontainer.sh`.  If you don't have a node identity file, you can omit this argument and `runcontainer.sh` will generate one for you.  You will see a message printed from `runcontainer.sh` that will tell you where it is, and what to do with it.
+If you have a node identity file, pass it to `runcontainer.py`.  If you don't have a node identity file, you can omit this argument and `runcontainer.py` will generate one for you.  You will see a message printed from `runcontainer.py` that will tell you where it is, and what to do with it.
 
 You can also get at your `node-identity.tgz` file by running `docker cp <container>:/image/node-identity.tgz node-identity.tgz` to pull it out of your container at any time.  This works whether you passed one in originally, or if the container generated one for you.
 
@@ -100,7 +100,7 @@ This script takes the name of the container you'd like to stop.  The container c
 
 ### `restartcontainer.sh`
 
-This script takes the name of the container you'd like to restart.  The container should be currently stopped when you run this.  The container must have been started originally using `runcontainer.sh`.
+This script takes the name of the container you'd like to restart.  The container should be currently stopped when you run this.  The container must have been started originally using `runcontainer.py`.
 
 A restart is similar to a run, but it doesn't need anything more than the container name to run.  All of environment variables, port mappings, and other config used at initial run time are still there in the container and will be reused.  e.g. It won't pull down the snapshot again; it'll just continue where it left off before the last time it was stopped.  When it reconnects to the network, it'll automatically catch up to the current height of the blockchain.
 
@@ -108,9 +108,9 @@ A restart is similar to a run, but it doesn't need anything more than the contai
 
 This script takes the name of the container you'd like to remove.  This does a `stopcontainer.sh` and then runs Docker commands to remove the container completely.  It's like a "delete node" command.
 
-If you remove a container from Docker, you'll have to re-`runcontainer.sh` to start it back up again.  At that point, you may want to use the latest snapshot available, so that it doesn't have to catch up to the current blockchain height in as many steps as would be necessary if you re-run with an earlier (genesis) snapshot.
+If you remove a container from Docker, you'll have to re-`runcontainer.py` to start it back up again.  At that point, you may want to use the latest snapshot available, so that it doesn't have to catch up to the current blockchain height in as many steps as would be necessary if you re-run with an earlier (genesis) snapshot.
 
-In this case, you should use your original `node-identity.tgz` file when you `runcontainer.sh` again, so that the re-run node will act like it was the same node it was before on the network.
+In this case, you should use your original `node-identity.tgz` file when you `runcontainer.py` again, so that the re-run node will act like it was the same node it was before on the network.
 
 ### `exploreimage.sh`
 

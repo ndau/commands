@@ -17,4 +17,4 @@ if [ "$NETWORK" != devnet ] && \
 fi
 
 # This node is not one of the initial validators, so there's no node-identity.tgz passed in.
-../bin/runcontainer.sh "$NETWORK" "$NETWORK-test" 26666 26676 3036
+../bin/runcontainer.py "$NETWORK" "$NETWORK-test" 26666 26676 3036

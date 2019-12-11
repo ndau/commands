@@ -8,7 +8,7 @@ cd "$SCRIPT_DIR" || exit 1
 SNAPSHOT=$(./get_snapshot.sh)
 IDENTITY=../ndau-snapshots/node-identity-0.tgz
 
-../bin/runcontainer.sh \
+../bin/runcontainer.py \
     localnet localnet-0 26660 26670 3030 \
     "$IDENTITY" \
     "$SNAPSHOT"

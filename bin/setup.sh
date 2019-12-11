@@ -81,16 +81,7 @@ fi
 echo SETUP: Getting noms...
 go get -u "$ATTICLABS_DIR"/noms/...
 
-run_dep_ensure() {
-    # These vendor directories sometimes cause dep ensure to fail, remove them first.
-    rm -rf vendor
-    rm -rf .vendor-new
-    "$GO_DIR"/bin/dep ensure
-}
-
 # Get the correct version of tendermint source.
-echo SETUP: Getting dep...
-go get -u github.com/golang/dep/...
 mkdir -p "$TM_DIR"
 cd "$TM_DIR"
 if [ -d "tendermint" ]; then
@@ -108,9 +99,6 @@ fi
 echo SETUP: Checking out tendermint "$TENDERMINT_VER"...
 git fetch --prune
 git checkout "$TENDERMINT_VER"
-# TODO: dep is no longer supported by tendermint; replace this.
-#echo SETUP: Ensuring dependencies for tendermint...
-#run_dep_ensure
 
 # Get the ndev repos.
 update_repo() {
@@ -140,7 +128,6 @@ update_repo ndau
 
 cd "$NDEV_DIR"/commands
 echo SETUP: Ensuring dependencies for commands...
-run_dep_ensure
 
 # Build everything.
 echo SETUP: Building...

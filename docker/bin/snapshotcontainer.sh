@@ -11,7 +11,7 @@ fi
 
 if [ -z "$(docker container ls -q -f name=$CONTAINER)" ]; then
     echo "Container does not exist or is not running: $CONTAINER"
-    echo "Use runcontainer.sh or restartcontainer.sh to start the container first"
+    echo "Use runcontainer.py or restartcontainer.sh to start the container first"
     exit 1
 fi
 

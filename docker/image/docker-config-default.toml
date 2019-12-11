@@ -1,4 +1,6 @@
 NodeRewardWebhookDelay = 10.0
+PostgresConnection = "postgres://node@localhost:5432/ndau"
+PostgresPasswordPath = "/image/postgres-node-pw"
 
 [Features]
   # Block heights at which features becomes active.  Add more feature heights here as needed.

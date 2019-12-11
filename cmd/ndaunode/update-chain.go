@@ -28,7 +28,7 @@ import (
 )
 
 func updateFromGenesis(gfilePath, asscpath string, conf *config.Config) {
-	app, err := ndau.NewAppSilent(getDbSpec(), "", -1, *conf)
+	app, err := ndau.NewAppSilent(getDbSpec(), *conf)
 	check(err)
 
 	check(app.UpdateStateImmediately(func(stI metast.State) (metast.State, error) {

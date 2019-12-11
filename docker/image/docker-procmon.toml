@@ -23,11 +23,6 @@ level = "$LOG_LEVEL"
 output = ""
 
 [[prologue]]
-    name = "redisportclear"
-    type = "portavailable"
-    port = "$REDIS_PORT"
-
-[[prologue]]
     name = "nomsportclear"
     type = "portavailable"
     port = "$NOMS_PORT"
@@ -48,9 +43,14 @@ output = ""
     port = "$NDAUAPI_PORT"
 
 [[prologue]]
-    name = "redisdatadirexists"
+    name = "postgres_data_dir_exists"
     type = "ensuredir"
-    path = "$REDIS_DATA_DIR"
+    path = "$PGDATA"
+
+[[prologue]]
+    name = "postgres_port_clear"
+    type = "portavailable"
+    port = "$PG_PORT"
 
 [[prologue]]
     name = "nomsdatadirexists"
@@ -67,45 +67,32 @@ output = ""
     type = "ensuredir"
     path = "$TM_DATA_DIR"
 
-
 # environment variables are expanded in all config values that are
 # strings
 [[task]]
-    name = "redis"
-    path = "redis-server"
-    args = [
-        "--dir", "$REDIS_DATA_DIR",
-        "--maxclients", "$REDIS_MAX_CLIENTS",
-        "--port", "$REDIS_PORT",
-        "--save", "60", "1",
-    ]
+    name = "postgres"
+    path = "postgres-docker-entrypoint.sh"
+    args = ["postgres"]
     # paths to log files for caputuring this task's stdout and stderr,
-    # special values are:
-    # "SUPPRESS" meaning "discard this stream"
-    # "STDOUT" means "send to stdout"
-    # "STDERR" means "send to stderr"
-    # If omitted or "", it'll use the default (i.e. stdout = "STDOUT", stderr = "STDERR").
-    # If the HONEYCOMB_* env vars are set, all logging from this task is redirected to honeycomb.
-    stdout = "$LOG_DIR/redis.log"
-    stderr = "$LOG_DIR/redis.log"
+    stdout = "$LOG_DIR/postgres.log"
+    stderr = "$LOG_DIR/postgres.log"
     # durations are done as time.Duration
     maxshutdown = "5s"
 
     [[task.monitors]]
-        name = "health"
-        type = "redis"
-        addr = "localhost:$REDIS_PORT"
-        period = "2s"
+        name = "ready"
+        type = "portinuse"
+        port = "$PG_PORT"
 
     [[task.monitors]]
-        name = "ready"
-        type = "redis"
-        addr = "localhost:$REDIS_PORT"
-
+        name = "health"
+        type = "portinuse"
+        port = "$PG_PORT"
+        period = "2s"
 
 [[task]]
     name = "noms"
-    parent = "redis"
+    parent = "postgres"
     path = "$BIN_DIR/noms"
     args = [
         "serve",
@@ -133,7 +120,6 @@ output = ""
     path = "$BIN_DIR/ndaunode"
     args = [
         "-spec", "http://localhost:$NOMS_PORT",
-        "-index", "localhost:$REDIS_PORT",
         "-addr", "0.0.0.0:$NODE_PORT",
     ]
     stdout = "$LOG_DIR/ndaunode.log"

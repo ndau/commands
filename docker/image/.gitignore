@@ -1,2 +1,4 @@
 *_sha
 Gopkg.*
+go.mod
+go.sum
