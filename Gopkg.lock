@@ -552,7 +552,8 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:67b17a9bda2de46267e6084319df083bb23befce1597d8d45e6f0c7709d6515e"
+  branch = "prgn-details-waa"
+  digest = "1:80084d4fdcbbcf1f823189e1540b2fdb361394475a7361f3fa536ac919fe49b4"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6aa4787a77a445c8e2dcf603ef1c22928a5fde85"
-  version = "v1.26.5"
+  revision = "0c38817d20b23c15bcecbf672d1d048e6b6c545b"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
@@ -1073,6 +1073,7 @@
     "github.com/BurntSushi/toml",
     "github.com/akrylysov/algnhsa",
     "github.com/alexflint/go-arg",
+    "github.com/attic-labs/noms/go/d",
     "github.com/attic-labs/noms/go/datas",
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
