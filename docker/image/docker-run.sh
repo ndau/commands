@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 # shellcheck source=docker-env.sh
 source "$SCRIPT_DIR"/docker-env.sh

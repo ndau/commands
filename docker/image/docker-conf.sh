@@ -142,8 +142,8 @@ if [ ! -f "$NDAU_CONFIG_TOML" ]; then
 fi
 echo "Using ndau config file: $NDAU_CONFIG_TOML"
 
-echo "Webhook config pre-copy:"
-sed -e 's/^/  /' <(grep Webhook "$NDAU_CONFIG_TOML")
+# echo "Webhook config pre-copy:"
+# sed -e 's/^/  /' <(grep Webhook "$NDAU_CONFIG_TOML")
 
 # Now that we have our ndau data directory (ndau home dir), move the config file into it,
 # injecting the appropriate node webhook if so configured
@@ -156,16 +156,16 @@ else
     json2toml > "$NDAUHOME/ndau/config.toml"
 fi
 
-echo "Webhook config post-copy:"
-sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
+# echo "Webhook config post-copy:"
+# sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
 
 if grep -q '^\s*NodeRewardWebhookDelay' "$NDAUHOME/ndau/config.toml"; then
     # configured value is present
     if ! grep -q '^\s*NodeRewardWebhookDelay.*\.0$'; then
         # configured value is not a float
         sed -i '' -e '/NodeRewardWebhookDelay.*/s//&.0/' "$NDAUHOME/ndau/config.toml"
-        echo "Webhook config post-sed:"
-        sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
+#        echo "Webhook config post-sed:"
+#        sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
     fi
 fi
 
@@ -185,6 +185,8 @@ sed -i -E \
     "$TM_DATA_DIR/config/config.toml"
 
 if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
+    set -x
+
     echo "Generating genesis noms data..."
     ./ndaunode -use-ndauhome -genesisfile "$SYSTEM_VARS_TOML" -asscfile "$SYSTEM_ACCOUNTS_TOML"
     mv "$NDAUHOME/ndau/noms" "$NOMS_DATA_DIR"
@@ -194,7 +196,11 @@ if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
     sleep 1
 
     echo "Getting app hash..."
-    app_hash=$(./ndaunode -spec http://localhost:"$NOMS_PORT" -echo-hash 2>/dev/null)
+    app_hash=$(./ndaunode -spec http://localhost:"$NOMS_PORT" -echo-hash)
+    if [ -z "$app_hash" ]; then
+        echo "failed to get initial app hash!"
+        exit 1
+    fi
     echo "app_hash: $app_hash"
 
     echo "Killing noms..."

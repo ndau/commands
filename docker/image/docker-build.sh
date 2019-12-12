@@ -22,7 +22,7 @@ mv ndauapi "$BIN_DIR"
 echo Building tools...
 go build ./cmd/generate
 go build ./cmd/keytool
-go build ./cmd/ndau
+go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndau
 mv generate "$BIN_DIR"
 mv keytool "$BIN_DIR"
 mv ndau "$BIN_DIR"

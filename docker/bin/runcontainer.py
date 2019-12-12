@@ -276,13 +276,19 @@ def main(args):
     watcher = subprocess.Popen([f"{SCRIPT_DIR}/watchcontainer.sh", args.container])
 
     print("waiting for the node to fully spin up...")
-    while (
-        subprocess.run(
+    wait_for_it = True
+    while wait_for_it:
+        subp_result = subprocess.run(
             ["docker", "exec", args.container, "test", "-f", "/image/running"],
             stdout=subprocess.DEVNULL,
-        ).returncode
-        != 0
-    ):
+            stderr=subprocess.PIPE,
+        )
+        wait_for_it = subp_result.returncode != 0
+        if len(subp_result.stderr) > 0:
+            watcher.kill()
+            for line in run(f"docker container logs {args.container}").splitlines():
+                print(f"> {line}")
+            bail(subp_result.stderr.decode("utf-8"))
         time.sleep(1)
 
     # Done waiting; kill the watcher.
