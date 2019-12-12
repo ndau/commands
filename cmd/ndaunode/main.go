@@ -98,6 +98,8 @@ func main() {
 
 	app, err := ndau.NewApp(getDbSpec(), *conf)
 	check(err)
+	err = app.InitializeDB()
+	check(err)
 
 	app.LogState()
 
