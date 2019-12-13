@@ -553,7 +553,7 @@
 
 [[projects]]
   branch = "prgn-details-waa"
-  digest = "1:80084d4fdcbbcf1f823189e1540b2fdb361394475a7361f3fa536ac919fe49b4"
+  digest = "1:8513ad6e26bc54fe788ba723ba90d36afbedbf3274e446fe7769c9f128dab5fc"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "0c38817d20b23c15bcecbf672d1d048e6b6c545b"
+  revision = "ab3f086d0a4a9ed3c465ae125620b60fa99e919d"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
