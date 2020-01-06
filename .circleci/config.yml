@@ -521,6 +521,11 @@ jobs:
             echo "Waiting for localnet-1 to fully spin up..."
             until docker exec localnet-1 test -f /image/running 2>/dev/null
             do
+                if ! docker container inspect localnet-1 | jq -e '.[] | .State.Running' >/dev/null; then
+                    echo "Localnet 1 shut down abnormally:"
+                    docker logs localnet-1
+                    exit 1
+                fi
                 sleep 1
             done
             echo "localnet-1 is ready; dumping container logs..."
