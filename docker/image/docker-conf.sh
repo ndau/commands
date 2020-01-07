@@ -76,9 +76,13 @@ else
         echo "Could not find tendermint genesis file: $SNAPSHOT_TENDERMINT_GENESIS_FILE"
         exit 1
     fi
+    SNAPSHOT_SQL_FILE="$SNAPSHOT_DATA_DIR"/ndau.sql
 
     # Move the snapshot data dir where applications expect it, then remove the temp snapshot dir.
     mv "$SNAPSHOT_DATA_DIR" "$DATA_DIR"
+    if [ -f "$SNAPSHOT_SQL_FILE" ]; then
+        mv "$SNAPSHOT_SQL_FILE" "$PGDATAFILE"
+    fi
     rm -rf $SNAPSHOT_DIR
 fi
 
