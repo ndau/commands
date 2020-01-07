@@ -146,6 +146,13 @@ def setupArgs():
         help="print the number of matching results and exit (no other output)",
     )
     parser.add_argument(
+        "--sum",
+        dest="format",
+        action="store_const",
+        const="sum",
+        help="print only the sum of the specified field (no other output)",
+    )
+    parser.add_argument(
         "--once",
         default=False,
         action="store_true",
@@ -281,6 +288,13 @@ if __name__ == "__main__":
     # and max is meaningless.
     if args.format == "count":
         print(f"{len(output)}", file=args.output)
+        exit(0)
+    
+    if args.format == "sum":
+        sum = 0
+        for i in output:
+            sum += i[args.sum]
+        print(f"{sum}", file=args.output)
         exit(0)
 
     # if there are no fields specified, use all of the fields specified
