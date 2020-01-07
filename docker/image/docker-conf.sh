@@ -61,11 +61,6 @@ else
         echo "Could not find noms data directory: $SNAPSHOT_NOMS_DATA_DIR"
         exit 1
     fi
-    SNAPSHOT_POSTGRES_DATA="$SNAPSHOT_DATA_DIR/ndau.sql"
-    if [ ! -f "$SNAPSHOT_POSTGRES_DATA" ]; then
-        echo "Could not find postgres data: $SNAPSHOT_POSTGRES_DATA"
-        exit 1
-    fi
     SNAPSHOT_TENDERMINT_HOME_DIR="$SNAPSHOT_DATA_DIR/tendermint"
     if [ ! -d "$SNAPSHOT_TENDERMINT_HOME_DIR" ]; then
         echo "Could not find tendermint home directory: $SNAPSHOT_TENDERMINT_HOME_DIR"
