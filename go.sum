@@ -254,8 +254,8 @@ github.com/oneiro-ndev/msgp-well-known-types v0.1.2 h1:pYVwVhP1eeIalNC3RCqLnHrOk
 github.com/oneiro-ndev/msgp-well-known-types v0.1.2/go.mod h1:6B29AjwNYczu2o1lWtNDf3jhwJ8v+5WCbAPf9RKGmjk=
 github.com/oneiro-ndev/mt19937_64 v0.0.0-20181210114828-3f74adc550ba h1:7waWPonQpxQthfpesqt3pog78dsn1S+EFxgbqIObYmA=
 github.com/oneiro-ndev/mt19937_64 v0.0.0-20181210114828-3f74adc550ba/go.mod h1:nSQjE6lTn4+b0ll2mL5ausSYarXNTTMMJNp592Czt3g=
-github.com/oneiro-ndev/ndau v1.26.6-0.20200107102038-eb3a75f08ca4 h1:rGaEmzWV6HLNbIaxgMztyFpC2wZ90qLfUCfz9+8j00k=
-github.com/oneiro-ndev/ndau v1.26.6-0.20200107102038-eb3a75f08ca4/go.mod h1:Aa+3fDykM1teIgp2BQ61plZHiwxAG6t0mm9wLa4cvLs=
+github.com/oneiro-ndev/ndau v1.26.6-0.20200107113152-6eb35a9957bc h1:3FoNdUuEHhTONY19/g/cYalGKdAqNCSrg2JERpCeSUE=
+github.com/oneiro-ndev/ndau v1.26.6-0.20200107113152-6eb35a9957bc/go.mod h1:Aa+3fDykM1teIgp2BQ61plZHiwxAG6t0mm9wLa4cvLs=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1 h1:pRI+sgsStYueAfvbfe1jXhb1O8U3seVKKrMXfuRtCU4=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1/go.mod h1:84mgRGnhSwnNCtoxYq5UYUGK5suBDZaKreJgh8JaWeI=
 github.com/oneiro-ndev/noms-util v0.0.0-20190226204556-89919acd3bae h1:5HkMVyz2i/wPvcnF8Pg+tZtnxcoEzECha3gte87t8Pw=
