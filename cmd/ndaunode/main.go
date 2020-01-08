@@ -12,6 +12,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -109,6 +110,8 @@ func main() {
 
 	conf, err := config.LoadDefault(configPath)
 	check(err)
+
+	log.Println("Features = ", conf.Features)
 
 	if *echoHash {
 		fmt.Println(getHash(conf))

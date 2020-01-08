@@ -93,6 +93,7 @@ config_ndau() {
         confjs=$(jq -c ". + {\"$nrw\": \"http://localhost:3000/claim_winner\"}" <(echo $confjs))
     fi
     echo "$confjs" | json2toml > "$confpath"
+    cat "$CMDBIN_DIR/../docker/image/docker-config-testnet.toml" >> "$confpath"
 }
 
 set_peers_and_validators() {
