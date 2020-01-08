@@ -11,7 +11,6 @@ require (
 	github.com/attic-labs/noms v0.0.0-20191120090945-2420b9965afb
 	github.com/aws/aws-lambda-go v1.11.1 // indirect
 	github.com/aws/aws-sdk-go v1.20.20
-	github.com/btcsuite/btcd v0.0.0-20190629003639-c26ffa870fd8 // indirect
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a // indirect
 	github.com/facebookgo/limitgroup v0.0.0-20150612190941-6abd8d71ec01 // indirect
 	github.com/facebookgo/muster v0.0.0-20150708232844-fd3d7953fd52 // indirect
@@ -28,7 +27,7 @@ require (
 	github.com/oneiro-ndev/metanode v1.9.2-0.20191205141522-2aaae5d0e15b
 	github.com/oneiro-ndev/msgp-well-known-types v0.1.2
 	github.com/oneiro-ndev/ndau v1.26.6-0.20200107124941-ee6f2aec0564
-	github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1
+	github.com/oneiro-ndev/ndaumath v1.3.8-0.20200108084652-f9da76645f9d
 	github.com/oneiro-ndev/noms-util v0.0.0-20190226204556-89919acd3bae
 	github.com/oneiro-ndev/o11y v1.3.4
 	github.com/oneiro-ndev/rest v0.1.0
@@ -44,7 +43,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/tealeg/xlsx v1.0.3 // indirect
 	github.com/tendermint/tendermint v0.32.6
-	github.com/tinylib/msgp v1.1.0
+	github.com/tinylib/msgp v1.1.1
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
