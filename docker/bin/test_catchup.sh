@@ -35,7 +35,7 @@ last_height=0
 
 # we don't need to ever use the loop index, but we can't omit it
 # shellcheck disable=SC2034
-for i in {1..240}; do
+while : ; do
     sleep 10
     if ! node_status=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
         # The status query is what usually fails when playback of a block fails.
