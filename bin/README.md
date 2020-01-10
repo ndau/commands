@@ -34,6 +34,8 @@ Once a localnet is up and running (using `./run.sh`), you can use the `./populat
 
 ### linkdep
 
+**`linkdep` is deprecated as we no longer use dep**
+
 This tool is useful when you want to make changes to one of our dependency projects and test it locally without first having to push it up to github.
 
 Normally we have cloned `ndau` into `~/go/src/github.com/oneiro-ndev` and we make changes there to those projects like any other git repos.  But if you want to make changes on one of our dependency probjects, say, `metanode`, then you can use the `./linkdep.sh` tool to set that up for you.

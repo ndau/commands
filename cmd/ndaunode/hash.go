@@ -29,7 +29,7 @@ func getEmptyHash() string {
 
 // get the hash of the current database
 func getHash(conf *config.Config) string {
-	app, err := ndau.NewAppSilent(getDbSpec(), "", -1, *conf)
+	app, err := ndau.NewAppSilent(getDbSpec(), *conf)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "If noms is not running but it is on the local machine, consider the -use-ndauhome flag")
 	}

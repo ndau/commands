@@ -1,13 +1,14 @@
 # This docker image contains the tools needed by our Circle CI jobs.
 
-FROM golang:1.12-alpine3.9
+FROM golang:1.13-alpine
 
-LABEL org.opencontainers.image.version=0.0.12
+LABEL org.opencontainers.image.version=0.0.13
 
 RUN apk update && \
     apk add --no-cache bash curl docker git jq openssh-client python3 && \
     apk -Uuv add groff less py-pip && \
     pip install awscli && \
+    pip3 install requests && \
     rm -r /root/.cache
 
 # Preapprove github by adding their public key to known_hosts.  This allows interactionless git

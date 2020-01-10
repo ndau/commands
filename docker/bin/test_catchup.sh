@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR" || exit 1
 nodename="catchup-node-local"
 snapshot="snapshot-mainnet-1"
 USE_LOCAL_IMAGE=1 \
-../bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+../bin/runcontainer.py mainnet "$nodename" --snapshot "$snapshot"
 
 echo
 
@@ -33,9 +33,7 @@ echo "Current mainnet height: $mainnet_height"
 printf "Catching up..."
 last_height=0
 
-# we don't need to ever use the loop index, but we can't omit it
-# shellcheck disable=SC2034
-for i in {1..240}; do
+while :; do
     sleep 10
     if ! node_status=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
         # The status query is what usually fails when playback of a block fails.
@@ -45,6 +43,8 @@ for i in {1..240}; do
         docker exec "$nodename" tar c -j -f "/$noms_fn" -C "/image/data" noms
         echo "extracting noms tarball from container"
         docker cp "$nodename:/$noms_fn" ../..
+        tar -xjf "../../$noms_fn"
+        mv "noms" "../../catchup-$last_height-noms"
 
         echo "attempting to find a mainnet snapshot high enough"
         snapshot_pair=$(
@@ -67,6 +67,12 @@ for i in {1..240}; do
         mainnet_snapshot_name=$(echo "$snapshot_pair" | cut -d' ' -f2)
         echo "fetching mainnet snapshot: $mainnet_snapshot_name"
         aws s3 cp "s3://ndau-snapshots/$mainnet_snapshot_name" ../..
+        tar -xzf "../../$mainnet_snapshot_name" "data/noms"
+        mv data/noms "../../mainnet-$mainnet_snapshot_height-noms"
+        rm -rf data
+
+        echo "try doing:"
+        echo "  ./nomscompare mainnet-$mainnet_snapshot_height-noms::ndau catchup-$last_height-noms::ndau"
 
         break
     fi
@@ -100,7 +106,9 @@ printf "\n"
 echo
 
 # Stop and remove the container instance for the catchup test node.
-../bin/removecontainer.sh "$nodename"
+if [ -z "$CATCHUP_NOREMOVE" ]; then
+    ../bin/removecontainer.sh "$nodename"
+fi
 
 echo
 

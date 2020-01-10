@@ -61,11 +61,6 @@ else
         echo "Could not find noms data directory: $SNAPSHOT_NOMS_DATA_DIR"
         exit 1
     fi
-    SNAPSHOT_REDIS_DATA_DIR="$SNAPSHOT_DATA_DIR/redis"
-    if [ ! -d "$SNAPSHOT_REDIS_DATA_DIR" ]; then
-        echo "Could not find redis data directory: $SNAPSHOT_REDIS_DATA_DIR"
-        exit 1
-    fi
     SNAPSHOT_TENDERMINT_HOME_DIR="$SNAPSHOT_DATA_DIR/tendermint"
     if [ ! -d "$SNAPSHOT_TENDERMINT_HOME_DIR" ]; then
         echo "Could not find tendermint home directory: $SNAPSHOT_TENDERMINT_HOME_DIR"
@@ -81,9 +76,13 @@ else
         echo "Could not find tendermint genesis file: $SNAPSHOT_TENDERMINT_GENESIS_FILE"
         exit 1
     fi
+    SNAPSHOT_SQL_FILE="$SNAPSHOT_DATA_DIR"/ndau.sql
 
     # Move the snapshot data dir where applications expect it, then remove the temp snapshot dir.
     mv "$SNAPSHOT_DATA_DIR" "$DATA_DIR"
+    if [ -f "$SNAPSHOT_SQL_FILE" ]; then
+        mv "$SNAPSHOT_SQL_FILE" "$PGDATAFILE"
+    fi
     rm -rf $SNAPSHOT_DIR
 fi
 
@@ -142,8 +141,8 @@ if [ ! -f "$NDAU_CONFIG_TOML" ]; then
 fi
 echo "Using ndau config file: $NDAU_CONFIG_TOML"
 
-echo "Webhook config pre-copy:"
-sed -e 's/^/  /' <(grep Webhook "$NDAU_CONFIG_TOML")
+# echo "Webhook config pre-copy:"
+# sed -e 's/^/  /' <(grep Webhook "$NDAU_CONFIG_TOML")
 
 # Now that we have our ndau data directory (ndau home dir), move the config file into it,
 # injecting the appropriate node webhook if so configured
@@ -156,16 +155,16 @@ else
     json2toml > "$NDAUHOME/ndau/config.toml"
 fi
 
-echo "Webhook config post-copy:"
-sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
+# echo "Webhook config post-copy:"
+# sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
 
 if grep -q '^\s*NodeRewardWebhookDelay' "$NDAUHOME/ndau/config.toml"; then
     # configured value is present
     if ! grep -q '^\s*NodeRewardWebhookDelay.*\.0$'; then
         # configured value is not a float
         sed -i '' -e '/NodeRewardWebhookDelay.*/s//&.0/' "$NDAUHOME/ndau/config.toml"
-        echo "Webhook config post-sed:"
-        sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
+#        echo "Webhook config post-sed:"
+#        sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
     fi
 fi
 
@@ -185,6 +184,8 @@ sed -i -E \
     "$TM_DATA_DIR/config/config.toml"
 
 if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
+    set -x
+
     echo "Generating genesis noms data..."
     ./ndaunode -use-ndauhome -genesisfile "$SYSTEM_VARS_TOML" -asscfile "$SYSTEM_ACCOUNTS_TOML"
     mv "$NDAUHOME/ndau/noms" "$NOMS_DATA_DIR"
@@ -194,7 +195,11 @@ if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
     sleep 1
 
     echo "Getting app hash..."
-    app_hash=$(./ndaunode -spec http://localhost:"$NOMS_PORT" -echo-hash 2>/dev/null)
+    app_hash=$(./ndaunode -spec http://localhost:"$NOMS_PORT" -echo-hash)
+    if [ -z "$app_hash" ]; then
+        echo "failed to get initial app hash!"
+        exit 1
+    fi
     echo "app_hash: $app_hash"
 
     echo "Killing noms..."

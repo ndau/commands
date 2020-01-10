@@ -113,7 +113,6 @@ ndau_node() {
     NDAUHOME="$ndau_home" \
     NODE_ID="$MONIKER_PREFIX-$node_num" \
     ./ndaunode -spec http://localhost:"$noms_port" \
-               -index localhost:"$redis_port" \
                -addr 0.0.0.0:"$node_port" \
                >"$output_name.log" 2>&1 &
     echo $! >"$output_name.pid"

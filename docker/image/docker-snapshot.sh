@@ -7,9 +7,29 @@ source "$SCRIPT_DIR"/docker-env.sh
 # for the outside world to access.
 SNAPSHOT_RESULT="$SCRIPT_DIR/snapshot_result"
 
+# Make a temp dir for copying data files into for tar'ing up later in this script.
+SNAPSHOT_TEMP_DIR="$SCRIPT_DIR"/snapshot-temp
+SNAPSHOT_DATA_DIR="$SNAPSHOT_TEMP_DIR/data"
+
 # To start a snapshot, run `docker exec <container> /image/docker-snapshot.sh` from the outside.
 # Then procmon will pass in --generate as the flag to do the actual snapshot at the right time.
 if [ "$1" != "--generate" ]; then
+    # clear the temp dir first
+    rm -rf "$SNAPSHOT_TEMP_DIR"
+    mkdir -p "$SNAPSHOT_DATA_DIR"
+
+    # everything _except_ postgres is both safe and necessary to capture by copying
+    # the filesystem while the relevant programs are shut down. However, postgres
+    # specifically warns that doing so is both fragile and can be inconsistent;
+    # it has its own tool for capturing a consistent look at the DB, which is great,
+    # but it only works while the DB is running. Therefore, take that portion
+    # of the snapshot now.
+    echo "Capturing postgres data..."
+    pgf="$SNAPSHOT_DATA_DIR/ndau.sql"
+    pg_dump -U postgres ndau > "$pgf"
+    # wc -l "$pgf"
+
+    # capture all the rest of the data and zip everything up
     rm -f "$SNAPSHOT_RESULT"
     killall -HUP procmon
     exit 0
@@ -20,12 +40,6 @@ echo "Generating $NETWORK snapshot..."
 # Remove any existing snapshot from the container.  The user should copy each one out every time.
 rm -rf "$SCRIPT_DIR"/snapshot-*.tgz
 
-# Make a temp dir for copying data files into for tar'ing up later in this script.
-SNAPSHOT_TEMP_DIR="$SCRIPT_DIR"/snapshot-temp
-rm -rf "$SNAPSHOT_TEMP_DIR"
-mkdir -p "$SNAPSHOT_TEMP_DIR"
-SNAPSHOT_DATA_DIR="$SNAPSHOT_TEMP_DIR/data"
-
 # Use the deep tendermint data directories to create all the parent subdirectories we need.
 TM_TEMP="$SNAPSHOT_DATA_DIR/tendermint"
 mkdir -p "$TM_TEMP/config"
@@ -33,7 +47,9 @@ mkdir -p "$TM_TEMP/data"
 
 # Copy all the data files we want into the temp dir.
 cp -r "$NOMS_DATA_DIR" "$SNAPSHOT_DATA_DIR/noms"
-cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
+if [ -n "$REDIS_DATA_DIR" ]; then
+    cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
+fi
 cp "$TM_DATA_DIR/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TM_DATA_DIR/data/blockstore.db" "$TM_TEMP/data"
 cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"

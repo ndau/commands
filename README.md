@@ -10,6 +10,12 @@ The following instructions have been tested on clean installs of macOS Mojave ve
 
 ### Prerequisites
 
+Set up `go mod` support for our private repositories: in `~/.profile` or similar,
+
+```sh
+export GOPRIVATE="github.com/oneiro-ndev"
+```
+
 Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/oneiro-ndev) repos required: `chaincode  genesis  json2msgp  metanode  msgp-well-known-types  mt19937_64  ndau  ndaumath  noms-util  o11y  system_vars  writers`.
 
 #### macOS:
@@ -23,16 +29,19 @@ The Homebrew package manager is by far the easiest way to install these tools, b
     python3 -m pip install remarshal
     ```
 1. Install `go`: `brew install go`
-1. Install `dep`: `brew install dep`
 1. Install Redis:
     - Run `which redis-server` to see if you've got redis currently installed on your machine
     - If it's already installed, run `brew upgrade redis@5.0`
     - Otherwise, run `brew install redis@5.0`
+1. Install Postgres: `brew install postgres@12`
+1. Install `pg_tmp` script so a temporary postgres can be brought up for unit testing:
+    ```sh
+    epg=$(mktemp -d)
+    git clone https://github.com/eradman/ephemeralpg.git "$epg"
+    (cd "$epg" && sudo make install)
+    ```
 1. Install `jq`: `brew install jq`
 
-#### Ubuntu:
-
-Install tooling: `sudo apt install golang go-dep redis jq git -y`
 
 ### ndau Tools
 
@@ -50,16 +59,16 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
 ### Custom genesis configuration
 
 To create a custom configuration (usually to replicate a testnet or mainnet configuration), do the following **before** running `./bin/run.sh` for the first time. If you're already running with the default pre-installed configuration, remove the `~/.localnet` directory first.
-    
+
 1. Create the directory `~/.localnet/genesis_files`
 1. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
-    
+
     ```sh
     go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
        -g ~/.localnet/genesis_files/system_vars.toml \
        -a ~/.localnet/genesis_files/system_accounts.toml
     ```
-     
+
 1. Edit those files as desired for a custom configuration
 
 ### Running

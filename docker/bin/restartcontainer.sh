@@ -11,7 +11,7 @@ fi
 
 if [ -z "$(docker container ls -a -q -f name=$CONTAINER)" ]; then
     echo "Container does not exist: $CONTAINER"
-    echo "Use runcontainer.sh to run a container for the first time"
+    echo "Use runcontainer.py to run a container for the first time"
     exit 1
 fi
 
