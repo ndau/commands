@@ -261,6 +261,8 @@ github.com/oneiro-ndev/ndau v1.26.6-0.20200107124941-ee6f2aec0564 h1:NNpkjmHx/5K
 github.com/oneiro-ndev/ndau v1.26.6-0.20200107124941-ee6f2aec0564/go.mod h1:Aa+3fDykM1teIgp2BQ61plZHiwxAG6t0mm9wLa4cvLs=
 github.com/oneiro-ndev/ndau v1.26.6-0.20200110104802-7ea8a0cf5ee8 h1:5LA3ZmAO7L6qYIM5JXMxrO7KAuMtZKQ3HnfWxvUx5gM=
 github.com/oneiro-ndev/ndau v1.26.6-0.20200110104802-7ea8a0cf5ee8/go.mod h1:Aa+3fDykM1teIgp2BQ61plZHiwxAG6t0mm9wLa4cvLs=
+github.com/oneiro-ndev/ndau v1.26.6-0.20200113163229-9301747fe587 h1:IK9XQCJ8RcpyfaY431v4z7GvtSWvi033b0MnUFaJgBM=
+github.com/oneiro-ndev/ndau v1.26.6-0.20200113163229-9301747fe587/go.mod h1:Aa+3fDykM1teIgp2BQ61plZHiwxAG6t0mm9wLa4cvLs=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1 h1:pRI+sgsStYueAfvbfe1jXhb1O8U3seVKKrMXfuRtCU4=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20191127105348-0532865ae1f1/go.mod h1:84mgRGnhSwnNCtoxYq5UYUGK5suBDZaKreJgh8JaWeI=
 github.com/oneiro-ndev/ndaumath v1.3.8-0.20200108080431-448f5d14b250 h1:14n0vIKrshI2fKYu+RP1s63cP6Mf9hzS5HKE6+DBXDM=
