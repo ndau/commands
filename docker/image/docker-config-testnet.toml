@@ -17,4 +17,4 @@ PostgresPasswordPath = "/image/postgres-node-pw"
   SysvarValidityCheck = 31_025
   NodeRegistrationDate = 50_100
   # new features: change to a sane number before upgrading mainnet
-  UpdateWAAUpdateDateInDetails = 65_660
+  UpdateWAAUpdateDateInDetails = 1_000_000
