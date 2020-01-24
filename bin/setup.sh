@@ -34,7 +34,7 @@ fi
 # Checking this early on gives the user the chance to fix their mistake if they didn't want them
 # generated.  It'll only ask once, even on subsequent setup.sh commands.
 # Only check for for the system vars toml since the system accounts toml is optional.
-if [ ! -f "$SYSTEM_VARS_TOML" && -z "$SNAPSHOT" ]; then
+if [[ ! -f "$SYSTEM_VARS_TOML" && -z "$SNAPSHOT" ]]; then
     echo "Cannot find genesis file: $SYSTEM_VARS_TOML"
 
     printf "Generate new? [y|n]: "
