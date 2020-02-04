@@ -553,7 +553,7 @@
 
 [[projects]]
   branch = "jsg-goodness-defer-func"
-  digest = "1:9f4875e2a335956af75f38e81db167f8c1973b9e2c588e440f71f55c54275aca"
+  digest = "1:7c9d7d7caa355e39eb2b1bf05294a4e32155d480f157c2224c29b69bb3895dd2"
   name = "github.com/oneiro-ndev/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "dd3dc1fd6d0c977bee8ccd292c50f44f9ad7fcec"
+  revision = "f622e64927b853ea25774ed799b9941ad4fe8a4e"
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
