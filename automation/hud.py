@@ -15,6 +15,7 @@ from get_height import get_height
 from get_peers import get_peers
 from get_sha import get_sha
 from get_version import get_version
+from get_votpow import get_votpow
 from lib.args import get_net
 from lib.networks import Network
 from lib.services import fetch_services, parse_all_services
@@ -68,6 +69,7 @@ def render_hud():
     x_catchup = x_sha + column_width
     x_height = x_catchup + column_width
     x_peers = x_height + column_width
+    x_votpow = x_peers + column_width
 
     y_network = 2
     print_at(x_node, y_network, "Node")
@@ -77,10 +79,11 @@ def render_hud():
     print_at(x_catchup, y_network, "Catchup")
     print_at(x_height, y_network, "Height")
     print_at(x_peers, y_network, "Peers")
+    print_at(x_votpow, y_network, "Vote Pow")
     print_at(
         x_node,
         y_network + 1,
-        "-------------- ---------- ---------- ---------- ---------- ---------- ----------",
+        "-------------- ---------- ---------- ---------- ---------- ---------- ---------- ----",
     )
 
     # Fetch the api and rpc urls once.
@@ -107,6 +110,7 @@ def render_hud():
             print_node_info(x_catchup, y_network, get_catchup, rpcs)
             print_node_info(x_height, y_network, get_height, apis)
             print_node_info(x_peers, y_network, get_peers, rpcs)
+            print_node_info(x_votpow, y_network, get_votpow, rpcs)
 
             y_network += len(apis) + 1
 
