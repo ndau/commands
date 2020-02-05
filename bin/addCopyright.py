@@ -36,7 +36,7 @@ ${endc}
 values = dict(
     header="----- ---- --- -- -",
     footer="- -- --- ---- -----",
-    holder="Oneiro NA, Inc",
+    holder="The Axiom Foundation",
     license_name="the Apache License 2.0",
     license_link="https://www.apache.org/licenses/LICENSE-2.0.txt",
 )
