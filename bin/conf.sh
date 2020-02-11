@@ -137,17 +137,19 @@ set_peers_and_validators() {
 
 if [ ! -z "$SNAPSHOT_NAME" ]; then
     SNAPSHOT_DIR="$CMDBIN_DIR/snapshot"
-    mkdir -p "$SNAPSHOT_DIR"
-    SNAPSHOT_FILE="$SNAPSHOT_NAME.tgz"
-    SNAPSHOT_URL="https://s3.amazonaws.com"
-    SNAPSHOT_BUCKET="ndau-snapshots"
+    if [ ! -d "$SNAPSHOT_DIR" ]; then
+        mkdir -p "$SNAPSHOT_DIR"
+        SNAPSHOT_FILE="$SNAPSHOT_NAME.tgz"
+        SNAPSHOT_URL="https://s3.amazonaws.com"
+        SNAPSHOT_BUCKET="ndau-snapshots"
 
-    echo "Fetching $SNAPSHOT_FILE..."
-    curl -s -o "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$SNAPSHOT_FILE"
+        echo "Fetching $SNAPSHOT_FILE..."
+        curl -s -o "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$SNAPSHOT_FILE"
 
-    echo "Extracting $SNAPSHOT_FILE..."
-    cd "$SNAPSHOT_DIR" || exit 1
-    tar -xf "$SNAPSHOT_FILE"
+        echo "Extracting $SNAPSHOT_FILE..."
+        cd "$SNAPSHOT_DIR" || exit 1
+        tar -xf "$SNAPSHOT_FILE"
+    fi
 
     echo "Validating $SNAPSHOT_DIR..."
     if [ ! -d "$SNAPSHOT_DIR" ]; then
@@ -199,7 +201,7 @@ if [ ! -z "$SNAPSHOT_NAME" ]; then
     fi
     popd
 
-    rm -rf $SNAPSHOT_DIR
+#    rm -rf $SNAPSHOT_DIR
 fi
 
 echo Configuring tendermint...
