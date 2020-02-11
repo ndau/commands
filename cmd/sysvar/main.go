@@ -42,7 +42,7 @@ func check(err error, context string, formatters ...interface{}) {
 }
 
 func output(obj interface{}, bytes []byte) {
-	fmt.Printf("%-50v %s\n", obj, base64.StdEncoding.EncodeToString(bytes))
+	fmt.Printf("%s\n", base64.StdEncoding.EncodeToString(bytes))
 }
 
 func main() {
