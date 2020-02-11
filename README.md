@@ -2,25 +2,28 @@
 
 ### Overview
 
-This document contains steps for getting set up to build and test ndev applications.  By the end you will be able to run the `ndau` blockchain, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
+This document contains steps for getting set up to build and test the suite of `ndau` applications.  By the end you will be able to run the `ndau` blockchain, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
+
+If you're interested in starting up and running a node without building the software from source, those instructions are in the [Docker README](docker/README.md).
 
 The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](bin/README.md).
 
-The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 18.10.
+The following instructions have been tested on clean installs of macOS Catalina version 10.15.3 and Ubuntu 18.04.3 LTS. For both platforms, ensure that `$GOPATH` is set to the root of your `go` development tree (usually `~/go`)
+
 
 ### Prerequisites
 
-Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/oneiro-ndev) repos required: `chaincode  genesis  json2msgp  metanode  msgp-well-known-types  mt19937_64  ndau  ndaumath  noms-util  o11y  system_vars  writers`.
+Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/oneiro-ndev) repos required: `chaincode  genesis  json2msgp  metanode  msgp-well-known-types  mt19937_64  ndau  ndaumath  noms-util  o11y  rest system_vars  writers`.
 
 #### macOS:
 
 The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package.
 1. Install the Xcode command-line tools: `xcode-select --install`
 1. Install [Brew](https://brew.sh/)
-1. Install [Python3](https://www.python.org/downloads/)
+1. Install [Python3](https://www.python.org/downloads/) and ensure its `bin` directory is in your `$PATH`.
 1. Install [`remarshal`](https://github.com/dbohdan/remarshal):
     ```sh
-    python3 -m pip install remarshal
+    python3 -m pip install --user remarshal
     ```
 1. Install `go`: `brew install go`
 1. Install `dep`: `brew install dep`
@@ -36,16 +39,68 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
 
 ### ndau Tools
 
+These instructions build all tools and configure a 1-node local blockchain network with a default genesis configuration. This environment is suitable for initial testing: instructions for multi-node localnets are below.
+
 1. Clone the ndau `commands` repo:
     ```sh
     git clone git@github.com:oneiro-ndev/commands.git "$GOPATH"/src/github.com/oneiro-ndev/commands
     ```
 1. Build all tools, set up for a single-node localnet for testing:
    ```sh
-   $GOPATH/src/github.com/oneiro-ndev/commands
+   cd $GOPATH/src/github.com/oneiro-ndev/commands
    ./bin/setup.sh 1
    ```
    Replace `1` with the desired number of nodes for a larger localnet configuration.
+
+   Answer `y` to the question
+   ```sh
+   Cannot find genesis file: ~/.localnet/genesis_files/system_vars.toml
+   Generate new? [y|n]: 
+   ```
+   to create a default configuration.
+
+### Running
+
+```sh
+./bin/run.sh
+```
+
+This will run all the tasks in the proper sequence and create a set of appropriately-named .pid and .log files, one per node for each task, in the `bin` directory.  All tasks will run in the background.
+
+### Shutting it down
+
+Use `bin/kill.sh`.
+
+This will shut down any running tasks in the reverse order from which they were run. If a task doesn't shut itself down nicely, it will be killed.
+
+### Reset
+
+To run with fresh databases, run `bin/reset.sh` before your next `bin/run.sh`.  You can also use `bin/reset.sh` to quickly change the number of nodes in your localnet by specifying the new node count (`bin/reset.sh <n>`).
+
+### Individual commands
+
+Both `bin/run.sh` and `bin/kill.sh` take arguments: the node number and the name of the task you wish to run or kill. Valid task names are:
+
+* `ndau_redis`
+* `ndau_noms`
+* `ndau_node`
+* `ndau_tm`
+* `ndauapi`
+
+For example, if you ran `bin/setup.sh` with a node count greater than 1, then you can `bin/run.sh 1 ndau_redis` to kill the `redis` server for the (zero-based) node number 1.
+
+### Rebuild
+
+Use `bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
+
+### Test
+
+Use `bin/test.sh` to run unit tests on the latest built tools.
+
+### Snapshot
+
+To generate a snapshot for use with an externally deployed network, run `bin/snapshot.sh`.
+
 
 ### Custom genesis configuration
 
@@ -61,60 +116,6 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
     ```
      
 1. Edit those files as desired for a custom configuration
-
-### Running
-
-```sh
-./bin/run.sh
-```
-
-To start a new localnet with a default configuration pre-installed, answer `y` to the prompt
-```sh
-Cannot find genesis file: ~/.localnet/genesis_files/system_vars.toml
-Generate new? [y|n]: y
-```
-
-This will run all the tasks in the proper sequence and create a set of appropriately-named .pid and .log files, one for each task.  All tasks will run in the background.
-
-### Shutting it down
-
-Use `bin/kill.sh`.
-
-This will shut down any running tasks in the reverse order from which they were run. If a task doesn't shut itself down nicely, it will be killed.
-
-### Reset
-
-To run with fresh databases, run `bin/reset.sh` before your next `bin/run.sh`.  You can also use `bin/reset.sh` to quickly change the number of nodes in your localnet by passing in the new node count.
-
-### Individual commands
-
-Both `bin/run.sh` and `bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
-
-* `ndau_redis`
-* `ndau_noms`
-* `ndau_node`
-* `ndau_tm`
-
-You can also specify the node number for each.  For example, if you ran `bin/setup.sh` with a node count greater than 1, then you can `bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
-
-### Rebuild
-
-Use `bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
-
-### Test
-
-Use `bin/test.sh` to run unit tests on the latest built tools.
-
-### Snapshot
-
-To generate a snapshot for use with an externally deployed network, run `bin/snapshot.sh`.  If you are doing ETL and post-genesis transactions for testnet or mainnet, you'll want to run `bin/setup.sh` or `bin/reset.sh` first with the name of the network you plan to use the snapshot with.  Then re-run `bin/snapshot.sh`.
-
-## Running the ndau API
-
-The ndau API is a REST server for interacting with the ndau blockchain, and is the standard method for doing so. The default local server runs at `https://localhost:3030` and can be started as:
-```sh
-./bin/ndauapi.sh
-```
 
 ## Chaincode tools
 
@@ -154,9 +155,9 @@ The `help` and `help verbose` commands will dump some helpful text about how to 
 
 See the [README](bin/README.md) in the `./bin` directory for more information on the tools found there.
 
-## Circle CI
+## CircleCI
 
-We use Circle CI jobs to validate builds as they land to master.  We also have control over running them manually from a branch.
+We use CircleCI jobs to validate builds as they land to master.  We also have control over running them manually from a branch.
 
 The jobs are:
 * build-deps

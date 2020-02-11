@@ -17,6 +17,7 @@ bin/venv/
 
 # Sensitive configuration
 claimer_conf.toml
+*.b64
 
 # ETL files
 config.toml
