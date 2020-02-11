@@ -13,7 +13,6 @@ from lib.fetch import fetch_url
 from lib.networks import Network
 import json
 import sys
-import pdb
 
 
 # Public location of the services.json file.
@@ -25,17 +24,11 @@ def fetch_services():
     Fetch and return the json text from services.json.
     """
 
-    # services_response = fetch_url(SERVICES_URL)
-    # if services_response is None:
-    #     sys.exit(f"Unable to fetch {SERVICES_URL}")
+    services_response = fetch_url(SERVICES_URL)
+    if services_response is None:
+        sys.exit(f"Unable to fetch {SERVICES_URL}")
 
-    with open('services_localnet.json') as json_data:
-        services_response = json_data.read()
-        json_data.close()
-#    pdb.set_trace()
-
-#    return services_response.content
-    return services_response
+    return services_response.content
 
 
 def parse_all_services(services_json):
