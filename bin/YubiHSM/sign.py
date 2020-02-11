@@ -28,7 +28,7 @@ password = getpass.getpass()
 encoded_data = infile.read()
 encoded_bytes = base64.standard_b64decode(encoded_data)
 
-hsm = YubiHsm.connect("http://localhost:12345/connector/api")
+hsm = YubiHsm.connect("yhusb://")
 session = hsm.create_session_derived(authkeyID, password)
 key = AsymmetricKey(session, keynum)
 sig = key.sign_eddsa(encoded_bytes)
