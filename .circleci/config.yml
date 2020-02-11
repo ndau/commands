@@ -87,7 +87,7 @@ commands:
       # add an ssh key granted with this circleci's settings for this repo
       - add_ssh_keys:
           fingerprints:
-            - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
+            - "fb:2e:c1:95:bf:cb:3a:bc:f4:14:6f:24:01:70:9d:f6"
       - setup_remote_docker:
           docker_layer_caching: false
       - run:
