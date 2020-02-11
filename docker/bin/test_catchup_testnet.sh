@@ -8,10 +8,10 @@ cd "$SCRIPT_DIR" || exit 1
 # Run a local node connected to mainnet starting from the genesis snapshot.
 nodename="catchup-node-local"
 snapshot="snapshot-mainnet-1"
-USE_LOCAL_IMAGE=1 \
-../bin/runcontainer.py testnet "$nodename" --snapshot "$snapshot"
 # USE_LOCAL_IMAGE=1 \
-# ../bin/runcontainer.sh testnet "$nodename" 26660 26670 3030 "" "$snapshot"
+# ../bin/runcontainer.py testnet "$nodename" --snapshot "$snapshot"
+USE_LOCAL_IMAGE=1 \
+../bin/runcontainer.sh testnet "$nodename" 26660 26670 3030 "" "$snapshot"
 
 echo
 

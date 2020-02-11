@@ -9,6 +9,9 @@ cd "$SCRIPT_DIR" || exit 1
 nodename="catchup-node-local"
 snapshot="snapshot-mainnet-1"
 USE_LOCAL_IMAGE=1 \
+            AWS_ACCESS_KEY_ID="" \
+            AWS_SECRET_ACCESS_KEY="" \
+            SLACK_DEPLOYS_KEY="" \
 ../bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
 
 echo
@@ -35,7 +38,7 @@ last_height=0
 
 # we don't need to ever use the loop index, but we can't omit it
 # shellcheck disable=SC2034
-for i in {1..240}; do
+while : ; do
     sleep 10
     if ! node_status=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
         # The status query is what usually fails when playback of a block fails.
