@@ -2,13 +2,13 @@
 
 ## Overview
 
-How to create a new node and connect it to the ndau mainnet.
+These instructions allow a node operation to start a new ndau node and connect it to the ndau mainnet.
 
 ## Setup
 
 Ensure that all of the following are installed:
 
-1. Docker
+1. [Docker Desktop](https://docker.com)
 1. `curl` (`sudo apt install curl` on Linux)
 1. `jq` (`brew install jq` on macOS)
 
@@ -30,19 +30,25 @@ The `docker/bin/runcontainer.sh` script will create a container based off of a D
 ```sh
 # Give your node a name.
 NODENAME=my-node
+# Choose the networt - mainnet, testnet, devnet, localnet
+NDAU_NETWORK=mainnet
 
-# These are the ports you would like to use for...
-P2P_PORT=26665 # ...communication with other nodes on the network.
-RPC_PORT=26675 # ...responding to RPC requests to your node.
-API_PORT=3035  # ...responding to ndau API requests to your node.
+# Choose the ports you would like to use for...
+# ...communication with other nodes on the network.
+# ...responding to RPC requests to your node.
+# ...and responding to ndau API requests to your node.
 
-# Create and run your node, connecting it to mainnet.
-docker/bin/runcontainer.sh mainnet $NODENAME $P2P_PORT $RPC_PORT $API_PORT
+P2P_PORT=26665
+RPC_PORT=26675
+API_PORT=3035
+
+# Create and run your node, connecting it to $NDAU_NETWORK
+docker/bin/runcontainer.sh $NDAU_NETWORK $NODENAME $P2P_PORT $RPC_PORT $API_PORT
 ```
 
 You now have created a node (Docker container) named "my-node", running and connected to mainnet.  It will catch up to the latest block height on the network since the height found in the latest snapshot on S3.
 
-IMPORTANT: Read the information printed by `runcontainer.sh` about the `node-identity.tgz` file that it will generate for you.  You must keep this secure and use it again (discussed below) if you ever need to run your node from scratch.  It won't be needed if you want to stop/restart your node (Docker container).  It is only needed if you lose your container, or decide to redeploy it with different ports, or for any other reason.
+IMPORTANT: Read the information printed by `runcontainer.sh` about the `node-identity.tgz` file that it will generate for you.  **You must keep this secure and use it again (discussed below) if you ever need to run your node from scratch.**  It won't be needed if you want to stop/restart your node (Docker container).  It is only needed if you lose your container, or decide to redeploy it with different ports, or for any other reason. **If you intend to stake ndau and register your node as a validator node, you must retain the same node identity across restarts.**
 
 ## Stop
 
@@ -80,13 +86,13 @@ You can remove/run your node as needed.  Think of `removecontainer.sh` as the co
 
 ## Re-Run
 
-If you lose your node, or Docker container, or want to start it from scratch, if moving it to a new deployment environment, or for any other reason, you'll want to use the `node-identity.tgz` file that your first run of `runcontainer.sh` produced.  That way, when you run your node again, it'll "be the same node" that it was before.  It'll catch up to the latest block height, and continue normally.
+If you lose your node or Docker container, want to start it from scratch, move it to a new deployment environment, or for any other reason, you'll want to use the `node-identity.tgz` file that your first run of `runcontainer.sh` produced.  That way, when you run your node again, it'll "be the same node" that it was before.  It'll catch up to the latest block height, and continue normally.
 
 Follow the original "Run" steps documented earlier, but also pass in the path to your node identity file:
 
 ```sh
 IDENTITY=/path/to/your/node-identity.tgz
-docker/bin/runcontainer.sh mainnet $NODENAME $P2P_PORT $RPC_PORT $API_PORT $IDENTITY
+docker/bin/runcontainer.sh $NDAU_NETWORK $NODENAME $P2P_PORT $RPC_PORT $API_PORT $IDENTITY
 ```
 
 It'll now be running and connected to mainnet, and will catch up to the latest block height from the latest snapshot on S3, but this time it'll use the given node identity for itself rather than generate a new one.

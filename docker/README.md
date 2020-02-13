@@ -2,16 +2,15 @@
 
 ## Overview
 
-How to build and run an ndau node using a single Docker container.  The Docker container contains all of our processes that make a node group: `redis`, `noms`, `ndaunode`, `tendermint` and `ndauapi`, all driven by `procmon`.  Running multiple instances of the container is how we make an ndau network.
+These instructions outline all of the features of the ndau Docker container. If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) provides a shorter and simpler set of instructions.
 
-This page outlines all of the features of the ndau Docker container, useful to Oneiro developers.  If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) would be a good place to start.
+The ndau Docker container contains all of our processes that make a node group: `redis`, `noms`, `ndaunode`, `tendermint` and `ndauapi`, all driven by `procmon`.  Running multiple instances of the container is how we make an ndau network.
 
 ## Build
 
 1. Install Docker
-1. Put `machine_user_key` from 1password into the `commands` repo root directory to gain access to private oneiro-ndev repos at image build time
-1. Run `docker/bin/buildimage.sh` to build the `ndauimage` locally
-1. Optionally you can upload the image to S3; instructions provided by `buildimge.sh` output
+2. Run `docker/bin/buildimage.sh` to build the `ndauimage` locally
+3. Optionally you can upload the image to S3; instructions provided by `buildimge.sh` output
 
 ## Run
 
