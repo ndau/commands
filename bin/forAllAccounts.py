@@ -130,6 +130,13 @@ def setupArgs():
         help="print the number of matching results and exit (no other output)",
     )
     parser.add_argument(
+        "--sum",
+        dest="format",
+        action="store_const",
+        const="sum",
+        help="print only the sum of the specified field (no other output)",
+    )
+    parser.add_argument(
         "--once",
         default=False,
         action="store_true",
@@ -272,6 +279,11 @@ if __name__ == "__main__":
 
     if args.format == "count":
         print(f"{len(result)}", file=args.output)
+    elif args.format == "sum":
+        sum = 0
+        for i in result:
+            sum += i[args.sum]
+        print(f"{sum}", file=args.output)
     elif args.format == "json":
         j = json.dump(result, args.output)
     elif args.format == "csv":
@@ -279,3 +291,4 @@ if __name__ == "__main__":
         w.writeheader()
         for i in result:
             w.writerow(i)
+
