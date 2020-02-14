@@ -2,7 +2,7 @@
 
 ## Overview
 
-These instructions allow a node operation to start a new ndau node and connect it to the ndau mainnet.
+These instructions allow a node operation to start a new ndau node and connect it to the ndau mainnet. Mainnet nodes may be run using Docker on macOS and Ubuntu hosts. Other Linux distros may also be usable but are untested.
 
 ## Setup
 
@@ -17,7 +17,9 @@ The following are also required but are likely to already be installed on your s
 1. `ping`
 1. `nc`
 
-NOTE: The following commands have been tested on macOS.  The `nc` commands in `runcontainer.sh` may have issues on Linux, for example.  Some adjustments might need to be made to `runcontainer.sh` while we are working on a multi-platform fix.  The `ndauimage` Docker image itself, however, is Linux-compatible as it is.  This is only a potential problem currently in `runcontainer.sh`.
+### Ubuntu Notes
+
+Ubuntu restricts access to TCP ports for non-root users. To run Docker as a non-root user you must further configure your Docker installation. Please consult the [official Docker documentation for instructions](https://docs.docker.com/install/linux/linux-postinstall).
 
 ## Build
 
@@ -30,7 +32,7 @@ The `docker/bin/runcontainer.sh` script will create a container based off of a D
 ```sh
 # Give your node a name.
 NODENAME=my-node
-# Choose the networt - mainnet, testnet, devnet, localnet
+# Choose the network - mainnet, testnet, devnet, localnet
 NDAU_NETWORK=mainnet
 
 # Choose the ports you would like to use for...
