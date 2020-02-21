@@ -103,7 +103,9 @@ printf "\n"
 echo
 
 # Stop and remove the container instance for the catchup test node.
-../bin/removecontainer.sh "$nodename"
+if [ -z "$CATCHUP_NOREMOVE" ]; then
+    ../bin/removecontainer.sh "$nodename"
+fi
 
 echo
 
