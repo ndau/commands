@@ -1,7 +1,7 @@
 #! /bin/bash
 
-NDAUTOOL="$GOPATH/src/github.com/oneiro-ndev/commands/ndau"
-KEYTOOL="$GOPATH/src/github.com/oneiro-ndev/commands/keytool"
+NDAUTOOL="$GOPATH/src/github.com/ndau/commands/ndau"
+KEYTOOL="$GOPATH/src/github.com/ndau/commands/keytool"
 
 MAINNET='https://mainnet-2.ndau.tech:3030'
 

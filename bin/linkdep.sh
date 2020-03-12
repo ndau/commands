@@ -4,7 +4,7 @@
 # Useful if you want to make changes to a dependency project and build or test locally.
 # NOTE: Running `dep ensure` from the commands repo may undo any links previously made.
 
-CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/ndau/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
@@ -37,7 +37,7 @@ if [ -z "$REPO" ]; then
     echo linkdep: Link or unlink vendor directories of a repo, for build or test purposes
     echo Usage:
     echo "  ./linkdep.sh {metanode|ndau|genesis|system_vars|all} [-l|--link] [-u|--unlink] [-b|--build] [-t|--test]"
-    current="$(find $CMDBIN_DIR/../vendor/github.com/oneiro-ndev -type l -depth 1 |sed 's:vendor/github.com/oneiro-ndev/:  :')"
+    current="$(find $CMDBIN_DIR/../vendor/github.com/ndau -type l -depth 1 |sed 's:vendor/github.com/ndau/:  :')"
     if [[ -n "$current" ]]; then
         echo Currently linked:
         echo "$current"

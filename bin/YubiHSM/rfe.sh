@@ -1,8 +1,8 @@
 #! /bin/bash
 
-NDAUTOOL="$GOPATH/src/github.com/oneiro-ndev/commands/ndau"
-KEYTOOL="$GOPATH/src/github.com/oneiro-ndev/commands/keytool"
-SIGN="$GOPATH/src/github.com/oneiro-ndev/commands/bin/YubiHSM/sign.py"
+NDAUTOOL="$GOPATH/src/github.com/ndau/commands/ndau"
+KEYTOOL="$GOPATH/src/github.com/ndau/commands/keytool"
+SIGN="$GOPATH/src/github.com/ndau/commands/bin/YubiHSM/sign.py"
 
 NODE='https://mainnet-2.ndau.tech:3030'
 RFEACCT='ndeeh86uun6us9cenuck2uur679e37uczsmys33794gnvtfz'

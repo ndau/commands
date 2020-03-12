@@ -11,7 +11,7 @@
 
 """
 This tool was crafted based on the numbers gathered from this issue:
-  https://github.com/oneiro-ndev/ndau/issues/186
+  https://github.com/ndau/ndau/issues/186
 
 Run ./predict.py to see Usage instructions.
 """

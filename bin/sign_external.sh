@@ -3,7 +3,7 @@
 # this is intended to demo how to use a hardware device to sign transactions
 
 # initialize
-CMD_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/"
+CMD_DIR="$(go env GOPATH)/src/github.com/ndau/commands/"
 cd "$CMD_DIR" || exit 1
 
 ./ndau -jk0 "$@" |\

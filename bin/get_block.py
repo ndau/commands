@@ -24,7 +24,7 @@ TXS = re.compile(r"TxID\((?P<txid>\d+)\):\s*&(?P<name>\w+)\{\},")
 
 # TX names
 tx_file = Path(__file__).parent / Path(
-    "../vendor/github.com/oneiro-ndev/ndau/pkg/ndau/transactions.go"
+    "../vendor/github.com/ndau/ndau/pkg/ndau/transactions.go"
 )
 TX_NAMES = {}
 with tx_file.open() as f:

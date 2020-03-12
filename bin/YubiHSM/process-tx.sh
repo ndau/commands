@@ -2,9 +2,9 @@
 
 # Usage: process-tx.sh <address> <txtype> <json file> <'main' or 'test'> <number of signatures>
 
-NDAUTOOL="$GOPATH/src/github.com/oneiro-ndev/commands/ndau"
-KEYTOOL="$GOPATH/src/github.com/oneiro-ndev/commands/keytool"
-SIGN="$GOPATH/src/github.com/oneiro-ndev/commands/bin/YubiHSM/sign.py"
+NDAUTOOL="$GOPATH/src/github.com/ndau/commands/ndau"
+KEYTOOL="$GOPATH/src/github.com/ndau/commands/keytool"
+SIGN="$GOPATH/src/github.com/ndau/commands/bin/YubiHSM/sign.py"
 YUBIHSM="/usr/local/bin/yubihsm-shell"
 
 NODE='https://'$4'net-2.ndau.tech:3030'

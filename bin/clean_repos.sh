@@ -2,7 +2,7 @@
 
 set -e
 
-cd "$(go env GOPATH)/src/github.com/oneiro-ndev/"
+cd "$(go env GOPATH)/src/github.com/ndau/"
 
 errs=$(mktemp)
 

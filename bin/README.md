@@ -36,7 +36,7 @@ Once a localnet is up and running (using `./run.sh`), you can use the `./populat
 
 This tool is useful when you want to make changes to one of our dependency projects and test it locally without first having to push it up to github.
 
-Normally we have cloned `ndau` into `~/go/src/github.com/oneiro-ndev` and we make changes there to those projects like any other git repos.  But if you want to make changes on one of our dependency probjects, say, `metanode`, then you can use the `./linkdep.sh` tool to set that up for you.
+Normally we have cloned `ndau` into `~/go/src/github.com/ndau` and we make changes there to those projects like any other git repos.  But if you want to make changes on one of our dependency probjects, say, `metanode`, then you can use the `./linkdep.sh` tool to set that up for you.
 
 Steps:
 
@@ -51,9 +51,9 @@ Any time you run a `dep ensure` from `commands`, you must run `./linkdep.sh meta
 
 We tried various other approaches that didn't work out as well as this:
 
-* `go get github.com/oneiro-ndev/metanode`
+* `go get github.com/ndau/metanode`
     - Doesn't get metanode's dependencies, so `go build ./...` fails
-* `glide mirror set git@github.com:oneiro-ndev/metanode.git file:///Users/<username>/go/src/github.com/oneiro-ndev/metanode --vcs git`
+* `glide mirror set git@github.com:ndau/metanode.git file:///Users/<username>/go/src/github.com/ndau/metanode --vcs git`
     - One extra global developer step to config
     - Have to commit changes to your metanode branch and run `glide install` to test
 * `glide init` with `glide install` within `metanode`

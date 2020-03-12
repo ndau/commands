@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/ndau/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 

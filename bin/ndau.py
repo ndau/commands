@@ -304,8 +304,8 @@ def usec(x, unit):
 
 
 # This is exactly the regexp from the go code that parses durations
-# https://github.com/oneiro-ndev/ndaumath/blob/de5a90c45d3f079f1a263819493d2f7a70bb4b8b/pkg/constants/constants.go#L61
-# see https://github.com/oneiro-ndev/ndau/issues/405 and change
+# https://github.com/ndau/ndaumath/blob/de5a90c45d3f079f1a263819493d2f7a70bb4b8b/pkg/constants/constants.go#L61
+# see https://github.com/ndau/ndau/issues/405 and change
 # the 9 to 6 below when that is fixed
 durpat = re.compile(
     r"(?i)^"  # case-insensitive

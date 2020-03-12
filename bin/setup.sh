@@ -4,7 +4,7 @@
 set -e
 
 # Load our environment variables.
-CMDBIN_DIR="$(go env GOPATH)/src/github.com/oneiro-ndev/commands/bin"
+CMDBIN_DIR="$(go env GOPATH)/src/github.com/ndau/commands/bin"
 # shellcheck disable=SC1090
 source "$CMDBIN_DIR"/env.sh
 
@@ -119,7 +119,7 @@ update_repo() {
         echo SETUP: Updating "$repo"...
         cd "$repo"
         branch=$("$CMDBIN_DIR"/branch.sh)
-        exists=$(git ls-remote --heads git@github.com:oneiro-ndev/"$repo".git "$branch")
+        exists=$(git ls-remote --heads git@github.com:ndau/"$repo".git "$branch")
         if [ -z "$exists" ]; then
             # This just means you have a local branch you haven't pushed yet, and that's fine.
             echo "Branch $branch does not exist on remote"
@@ -128,7 +128,7 @@ update_repo() {
         fi
     else
         echo SETUP: Cloning "$repo"...
-        git clone git@github.com:oneiro-ndev/"$repo".git
+        git clone git@github.com:ndau/"$repo".git
     fi
 }
 
