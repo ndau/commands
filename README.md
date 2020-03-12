@@ -10,7 +10,7 @@ The following instructions have been tested on clean installs of macOS Mojave ve
 
 ### Prerequisites
 
-Ensure that you have SSH clone access to the [oneiro-ndev](https://github.com/oneiro-ndev) repos required: `chaincode  genesis  json2msgp  metanode  msgp-well-known-types  mt19937_64  ndau  ndaumath  noms-util  o11y  system_vars  writers`.
+Ensure that you have SSH clone access to the [ndau](https://github.com/ndau) repos required: `chaincode  genesis  json2msgp  metanode  msgp-well-known-types  mt19937_64  ndau  ndaumath  noms-util  o11y  system_vars  writers`.
 
 #### macOS:
 
@@ -38,11 +38,11 @@ Install tooling: `sudo apt install golang go-dep redis jq git -y`
 
 1. Clone the ndau `commands` repo:
     ```sh
-    git clone git@github.com:oneiro-ndev/commands.git "$GOPATH"/src/github.com/oneiro-ndev/commands
+    git clone git@github.com:ndau/commands.git "$GOPATH"/src/github.com/ndau/commands
     ```
 1. Build all tools, set up for a single-node localnet for testing:
    ```sh
-   $GOPATH/src/github.com/oneiro-ndev/commands
+   $GOPATH/src/github.com/ndau/commands
    ./bin/setup.sh 1
    ```
    Replace `1` with the desired number of nodes for a larger localnet configuration.
@@ -55,7 +55,7 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
 1. Create the default configuration files in your `~/.localnet/genesis_files/` directory:
     
     ```sh
-    go run $GOPATH/src/github.com/oneiro-ndev/commands/cmd/generate \
+    go run $GOPATH/src/github.com/ndau/commands/cmd/generate \
        -g ~/.localnet/genesis_files/system_vars.toml \
        -a ~/.localnet/genesis_files/system_accounts.toml
     ```
@@ -124,7 +124,7 @@ Chaincode is the scripting language ndau uses for validation rules, fee and rate
 
 From the root of the commands repository, you can use `make`. It basically expects that you are working from within goroot and that the chaincode repo is at `../chaincode` and also expects `../chaincode_scripts` relative to this `commands` repo. The `../chaincode_scripts` repo is not included in the required set described above.
 ```sh
-    git clone git@github.com:oneiro-ndev/chaincode_scripts.git ~/go/src/github.com/oneiro-ndev/chaincode_scripts
+    git clone git@github.com:ndau/chaincode_scripts.git ~/go/src/github.com/ndau/chaincode_scripts
 ```
 
 Given that, you should be able to do `make build` to create all the tools.
@@ -162,9 +162,9 @@ The jobs are:
 * build-deps
     - Build a `deps` Docker image that is used by other jobs
 * build
-    - Run `go build` on all `oneiro-ndev` repos
+    - Run `go build` on all `ndau` repos
 * test
-    - Run `go test` on all `oneiro-ndev` repos
+    - Run `go test` on all `ndau` repos
 * build-image
     - Build the `ndauimage` Docker image that is used by the remaining jobs
 * catchup

@@ -491,7 +491,7 @@
 
 [[projects]]
   digest = "1:e06a15f7a932a3bbefef33664c5d5b864d0ef801dbd2a7121efb398dc1e48685"
-  name = "github.com/oneiro-ndev/chaincode"
+  name = "github.com/ndau/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
@@ -502,7 +502,7 @@
 
 [[projects]]
   digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
-  name = "github.com/oneiro-ndev/genesis"
+  name = "github.com/ndau/genesis"
   packages = [
     "pkg/cli.util",
     "pkg/config",
@@ -515,7 +515,7 @@
 
 [[projects]]
   digest = "1:99c192bda9d5db7282d2ef1307610343d882baa134f83a1e9dc8dcfeaf114c01"
-  name = "github.com/oneiro-ndev/json2msgp"
+  name = "github.com/ndau/json2msgp"
   packages = ["."]
   pruneopts = ""
   revision = "5730c7aee812bc158707c1529ae68bd04f6bb617"
@@ -523,7 +523,7 @@
 
 [[projects]]
   digest = "1:4056934057b4fe7c0e5e7395fc42c38be25bd76d9fca5a247a53c13c96ed872b"
-  name = "github.com/oneiro-ndev/metanode"
+  name = "github.com/ndau/metanode"
   packages = [
     "pkg/meta/app",
     "pkg/meta/app/code",
@@ -537,7 +537,7 @@
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
-  name = "github.com/oneiro-ndev/msgp-well-known-types"
+  name = "github.com/ndau/msgp-well-known-types"
   packages = ["wkt"]
   pruneopts = ""
   revision = "20dbc66cfaa097bf8cdf60b740e0ac37251d07c3"
@@ -545,7 +545,7 @@
 
 [[projects]]
   digest = "1:42b16f34900607cfce450920036c4f6d753281252d5a37f2c9a1c674bb84bbcc"
-  name = "github.com/oneiro-ndev/mt19937_64"
+  name = "github.com/ndau/mt19937_64"
   packages = ["."]
   pruneopts = ""
   revision = "3f74adc550ba95a0b1e26a5029d3a84b0a146076"
@@ -553,7 +553,7 @@
 
 [[projects]]
   digest = "1:67b17a9bda2de46267e6084319df083bb23befce1597d8d45e6f0c7709d6515e"
-  name = "github.com/oneiro-ndev/ndau"
+  name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
     "pkg/ndau",
@@ -576,7 +576,7 @@
 
 [[projects]]
   digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
-  name = "github.com/oneiro-ndev/ndaumath"
+  name = "github.com/ndau/ndaumath"
   packages = [
     "pkg/address",
     "pkg/b32",
@@ -603,14 +603,14 @@
 [[projects]]
   branch = "master"
   digest = "1:a10ccbf1d733d997f960c613f2d377e4b0d0202594a15b2c705cba471e27edf2"
-  name = "github.com/oneiro-ndev/noms-util"
+  name = "github.com/ndau/noms-util"
   packages = ["."]
   pruneopts = ""
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
   digest = "1:04246474fb2668bfaea7ca0d5a4d1c5d5040cf1cd2fe6b09c38e1fede73f7d93"
-  name = "github.com/oneiro-ndev/o11y"
+  name = "github.com/ndau/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
   revision = "9008d5eb126d49f45422114ff123f65e38e2fbe7"
@@ -618,7 +618,7 @@
 
 [[projects]]
   digest = "1:421a898995cef1628dcad6fb07c282c1589fb54c8cf36af93ba538ae980f4cbb"
-  name = "github.com/oneiro-ndev/rest"
+  name = "github.com/ndau/rest"
   packages = ["."]
   pruneopts = ""
   revision = "cf2ee21900a2ca6155b631c942ba320333773278"
@@ -626,7 +626,7 @@
 
 [[projects]]
   digest = "1:b7cb69e697f0cc9829a3036e269f38ca5d8ed9a27cc8547fd05e817c7e84941d"
-  name = "github.com/oneiro-ndev/system_vars"
+  name = "github.com/ndau/system_vars"
   packages = [
     "pkg/genesis.generator",
     "pkg/genesisfile",
@@ -638,7 +638,7 @@
 
 [[projects]]
   digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
-  name = "github.com/oneiro-ndev/writers"
+  name = "github.com/ndau/writers"
   packages = [
     "pkg/bufio",
     "pkg/filter",
@@ -1089,44 +1089,44 @@
     "github.com/kentquirk/boneful",
     "github.com/kentquirk/rewriter/pkg/rewriter",
     "github.com/mitchellh/go-homedir",
-    "github.com/oneiro-ndev/chaincode/pkg/chain",
-    "github.com/oneiro-ndev/chaincode/pkg/vm",
-    "github.com/oneiro-ndev/genesis/pkg/cli.util",
-    "github.com/oneiro-ndev/genesis/pkg/config",
-    "github.com/oneiro-ndev/genesis/pkg/etl",
-    "github.com/oneiro-ndev/genesis/pkg/genesis",
-    "github.com/oneiro-ndev/json2msgp",
-    "github.com/oneiro-ndev/metanode/pkg/meta/app/code",
-    "github.com/oneiro-ndev/metanode/pkg/meta/state",
-    "github.com/oneiro-ndev/metanode/pkg/meta/transaction",
-    "github.com/oneiro-ndev/msgp-well-known-types/wkt",
-    "github.com/oneiro-ndev/ndau/pkg/api_sdk",
-    "github.com/oneiro-ndev/ndau/pkg/ndau",
-    "github.com/oneiro-ndev/ndau/pkg/ndau/backing",
-    "github.com/oneiro-ndev/ndau/pkg/ndau/config",
-    "github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg",
-    "github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres",
-    "github.com/oneiro-ndev/ndau/pkg/ndauapi/routes",
-    "github.com/oneiro-ndev/ndau/pkg/ndauapi/svc",
-    "github.com/oneiro-ndev/ndau/pkg/query",
-    "github.com/oneiro-ndev/ndau/pkg/tool",
-    "github.com/oneiro-ndev/ndau/pkg/tool.config",
-    "github.com/oneiro-ndev/ndau/pkg/version",
-    "github.com/oneiro-ndev/ndaumath/pkg/address",
-    "github.com/oneiro-ndev/ndaumath/pkg/constants",
-    "github.com/oneiro-ndev/ndaumath/pkg/key",
-    "github.com/oneiro-ndev/ndaumath/pkg/pricecurve",
-    "github.com/oneiro-ndev/ndaumath/pkg/signature",
-    "github.com/oneiro-ndev/ndaumath/pkg/types",
-    "github.com/oneiro-ndev/ndaumath/pkg/words",
-    "github.com/oneiro-ndev/noms-util",
-    "github.com/oneiro-ndev/o11y/pkg/honeycomb",
-    "github.com/oneiro-ndev/rest",
-    "github.com/oneiro-ndev/system_vars/pkg/genesis.generator",
-    "github.com/oneiro-ndev/system_vars/pkg/genesisfile",
-    "github.com/oneiro-ndev/system_vars/pkg/system_vars",
-    "github.com/oneiro-ndev/writers/pkg/bufio",
-    "github.com/oneiro-ndev/writers/pkg/filter",
+    "github.com/ndau/chaincode/pkg/chain",
+    "github.com/ndau/chaincode/pkg/vm",
+    "github.com/ndau/genesis/pkg/cli.util",
+    "github.com/ndau/genesis/pkg/config",
+    "github.com/ndau/genesis/pkg/etl",
+    "github.com/ndau/genesis/pkg/genesis",
+    "github.com/ndau/json2msgp",
+    "github.com/ndau/metanode/pkg/meta/app/code",
+    "github.com/ndau/metanode/pkg/meta/state",
+    "github.com/ndau/metanode/pkg/meta/transaction",
+    "github.com/ndau/msgp-well-known-types/wkt",
+    "github.com/ndau/ndau/pkg/api_sdk",
+    "github.com/ndau/ndau/pkg/ndau",
+    "github.com/ndau/ndau/pkg/ndau/backing",
+    "github.com/ndau/ndau/pkg/ndau/config",
+    "github.com/ndau/ndau/pkg/ndauapi/cfg",
+    "github.com/ndau/ndau/pkg/ndauapi/reqres",
+    "github.com/ndau/ndau/pkg/ndauapi/routes",
+    "github.com/ndau/ndau/pkg/ndauapi/svc",
+    "github.com/ndau/ndau/pkg/query",
+    "github.com/ndau/ndau/pkg/tool",
+    "github.com/ndau/ndau/pkg/tool.config",
+    "github.com/ndau/ndau/pkg/version",
+    "github.com/ndau/ndaumath/pkg/address",
+    "github.com/ndau/ndaumath/pkg/constants",
+    "github.com/ndau/ndaumath/pkg/key",
+    "github.com/ndau/ndaumath/pkg/pricecurve",
+    "github.com/ndau/ndaumath/pkg/signature",
+    "github.com/ndau/ndaumath/pkg/types",
+    "github.com/ndau/ndaumath/pkg/words",
+    "github.com/ndau/noms-util",
+    "github.com/ndau/o11y/pkg/honeycomb",
+    "github.com/ndau/rest",
+    "github.com/ndau/system_vars/pkg/genesis.generator",
+    "github.com/ndau/system_vars/pkg/genesisfile",
+    "github.com/ndau/system_vars/pkg/system_vars",
+    "github.com/ndau/writers/pkg/bufio",
+    "github.com/ndau/writers/pkg/filter",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/savaki/jq",

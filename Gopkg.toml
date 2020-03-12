@@ -1,41 +1,41 @@
 [[constraint]]
-name = "github.com/oneiro-ndev/chaincode"
+name = "github.com/ndau/chaincode"
 version = "~v1.2"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/genesis"
+name = "github.com/ndau/genesis"
 version = "~v1.2"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/json2msgp"
+name = "github.com/ndau/json2msgp"
 version = "~v1.1"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/metanode"
+name = "github.com/ndau/metanode"
 version = "~v1.9"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/ndau"
+name = "github.com/ndau/ndau"
 version = "~v1.26"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/ndaumath"
+name = "github.com/ndau/ndaumath"
 version = "~v1.3"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/o11y"
+name = "github.com/ndau/o11y"
 version = "~v1.3"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/rest"
+name = "github.com/ndau/rest"
 version = "~v0.1"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/system_vars"
+name = "github.com/ndau/system_vars"
 version = "~v1.5"
 
 [[constraint]]
-name = "github.com/oneiro-ndev/writers"
+name = "github.com/ndau/writers"
 version = "~v1.1"
 
 [[constraint]]

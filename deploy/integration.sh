@@ -8,7 +8,7 @@ set -e
 export GOPATH=/go
 export NDAUHOME=/.ndau
 
-ndev_dir="$GOPATH"/src/github.com/oneiro-ndev
+ndev_dir="$GOPATH"/src/github.com/ndau
 commands_dir="$ndev_dir"/commands
 
 echo "Configuring ndau tool..."
