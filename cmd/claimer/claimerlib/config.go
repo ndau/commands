@@ -14,8 +14,8 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/signature"
 )
 
 // Config configures the claimer

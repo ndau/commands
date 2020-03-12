@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/ndau/pkg/ndau"
+	math "github.com/ndau/ndaumath/pkg/types"
 )
 
 // ChangeRecourse changes an account's recourse period

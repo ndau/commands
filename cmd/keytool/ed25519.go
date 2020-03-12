@@ -16,7 +16,7 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/ndau/ndaumath/pkg/signature"
 )
 
 func writeKey(w io.Writer, k signature.Key, verbose *bool, vprefix string) error {

@@ -18,8 +18,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/oneiro-ndev/ndau/pkg/ndauapi/cfg"
-	"github.com/oneiro-ndev/ndau/pkg/ndauapi/svc"
+	"github.com/ndau/ndau/pkg/ndauapi/cfg"
+	"github.com/ndau/ndau/pkg/ndauapi/svc"
 	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
 )

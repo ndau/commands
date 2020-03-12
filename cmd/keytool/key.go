@@ -17,8 +17,8 @@ import (
 	"strings"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/key"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/ndau/ndaumath/pkg/key"
+	"github.com/ndau/ndaumath/pkg/signature"
 )
 
 // ktype should always be "", "PUB", or "PVT"

@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	metatx "github.com/ndau/metanode/pkg/meta/transaction"
+	"github.com/ndau/ndau/pkg/ndau"
+	math "github.com/ndau/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 )
 

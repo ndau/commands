@@ -13,7 +13,7 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/ndau/ndau/pkg/tool"
 )
 
 func getCurrencySeats(verbose *bool) func(*cli.Cmd) {

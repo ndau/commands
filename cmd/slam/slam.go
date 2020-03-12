@@ -21,11 +21,11 @@ import (
 	"time"
 
 	arg "github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
-	"github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/ndau/pkg/ndau"
+	config "github.com/ndau/ndau/pkg/tool.config"
+	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/signature"
+	"github.com/ndau/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 )
 

@@ -11,7 +11,7 @@ package main
 
 import (
 	cli "github.com/jawher/mow.cli"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	math "github.com/ndau/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 )
 

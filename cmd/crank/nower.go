@@ -9,7 +9,7 @@ package main
 // https://www.apache.org/licenses/LICENSE-2.0.txt
 // - -- --- ---- -----
 
-import "github.com/oneiro-ndev/chaincode/pkg/vm"
+import "github.com/ndau/chaincode/pkg/vm"
 
 type nower struct{ now vm.Timestamp }
 

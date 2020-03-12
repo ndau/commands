@@ -14,12 +14,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
-	"github.com/oneiro-ndev/ndau/pkg/query"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	"github.com/oneiro-ndev/ndaumath/pkg/key"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/ndau/ndau/pkg/ndau/backing"
+	"github.com/ndau/ndau/pkg/query"
+	"github.com/ndau/ndau/pkg/tool"
+	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/key"
+	"github.com/ndau/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
 )
 

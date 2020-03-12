@@ -89,7 +89,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_A"
-    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/ndau/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_A"
     ]
@@ -119,7 +119,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_B"
-    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/ndau/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_B"
     ]
@@ -146,7 +146,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_C"
-    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/ndau/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_C"
     ]
@@ -173,7 +173,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_D"
-    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/ndau/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_D"
     ]
@@ -200,7 +200,7 @@ level = "$LOGLEVEL"
 
 [[task]]
     name = "$TASK_E"
-    path = "/Users/kentquirk/go/src/github.com/oneiro-ndev/rest/cmd/demo/demo"
+    path = "/Users/kentquirk/go/src/github.com/ndau/rest/cmd/demo/demo"
     args = [
         "--port=$PORT_E"
     ]

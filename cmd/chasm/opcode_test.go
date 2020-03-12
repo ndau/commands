@@ -12,7 +12,7 @@ package main
 import (
 	"testing"
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/ndau/chaincode/pkg/vm"
 	"github.com/stretchr/testify/assert"
 )
 

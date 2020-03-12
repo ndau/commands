@@ -13,8 +13,8 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/tool"
 )
 
 func getTransfer(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {

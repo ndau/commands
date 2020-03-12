@@ -12,9 +12,9 @@ package main
 import (
 	"fmt"
 
-	metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	metast "github.com/ndau/metanode/pkg/meta/state"
+	"github.com/ndau/ndau/pkg/ndau/backing"
+	"github.com/ndau/ndaumath/pkg/address"
 )
 
 func (st state) trace(addr address.Address, out record) {

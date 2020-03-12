@@ -17,8 +17,8 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
+	metatx "github.com/ndau/metanode/pkg/meta/transaction"
+	"github.com/ndau/ndau/pkg/ndau"
 )
 
 func getJSONTXSpec() string {

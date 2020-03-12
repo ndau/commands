@@ -17,8 +17,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/oneiro-ndev/commands/cmd/baddress/baddress"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/commands/cmd/baddress/baddress"
+	"github.com/ndau/ndaumath/pkg/address"
 )
 
 // GenerateCmd handles args for generation

@@ -16,9 +16,9 @@ import (
 	"unicode/utf8"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndau/pkg/tool"
+	config "github.com/ndau/ndau/pkg/tool.config"
+	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/rpc/client"
 )

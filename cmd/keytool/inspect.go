@@ -13,7 +13,7 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/ndau/ndaumath/pkg/signature"
 )
 
 func cmdInspect(cmd *cli.Cmd) {

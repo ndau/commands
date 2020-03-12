@@ -13,9 +13,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	metatx "github.com/ndau/metanode/pkg/meta/transaction"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
 )
 

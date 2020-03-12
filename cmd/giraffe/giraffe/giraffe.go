@@ -14,15 +14,15 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	"github.com/oneiro-ndev/ndaumath/pkg/key"
-	"github.com/oneiro-ndev/ndaumath/pkg/words"
+	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/key"
+	"github.com/ndau/ndaumath/pkg/words"
 	"github.com/pkg/errors"
 )
 
 // GetEnWords gets the english-language wordlist for phrase generation
 func GetEnWords() ([]string, error) {
-	return GetWords(os.ExpandEnv("$GOPATH/src/github.com/oneiro-ndev/ndaumath/pkg/words/english.go"))
+	return GetWords(os.ExpandEnv("$GOPATH/src/github.com/ndau/ndaumath/pkg/words/english.go"))
 }
 
 // GetWords gets a wordlist for phrase generation

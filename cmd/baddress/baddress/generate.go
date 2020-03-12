@@ -13,8 +13,8 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/oneiro-ndev/commands/cmd/giraffe/giraffe"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/commands/cmd/giraffe/giraffe"
+	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 )
 

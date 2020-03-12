@@ -16,8 +16,8 @@ import (
 	arg "github.com/alexflint/go-arg"
 	"github.com/attic-labs/noms/go/d"
 	"github.com/attic-labs/noms/go/spec"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndau/pkg/ndau/backing"
+	"github.com/ndau/ndaumath/pkg/address"
 )
 
 func check(err error, context string, formatters ...interface{}) {

@@ -16,9 +16,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
-	"github.com/oneiro-ndev/writers/pkg/bufio"
-	"github.com/oneiro-ndev/writers/pkg/filter"
+	"github.com/ndau/o11y/pkg/honeycomb"
+	"github.com/ndau/writers/pkg/bufio"
+	"github.com/ndau/writers/pkg/filter"
 	"github.com/pkg/errors"
 )
 

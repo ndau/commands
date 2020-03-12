@@ -13,8 +13,8 @@ import (
 	"strconv"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/constants"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/ndaumath/pkg/constants"
+	math "github.com/ndau/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 )
 

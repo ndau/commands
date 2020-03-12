@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/address"
 )
 
 // Watch adds foreign accounts, sometimes with nicknames

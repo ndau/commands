@@ -13,9 +13,9 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/tool"
+	math "github.com/ndau/ndaumath/pkg/types"
 )
 
 func getLock(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {

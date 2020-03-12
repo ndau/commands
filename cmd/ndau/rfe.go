@@ -13,9 +13,9 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/tool"
+	config "github.com/ndau/ndau/pkg/tool.config"
 	"github.com/pkg/errors"
 )
 

@@ -14,9 +14,9 @@ import (
 	"sync"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	"github.com/oneiro-ndev/ndaumath/pkg/key"
-	"github.com/oneiro-ndev/ndaumath/pkg/words"
+	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/key"
+	"github.com/ndau/ndaumath/pkg/words"
 	"github.com/pkg/errors"
 )
 

@@ -18,10 +18,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/alexflint/go-arg"
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	metatx "github.com/ndau/metanode/pkg/meta/transaction"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/tool"
+	"github.com/ndau/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
 	"github.com/savaki/jq"
 )

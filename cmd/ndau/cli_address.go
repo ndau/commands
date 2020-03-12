@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 )
 

@@ -13,8 +13,8 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	"github.com/oneiro-ndev/ndaumath/pkg/constants"
+	"github.com/ndau/ndau/pkg/tool"
+	"github.com/ndau/ndaumath/pkg/constants"
 )
 
 func getSummary(verbose *bool) func(*cli.Cmd) {

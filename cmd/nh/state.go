@@ -11,8 +11,8 @@ package main
 
 import (
 	"github.com/attic-labs/noms/go/datas"
-	metast "github.com/oneiro-ndev/metanode/pkg/meta/state"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
+	metast "github.com/ndau/metanode/pkg/meta/state"
+	"github.com/ndau/ndau/pkg/ndau/backing"
 )
 
 type state struct {

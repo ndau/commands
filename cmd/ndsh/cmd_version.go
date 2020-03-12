@@ -11,8 +11,8 @@ package main
 
 import (
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	"github.com/oneiro-ndev/ndau/pkg/version"
+	"github.com/ndau/ndau/pkg/tool"
+	"github.com/ndau/ndau/pkg/version"
 )
 
 // Version displays version information

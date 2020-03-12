@@ -13,9 +13,9 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	util "github.com/oneiro-ndev/genesis/pkg/cli.util"
-	"github.com/oneiro-ndev/genesis/pkg/config"
-	genesis "github.com/oneiro-ndev/genesis/pkg/genesis"
+	util "github.com/ndau/genesis/pkg/cli.util"
+	"github.com/ndau/genesis/pkg/config"
+	genesis "github.com/ndau/genesis/pkg/genesis"
 )
 
 func main() {

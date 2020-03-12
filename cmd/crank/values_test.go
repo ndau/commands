@@ -14,7 +14,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/ndau/chaincode/pkg/vm"
 )
 
 func Test_parseValues(t *testing.T) {

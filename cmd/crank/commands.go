@@ -16,7 +16,7 @@ import (
 	"strings"
 
 	arg "github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/ndau/chaincode/pkg/vm"
 	"github.com/pkg/errors"
 )
 

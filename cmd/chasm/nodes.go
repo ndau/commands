@@ -16,8 +16,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/chaincode/pkg/vm"
+	"github.com/ndau/ndaumath/pkg/address"
 )
 
 // parseInt parses an integer from a string. It is just like

@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/pkg/errors"
 )
 

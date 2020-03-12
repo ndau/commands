@@ -25,8 +25,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
-	"github.com/oneiro-ndev/ndaumath/pkg/constants"
+	"github.com/ndau/chaincode/pkg/vm"
+	"github.com/ndau/ndaumath/pkg/constants"
 )
 
 var g = &grammar{

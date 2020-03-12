@@ -16,7 +16,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kms"
-	"github.com/oneiro-ndev/o11y/pkg/honeycomb"
+	"github.com/ndau/o11y/pkg/honeycomb"
 	log "github.com/sirupsen/logrus"
 )
 

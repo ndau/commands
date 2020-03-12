@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/ndau"
 	"github.com/pkg/errors"
 )
 

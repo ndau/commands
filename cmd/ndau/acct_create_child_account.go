@@ -13,12 +13,12 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/metanode/pkg/meta/app/code"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/metanode/pkg/meta/app/code"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/tool"
+	config "github.com/ndau/ndau/pkg/tool.config"
+	"github.com/ndau/ndaumath/pkg/signature"
+	math "github.com/ndau/ndaumath/pkg/types"
 	"github.com/pkg/errors"
 	rpc "github.com/tendermint/tendermint/rpc/core/types"
 )

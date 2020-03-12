@@ -16,8 +16,8 @@ import (
 	"path"
 
 	cli "github.com/jawher/mow.cli"
-	generator "github.com/oneiro-ndev/system_vars/pkg/genesis.generator"
-	"github.com/oneiro-ndev/system_vars/pkg/genesisfile"
+	generator "github.com/ndau/system_vars/pkg/genesis.generator"
+	"github.com/ndau/system_vars/pkg/genesisfile"
 )
 
 func ndauhome() string {

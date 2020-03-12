@@ -14,7 +14,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/stretchr/testify/require"
 )
 

@@ -14,10 +14,10 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	sv "github.com/ndau/system_vars/pkg/system_vars"
 
 	cli "github.com/jawher/mow.cli"
-	config "github.com/oneiro-ndev/ndau/pkg/tool.config"
+	config "github.com/ndau/ndau/pkg/tool.config"
 	"github.com/pkg/errors"
 )
 

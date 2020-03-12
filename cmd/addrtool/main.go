@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	arg "github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/address"
 )
 
 type args struct {

@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
-	"github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/chaincode/pkg/vm"
+	"github.com/ndau/ndau/pkg/ndau/backing"
+	"github.com/ndau/ndaumath/pkg/types"
 )
 
 // getRandomAccount randomly generates an account object

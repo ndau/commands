@@ -14,8 +14,8 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
 )
 

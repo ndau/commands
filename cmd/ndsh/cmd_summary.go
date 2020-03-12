@@ -14,8 +14,8 @@ import (
 	"sync"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/query"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/ndau/ndau/pkg/query"
+	"github.com/ndau/ndau/pkg/tool"
 	"github.com/pkg/errors"
 	"github.com/savaki/jq"
 )

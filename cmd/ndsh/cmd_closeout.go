@@ -12,15 +12,15 @@ package main
 import (
 	"strings"
 
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
+	metatx "github.com/ndau/metanode/pkg/meta/transaction"
+	"github.com/ndau/ndau/pkg/tool"
 	"github.com/sirupsen/logrus"
 
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/ndaumath/pkg/address"
+	math "github.com/ndau/ndaumath/pkg/types"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/ndau"
 	"github.com/pkg/errors"
 )
 

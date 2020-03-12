@@ -13,8 +13,8 @@ import (
 	"fmt"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	v "github.com/oneiro-ndev/ndau/pkg/version"
+	"github.com/ndau/ndau/pkg/tool"
+	v "github.com/ndau/ndau/pkg/version"
 	"github.com/pkg/errors"
 )
 

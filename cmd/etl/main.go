@@ -13,9 +13,9 @@ import (
 	"errors"
 	"fmt"
 
-	util "github.com/oneiro-ndev/genesis/pkg/cli.util"
-	"github.com/oneiro-ndev/genesis/pkg/config"
-	"github.com/oneiro-ndev/genesis/pkg/etl"
+	util "github.com/ndau/genesis/pkg/cli.util"
+	"github.com/ndau/genesis/pkg/config"
+	"github.com/ndau/genesis/pkg/etl"
 )
 
 func main() {

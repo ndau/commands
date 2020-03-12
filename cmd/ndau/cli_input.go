@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/json2msgp"
+	"github.com/ndau/json2msgp"
 	"github.com/pkg/errors"
 )
 

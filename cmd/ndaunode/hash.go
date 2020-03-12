@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/config"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/ndau/config"
 )
 
 // get the hash of an empty database

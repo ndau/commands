@@ -16,7 +16,7 @@ import (
 	"os"
 
 	arg "github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/ndau/chaincode/pkg/vm"
 )
 
 func main() {

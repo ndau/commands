@@ -14,7 +14,7 @@ import (
 	"os"
 
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
+	"github.com/ndau/ndau/pkg/tool"
 )
 
 func getAccountAddr(verbose *bool) func(*cli.Cmd) {

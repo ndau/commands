@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	"github.com/ndau/ndau/pkg/ndau"
+	sv "github.com/ndau/system_vars/pkg/system_vars"
 )
 
 // CommandValidatorChange changes the validation power of a node

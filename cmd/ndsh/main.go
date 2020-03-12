@@ -15,7 +15,7 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/version"
+	"github.com/ndau/ndau/pkg/version"
 )
 
 func bail(err string, context ...interface{}) {

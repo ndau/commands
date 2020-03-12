@@ -1,7 +1,7 @@
 {
     package main
     
-    import "github.com/oneiro-ndev/chaincode/pkg/vm"
+    import "github.com/ndau/chaincode/pkg/vm"
 }
 
 Script <- EOL* code:Code EOF                   { return newScript(code, c.globalStore["functions"].(map[string]int)) }

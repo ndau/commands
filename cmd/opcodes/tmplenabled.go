@@ -24,7 +24,7 @@ package vm
 // https://www.apache.org/licenses/LICENSE-2.0.txt
 // - -- --- ---- -----
 
-import "github.com/oneiro-ndev/ndaumath/pkg/bitset256"
+import "github.com/ndau/ndaumath/pkg/bitset256"
 
 // EnabledOpcodes is a bitset of the opcodes that are enabled -- only these opcodes will be
 // permitted in scripts.

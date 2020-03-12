@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/msgp-well-known-types/wkt"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
+	"github.com/ndau/msgp-well-known-types/wkt"
+	"github.com/ndau/ndaumath/pkg/address"
+	math "github.com/ndau/ndaumath/pkg/types"
 )
 
 type args struct {

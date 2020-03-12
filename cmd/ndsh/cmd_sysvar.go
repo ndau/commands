@@ -16,10 +16,10 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/json2msgp"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/tool"
-	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	"github.com/ndau/json2msgp"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/tool"
+	sv "github.com/ndau/system_vars/pkg/system_vars"
 	"github.com/pkg/errors"
 	"github.com/tinylib/msgp/msgp"
 )

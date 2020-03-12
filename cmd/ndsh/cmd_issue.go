@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	math "github.com/oneiro-ndev/ndaumath/pkg/types"
-	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	"github.com/ndau/ndau/pkg/ndau"
+	math "github.com/ndau/ndaumath/pkg/types"
+	sv "github.com/ndau/system_vars/pkg/system_vars"
 )
 
 // Issue issues ndau from the Endowment

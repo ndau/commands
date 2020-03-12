@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/oneiro-ndev/chaincode/pkg/vm"
+	"github.com/ndau/chaincode/pkg/vm"
 )
 
 // Mode could theoretically be a bool but we want to reserve the option to have

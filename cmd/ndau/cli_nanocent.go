@@ -11,7 +11,7 @@ package main
 
 import (
 	cli "github.com/jawher/mow.cli"
-	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
+	"github.com/ndau/ndaumath/pkg/pricecurve"
 	"github.com/pkg/errors"
 )
 

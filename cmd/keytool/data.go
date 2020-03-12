@@ -18,7 +18,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/oneiro-ndev/ndau/pkg/ndauapi/routes"
+	"github.com/ndau/ndau/pkg/ndauapi/routes"
 
 	cli "github.com/jawher/mow.cli"
 )

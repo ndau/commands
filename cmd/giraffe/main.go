@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/oneiro-ndev/commands/cmd/giraffe/giraffe"
+	"github.com/ndau/commands/cmd/giraffe/giraffe"
 )
 
 func check(err error) {

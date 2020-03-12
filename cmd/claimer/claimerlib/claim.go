@@ -14,11 +14,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	sdk "github.com/oneiro-ndev/ndau/pkg/api_sdk"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/ndauapi/reqres"
-	"github.com/oneiro-ndev/ndaumath/pkg/address"
-	"github.com/oneiro-ndev/ndaumath/pkg/signature"
+	sdk "github.com/ndau/ndau/pkg/api_sdk"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/ndauapi/reqres"
+	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/ndaumath/pkg/signature"
 	log "github.com/sirupsen/logrus"
 )
 

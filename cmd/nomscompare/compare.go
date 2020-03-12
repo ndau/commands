@@ -17,7 +17,7 @@ import (
 	"sort"
 
 	nt "github.com/attic-labs/noms/go/types"
-	util "github.com/oneiro-ndev/noms-util"
+	util "github.com/ndau/noms-util"
 	log "github.com/sirupsen/logrus"
 )
 

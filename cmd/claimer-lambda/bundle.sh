@@ -9,7 +9,7 @@ fi
 hash=$(git rev-parse --short HEAD)
 
 echo "compiling..."
-cd "$(go env GOPATH)/src/github.com/oneiro-ndev/commands"
+cd "$(go env GOPATH)/src/github.com/ndau/commands"
 GOOS=linux go build ./cmd/claimer-lambda
 echo "zipping..."
 zf="cmd/claimer-lambda/claimer-lambda.zip"

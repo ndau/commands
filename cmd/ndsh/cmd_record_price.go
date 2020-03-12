@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndaumath/pkg/pricecurve"
-	sv "github.com/oneiro-ndev/system_vars/pkg/system_vars"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndaumath/pkg/pricecurve"
+	sv "github.com/ndau/system_vars/pkg/system_vars"
 )
 
 // RecordPrice records the current market price of ndau (in USD)

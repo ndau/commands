@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"os"
 
-	claimer "github.com/oneiro-ndev/commands/cmd/claimer/claimerlib"
-	"github.com/oneiro-ndev/rest"
+	claimer "github.com/ndau/commands/cmd/claimer/claimerlib"
+	"github.com/ndau/rest"
 	log "github.com/sirupsen/logrus"
 )
 

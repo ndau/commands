@@ -13,10 +13,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/oneiro-ndev/chaincode/pkg/chain"
-	metatx "github.com/oneiro-ndev/metanode/pkg/meta/transaction"
-	"github.com/oneiro-ndev/ndau/pkg/ndau"
-	"github.com/oneiro-ndev/ndau/pkg/ndau/backing"
+	"github.com/ndau/chaincode/pkg/chain"
+	metatx "github.com/ndau/metanode/pkg/meta/transaction"
+	"github.com/ndau/ndau/pkg/ndau"
+	"github.com/ndau/ndau/pkg/ndau/backing"
 )
 
 type index struct {
