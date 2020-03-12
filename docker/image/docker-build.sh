@@ -2,7 +2,7 @@
 
 set -e
 
-NDEV_SUBDIR=github.com/oneiro-ndev
+NDEV_SUBDIR=github.com/ndau
 NDEV_DIR="$GOPATH/src/$NDEV_SUBDIR"
 
 BIN_DIR=/image/bin

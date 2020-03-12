@@ -9,7 +9,7 @@ This page outlines all of the features of the ndau Docker container, useful to O
 ## Build
 
 1. Install Docker
-1. Put `machine_user_key` from 1password into the `commands` repo root directory to gain access to private oneiro-ndev repos at image build time
+1. Put `machine_user_key` from 1password into the `commands` repo root directory to gain access to private ndau repos at image build time
 1. Run `docker/bin/buildimage.sh` to build the `ndauimage` locally
 1. Optionally you can upload the image to S3; instructions provided by `buildimge.sh` output
 
@@ -134,7 +134,7 @@ There's a `docker/demo` directory that can be used to fire up a 5-node network l
 
 You can edit these files how you want, to test things out.  But if you'd like to just see it running with the fewest amount of steps, do the following:
 
-1. `cd ~/go/src/github.com/oneiro-ndev/commands`
+1. `cd ~/go/src/github.com/ndau/commands`
 1. Run `bin/setup.sh 5 localnet` to set up a 5-validator-node localnet network
 1. Run `bin/run.sh` and fill the blockchain with any transactions you want
 1. Run `bin/snapshot.sh` to stop localnet and generate a snapshot

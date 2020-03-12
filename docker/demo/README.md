@@ -4,7 +4,7 @@
 
 This directory contains examples demonstrating how to use `runcontainer.sh` to create and run nodes on a network.
 
-You'll need to be set up with a localnet before any of the demo scripts will work.  See the README at the root of the [commands](https://github.com/oneiro-ndev/commands) repo for how to set up a localnet.
+You'll need to be set up with a localnet before any of the demo scripts will work.  See the README at the root of the [commands](https://github.com/ndau/commands) repo for how to set up a localnet.
 
 ## Run All
 
@@ -12,7 +12,7 @@ You can use the `run_all.sh` script to run a 6-node network (5 validators and 1 
 
 The following steps generate the local `node-identity-*.tgz` files in the right place:
 
-1. `cd ~/go/src/github.com/oneiro-ndev/commands`
+1. `cd ~/go/src/github.com/ndau/commands`
 1. `bin/reset.sh 5 localnet`
 1. `bin/run.sh`
 1. `bin/snapshot.sh`
@@ -21,7 +21,7 @@ At this point you must upload the localnet snapshot to S3 using:
 
 ```sh
 aws s3 cp \
-    ~/go/src/github.com/oneiro-ndev/commands/docker/ndau-snapshots/snapshot-localnet-1.tgz \
+    ~/go/src/github.com/ndau/commands/docker/ndau-snapshots/snapshot-localnet-1.tgz \
     s3://ndau-snapshots/snapshot-localnet-demo.tgz
 ```
 
@@ -41,11 +41,11 @@ Use `docker/bin/removecontainer.sh testnet-test` (or `devnet-test` or `mainnet-t
 
 ## Integration Tests
 
-If you'd like to run [Integration Tests](https://github.com/oneiro-ndev/integration-tests) against a "local Docker net", it can be done similar to running them against a normal localnet.
+If you'd like to run [Integration Tests](https://github.com/ndau/integration-tests) against a "local Docker net", it can be done similar to running them against a normal localnet.
 
 Normally on a localnet, you'd run integration tests as follows:
 
-1. `cd ~/go/src/github.com/oneiro-ndev/commands`
+1. `cd ~/go/src/github.com/ndau/commands`
 1. `bin/reset.sh 2 localnet`
 1. `bin/run.sh`
 1. `cd ../integration-tests`
@@ -53,7 +53,7 @@ Normally on a localnet, you'd run integration tests as follows:
 
 It's similar for running integration tests against a local Docker net, because it'll use the same ndautool.toml file as a localnet.  The integration tests won't know any difference.  The local Docker containers will expose the same ports that a localnet uses so that a localnet config matches a local Docker net config, effectively.  Here are the steps:
 
-1. `cd ~/go/src/github.com/oneiro-ndev/commands`
+1. `cd ~/go/src/github.com/ndau/commands`
 1. `bin/reset.sh 5 localnet`
     - We need at least two local nodes for integration testing, but the demo scripts assume 5 nodes
 1. `bin/run.sh`

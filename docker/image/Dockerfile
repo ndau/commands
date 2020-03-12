@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile
-# For securely using the machine ssh key to access the private oneiro-ndev repos.
+# For securely using the machine ssh key to access the private ndau repos.
 
 # This stage has all purely external dependencies we'll want in the final image.
 # Nothing here will ever change based on ndev code changes, so it's safe to
@@ -75,7 +75,7 @@ RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
 FROM go_build as get_commands_deps
 # ensure we have dep
 RUN go get -u github.com/golang/dep/...
-ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
+ENV ONEIRO_DIR=$GOPATH/src/github.com/ndau
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
 RUN mkdir -p ${COMMANDS_DIR}
 # bust cache only when deps are updated
@@ -90,7 +90,7 @@ FROM go_build AS build_commands
 # Arguments passed via --build-arg.
 ARG COMMANDS_BRANCH
 ENV COMMANDS_BRANCH=${COMMANDS_BRANCH}
-ENV ONEIRO_DIR=$GOPATH/src/github.com/oneiro-ndev
+ENV ONEIRO_DIR=$GOPATH/src/github.com/ndau
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
 
 # this shouldn't normally bust the cache
@@ -98,7 +98,7 @@ COPY docker-build.sh /image/
 
 # bust the cache when the commands repo has changed
 COPY commands_sha /image/
-RUN git clone git@github.com:oneiro-ndev/commands.git \
+RUN git clone git@github.com:ndau/commands.git \
     --branch "$COMMANDS_BRANCH" \
     "${COMMANDS_DIR}"
 

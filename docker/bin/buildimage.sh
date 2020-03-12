@@ -18,7 +18,7 @@ COMMANDS_DIR="$DOCKER_DIR/.."
 SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
 if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
     # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
-    echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private oneiro-ndev repositories"
+    echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private ndau repositories"
     exit 1
 fi
 SSH_PRIVATE_KEY=$(cat "$SSH_PRIVATE_KEY_FILE")
