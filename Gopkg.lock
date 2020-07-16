@@ -182,6 +182,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:93d15ba1f951dc03e342f4f7a902f4aef1d39e9d7d0d26ac0e8432d9df12271f"
+  name = "github.com/bszcz/mt19937_64"
+  packages = ["."]
+  pruneopts = ""
+  revision = "1d1d0a52998333e7fa73a1f10c93da267bacacac"
+
+[[projects]]
+  branch = "master"
   digest = "1:fbcbb6dc66bcaddf7c075d7b36c49df20e6f327a0774abca922331e889295352"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
@@ -490,18 +498,18 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:e06a15f7a932a3bbefef33664c5d5b864d0ef801dbd2a7121efb398dc1e48685"
+  digest = "1:26c0bc5e0b208a943b77d15ebc6517df4c9ec195fb25a844f0a879b03d677f7f"
   name = "github.com/ndau/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "e5be3b1af5ccfeaa6b8874fbe92dd8d5752544ac"
-  version = "v1.2.5"
+  revision = "e6266a2c786c785c3c252a31e59791a8bf6e3f52"
+  version = "v1.2.8"
 
 [[projects]]
-  digest = "1:3dd83d7bc36101a5323b13b6ae7ad2345a339aac0afb0cff11e9050e8567d397"
+  digest = "1:846fe5fe970ce725cb2f0ce0ecec0107e774edbd691254b90d06b57c82232249"
   name = "github.com/ndau/genesis"
   packages = [
     "pkg/cli.util",
@@ -510,19 +518,19 @@
     "pkg/genesis",
   ]
   pruneopts = ""
-  revision = "b42e321d3466d0ddfd338b71a339e685984f0ad9"
-  version = "v1.2.0"
+  revision = "896db513553cd7abfd9c4c57d55cb2fd690c7879"
+  version = "v1.2.1"
 
 [[projects]]
-  digest = "1:99c192bda9d5db7282d2ef1307610343d882baa134f83a1e9dc8dcfeaf114c01"
+  digest = "1:e4aee07ddb14ba7174cd496686922ab909c1e7dfe89c5a48eddff55a5df5bf82"
   name = "github.com/ndau/json2msgp"
   packages = ["."]
   pruneopts = ""
-  revision = "5730c7aee812bc158707c1529ae68bd04f6bb617"
-  version = "v1.1.0"
+  revision = "713ffefb11eea2ab56f7961333fdb19a798d8e40"
+  version = "v1.1.1"
 
 [[projects]]
-  digest = "1:4056934057b4fe7c0e5e7395fc42c38be25bd76d9fca5a247a53c13c96ed872b"
+  digest = "1:f69582c3a2f4027eed23f9f2fc4bb2e9042e03cce56eae977bd0a56817311d39"
   name = "github.com/ndau/metanode"
   packages = [
     "pkg/meta/app",
@@ -532,8 +540,8 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "e23aea9bba187a5a1a3ebdf2c3d943c8e1e3b3b0"
-  version = "v1.9.1"
+  revision = "0df6647b98602d3fa151a4eee46566bb24de7b54"
+  version = "v1.9.3"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -544,15 +552,7 @@
   version = "v0.1.2"
 
 [[projects]]
-  digest = "1:42b16f34900607cfce450920036c4f6d753281252d5a37f2c9a1c674bb84bbcc"
-  name = "github.com/ndau/mt19937_64"
-  packages = ["."]
-  pruneopts = ""
-  revision = "3f74adc550ba95a0b1e26a5029d3a84b0a146076"
-  version = "1.0.1"
-
-[[projects]]
-  digest = "1:67b17a9bda2de46267e6084319df083bb23befce1597d8d45e6f0c7709d6515e"
+  digest = "1:59a5ba034e0a0b897cee7670ad81dbe4655cbaf0bdc6fa6ec4d47072cf0c26a0"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,11 +571,11 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "6aa4787a77a445c8e2dcf603ef1c22928a5fde85"
-  version = "v1.26.5"
+  revision = "3499a73bda3cfe689afd54bbe838ace601d641af"
+  version = "v1.26.7"
 
 [[projects]]
-  digest = "1:6008379ed841ba9ac7492ddc68c4e5a3a26a3be25fa05b1ee58c6e215bc23779"
+  digest = "1:92ab1120a54cdeb3d4f08ea57a9195b033013ce265a26e1bcd5d89e5a6cc42a9"
   name = "github.com/ndau/ndaumath"
   packages = [
     "pkg/address",
@@ -597,8 +597,8 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "de5a90c45d3f079f1a263819493d2f7a70bb4b8b"
-  version = "v1.3.6"
+  revision = "5ee745f36f8451a2b04d72105863402e844fbbdc"
+  version = "v1.3.8"
 
 [[projects]]
   branch = "master"
@@ -609,23 +609,23 @@
   revision = "89919acd3baede72bbd08895e2ee37e583e059c9"
 
 [[projects]]
-  digest = "1:04246474fb2668bfaea7ca0d5a4d1c5d5040cf1cd2fe6b09c38e1fede73f7d93"
+  digest = "1:40fec27dfa4139a3a2676bde457e23822a4f9d407285e888d49c605c95eb821f"
   name = "github.com/ndau/o11y"
   packages = ["pkg/honeycomb"]
   pruneopts = ""
-  revision = "9008d5eb126d49f45422114ff123f65e38e2fbe7"
-  version = "v1.3.3"
+  revision = "895b1a3403de2057b802b286287b0cf405b11c1a"
+  version = "v1.3.5"
 
 [[projects]]
-  digest = "1:421a898995cef1628dcad6fb07c282c1589fb54c8cf36af93ba538ae980f4cbb"
+  digest = "1:8d3b87cbe6b431c94acca3f7c488a8af223a23145068d518b14fadb675719ab2"
   name = "github.com/ndau/rest"
   packages = ["."]
   pruneopts = ""
-  revision = "cf2ee21900a2ca6155b631c942ba320333773278"
-  version = "v0.1.0"
+  revision = "d297d0d48376f43c0718d0fe54bcf696e9480fee"
+  version = "v0.1.1"
 
 [[projects]]
-  digest = "1:b7cb69e697f0cc9829a3036e269f38ca5d8ed9a27cc8547fd05e817c7e84941d"
+  digest = "1:e0f764256dc6bae9da31e4452dc39947e9964486d71e4e50d1c5aed6b5f57fc5"
   name = "github.com/ndau/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -633,11 +633,11 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "51a94a0f504d3e08b9f0c2ccb95b65469efe1c92"
-  version = "v1.5.1"
+  revision = "fc264fca5ff10a1c1ddbc7c1e2dd564e2d432fd8"
+  version = "v1.5.4"
 
 [[projects]]
-  digest = "1:a5320cc59ec4967bfd4e01f80171c3f008832dac7d0614254855b5e6351b3a4a"
+  digest = "1:1c1df12edde28f99663efc3a3b06bb985a58752915f4281a7b327b24a1385684"
   name = "github.com/ndau/writers"
   packages = [
     "pkg/bufio",
@@ -647,8 +647,8 @@
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "568ee76f66a0111c44ce029e484900224db01340"
-  version = "v1.1.0"
+  revision = "d261e7205fab73aef4037a64176081367f8172b8"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
@@ -1073,6 +1073,7 @@
     "github.com/BurntSushi/toml",
     "github.com/akrylysov/algnhsa",
     "github.com/alexflint/go-arg",
+    "github.com/attic-labs/noms/go/d",
     "github.com/attic-labs/noms/go/datas",
     "github.com/attic-labs/noms/go/hash",
     "github.com/attic-labs/noms/go/spec",
