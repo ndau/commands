@@ -26,10 +26,10 @@ COPY --from=redis:5.0.4-alpine [ \
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.12-alpine3.9 AS go_build
+FROM golang:1.13-alpine3.11 AS go_build
 
 # Install extra tools.
-RUN apk add --no-cache bash git openssh make
+RUN apk add --no-cache bash git openssh make gcc libc-dev
 
 
 # Arguments passed via --build-arg.
