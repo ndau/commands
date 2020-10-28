@@ -209,7 +209,11 @@ if __name__ == "__main__":
     while after != "":
         qp = dict(limit=limit, after=after)
         result = ndau.getData(node, "/account/list", parms=qp)
-        after = result["NextAfter"]
+
+        if result["NextAfter"] is not None:
+            after = result["NextAfter"]
+        else:
+            after = ""
 
         accts = result["Accounts"]
         failcount = 0

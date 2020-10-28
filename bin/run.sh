@@ -1,4 +1,5 @@
 #!/bin/bash
+# Usage: bin/run.sh [NODE_NUM] [COMMAND]
 
 initialize() {
     CMDBIN_DIR="$(go env GOPATH)/src/github.com/ndau/commands/bin"
@@ -162,12 +163,13 @@ ndau_api() {
     node_num="$1"
     echo running ndauapi for "ndau-$node_num"
 
+    tm_rpc_port=$((TM_RPC_PORT + node_num))
     api_port=$((NDAUAPI_PORT + node_num))
     output_name="$CMDBIN_DIR/ndauapi-$node_num"
 
     cd "$COMMANDS_DIR" || exit 1
 
-    NDAUAPI_NDAU_RPC_URL="http://localhost:$TM_RPC_PORT" \
+    NDAUAPI_NDAU_RPC_URL="http://localhost:$tm_rpc_port" \
     NDAUAPI_PORT="$api_port" \
     ./ndauapi >"$output_name.log" \
     2>&1 &
@@ -195,8 +197,8 @@ if [ -z "$1" ]; then
     done
 else
     # We support running a single process for a given node.
-    cmd="$1"
-    node_num="$2"
+    node_num="$1"
+    cmd="$2"
 
     # Default to the first node in a single-node localnet.
     if [ -z "$node_num" ]; then
@@ -204,7 +206,15 @@ else
     fi
 
     initialize
-    "$cmd" "$node_num"
+    if [ -z "$2" ]; then
+        ndau_redis "$node_num"
+        ndau_noms "$node_num"
+        ndau_node "$node_num"
+        ndau_tm "$node_num"
+        ndau_api "$node_num"
+    else
+        "$cmd" "$node_num"
+    fi
 fi
 
 echo "done."

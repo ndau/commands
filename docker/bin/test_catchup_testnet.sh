@@ -8,17 +8,16 @@ cd "$SCRIPT_DIR" || exit 1
 # Run a local node connected to mainnet starting from the genesis snapshot.
 nodename="catchup-node-local"
 snapshot="snapshot-mainnet-1"
+# USE_LOCAL_IMAGE=1 \
+# ../bin/runcontainer.py testnet "$nodename" --snapshot "$snapshot"
 USE_LOCAL_IMAGE=1 \
-            AWS_ACCESS_KEY_ID="" \
-            AWS_SECRET_ACCESS_KEY="" \
-            SLACK_DEPLOYS_KEY="" \
-../bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 "" "$snapshot"
+../bin/runcontainer.sh testnet "$nodename" 26660 26670 3030 "" "$snapshot"
 
 echo
 
 # Get the current height of mainnet.  We need to catch up to at least this height.
 # Use mainnet-2 since that's in the same region as devnet.
-status=$(curl -s https://mainnet-2.ndau.tech:26670/status)
+status=$(curl -s https://testnet-2.ndau.tech:26670/status)
 mainnet_height=$(echo "$status" | jq -r .result.sync_info.latest_block_height)
 if [ -z "$mainnet_height" ] || [ "$mainnet_height" -le 0 ]; then
     echo "Unable to get mainnet height"
@@ -36,9 +35,7 @@ echo "Current mainnet height: $mainnet_height"
 printf "Catching up..."
 last_height=0
 
-# we don't need to ever use the loop index, but we can't omit it
-# shellcheck disable=SC2034
-while : ; do
+while :; do
     sleep 10
     if ! node_status=$(docker exec "$nodename" curl -s http://localhost:26670/status); then
         # The status query is what usually fails when playback of a block fails.
@@ -48,6 +45,8 @@ while : ; do
         docker exec "$nodename" tar c -j -f "/$noms_fn" -C "/image/data" noms
         echo "extracting noms tarball from container"
         docker cp "$nodename:/$noms_fn" ../..
+        tar -xjf "../../$noms_fn"
+        mv "noms" "../../catchup-$last_height-noms"
 
         echo "attempting to find a mainnet snapshot high enough"
         snapshot_pair=$(
@@ -70,6 +69,12 @@ while : ; do
         mainnet_snapshot_name=$(echo "$snapshot_pair" | cut -d' ' -f2)
         echo "fetching mainnet snapshot: $mainnet_snapshot_name"
         aws s3 cp "s3://ndau-snapshots/$mainnet_snapshot_name" ../..
+        tar -xzf "../../$mainnet_snapshot_name" "data/noms"
+        mv data/noms "../../mainnet-$mainnet_snapshot_height-noms"
+        rm -rf data
+
+        echo "try doing:"
+        echo "  ./nomscompare mainnet-$mainnet_snapshot_height-noms::ndau catchup-$last_height-noms::ndau"
 
         break
     fi

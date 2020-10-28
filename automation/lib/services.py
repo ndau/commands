@@ -16,7 +16,7 @@ import sys
 
 
 # Public location of the services.json file.
-SERVICES_URL = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"
+SERVICES_URL = "https://s3.us-east-2.amazonaws.com/ndau-json/services_localnet.json"
 
 
 def fetch_services():
@@ -101,7 +101,11 @@ def parse_services(network_name, node_name, services_json):
                 sys.exit(f"Unable to find api object in {node_obj}")
             if not rpc_name in node_obj:
                 sys.exit(f"Unable to find rpc object in {node_obj}")
-            apis[node_obj_name] = f"https://{node_obj[api_name]}"
-            rpcs[node_obj_name] = f"https://{node_obj[rpc_name]}"
+            if network_name == "localnet":
+                apis[node_obj_name] = f"http://{node_obj[api_name]}"
+                rpcs[node_obj_name] = f"http://{node_obj[rpc_name]}"
+            else:
+                apis[node_obj_name] = f"https://{node_obj[api_name]}"
+                rpcs[node_obj_name] = f"https://{node_obj[rpc_name]}"
 
     return apis, rpcs
