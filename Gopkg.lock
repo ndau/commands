@@ -182,14 +182,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:93d15ba1f951dc03e342f4f7a902f4aef1d39e9d7d0d26ac0e8432d9df12271f"
-  name = "github.com/bszcz/mt19937_64"
-  packages = ["."]
-  pruneopts = ""
-  revision = "1d1d0a52998333e7fa73a1f10c93da267bacacac"
-
-[[projects]]
-  branch = "master"
   digest = "1:fbcbb6dc66bcaddf7c075d7b36c49df20e6f327a0774abca922331e889295352"
   name = "github.com/btcsuite/btcd"
   packages = ["btcec"]
@@ -498,15 +490,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:26c0bc5e0b208a943b77d15ebc6517df4c9ec195fb25a844f0a879b03d677f7f"
+  digest = "1:e4d7290b8c477f7d9913862258da453de6fcaab1561d5eb01f381fdf9416b659"
   name = "github.com/ndau/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "e6266a2c786c785c3c252a31e59791a8bf6e3f52"
-  version = "v1.2.8"
+  revision = "b37c25be5a7036f98b3a00ecbd8c8d6f4e5eb345"
+  version = "v1.2.9"
 
 [[projects]]
   digest = "1:846fe5fe970ce725cb2f0ce0ecec0107e774edbd691254b90d06b57c82232249"
@@ -552,7 +544,15 @@
   version = "v0.1.2"
 
 [[projects]]
-  digest = "1:59a5ba034e0a0b897cee7670ad81dbe4655cbaf0bdc6fa6ec4d47072cf0c26a0"
+  digest = "1:cf9dd4e09ce196346fd39056b2a2d0b34cfb573fb5fc00cf5996e933b2a8ae7e"
+  name = "github.com/ndau/mt19937_64"
+  packages = ["."]
+  pruneopts = ""
+  revision = "f3c8c26f5b9e782de53ab28486e0db4bd187251b"
+  version = "v1.0"
+
+[[projects]]
+  digest = "1:29698a074a5154ae8878c898edc8dc203656da1f296fdd2fe0ea430a4dd6b988"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "3499a73bda3cfe689afd54bbe838ace601d641af"
-  version = "v1.26.7"
+  revision = "0dc7fd387b7bf14c8ea1514cd46631d575472e33"
+  version = "v1.26.8"
 
 [[projects]]
   digest = "1:92ab1120a54cdeb3d4f08ea57a9195b033013ce265a26e1bcd5d89e5a6cc42a9"

@@ -7,7 +7,11 @@ cd "$SCRIPT_DIR" || exit 1
 
 # Run a local node connected to mainnet starting from the genesis snapshot.
 nodename="catchup-node-local"
-snapshot="snapshot-mainnet-1"
+snapshot="$1"
+if [ -z "$snapshot" ]; then
+    snapshot="snapshot-mainnet-1"
+fi
+
 USE_LOCAL_IMAGE=1 \
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
