@@ -127,6 +127,8 @@ func compareDS(dsa, dsb string, height int, nodeHeight int) {
 		logger.WithField("apphash", hasha).Debug("apphashes agree")
 	}
 
+	logger = logger.WithField("height", nodeHeight)
+
 	vala := valueAt(dba, refa)
 	valb := valueAt(dbb, refb)
 	compare(vala, valb, "", logger)

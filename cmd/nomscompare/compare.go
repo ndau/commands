@@ -67,10 +67,10 @@ func compare(a, b nt.Value, path string, rlogger log.FieldLogger) {
 		bi := 0
 		for ai < len(akeys) || bi < len(bkeys) {
 			switch {
-			case ai >= len(akeys) || bkeys[bi] < akeys[ai]:
+			case ai >= len(akeys): // || bkeys[bi] < akeys[ai]:
 				logger.WithField(itemtype, bkeys[bi]).Info(itemtype + " present in b and not a")
 				bi++
-			case bi >= len(bkeys) || akeys[ai] < bkeys[bi]:
+			case bi >= len(bkeys): // || akeys[ai] < bkeys[bi]:
 				logger.WithField(itemtype, akeys[ai]).Info(itemtype + " present in a and not b")
 				ai++
 			default:
@@ -195,6 +195,8 @@ func compare(a, b nt.Value, path string, rlogger log.FieldLogger) {
 				"a value": string(av),
 				"b value": string(bv),
 			}).Info("mismatch")
+		} else {
+			//			logger.WithField("string_value", string(av)).Info("string_value")
 		}
 
 	case nt.Struct:

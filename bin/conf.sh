@@ -42,7 +42,7 @@ do
         echo "node num = $NODE_NUM"
     fi
     if [ "$arg" = "--verifier" ]; then
-        VERIFIER=$1
+        VERIFIER=1
         echo "node is VERIFIER"
     fi
 done
