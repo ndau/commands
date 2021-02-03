@@ -97,7 +97,6 @@ while : ; do
         # Fail if we didn't catch up at all since the last iteration.
         # This indicates a stall, which likely means we're failing on full catchup.
         printf " (ERROR: stalled)"
-        break
     fi
 
     last_height=$node_height
