@@ -7,7 +7,11 @@ cd "$SCRIPT_DIR" || exit 1
 
 # Run a local node connected to mainnet starting from the genesis snapshot.
 nodename="catchup-node-local"
-snapshot="snapshot-mainnet-1"
+snapshot="$1"
+if [ -z "$snapshot" ]; then
+    snapshot="snapshot-mainnet-1"
+fi
+
 # USE_LOCAL_IMAGE=1 \
 # ../bin/runcontainer.py testnet "$nodename" --snapshot "$snapshot"
 USE_LOCAL_IMAGE=1 \
@@ -18,12 +22,12 @@ echo
 # Get the current height of mainnet.  We need to catch up to at least this height.
 # Use mainnet-2 since that's in the same region as devnet.
 status=$(curl -s https://testnet-2.ndau.tech:26670/status)
-mainnet_height=$(echo "$status" | jq -r .result.sync_info.latest_block_height)
-if [ -z "$mainnet_height" ] || [ "$mainnet_height" -le 0 ]; then
+testnet_height=$(echo "$status" | jq -r .result.sync_info.latest_block_height)
+if [ -z "$testnet_height" ] || [ "$testnet_height" -le 0 ]; then
     echo "Unable to get mainnet height"
     false
 fi
-echo "Current mainnet height: $mainnet_height"
+echo "Current testnet height: $testnet_height"
 
 # Catching up on mainnet will take longer and longer as the block height of mainnet
 # increases over time.  This is known and we'll need to deal with it at some point.
@@ -88,7 +92,7 @@ while :; do
     printf " %s" "$node_height"
 
     catching_up=$(echo "$node_status" | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
-    if [ "$catching_up" = "false" ] && [ "$node_height" -ge "$mainnet_height" ]; then
+    if [ "$catching_up" = "false" ] && [ "$node_height" -ge "$testnet_height" ]; then
         caught_up=1
         printf " (caught up)"
         break
@@ -98,7 +102,6 @@ while :; do
         # Fail if we didn't catch up at all since the last iteration.
         # This indicates a stall, which likely means we're failing on full catchup.
         printf " (ERROR: stalled)"
-        break
     fi
 
     last_height=$node_height
