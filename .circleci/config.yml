@@ -94,7 +94,9 @@ commands:
           name: Common setup
           command: |
             # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
-            eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
+            # JSG update this to use "get-login-password"
+            # eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
+            eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
 
             # Clone the commands repo, used by enough jobs to make it worthwhile for every job.
             if [ -n "$CIRCLE_BRANCH" ]; then
