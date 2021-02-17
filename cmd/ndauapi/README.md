@@ -1245,6 +1245,7 @@ _**Writes:**_
           "marketPrice": 1234000000000,
           "targetPrice": 5678000000000,
           "floorPrice": 0,
+          "totalReleased": 0,
           "totalIssued": 291900000000000,
           "totalNdau": 314159300000000,
           "totalBurned": 12300000000,
