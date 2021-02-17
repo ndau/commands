@@ -16,4 +16,4 @@ NodeRewardWebhookDelay = 10.0
   NodeRegistrationDate = 50_100
   # new features: change to a sane number before upgrading mainnet
   UpdateWAAUpdateDateInDetails = 1_000_000
-  AllRFEInCirculation = 201600
+  AllRFEInCirculation = 203865
