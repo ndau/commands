@@ -357,7 +357,8 @@ jobs:
           command: |
             # Run a local node connected to mainnet starting from the genesis snapshot.
             nodename="catchup-node"
-            snapshot="snapshot-mainnet-1"
+            # JSG run from 189600, which is right before the second NNR TX that we fixed the bug in
+            snapshot="snapshot-mainnet-189600"
             USE_LOCAL_IMAGE=1 \
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
@@ -409,7 +410,8 @@ jobs:
                 # Fail if we didn't catch up at all since the last iteration.
                 # This indicates a stall, which likely means we're failing on full catchup.
                 printf " (ERROR: stalled)"
-                break
+                # JSG don't break here, just print message and try to keep going, usually this is not a fatal error
+                # break
               fi
 
               last_h=$h
