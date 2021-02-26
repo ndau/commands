@@ -104,7 +104,11 @@ config_ndau() {
         confjs=$(jq -c ". + {\"$nrw\": \"http://localhost:3000/claim_winner\"}" <(echo $confjs))
     fi
     echo "$confjs" | json2toml > "$confpath"
-    cat "$CMDBIN_DIR/../docker/image/docker-config-mainnet.toml" >> "$confpath"
+    if [ ! -z "$SNAPSHOT_NAME" ]; then
+        cat "$CMDBIN_DIR/../docker/image/docker-config-mainnet.toml" >> "$confpath"
+    else
+        cat "$CMDBIN_DIR/../docker/image/docker-config-default.toml" >> "$confpath"
+    fi
 }
 
 set_peers_and_validators() {
