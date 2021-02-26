@@ -108,6 +108,8 @@ COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
+COPY --from=get_commands_deps /go/bin/dep /go/bin/dep
+RUN apk add yarn
 RUN /image/docker-build.sh
 
 

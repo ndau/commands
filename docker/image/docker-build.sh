@@ -37,6 +37,16 @@ if [ -n "$RUN_UNIT_TESTS" ]; then
     for dir in "$NDEV_DIR"/commands/vendor/"$NDEV_SUBDIR"/*
     do
         cd "$dir"
+        basedir=$(basename "$dir")
+        if [ "$basedir" = "ndaumath" ]; then
+          cd "cmd/keyaddr"
+          dep ensure --vendor-only
+          yarn install
+          yarn build
+          yarn test
+          cd "../../pkg"
+        fi
+
         pwd
         go test ./...
     done

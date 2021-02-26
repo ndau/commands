@@ -544,12 +544,12 @@
   version = "v0.1.2"
 
 [[projects]]
-  digest = "1:cf9dd4e09ce196346fd39056b2a2d0b34cfb573fb5fc00cf5996e933b2a8ae7e"
+  digest = "1:180c8c5d5fd737d5c723ff6443f0bec4d34427f93088606aac2da53b95e83ca7"
   name = "github.com/ndau/mt19937_64"
   packages = ["."]
   pruneopts = ""
-  revision = "f3c8c26f5b9e782de53ab28486e0db4bd187251b"
-  version = "v1.0"
+  revision = "ef56a9b3b865d92bbf5c2b9ed91f7c3f8da71614"
+  version = "v1.1"
 
 [[projects]]
   digest = "1:2b1e9fdb0ef45c80f795ddc4cd3242125ce479737d5a0b4b6e93686112198bdd"
@@ -575,7 +575,7 @@
   version = "v1.26.11"
 
 [[projects]]
-  digest = "1:92ab1120a54cdeb3d4f08ea57a9195b033013ce265a26e1bcd5d89e5a6cc42a9"
+  digest = "1:ad5e2ad93fd61f93702fb0c666730c2026777ecf79b8118d47f12abe9ec3d4fa"
   name = "github.com/ndau/ndaumath"
   packages = [
     "pkg/address",
@@ -597,7 +597,7 @@
     "pkg/words",
   ]
   pruneopts = ""
-  revision = "5ee745f36f8451a2b04d72105863402e844fbbdc"
+  revision = "ac60e54551a2fd5c2b736cf31664367f0f480bd2"
   version = "v1.3.8"
 
 [[projects]]
