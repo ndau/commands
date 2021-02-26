@@ -89,6 +89,7 @@ commands:
           fingerprints:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
+          version: 19.03.13
           docker_layer_caching: false
       - run:
           name: Common setup
