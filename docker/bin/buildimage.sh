@@ -15,13 +15,6 @@ echo "Using commands branch/tag: $COMMANDS_BRANCH"
 DOCKER_DIR="$SCRIPT_DIR/.."
 IMAGE_DIR="$DOCKER_DIR/image"
 COMMANDS_DIR="$DOCKER_DIR/.."
-SSH_PRIVATE_KEY_FILE="$COMMANDS_DIR"/machine_user_key
-if [ ! -e "$SSH_PRIVATE_KEY_FILE" ]; then
-    # This file can be gotten from Oneiro's 1password account and placed in the docker directory.
-    echo "Cannot find $SSH_PRIVATE_KEY_FILE needed for cloning private ndau repositories"
-    exit 1
-fi
-SSH_PRIVATE_KEY=$(cat "$SSH_PRIVATE_KEY_FILE")
 
 NDAU_IMAGE_NAME=ndauimage
 if [ -n "$(docker container ls -a -q -f ancestor=$NDAU_IMAGE_NAME)" ]; then
@@ -47,7 +40,6 @@ SHA=$(git rev-parse --short HEAD)
 
 echo "Building $NDAU_IMAGE_NAME..."
 if ! docker build \
-       --build-arg SSH_PRIVATE_KEY="$SSH_PRIVATE_KEY" \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
        "$IMAGE_DIR" \

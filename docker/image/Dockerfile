@@ -31,20 +31,6 @@ FROM golang:1.13-alpine3.11 AS go_build
 # Install extra tools.
 RUN apk add --no-cache bash git openssh make gcc libc-dev
 
-
-# Arguments passed via --build-arg.
-ARG SSH_PRIVATE_KEY
-
-# Add credentials on build.
-RUN mkdir /root/.ssh/ && \
-    echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa && \
-    chmod 600 /root/.ssh/id_rsa
-
-# Make sure the domain is accepted.
-RUN touch /root/.ssh/known_hosts && \
-    ssh-keyscan github.com >> /root/.ssh/known_hosts
-
-
 # The build_noms stage builds noms, caching results when posssible
 FROM go_build AS build_noms
 
@@ -52,7 +38,7 @@ ENV ATTICLABS_DIR=$GOPATH/src/github.com/attic-labs
 RUN mkdir -p "$ATTICLABS_DIR"
 # This copy exists to bust the cache if new commits exist
 COPY ./noms_sha /
-RUN git clone git@github.com:attic-labs/noms.git "$ATTICLABS_DIR"/noms
+RUN git clone https://github.com/attic-labs/noms.git "$ATTICLABS_DIR"/noms
 RUN go get -u "$ATTICLABS_DIR"/noms/...
 RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 
@@ -98,7 +84,7 @@ COPY docker-build.sh /image/
 
 # bust the cache when the commands repo has changed
 COPY commands_sha /image/
-RUN git clone git@github.com:ndau/commands.git \
+RUN git clone https://github.com/ndau/commands.git \
     --branch "$COMMANDS_BRANCH" \
     "${COMMANDS_DIR}"
 
