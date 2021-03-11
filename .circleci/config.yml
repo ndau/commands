@@ -397,7 +397,7 @@ jobs:
                 printf " (ERROR: no height)"
                 break
               fi
-              printf " $h"
+              printf " $h\n"
 
               catching_up=$(echo $s | sed -n -e 's/.*catching_up...\([a-z]\{1,\}\).*/\1/p')
               if [ "$catching_up" = "false" ] && [ $h -ge $height ]; then
