@@ -552,7 +552,8 @@
   version = "v1.1"
 
 [[projects]]
-  digest = "1:c52d238bef89ec57b612368fcde8794d813c5bbc955c70e78732e7e769b6e9e8"
+  branch = "ejm-sysvar-valid"
+  digest = "1:ebb84c39b262c24ef849003b5226c25fa870da432bb0097f35773fb245ea936a"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "fe534b2eb061d4dbcae4862e2f54681efb45fe43"
-  version = "v1.26.12"
+  revision = "a151b0e7f645de52e3e688a166438e2a3c36e031"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
