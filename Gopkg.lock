@@ -552,7 +552,8 @@
   version = "v1.1"
 
 [[projects]]
-  digest = "1:c52d238bef89ec57b612368fcde8794d813c5bbc955c70e78732e7e769b6e9e8"
+  branch = "ejm-sysvar-valid"
+  digest = "1:1e505e6a1888159ddef4d7544934ba40afb39d11145c643b073c7f52d8706614"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "fe534b2eb061d4dbcae4862e2f54681efb45fe43"
-  version = "v1.26.12"
+  revision = "e386aa7a6f2ab7b90dc1982a332cced9f5bf5b28"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
@@ -625,7 +625,8 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:e0f764256dc6bae9da31e4452dc39947e9964486d71e4e50d1c5aed6b5f57fc5"
+  branch = "ejm-rename-MAX_VALIDATORS"
+  digest = "1:831de7e792423b1a2cb6ffcd17ca6ea98204b7931e1b83d9e3f6766ee96b7a61"
   name = "github.com/ndau/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -633,8 +634,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "fc264fca5ff10a1c1ddbc7c1e2dd564e2d432fd8"
-  version = "v1.5.4"
+  revision = "a1ba06646cd0fd2235d650557a8ade2143a9879e"
 
 [[projects]]
   digest = "1:1c1df12edde28f99663efc3a3b06bb985a58752915f4281a7b327b24a1385684"
