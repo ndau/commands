@@ -16,7 +16,8 @@ version = "~v1.9"
 
 [[constraint]]
 name = "github.com/ndau/ndau"
-branch = "ejm-sysvar-valid"
+branch = "ejm-stake-calc"
+
 
 [[constraint]]
 name = "github.com/ndau/ndaumath"
