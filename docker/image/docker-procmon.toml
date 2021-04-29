@@ -166,8 +166,6 @@ output = ""
         "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
         "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
         "--log_level=*:$LOG_LEVEL",
-        "--p2p.pex=true",
-        "--p2p.seed_mode=true",
     ]
     stdout = "$LOG_DIR/tendermint.log"
     stderr = "$LOG_DIR/tendermint.log"
