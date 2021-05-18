@@ -262,7 +262,7 @@ workflows:
               ignore: /.*/
       - push:
           requires:
-            - build
+            - integration
           filters:
             tags:
               only: /.*-jobs_.*?(push|deploy|reset).*/
