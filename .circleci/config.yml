@@ -256,13 +256,13 @@ workflows:
             - build
           filters:
             tags:
-              only: /.*-jobs_.*?(integration).*/
+              only: /.*-jobs_.*?(push|integration).*/
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
       - push:
           requires:
-            - build
+            - integration
           filters:
             tags:
               only: /.*-jobs_.*?(push|deploy|reset).*/

@@ -18,3 +18,4 @@ NodeRewardWebhookDelay = 10.0
   UpdateWAAUpdateDateInDetails = 1_000_000
   AllRFEInCirculation = 203865
   NewSIBRules = 205655
+  MaxValidatorsOn = 272720

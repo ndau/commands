@@ -552,7 +552,7 @@
   version = "v1.1"
 
 [[projects]]
-  digest = "1:c52d238bef89ec57b612368fcde8794d813c5bbc955c70e78732e7e769b6e9e8"
+  digest = "1:0b13f3b0be0adf54c2c9ba9a35735296c32d4e3ef00cc4dc8d279cc1d3f9c8c1"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +571,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "fe534b2eb061d4dbcae4862e2f54681efb45fe43"
-  version = "v1.26.12"
+  revision = "a5c2ec91be9bf80a88d8632bec7c062410f6a499"
+  version = "v1.26.14"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
@@ -625,7 +625,7 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:e0f764256dc6bae9da31e4452dc39947e9964486d71e4e50d1c5aed6b5f57fc5"
+  digest = "1:831de7e792423b1a2cb6ffcd17ca6ea98204b7931e1b83d9e3f6766ee96b7a61"
   name = "github.com/ndau/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -633,8 +633,8 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "fc264fca5ff10a1c1ddbc7c1e2dd564e2d432fd8"
-  version = "v1.5.4"
+  revision = "58750e53ec9c0efce96122ee1d0336c020ced72d"
+  version = "v1.5.5"
 
 [[projects]]
   digest = "1:1c1df12edde28f99663efc3a3b06bb985a58752915f4281a7b327b24a1385684"
