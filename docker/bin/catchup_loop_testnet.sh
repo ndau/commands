@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 cd "$SCRIPT_DIR" || exit 1
 
 # Run a local node connected to mainnet starting from the genesis snapshot.
-nodename="catchup-node-2"
+nodename="$1"
 
 # Get the current height of mainnet.  We need to catch up to at least this height.
 # Use mainnet-2 since that's in the same region as devnet.
