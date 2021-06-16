@@ -553,7 +553,7 @@
 
 [[projects]]
   branch = "jsg-waa"
-  digest = "1:c59c4ff6ed495fa1c2715eb621a8d86f8f784f2be2ef855fad3911b2a4751c4b"
+  digest = "1:680874bd4b63787531463ae25c2af015ed73aa8bdf251ab32daf9de069daef36"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -572,7 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "10374fd7e3d0520c014d754bfdabb53f644e2da0"
+  revision = "0ef3dc4fc3e96d871cf3f6766ecfba16352a01b5"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
