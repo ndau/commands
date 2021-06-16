@@ -12,11 +12,13 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/ndau/metanode"
-version = "~v1.9"
+# version = "~v1.9"
+branch = "jsg-waa"
 
 [[constraint]]
 name = "github.com/ndau/ndau"
-version = "~v1.26"
+# version = "~v1.26"
+branch = "jsg-waa"
 
 [[constraint]]
 name = "github.com/ndau/ndaumath"
@@ -32,7 +34,8 @@ version = "~v0.1"
 
 [[constraint]]
 name = "github.com/ndau/system_vars"
-version = "~v1.5"
+# version = "~v1.5"
+branch = "jsg-validate-JSON"
 
 [[constraint]]
 name = "github.com/ndau/writers"
@@ -44,7 +47,7 @@ version = "v1.1"
 
 [[constraint]]
 name = "github.com/stretchr/testify"
-version = "v1.4"
+version = "v1.7"
 
 [[override]]
 name = "github.com/attic-labs/graphql"
