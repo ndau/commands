@@ -37,8 +37,8 @@ if [ ! -d "$DATA_DIR" ]; then
 fi
 
 # Every time the node group launches, replace persistent peer domain names with IP addresses.
-# echo "Converting persistent peer domain names to IP addresses..."
-# "$SCRIPT_DIR"/docker-dns.sh  <-- Don't do this, let AWS do smart DNS name resolution
+echo "Converting persistent peer domain names to IP addresses..."
+"$SCRIPT_DIR"/docker-dns.sh
 
 # ensure the log directory exists
 mkdir -p "$LOG_DIR"
