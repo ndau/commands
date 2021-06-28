@@ -39,11 +39,6 @@ fi
 # Every time the node group launches, replace persistent peer domain names with IP addresses.
 # echo "Converting persistent peer domain names to IP addresses..."
 # "$SCRIPT_DIR"/docker-dns.sh  <-- Don't do this, let AWS do smart DNS name resolution
-# Just insert the current list (with DNS names) of the persistent peers
-sed -i -E \
-    -e 's|^(persistent_peers =) (.*)|\1 "'"$PERSISTENT_PEERS"'"|' \
-    "$TM_DATA_DIR/config/config.toml"
-
 
 # ensure the log directory exists
 mkdir -p "$LOG_DIR"
