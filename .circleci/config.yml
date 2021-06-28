@@ -540,7 +540,7 @@ jobs:
             for i in {0..1}; do
               num_peers=$(docker exec localnet-$i curl -s http://localhost:26670/net_info | \
                  jq -r .result.n_peers)
-              if [ "$num_peers" != "1" ]; then
+              if [ "$num_peers" != "0" ]; then
                 echo "ERROR: localnet-$i expected to have 1 peer but has $num_peers"
                 false
               fi
