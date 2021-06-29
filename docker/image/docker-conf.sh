@@ -179,7 +179,9 @@ sed -i -E \
     -e 's/^(create_empty_blocks = .*)/# \1/' \
     -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
     -e 's/^(addr_book_strict =) (.*)/\1 false/' \
-    -e 's/^(pex =) (.*)/\1 false/' \
+    -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
+    -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
+    -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
     -e 's/^(log_format =) (.*)/\1 "json"/' \
     -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
