@@ -302,6 +302,9 @@ docker create \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
+       -e "PEX=$PEX" \
+       -e "SEEDS=$SEEDS" \
+       -e "SEED_MODE=$SEED_MODE" \
        --sysctl net.core.somaxconn=511 \
        "$NDAU_IMAGE_NAME"
 
