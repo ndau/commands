@@ -491,6 +491,8 @@ jobs:
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
+            PEX=true \
+            SEED_MODE=false \
               "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
 
             # Get the ip of the first node.
@@ -521,6 +523,8 @@ jobs:
               -e SLACK_DEPLOYS_KEY="" \
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
+              -e PEX=true \
+              -e SEED_MODE=false \
               ndauimage
             # The ndauimage container looks for a specially-named snapshot ending with "-0".
             docker cp "$bin_dir"/snapshot-localnet-1.tgz localnet-1:/image/snapshot-localnet-0.tgz
@@ -540,10 +544,10 @@ jobs:
             for i in {0..1}; do
               num_peers=$(docker exec localnet-$i curl -s http://localhost:26670/net_info | \
                  jq -r .result.n_peers)
-              # if [ "$num_peers" != "0" ]; then
-              #   echo "ERROR: localnet-$i expected to have 1 peer but has $num_peers"
-              #   false
-              # fi
+              if [ "$num_peers" != "1" ]; then
+                echo "ERROR: localnet-$i expected to have 1 peer but has $num_peers"
+                false
+              fi
             done
 
             # Pull down a copy of integration-tests repo.  We'll copy it into the tests container.
