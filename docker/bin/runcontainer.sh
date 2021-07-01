@@ -289,11 +289,11 @@ fi
 # for SEEDS because "seeds = " is acceptable syntax in config.toml
 
 if [ -z $PEX ]; then
-    PEX="true"          # Turn on PEX peer reactor by default
+    PEX=true          # Turn on PEX peer reactor by default
     echo "Setting PEX default to true"
 fi
 if [ -z $SEED_MODE ]; then
-    SEED_MODE="false"   # Don't run in seed mode
+    SEED_MODE=false   # Don't run in seed mode
     echo "Setting SEED_MODE default to false"
 fi
 
