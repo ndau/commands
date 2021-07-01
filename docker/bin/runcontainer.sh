@@ -256,7 +256,10 @@ else
         echo "Unable to fetch $IMAGE_BASE_URL/$CURRENT_FILE"
         exit 1
     fi
-    SHA=$(cat "$CURRENT_PATH")
+    # Use the specified image SHA if one is given
+    if [ -z $SHA ]; then
+        SHA=$(cat "$CURRENT_PATH")
+    fi
     NDAU_IMAGE_NAME="ndauimage:$SHA"
 
     if [ -z "$(docker image ls -q "$NDAU_IMAGE_NAME")" ]; then
@@ -280,6 +283,18 @@ else
             exit 1
         fi
     fi
+fi
+
+# Supply Tendermint configuration defaults if not provided. No default is needed
+# for SEEDS because "seeds = " is acceptable syntax in config.toml
+
+if [ -z $PEX ]; then
+    PEX="true"          # Turn on PEX peer reactor by default
+    echo "Setting PEX default to true"
+fi
+if [ -z $SEED_MODE ]; then
+    SEED_MODE="false"   # Don't run in seed mode
+    echo "Setting SEED_MODE default to false"
 fi
 
 echo "Creating container..."
