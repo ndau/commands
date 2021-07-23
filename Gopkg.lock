@@ -522,7 +522,8 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:f69582c3a2f4027eed23f9f2fc4bb2e9042e03cce56eae977bd0a56817311d39"
+  branch = "jsg-waa"
+  digest = "1:2536aa2d7f11bc6aa0635d0099c14b733ae015c4e813a5f042d59f795ffe3b4d"
   name = "github.com/ndau/metanode"
   packages = [
     "pkg/meta/app",
@@ -532,8 +533,7 @@
     "pkg/meta/transaction",
   ]
   pruneopts = ""
-  revision = "0df6647b98602d3fa151a4eee46566bb24de7b54"
-  version = "v1.9.3"
+  revision = "d74a7c9c2c98a035f73dd938362acb8df210a5eb"
 
 [[projects]]
   digest = "1:cf6bdc91a5eaa82ff626dbc20243658a66b68dfc52a1b5ae54335e1efd0f7de1"
@@ -552,7 +552,8 @@
   version = "v1.1"
 
 [[projects]]
-  digest = "1:0b13f3b0be0adf54c2c9ba9a35735296c32d4e3ef00cc4dc8d279cc1d3f9c8c1"
+  branch = "jsg-waa"
+  digest = "1:f93d4a14d3275bb415af9557237cee4a85327e765f47885ea2b0a19a00db111a"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -571,8 +572,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "a5c2ec91be9bf80a88d8632bec7c062410f6a499"
-  version = "v1.26.14"
+  revision = "5f4b76f42a7050d01f4dc65851b9680970b5f26b"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
@@ -625,7 +625,8 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:831de7e792423b1a2cb6ffcd17ca6ea98204b7931e1b83d9e3f6766ee96b7a61"
+  branch = "jsg-validate-JSON"
+  digest = "1:c97b97dbf225601391582e4e7bf65d4eda41593a3dae9f4848a1ed023a31ca04"
   name = "github.com/ndau/system_vars"
   packages = [
     "pkg/genesis.generator",
@@ -633,8 +634,7 @@
     "pkg/system_vars",
   ]
   pruneopts = ""
-  revision = "58750e53ec9c0efce96122ee1d0336c020ced72d"
-  version = "v1.5.5"
+  revision = "5adbf9e54c5d38cf18132b0dd1c904987c7d8143"
 
 [[projects]]
   digest = "1:1c1df12edde28f99663efc3a3b06bb985a58752915f4281a7b327b24a1385684"
@@ -769,15 +769,15 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:f7b541897bcde05a04a044c342ddc7425aab7e331f37b47fbb486cd16324b48e"
+  digest = "1:81a176cfb198bb3479a124befc52339e53bcd30d33379e81ba90a2245fc26675"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = ""
-  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
-  version = "v1.4.0"
+  revision = "acba37e5db06f0093b465a7d47822bf13644b66c"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:0a9834d471916f392c608d4f13225444d47b6b7a0378dce1aef683d83711179f"
@@ -1059,12 +1059,12 @@
   version = "v2.0.0"
 
 [[projects]]
-  digest = "1:ab9547706f32a7535bb4f25d6b58ad00436630593cd3e3ed4602f1613ed84783"
-  name = "gopkg.in/yaml.v2"
+  branch = "v3"
+  digest = "1:3f081584f03a869274b31afe33c22ce278c53767cb58963916746109e1d50535"
+  name = "gopkg.in/yaml.v3"
   packages = ["."]
   pruneopts = ""
-  revision = "f221b8435cfb71e54062f6c6e99e9ade30b124d5"
-  version = "v2.2.4"
+  revision = "496545a6307b2a7d7a710fd516e5e16e8ab62dbc"
 
 [solve-meta]
   analyzer-name = "dep"

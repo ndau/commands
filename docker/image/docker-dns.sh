@@ -102,5 +102,5 @@ join_by() { local IFS="$1"; shift; echo "$*"; }
 PERSISTENT_PEERS_WITH_IPS=$(join_by , "${persistent_peers[@]}")
 
 sed -i -E \
-    -e 's|^(seeds =) (.*)|\1 "'"$PERSISTENT_PEERS_WITH_IPS"'"|' \
+    -e 's|^(persistent_peers =) (.*)|\1 "'"$PERSISTENT_PEERS_WITH_IPS"'"|' \
     "$TM_DATA_DIR/config/config.toml"

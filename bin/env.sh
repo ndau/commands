@@ -37,6 +37,8 @@ export GO_DIR
 
 # Prefix of node names in the network, e.g. localnet-0, localnet-1, ...
 export MONIKER_PREFIX=localnet
+export PEX=false
+export SEED_MODE=false
 
 # Repository locations.
 export ATTICLABS_DIR="$GO_DIR"/src/github.com/attic-labs
