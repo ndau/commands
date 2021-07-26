@@ -39,7 +39,8 @@ branch = "jsg-validate-JSON"
 
 [[constraint]]
 name = "github.com/ndau/writers"
-version = "~v1.1"
+# version = "~v1.1"
+branch = "ejm-bufio"
 
 [[constraint]]
 name = "github.com/alexflint/go-arg"
