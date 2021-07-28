@@ -637,7 +637,8 @@
   revision = "5adbf9e54c5d38cf18132b0dd1c904987c7d8143"
 
 [[projects]]
-  # digest = "1:1c1df12edde28f99663efc3a3b06bb985a58752915f4281a7b327b24a1385684"
+  branch = "ejm-bufio"
+  digest = "1:4ffea8a4ee7c65b4eba4d023f60322340cc0fd1754e309e3aeae451d6cf1b112"
   name = "github.com/ndau/writers"
   packages = [
     "pkg/bufio",
@@ -647,8 +648,7 @@
     "pkg/testwriter",
   ]
   pruneopts = ""
-  revision = "2e18d435e57cbf861e7485cba69505618dc781c3"
-  # version = "v1.1.1"
+  revision = "59427b48ab4cf489cc0fe56760eb893ae6e8b163"
 
 [[projects]]
   digest = "1:210286d0cb60ffe28f1ca00b664029e8943009f95d06d8f8c336301b28e1aee5"
