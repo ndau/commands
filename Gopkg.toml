@@ -12,13 +12,11 @@ version = "~v1.1"
 
 [[constraint]]
 name = "github.com/ndau/metanode"
-# version = "~v1.9"
-branch = "jsg-waa"
+version = "~v1.9"
 
 [[constraint]]
 name = "github.com/ndau/ndau"
-# version = "~v1.26"
-branch = "jsg-waa"
+version = "~v1.26"
 
 [[constraint]]
 name = "github.com/ndau/ndaumath"
@@ -34,8 +32,7 @@ version = "~v0.1"
 
 [[constraint]]
 name = "github.com/ndau/system_vars"
-# version = "~v1.5"
-branch = "jsg-validate-JSON"
+version = "~v1.5"
 
 [[constraint]]
 name = "github.com/ndau/writers"
@@ -75,4 +72,3 @@ version = "v1.1.0"
 # versioning choices, and this helps fix them.
 # https://ndevtalk.slack.com/archives/CFT5J0N81/p1551689341081100
 name = "golang.org/x/crypto"
-
