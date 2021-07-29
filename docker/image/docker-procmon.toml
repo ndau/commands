@@ -175,19 +175,13 @@ output = ""
     [[task.monitors]]
         name = "health"
         type = "portinuse"
-        port = "$TM_P2P_PORT"
-        period = "2s"
-
-    [[task.monitors]]
-        name = "health"
-        type = "portinuse"
         port = "$TM_RPC_PORT"
-        period = "2s"
+        period = "5s"
 
     [[task.monitors]]
         name = "ready"
         type = "portinuse"
-        port = "$TM_P2P_PORT $TM_RPC_PORT"
+        port = "$TM_RPC_PORT"
 
 [[task]]
     name = "ndauapi"
