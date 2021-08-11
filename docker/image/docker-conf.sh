@@ -184,6 +184,7 @@ sed -i -E \
     -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
     -e 's/^(log_format =) (.*)/\1 "json"/' \
+    -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
     -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     "$TM_DATA_DIR/config/config.toml"
 

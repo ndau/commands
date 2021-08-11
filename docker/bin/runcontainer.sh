@@ -288,13 +288,17 @@ fi
 # Supply Tendermint configuration defaults if not provided. No default is needed
 # for SEEDS because "seeds = " is acceptable syntax in config.toml
 
+if [ -z $TM_LOG_LEVEL ]; then
+    TM_LOG_LEVEL="p2p:none,rpc-server:none,*:info"
+    echo "Setting TM_LOG_LEVEL default to $TM_LOG_LEVEL"
+fi
 if [ -z $PEX ]; then
     PEX=true          # Turn on PEX peer reactor by default
-    echo "Setting PEX default to true"
+    echo "Setting PEX default to $PEX"
 fi
 if [ -z $SEED_MODE ]; then
     SEED_MODE=false   # Don't run in seed mode
-    echo "Setting SEED_MODE default to false"
+    echo "Setting SEED_MODE default to $SEED_MODE"
 fi
 
 echo "Creating container..."
@@ -317,6 +321,7 @@ docker create \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
+       -e "TM_LOG_LEVEL=$TM_LOG_LEVEL" \
        -e "PEX=$PEX" \
        -e "SEEDS=$SEEDS" \
        -e "SEED_MODE=$SEED_MODE" \
