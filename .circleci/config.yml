@@ -491,7 +491,7 @@ jobs:
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
-            TM_LOG_LEVEL="*:info"
+            TM_LOG_LEVEL="*:info" \
             PEX=true \
             SEED_MODE=false \
               "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
@@ -525,6 +525,7 @@ jobs:
               -e NODE_ID=localnet-1 \
               -e PERSISTENT_PEERS="$id@$ip:26660" \
               -e PEX=true \
+              -e TM_LOG_LEVEL="*:info" \
               -e SEED_MODE=false \
               ndauimage
             # The ndauimage container looks for a specially-named snapshot ending with "-0".
