@@ -491,6 +491,7 @@ jobs:
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
+            TM_LOG_LEVEL="*:info"
             PEX=true \
             SEED_MODE=false \
               "$bin_dir"/runcontainer.sh localnet localnet-0 26660 26670 3030 "" "*"
