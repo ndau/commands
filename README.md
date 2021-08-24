@@ -6,12 +6,7 @@ This document contains steps for getting set up to build and test ndev applicati
 
 The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](bin/README.md).
 
-The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 18.10.
-
-### Prerequisites
-
-Ensure that you have SSH clone access to the [ndau](https://github.com/ndau) repos required: `chaincode  genesis  json2msgp  metanode  msgp-well-known-types  mt19937_64  ndau  ndaumath  noms-util  o11y  system_vars  writers`.
-
+The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 20.04.
 #### macOS:
 
 The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package.
@@ -29,20 +24,19 @@ The Homebrew package manager is by far the easiest way to install these tools, b
     - If it's already installed, run `brew upgrade redis@5.0`
     - Otherwise, run `brew install redis@5.0`
 1. Install `jq`: `brew install jq`
-
 #### Ubuntu:
 
-Install tooling: `sudo apt install golang go-dep redis jq git -y`
-
+1. Install tooling: `sudo apt install golang go-dep redis jq git -y`
 ### ndau Tools
 
+1. Ensure `$GOPATH` is set to the root of your Go working tree (usually `~/go`)
 1. Clone the ndau `commands` repo:
     ```sh
-    git clone git@github.com:ndau/commands.git "$GOPATH"/src/github.com/ndau/commands
+    git clone https://github.com/ndau/commands.git "$GOPATH"/src/github.com/ndau/commands
     ```
 1. Build all tools, set up for a single-node localnet for testing:
    ```sh
-   $GOPATH/src/github.com/ndau/commands
+   cd $GOPATH/src/github.com/ndau/commands
    ./bin/setup.sh 1
    ```
    Replace `1` with the desired number of nodes for a larger localnet configuration.
