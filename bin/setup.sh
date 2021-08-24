@@ -120,7 +120,7 @@ update_repo() {
         echo SETUP: Updating "$repo"...
         cd "$repo"
         branch=$("$CMDBIN_DIR"/branch.sh)
-        exists=$(git ls-remote --heads git@github.com:ndau/"$repo".git "$branch")
+        exists=$(git ls-remote --heads https://github.com/ndau/"$repo".git "$branch")
         if [ -z "$exists" ]; then
             # This just means you have a local branch you haven't pushed yet, and that's fine.
             echo "Branch $branch does not exist on remote"
@@ -129,7 +129,7 @@ update_repo() {
         fi
     else
         echo SETUP: Cloning "$repo"...
-        git clone git@github.com:ndau/"$repo".git
+        git clone https://github.com/ndau/"$repo".git
     fi
 }
 
