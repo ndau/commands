@@ -20,8 +20,8 @@ import (
 
 // Config configures the claimer
 type Config struct {
-	// URL to the RPC address of a node
-	NodeRPC string `toml:"node_rpc"`
+	// URL to the API address of a node
+	NodeAPI string `toml:"node_api"`
 	// The Nodes map actually maps an address to a list of private keys
 	Nodes map[string][]string `toml:"nodes"`
 	// If set and true, operate in synchronous mode: wait for the blockchain

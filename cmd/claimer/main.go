@@ -41,7 +41,7 @@ func main() {
 	check(err, "loading configuration")
 
 	svc := claimer.NewClaimService(config, log.New().WithField("bin", "claimer"))
-	svc.GetLogger().WithField("node address", svc.Config.NodeRPC).Info("using RPC address")
+	svc.GetLogger().WithField("node address", svc.Config.NodeAPI).Info("using API address")
 	{
 		fields := log.Fields{}
 		for addr, keys := range svc.Config.Nodes {
