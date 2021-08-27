@@ -1,5 +1,5 @@
 NodeRewardWebhook="http://localhost:4040/claim_winner"
-NodeRewardWebhookDelay = 10.0
+NodeRewardWebhookDelay = 10
 
 [Features]
   # Feature heights for mainnet.  See docker-config-default.toml for more information.
