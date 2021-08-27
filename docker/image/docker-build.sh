@@ -23,9 +23,11 @@ echo Building tools...
 go build ./cmd/generate
 go build ./cmd/keytool
 go build ./cmd/ndau
+go build ./cmd/claimer
 mv generate "$BIN_DIR"
 mv keytool "$BIN_DIR"
 mv ndau "$BIN_DIR"
+mv claimer "$BIN_DIR"
 
 echo Building procmon...
 go build ./cmd/procmon

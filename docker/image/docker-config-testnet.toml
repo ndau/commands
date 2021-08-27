@@ -1,3 +1,4 @@
+NodeRewardWebhook="http://localhost:4040/claim_winner"
 NodeRewardWebhookDelay = 10.0
 
 [Features]
