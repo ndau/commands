@@ -31,4 +31,4 @@ export SNAPSHOT_BUCKET="ndau-snapshots"
 export GENERATED_GENESIS_SNAPSHOT="*"
 export LOCAL_SNAPSHOT="$ROOT_DIR/snapshot-$NETWORK-0.tgz"
 
-export $WEBHOOK_URL=http://localhost:"$CLAIMER_PORT"
+export WEBHOOK_URL=http://localhost:"$CLAIMER_PORT"
