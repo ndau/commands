@@ -218,7 +218,7 @@ output = ""
     path = "$BIN_DIR/claimer"
     args = [
         "--port=$CLAIMER_PORT",
-        "--config-path=$BIN_DIR"
+        "--config-path=$BIN_DIR/claimer_conf.toml"
     ]
     stdout = "$LOG_DIR/claimer.log"
     stderr = "$LOG_DIR/claimer.log"
