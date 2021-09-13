@@ -530,7 +530,7 @@
 
 [[projects]]
   branch = "ejm-no-delegates"
-  digest = "1:4c3e73e9f4be20226904bbe39d88c126662d86f6a6d16e148eb2755fd9aa8b19"
+  digest = "1:ec50ece49510d6a84432e2cdcdcd9dbace57c2a15977c24d9847ad63dfe2c1dd"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -549,7 +549,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "3080b3918d2bf453a4868e11df1d99cff0a7ae61"
+  revision = "c76c4554f9013fa129b29663018cc06d465eba7a"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
