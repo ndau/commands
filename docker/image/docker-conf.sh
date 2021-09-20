@@ -122,10 +122,9 @@ else
       echo "No node identity found; a new node identity will be generated"
   fi
 fi
-
+# If present, expand the claimer config into the image directory
 if [ ! -z "$BASE64_CLAIMER_CONFIG" ]; then
     echo "Generating claimer config..."
-    cd "$IMAGE_DIR" || exit 1
     echo -n "$BASE64_CLAIMER_CONFIG" | base64 -d | tar xfvz -
 fi
 

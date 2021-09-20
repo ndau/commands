@@ -80,7 +80,6 @@ IDENTITY="$6"
 SNAPSHOT="$7"
 PEERS_P2P="$8"
 PEERS_RPC="$9"
-CLAIMER_PORT="$10"
 
 if [ "$NETWORK" != "localnet" ] && \
    [ "$NETWORK" != "devnet" ] && \
