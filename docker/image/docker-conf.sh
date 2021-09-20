@@ -123,6 +123,12 @@ else
   fi
 fi
 
+if [ ! -z "$BASE64_CLAIMER_CONFIG" ]; then
+    echo "Generating claimer config..."
+    cd "$BIN_DIR" || exit 1
+    echo -n "$BASE64_CLAIMER_CONFIG" | base64 -d | tar xfvz -
+fi
+
 # Tendermint complains if this file isn't here, but it can be empty json.
 pvs_dir="$DATA_DIR/tendermint/data"
 pvs_file="$pvs_dir/priv_validator_state.json"
