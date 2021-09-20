@@ -125,7 +125,7 @@ fi
 
 if [ ! -z "$BASE64_CLAIMER_CONFIG" ]; then
     echo "Generating claimer config..."
-    cd "$BIN_DIR" || exit 1
+    cd "$IMAGE_DIR" || exit 1
     echo -n "$BASE64_CLAIMER_CONFIG" | base64 -d | tar xfvz -
 fi
 

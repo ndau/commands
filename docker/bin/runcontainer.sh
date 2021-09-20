@@ -22,7 +22,7 @@ if [ -z "$1" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
    [ -z "$5" ]
-   # $6 through $9 are optional and "" can be used for any of them.
+   # $6 through $10 are optional and "" can be used for any of them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
@@ -62,7 +62,6 @@ then
     echo "             Provides configuration information for automated claiming of"
     echo "             node rewards; there are no default values. The contents of the"
     echo "             variable are a base64 encoded tarball containing"
-    echo "               - webhook.toml"
     echo "               - claimer_config.toml"
     echo
     echo "  WEBHOOK_URL"
@@ -81,6 +80,7 @@ IDENTITY="$6"
 SNAPSHOT="$7"
 PEERS_P2P="$8"
 PEERS_RPC="$9"
+CLAIMER_PORT="$10"
 
 if [ "$NETWORK" != "localnet" ] && \
    [ "$NETWORK" != "devnet" ] && \
