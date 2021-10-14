@@ -25,12 +25,23 @@ func kpf(kp string) func(int, int) string {
 }
 
 var keyPatterns = []func(acctidx, keyidx int) string{
+	kpf("/44'/20036'/100/%d/44'/20036'/2000/%d"), // wallet bug
+	kpf("/44'/20036'/100/10000'/%d'/%d"),         // improve security
 	kpf("/44'/20036'/2000/%d/%d"),                // original
 	kpf("/44'/20036'/100/10000/%d/%d"),           // intended fix for discarding root
 	kpf("/44'/20036'/100/10000'/%d'/%d"),         // improve security
-	kpf("/44'/20036'/100/%d/44'/20036'/2000/%d"), // wallet bug
+	kpf("/%d/44'/20036'/2000/%d"),                // found in ValidationKeyMaster.js comment
+	kpf("/%d/10000'/%d"),                         // found in ValidationKeyMaster.js comment
 	func(acct, key int) string {
 		// wallet bug
+		return fmt.Sprintf("/%d/10000/%d/%d", acct, acct, key)
+	},
+	func(acct, key int) string {
+		// very old wallet bug
+		return fmt.Sprintf("/%d/10000'/%d'/%d", acct, acct, key)
+	},
+	func(acct, key int) string {
+		// very old wallet bug
 		return fmt.Sprintf("/44'/20036'/100/10000/%d", acct)
 	},
 	func(acct, key int) string {
@@ -40,6 +51,10 @@ var keyPatterns = []func(acctidx, keyidx int) string{
 	func(acct, key int) string {
 		// ndautool bug
 		return fmt.Sprintf("/44'/20036'/100/%d/44'/20036'/100/10000/%d/%d", acct, acct, key)
+	},
+	func(acct, key int) string {
+		// another ValidationKeyMaster.js comment
+		return fmt.Sprintf("/%d/44'/20036'/100/10000/%d/%d", acct, acct, key)
 	},
 }
 
