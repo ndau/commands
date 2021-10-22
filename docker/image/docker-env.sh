@@ -6,7 +6,6 @@ export REDIS_PORT=6379
 export TM_P2P_PORT=26660
 export TM_RPC_PORT=26670
 export NDAUAPI_PORT=3030
-export CLAIMER_PORT=4040
 
 export ULIMIT_AMOUNT=1024
 export REDIS_MAX_CLIENTS=$((ULIMIT_AMOUNT - 32))
@@ -31,4 +30,3 @@ export SNAPSHOT_BUCKET="ndau-snapshots"
 export GENERATED_GENESIS_SNAPSHOT="*"
 export LOCAL_SNAPSHOT="$ROOT_DIR/snapshot-$NETWORK-0.tgz"
 
-export WEBHOOK_URL=http://localhost:"$CLAIMER_PORT"/claim_winner
