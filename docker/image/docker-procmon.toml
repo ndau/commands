@@ -217,7 +217,7 @@ output = ""
     parent = "ndauapi"
     path = "$BIN_DIR/claimer"
     args = [
-        "--config-path=$BIN_DIR/claimer_conf.toml"
+        "--config-path=$BIN_DIR/claimer_conf.toml --port=$CLAIMER_PORT"
     ]
     stdout = "$LOG_DIR/claimer.log"
     stderr = "$LOG_DIR/claimer.log"
