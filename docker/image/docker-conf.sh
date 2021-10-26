@@ -119,7 +119,7 @@ else
   else
       # When we start without a node identity, we generate one so the node operator can restart
       # this node later, having the same identity every time.
-      echo "No node identity found; a new node identity will be generated"
+      echo "No Tendermint node identity found; a new node identity will be generated"
   fi
 fi
 # If present, expand the claimer config into the image directory
