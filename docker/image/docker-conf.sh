@@ -169,7 +169,7 @@ sed -e 's/^/  /' <(grep Webhook "$NDAUHOME/ndau/config.toml")
 
 if grep -q '^\s*NodeRewardWebhookDelay' "$NDAUHOME/ndau/config.toml"; then
     # configured value is present
-    if ! grep -q '^\s*NodeRewardWebhookDelay.*\.0$'; then
+    if ! grep -q '^\s*NodeRewardWebhookDelay.*\.0$' "$NDAUHOME/ndau/config.toml"; then
         # configured value is not a float
         sed -i '' -e '/NodeRewardWebhookDelay.*/s//&.0/' "$NDAUHOME/ndau/config.toml"
         echo "Webhook config post-sed:"
