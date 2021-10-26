@@ -212,28 +212,28 @@ output = ""
 
 # claimer command-line arguments must use "=" as a separator, so they're single strings
 
-#[[task]]
-#    name = "claimer"
-#    parent = "ndauapi"
-#    path = "$BIN_DIR/claimer"
-#    args = [
-#        "--config-path=$BIN_DIR/claimer_conf.toml"
-#    ]
-#    stdout = "$LOG_DIR/claimer.log"
-#    stderr = "$LOG_DIR/claimer.log"
-#    maxstartup = "5s"
-#    maxshutdown = "2s"
-#
-#    [[task.monitors]]
-#        name = "health"
-#        type = "portinuse"
-#        port = "$CLAIMER_PORT"
-#        period = "5s"
-#
-#    [[task.monitors]]
-#        name = "ready"
-#        type = "portinuse"
-#        port = "$CLAIMER_PORT"
+[[task]]
+    name = "claimer"
+    parent = "ndauapi"
+    path = "$BIN_DIR/claimer"
+    args = [
+        "--config-path=$BIN_DIR/claimer_conf.toml"
+    ]
+    stdout = "$LOG_DIR/claimer.log"
+    stderr = "$LOG_DIR/claimer.log"
+    maxstartup = "5s"
+    maxshutdown = "2s"
+
+    [[task.monitors]]
+       name = "health"
+       type = "portinuse"
+        port = "$CLAIMER_PORT"
+        period = "5s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$CLAIMER_PORT"
 
 [[task]]
     name = "snapshot-immediate"

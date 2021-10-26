@@ -58,17 +58,22 @@ then
     echo "               - tendermint/config/priv_validator_key.json"
     echo "               - tendermint/config/node_id.json"
     echo
+    echo "  WEBHOOK_URL"
+    echo "             URL to receive node reward notifications. If the claimer process"
+    echo "             is running in the same container, this will be a localhost"
+    echo "             URL. Otherwise it's a remote URL running the claimer process, as"
+    echo "             one claimer process can support multiple nodes."
+    echo
     echo "  BASE64_CLAIMER_CONFIG"
     echo "             Provides configuration information for automated claiming of"
-    echo "             node rewards; there are no default values. The contents of the"
+    echo "             node rewards; there are no default values. If this variable is not set,"
+    echo "             no node reward claimer process will be run locally. The contents of the"
     echo "             variable are a base64 encoded tarball containing"
     echo "               - claimer_config.toml"
     echo
-    echo "  WEBHOOK_URL"
-    echo "             URL to receive node reward notifications. If the claimer process"
-    echo "             is running in the same container, this will likely be a localhost"
-    echo "             URL. Otherwise it's a remote URL running the claimer process, as"
-    echo "             one claimer process can support multiple nodes."
+    echo "  CLAIMER_PORT"
+    echo "             The localhost port number used by the claimer process, if running. This value"
+    echo "             should match the port number specified in the claimer_config.toml file."
     exit 1
 fi
 NETWORK="$1"
@@ -333,6 +338,7 @@ docker create \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
        -e "BASE64_CLAIMER_CONFIG=$BASE64_CLAIMER_CONFIG" \
+       -e "CLAIMER_PORT=$CLAIMER_PORT" \
        -e "WEBHOOK_URL=$WEBHOOK_URL" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
        -e "TM_LOG_LEVEL=$TM_LOG_LEVEL" \

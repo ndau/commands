@@ -119,7 +119,7 @@ else
   else
       # When we start without a node identity, we generate one so the node operator can restart
       # this node later, having the same identity every time.
-      echo "No Tendermint node identity found; a new node identity will be generated"
+      echo "No node identity found; a new node identity will be generated"
   fi
 fi
 # If present, expand the claimer config into the image directory
@@ -128,7 +128,7 @@ if [ ! -z "$BASE64_CLAIMER_CONFIG" ]; then
     cd "$BIN_DIR" || exit 1
     echo -n "$BASE64_CLAIMER_CONFIG" | base64 -d | tar xfvz -
 else
-    echo "No '$BASE64_CLAIMER_CONFIG' found."
+    echo "No '$BASE64_CLAIMER_CONFIG' found; claimer process will not run."
 fi
 
 # Tendermint complains if this file isn't here, but it can be empty json.
