@@ -128,7 +128,7 @@ if [ ! -z "$BASE64_CLAIMER_CONFIG" ]; then
     cd "$BIN_DIR" || exit 1
     echo -n "$BASE64_CLAIMER_CONFIG" | base64 -d | tar xfvz -
 else
-    echo "No claimer config found."
+    echo "No '$BASE64_CLAIMER_CONFIG' found."
 fi
 
 # Tendermint complains if this file isn't here, but it can be empty json.
