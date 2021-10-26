@@ -227,16 +227,14 @@ output = ""
 
     [[task.monitors]]
        name = "health"
-       type = "http"
-       url = "http://localhost:$CLAIMER_PORT/claim_winner"
-       timeout = "1s"
+       type = "portinuse"
+       port = "$CLAIMER_PORT"
        period = "300s"
 
     [[task.monitors]]
        name = "ready"
-       type = "http"
-       url = "http://localhost:$CLAIMER_PORT/claim_winner"
-       timeout = "1s"
+       type = "portinuse"
+       port = "$CLAIMER_PORT"
 
 [[task]]
     name = "snapshot-immediate"
