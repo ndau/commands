@@ -109,7 +109,8 @@ COPY ./docker-conf.sh \
     ./docker-config-testnet.toml \
     ./docker-dns.sh \
     ./docker-env.sh \
-    ./docker-procmon.toml \
+    ./docker-procmon-claimer.toml \
+    ./docker-procmon-noclaimer.toml \
     ./docker-run.sh \
     ./docker-snapshot.sh \
     /image/
