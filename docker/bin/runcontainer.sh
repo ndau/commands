@@ -51,18 +51,23 @@ then
     echo "               Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
     echo
+    echo "Required if the node is to become a validator node at some point:"
+    echo "  WEBHOOK_URL The URL to be called by ndaunode when the node is nominated for"
+    echo "                a node reward. This usually points to a port listening on"
+    echo "                locahost if the claimer process is running, but may point to"
+    echo "                any external URL"
+    echo
+    echo "Required if the node reward claimer process is to be run locally by the node:"
+    echo "  CLAIMER_PORT The localhost port number used by the claimer process, if running. This value"
+    echo "                 should match the port number specified in the claimer_config.toml file"
+    echo "                 defined by the BASE64_CLAIMER_CONFIG file (see below)."
+    echo
     echo "Environment variables:"
     echo "  BASE64_NODE_IDENTITY"
     echo "             Set to override the IDENTITY parameter"
     echo "             The contents of the variable are a base64 encoded tarball containing:"
     echo "               - tendermint/config/priv_validator_key.json"
     echo "               - tendermint/config/node_id.json"
-    echo
-    echo "  WEBHOOK_URL"
-    echo "             URL to receive node reward notifications. If the claimer process"
-    echo "             is running in the same container, this will be a localhost"
-    echo "             URL. Otherwise it's a remote URL running the claimer process, as"
-    echo "             one claimer process can support multiple nodes."
     echo
     echo "  BASE64_CLAIMER_CONFIG"
     echo "             Provides configuration information for automated claiming of"
@@ -71,11 +76,9 @@ then
     echo "             variable are a base64 encoded tarball containing"
     echo "               - claimer_config.toml"
     echo
-    echo "  CLAIMER_PORT"
-    echo "             The localhost port number used by the claimer process, if running. This value"
-    echo "             should match the port number specified in the claimer_config.toml file."
     exit 1
 fi
+
 NETWORK="$1"
 CONTAINER="$2"
 P2P_PORT="$3"
@@ -85,6 +88,8 @@ IDENTITY="$6"
 SNAPSHOT="$7"
 PEERS_P2P="$8"
 PEERS_RPC="$9"
+WEBHOOK_URL="$10"
+CLAIMER_PORT="$11"
 
 if [ "$NETWORK" != "localnet" ] && \
    [ "$NETWORK" != "devnet" ] && \

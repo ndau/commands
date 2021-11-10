@@ -43,6 +43,15 @@ echo "Converting persistent peer domain names to IP addresses..."
 # ensure the log directory exists
 mkdir -p "$LOG_DIR"
 
+# set the procmon config based on whether the claimer is configured or not
+if [ -z $BASE64_CLAIMER_CONFIG ]; then
+    echo "No claimer config: procmon won't try to start it"
+    mv "$SCRIPT_DIR/docker-procmon-noclaimer.toml" "$SCRIPT_DIR/docker-procmon.toml"
+else
+    echo "Claimer is configured: procmon will start it"
+    mv "$SCRIPT_DIR/docker-procmon-claimer.toml" "$SCRIPT_DIR/docker-procmon.toml"
+fi
+
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
 if [ -z "$HONEYCOMB_KEY" ] || [ -z "$HONEYCOMB_DATASET" ]; then

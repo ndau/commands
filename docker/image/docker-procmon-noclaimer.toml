@@ -1,0 +1,241 @@
+[env]
+# Most environment variables are exported from docker-env.sh, or passed in using -e with
+# `docker run` or `docker create`.  Here are some defaults.
+LOG_FORMAT = "json"
+LOG_LEVEL = "info"
+
+# This is needed as an environment variable by the ndauapi task.  It shouldn't need overriding.
+NDAUAPI_NDAU_RPC_URL = "http://localhost:$TM_RPC_PORT"
+
+# Periodic snapshot generation is on by default for the purpose of daily restarts.
+# If the AWS_* env vars are not set, the snapshot won't get uploaded, which is fine.
+# It might come in handy for the container to always have a copy of its own snapshot.
+SNAPSHOT_INTERVAL = "24h"
+
+[logger]
+# The format and level are only used for procmon logging. Tendermint logging is controlled
+# by the "log_level" setting in tendermint's config.toml
+format = "$LOG_FORMAT"
+level = "$LOG_LEVEL"
+
+# Possible values for this are: STDOUT, STDERR, SUPPRESS.
+# "" means we log to stderr by default.
+# If the HONEYCOMB_* env vars are set, all logging from procmon itself is redirected to honeycomb.
+output = ""
+
+[[prologue]]
+    name = "redisportclear"
+    type = "portavailable"
+    port = "$REDIS_PORT"
+
+[[prologue]]
+    name = "nomsportclear"
+    type = "portavailable"
+    port = "$NOMS_PORT"
+
+[[prologue]]
+    name = "nodeportclear"
+    type = "portavailable"
+    port = "$NODE_PORT"
+
+[[prologue]]
+    name = "tmportsclear"
+    type = "portavailable"
+    port = "$TM_P2P_PORT $TM_RPC_PORT"
+
+[[prologue]]
+    name = "ndauapiportclear"
+    type = "portavailable"
+    port = "$NDAUAPI_PORT"
+
+[[prologue]]
+    name = "redisdatadirexists"
+    type = "ensuredir"
+    path = "$REDIS_DATA_DIR"
+
+[[prologue]]
+    name = "nomsdatadirexists"
+    type = "ensuredir"
+    path = "$NOMS_DATA_DIR"
+
+[[prologue]]
+    name = "nodedatadirexists"
+    type = "ensuredir"
+    path = "$NODE_DATA_DIR"
+
+[[prologue]]
+    name = "tmdatadirexists"
+    type = "ensuredir"
+    path = "$TM_DATA_DIR"
+
+
+# environment variables are expanded in all config values that are
+# strings
+[[task]]
+    name = "redis"
+    path = "redis-server"
+    args = [
+        "--dir", "$REDIS_DATA_DIR",
+        "--maxclients", "$REDIS_MAX_CLIENTS",
+        "--port", "$REDIS_PORT",
+        "--save", "60", "1",
+    ]
+    # paths to log files for caputuring this task's stdout and stderr,
+    # special values are:
+    # "SUPPRESS" meaning "discard this stream"
+    # "STDOUT" means "send to stdout"
+    # "STDERR" means "send to stderr"
+    # If omitted or "", it'll use the default (i.e. stdout = "STDOUT", stderr = "STDERR").
+    # If the HONEYCOMB_* env vars are set, all logging from this task is redirected to honeycomb.
+    stdout = "$LOG_DIR/redis.log"
+    stderr = "$LOG_DIR/redis.log"
+    # durations are done as time.Duration
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "redis"
+        addr = "localhost:$REDIS_PORT"
+
+
+[[task]]
+    name = "noms"
+    parent = "redis"
+    path = "$BIN_DIR/noms"
+    args = [
+        "serve",
+        "--port=$NOMS_PORT",
+        "$NOMS_DATA_DIR",
+    ]
+    stdout = "$LOG_DIR/noms.log"
+    stderr = "$LOG_DIR/noms.log"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NOMS_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$NOMS_PORT"
+
+[[task]]
+    name = "ndaunode"
+    parent = "noms"
+    path = "$BIN_DIR/ndaunode"
+    args = [
+        "-spec", "http://localhost:$NOMS_PORT",
+        "-index", "localhost:$REDIS_PORT",
+        "-addr", "0.0.0.0:$NODE_PORT",
+    ]
+    stdout = "$LOG_DIR/ndaunode.log"
+    stderr = "$LOG_DIR/ndaunode.log"
+    # Wait a long time for startup in case we bump indexVersion for an initial re-index.
+    # If procmon times out waiting for ndaunode to do an initial re-index, it could mean we're
+    # starting from an excessively old snapshot.
+    maxstartup = "5m"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$NODE_PORT"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$NODE_PORT"
+
+[[task]]
+    name = "tendermint"
+    parent = "ndaunode"
+    path = "$BIN_DIR/tendermint"
+    args = [
+        "node",
+        "--home", "$TM_DATA_DIR",
+        "--proxy_app", "tcp://localhost:$NODE_PORT",
+        "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
+        "--rpc.laddr", "tcp://0.0.0.0:$TM_RPC_PORT",
+    ]
+    stdout = "$LOG_DIR/tendermint.log"
+    stderr = "$LOG_DIR/tendermint.log"
+    maxstartup = "60s"
+    maxshutdown = "5s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "portinuse"
+        port = "$TM_RPC_PORT"
+        period = "5s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "portinuse"
+        port = "$TM_RPC_PORT"
+
+[[task]]
+    name = "ndauapi"
+    parent = "tendermint"
+    path = "$BIN_DIR/ndauapi"
+    stdout = "$LOG_DIR/ndauapi.log"
+    stderr = "$LOG_DIR/ndauapi.log"
+    maxstartup = "5s"
+    maxshutdown = "2s"
+
+    [[task.monitors]]
+        name = "health"
+        type = "http"
+        url = "http://localhost:$NDAUAPI_PORT/node/health"
+        timeout = "1s"
+        period = "2s"
+
+    [[task.monitors]]
+        name = "ready"
+        type = "http"
+        url = "http://localhost:$NDAUAPI_PORT/node/health"
+        timeout = "300ms"
+
+[[task]]
+    name = "snapshot-immediate"
+    path = "/bin/bash"
+    args = [
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload --force",
+    ]
+    stdout = "$LOG_DIR/snapshot.log"
+    stderr = "$LOG_DIR/snapshot.log"
+    [task.specials]
+        onetime = true
+        shutdown = true
+        signal = "SIGHUP"
+        terminate = false
+
+
+[[task]]
+    # The periodic snapshot task doubles as a restart task to combat memory leaks.
+    # It also does a re-dns for converting persistent peer domain names to IP addresses.
+    name = "snapshot-periodic"
+    path = "/bin/bash"
+    args = [
+        "-c", "$ROOT_DIR/docker-snapshot.sh --generate --upload && $ROOT_DIR/docker-dns.sh",
+    ]
+    stdout = "$LOG_DIR/snapshot.log"
+    stderr = "$LOG_DIR/snapshot.log"
+    [task.specials]
+        onetime = true
+        shutdown = true
+        # Leave this blank/unset to disable periodic snapshot creation.
+        # Set to "4h", for example, to generate a snapshot every 4 hours.
+        # Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
+        # must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
+        periodic = "$SNAPSHOT_INTERVAL"
+        terminate = false
