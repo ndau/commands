@@ -22,12 +22,12 @@ if [ -z "$1" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
    [ -z "$5" ]
-   # $6 through $10 are optional and "" can be used for any of them.
+   # $6 through $11 are optional and "" can be used for any of them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
          "NETWORK CONTAINER P2P_PORT RPC_PORT API_PORT" \
-         "[IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC]"
+         "[IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC] [WEBHOOK_URL] [CLAIMER_PORT]"
     echo
     echo "Arguments:"
     echo "  NETWORK    Which network to join: localnet, devnet, testnet, mainnet"
