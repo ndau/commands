@@ -4,10 +4,10 @@
 # This stage has all purely external dependencies we'll want in the final image.
 # Nothing here will ever change based on ndev code changes, so it's safe to
 # build/cache it all right up top.
-FROM alpine:3.14 AS combined_node_base
+FROM alpine:3.12.9 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 && \
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
     python3 -m pip install remarshal && \
     update-ca-certificates 2>/dev/null
 
@@ -24,7 +24,7 @@ COPY --from=redis:5.0.14-alpine [ \
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.17.3-alpine3.14 AS go_build
+FROM golang:1.13.15-alpine3.12 AS go_build
 
 # Install extra tools.
 RUN apk add --no-cache bash git openssh make gcc libc-dev
