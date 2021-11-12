@@ -70,13 +70,18 @@ build_tm() {
     # JSG move to make to satisfy new go dependcy reqs in v0.32.5, we might need to go back
     # to "go build" in the future
 #    go build ./"$TENDERMINT_CMD"
+    echo
+    pwd
+    echo
+    printenv
+    echo
     GO111MODULE=on make build
 }
 
 build_noms() {
     echo building noms
     cd "$NOMS_DIR"
-    go build ./"$NOMS_CMD"
+    GO111MODULE=on go build ./"$NOMS_CMD"
 }
 
 build_all() {
