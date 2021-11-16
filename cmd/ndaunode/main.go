@@ -128,18 +128,21 @@ func main() {
 	server := server.NewSocketServer(*socketAddr, app)
 
 	// Don't let the server log anything (it's very noisy) unless we're at debug level.
-	if app.GetLogger().(*logrus.Logger).Level == logrus.DebugLevel {
-		var tmLogger tmlog.Logger
-		switch os.Getenv("LOG_FORMAT") {
-		case "json", "":
-			tmLogger = tmlog.NewTMJSONLogger(os.Stdout)
-		case "text", "plain":
-			tmLogger = tmlog.NewTMLogger(os.Stdout)
-		default:
-			tmLogger = tmlog.NewTMJSONLogger(os.Stdout)
+	/*	if app.GetLogger().(*logrus.Logger).Level == logrus.DebugLevel {
+			var tmLogger tmlog.Logger
+			switch os.Getenv("LOG_FORMAT") {
+			case "json", "":
+				tmLogger = tmlog.NewTMJSONLogger(os.Stdout)
+			case "text", "plain":
+				tmLogger = tmlog.NewTMLogger(os.Stdout)
+			default:
+				tmLogger = tmlog.NewTMJSONLogger(os.Stdout)
+			}
+			server.SetLogger(tmLogger)
 		}
-		server.SetLogger(tmLogger)
-	}
+	*/
+	app.GetLogger().(*logrus.Logger).Level = logrus.InfoLevel
+	server.SetLogger(tmlog.NewTMLogger(os.Stdout))
 
 	err = server.Start()
 	check(err)

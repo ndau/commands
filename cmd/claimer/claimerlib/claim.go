@@ -78,9 +78,9 @@ func Claim(config *Config, logger *log.Entry) http.HandlerFunc {
 
 		if exists {
 			if config.SyncMode != nil && *config.SyncMode {
-				dispatch(logger, config.NodeRPC, payload.Winner, keys)
+				dispatch(logger, config.NodeAPI, payload.Winner, keys)
 			} else {
-				go dispatch(logger, config.NodeRPC, payload.Winner, keys)
+				go dispatch(logger, config.NodeAPI, payload.Winner, keys)
 			}
 		} else {
 			logger.WithField("winnerAddress", payload.Winner).Info("winner was not among configured nodes")
