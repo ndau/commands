@@ -251,18 +251,19 @@ workflows:
             branches:
               # This causes circle to skip this job on untagged non-master builds.
               ignore: /.*/
-      - integration:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /.*-jobs_.*?(push|integration).*/
-            branches:
-              # This causes circle to skip this job on untagged non-master builds.
-              ignore: /.*/
+#      - integration:
+#          requires:
+#            - build
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(push|integration).*/
+#            branches:
+#              # This causes circle to skip this job on untagged non-master builds.
+#              ignore: /.*/
       - push:
           requires:
-            - integration
+          - build
+#            - integration
           filters:
             tags:
               only: /.*-jobs_.*?(push|deploy|reset).*/

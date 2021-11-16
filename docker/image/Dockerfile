@@ -4,15 +4,15 @@
 # This stage has all purely external dependencies we'll want in the final image.
 # Nothing here will ever change based on ndev code changes, so it's safe to
 # build/cache it all right up top.
-FROM alpine:3.9 AS combined_node_base
+FROM alpine:3.12.9 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 && \
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
     python3 -m pip install remarshal && \
     update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
-COPY --from=redis:5.0.4-alpine [ \
+COPY --from=redis:5.0.14-alpine [ \
     "usr/local/bin/redis-server", \
     "usr/local/bin/redis-sentinel", \
     "usr/local/bin/redis-cli", \
@@ -22,11 +22,9 @@ COPY --from=redis:5.0.4-alpine [ \
     "/usr/local/bin/" \
     ]
 
-
-
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.13-alpine3.11 AS go_build
+FROM golang:1.13.15-alpine3.12 AS go_build
 
 # Install extra tools.
 RUN apk add --no-cache bash git openssh make gcc libc-dev
@@ -45,8 +43,7 @@ RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 # The build_tendermint stage builds tendermint, caching results when posssible
 FROM go_build AS build_tendermint
 # Use pre-built tendermint image
-# COPY --from=tendermint/tendermint:v0.32.3 /usr/bin/tendermint /image/bin/
-# build tendermint because pre-built 0.32.5 doesn't exist
+# build tendermint because pre-built 0.32.6 doesn't exist
 ENV TENDERMINT_DIR=$GOPATH/src/github.com/tendermint
 ENV TENDERMINT_VER=v0.32.6
 RUN mkdir -p "$TENDERMINT_DIR"
@@ -109,7 +106,8 @@ COPY ./docker-conf.sh \
     ./docker-config-testnet.toml \
     ./docker-dns.sh \
     ./docker-env.sh \
-    ./docker-procmon.toml \
+    ./docker-procmon-claimer.toml \
+    ./docker-procmon-noclaimer.toml \
     ./docker-run.sh \
     ./docker-snapshot.sh \
     /image/

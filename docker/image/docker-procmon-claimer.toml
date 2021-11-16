@@ -49,6 +49,11 @@ output = ""
     port = "$NDAUAPI_PORT"
 
 [[prologue]]
+    name = "claimerportclear"
+    type = "portavailable"
+    port = "$CLAIMER_PORT"
+
+[[prologue]]
     name = "redisdatadirexists"
     type = "ensuredir"
     path = "$REDIS_DATA_DIR"
@@ -205,6 +210,31 @@ output = ""
         url = "http://localhost:$NDAUAPI_PORT/node/health"
         timeout = "300ms"
 
+# claimer command-line arguments must use "=" as a separator, so they're single strings
+
+[[task]]
+    name = "claimer"
+    parent = "ndauapi"
+    path = "$BIN_DIR/claimer"
+    args = [
+        "--port=$CLAIMER_PORT",
+        "--config-path=$BIN_DIR/claimer_conf.toml",
+    ]
+    stdout = "$LOG_DIR/claimer.log"
+    stderr = "$LOG_DIR/claimer.log"
+    maxstartup = "5s"
+    maxshutdown = "2s"
+
+    [[task.monitors]]
+       name = "health"
+       type = "portinuse"
+       port = "$CLAIMER_PORT"
+       period = "300s"
+
+    [[task.monitors]]
+       name = "ready"
+       type = "portinuse"
+       port = "$CLAIMER_PORT"
 
 [[task]]
     name = "snapshot-immediate"

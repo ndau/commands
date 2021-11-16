@@ -22,12 +22,12 @@ if [ -z "$1" ] || \
    [ -z "$3" ] || \
    [ -z "$4" ] || \
    [ -z "$5" ]
-   # $6 through $9 are optional and "" can be used for any of them.
+   # $6 through $11 are optional and "" can be used for any of them.
 then
     echo "Usage:"
     echo "  ./runcontainer.sh" \
          "NETWORK CONTAINER P2P_PORT RPC_PORT API_PORT" \
-         "[IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC]"
+         "[IDENTITY] [SNAPSHOT] [PEERS_P2P] [PEERS_RPC] [WEBHOOK_URL] [CLAIMER_PORT]"
     echo
     echo "Arguments:"
     echo "  NETWORK    Which network to join: localnet, devnet, testnet, mainnet"
@@ -51,14 +51,34 @@ then
     echo "               Each peer should be of the form PROTOCOL://IP_OR_DOMAIN_NAME:PORT"
     echo "               If omitted, peers will be gotten from $NETWORK for non-localnet"
     echo
+    echo "Required if the node is to become a validator node at some point:"
+    echo "  WEBHOOK_URL The URL to be called by ndaunode when the node is nominated for"
+    echo "                a node reward. This usually points to a port listening on"
+    echo "                locahost if the claimer process is running, but may point to"
+    echo "                any external URL"
+    echo
+    echo "Required if the node reward claimer process is to be run locally by the node:"
+    echo "  CLAIMER_PORT The localhost port number used by the claimer process, if running. This value"
+    echo "                 should match the port number specified in the claimer_config.toml file"
+    echo "                 defined by the BASE64_CLAIMER_CONFIG file (see below)."
+    echo
     echo "Environment variables:"
     echo "  BASE64_NODE_IDENTITY"
     echo "             Set to override the IDENTITY parameter"
     echo "             The contents of the variable are a base64 encoded tarball containing:"
     echo "               - tendermint/config/priv_validator_key.json"
     echo "               - tendermint/config/node_id.json"
+    echo
+    echo "  BASE64_CLAIMER_CONFIG"
+    echo "             Provides configuration information for automated claiming of"
+    echo "             node rewards; there are no default values. If this variable is not set,"
+    echo "             no node reward claimer process will be run locally. The contents of the"
+    echo "             variable are a base64 encoded tarball containing"
+    echo "               - claimer_config.toml"
+    echo
     exit 1
 fi
+
 NETWORK="$1"
 CONTAINER="$2"
 P2P_PORT="$3"
@@ -68,6 +88,8 @@ IDENTITY="$6"
 SNAPSHOT="$7"
 PEERS_P2P="$8"
 PEERS_RPC="$9"
+WEBHOOK_URL="$10"
+CLAIMER_PORT="$11"
 
 if [ "$NETWORK" != "localnet" ] && \
    [ "$NETWORK" != "devnet" ] && \
@@ -320,6 +342,9 @@ docker create \
        -e "NODE_ID=$CONTAINER" \
        -e "PERSISTENT_PEERS=$PERSISTENT_PEERS" \
        -e "BASE64_NODE_IDENTITY=$BASE64_NODE_IDENTITY" \
+       -e "BASE64_CLAIMER_CONFIG=$BASE64_CLAIMER_CONFIG" \
+       -e "CLAIMER_PORT=$CLAIMER_PORT" \
+       -e "WEBHOOK_URL=$WEBHOOK_URL" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
        -e "TM_LOG_LEVEL=$TM_LOG_LEVEL" \
        -e "PEX=$PEX" \
