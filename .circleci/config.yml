@@ -220,9 +220,9 @@ workflows:
       - catchup:
           requires:
             - build
-      - integration:
-          requires:
-            - build
+#      - integration:
+#          requires:
+#            - build
       - push:
           requires:
             # Unlike tagged builds, master builds wait for tests to pass before pushing.
@@ -363,7 +363,7 @@ jobs:
             # Run a local node connected to mainnet starting from the genesis snapshot.
             nodename="catchup-node"
             # JSG run from recent snapshot, limiting runtime for CI
-            snapshot="snapshot-mainnet-400006"
+            snapshot="snapshot-mainnet-427820"
             USE_LOCAL_IMAGE=1 \
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
