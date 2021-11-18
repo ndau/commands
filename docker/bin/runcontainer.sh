@@ -58,9 +58,9 @@ then
     echo "                any external URL"
     echo
     echo "Required if the node reward claimer process is to be run locally by the node:"
-    echo "  CLAIMER_PORT The localhost port number used by the claimer process, if running. This value"
-    echo "                 should match the port number specified in the claimer_config.toml file"
-    echo "                 defined by the BASE64_CLAIMER_CONFIG file (see below)."
+    echo "  CLAIMER_PORT The port number used by the claimer process, if running. If the"
+    echo "               WEBHOOK_URL points to the localhost process, this port will match"
+    echo "               the port specified in that URL."
     echo
     echo "Environment variables:"
     echo "  BASE64_NODE_IDENTITY"
@@ -88,8 +88,8 @@ IDENTITY="$6"
 SNAPSHOT="$7"
 PEERS_P2P="$8"
 PEERS_RPC="$9"
-WEBHOOK_URL="$10"
-CLAIMER_PORT="$11"
+WEBHOOK_URL="${10}"
+CLAIMER_PORT="${11}"
 
 if [ "$NETWORK" != "localnet" ] && \
    [ "$NETWORK" != "devnet" ] && \
