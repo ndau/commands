@@ -91,13 +91,6 @@ PEERS_RPC="$9"
 WEBHOOK_URL="${10}"
 CLAIMER_PORT="${11}"
 
-echo "identity $IDENTITY"
-echo "snapshot $SNAPSHOT"
-echo "p2p $PEERS_P2P"
-echo "rpc $PEERS_RPC"
-echo "webhook $WEBHOOK_URL"
-echo "claimer port $CLAIMER_PORT"
-
 if [ "$NETWORK" != "localnet" ] && \
    [ "$NETWORK" != "devnet" ] && \
    [ "$NETWORK" != "testnet" ] && \
