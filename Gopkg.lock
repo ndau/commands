@@ -529,7 +529,7 @@
   version = "v1.1"
 
 [[projects]]
-  digest = "1:f93d4a14d3275bb415af9557237cee4a85327e765f47885ea2b0a19a00db111a"
+  digest = "1:d644e891625092a27dc6b3437702da2bed7ba90f4730ba542b572ad52c76593f"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -548,8 +548,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "8c6f1773042ba50b9ee412415b34f2981c32f77f"
-  version = "v1.26.16"
+  revision = "158e36318a8249060e55f73aef503abdd098dc6d"
+  version = "v1.26.17"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"

@@ -38,10 +38,11 @@ const DefaultConfigPath = "claimer_conf.toml"
 func LoadConfig(path string) (*Config, error) {
 	config := new(Config)
 	_, err := toml.DecodeFile(path, config)
-	if os.ExpandEnv("$CLAIMER_SYNC_MODE") == "1" {
-		tru := true
-		config.SyncMode = &tru
+	sync_mode := true // Default to sync mode unless overridden
+	if os.ExpandEnv("$CLAIMER_SYNC_MODE") == "0" {
+		sync_mode = false
 	}
+	config.SyncMode = &sync_mode
 	return config, err
 }
 
