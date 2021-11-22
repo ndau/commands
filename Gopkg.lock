@@ -529,7 +529,6 @@
   version = "v1.1"
 
 [[projects]]
-  branch = "ejm-log-nnr-winner"
   digest = "1:d644e891625092a27dc6b3437702da2bed7ba90f4730ba542b572ad52c76593f"
   name = "github.com/ndau/ndau"
   packages = [
@@ -549,7 +548,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "4b340c3c5244e019a486644b57e7550bee7f28fb"
+  revision = "158e36318a8249060e55f73aef503abdd098dc6d"
+  version = "v1.26.17"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"

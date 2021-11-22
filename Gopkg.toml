@@ -16,8 +16,7 @@ version = "~v1.9"
 
 [[constraint]]
 name = "github.com/ndau/ndau"
-# version = "~v1.26"
-branch = "ejm-log-nnr-winner"
+version = "~v1.26"
 
 [[constraint]]
 name = "github.com/ndau/ndaumath"
