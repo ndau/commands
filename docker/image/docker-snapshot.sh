@@ -103,7 +103,7 @@ then
     fi
     
     # If a defective 0-length snapshot was created, don't upload it.
-    if [ -s "$file_name" ]; then
+    if [ ! -s "$file_name" ]; then
         file_name=""
         echo "Snapshot tarball exists but is empty, upload canceled."
     fi

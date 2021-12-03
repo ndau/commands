@@ -125,6 +125,12 @@ if [ -z "$BASE64_NODE_IDENTITY" ] && [ -n "$IDENTITY" ] && [ ! -f "$IDENTITY" ];
     exit 1
 fi
 
+# If $CLAIMER_PORT is specified, then $BASE64_CLAIMER_CONFIG must also be set
+if [ ! -z "$CLAIMER_PORT" ] && [ -z "$BASE64_CLAIMER_CONFIG" ]; then
+    echo "Claimer port is specified but \$BASE64_CLAIMER_CONFIG is empty"
+    exit 1
+fi
+
 echo "P2P port: $P2P_PORT"
 echo "RPC port: $RPC_PORT"
 echo "API port: $API_PORT"
