@@ -195,10 +195,11 @@ get_peer_id() {
     echo "Getting peer info for $url..."
     PEER_ID=$(curl -s --connect-timeout 5 "$url/status" | jq -r .result.node_info.id)
     if [ -z "$PEER_ID" ]; then
-        echo "Could not get peer id"
-        exit 1
+        echo "Could not get peer id from $url, will not add it"
+    else
+        ((peers_found++))
+        echo "Peer id: $PEER_ID"
     fi
-    echo "Peer id: $PEER_ID"
 }
 
 # Join array elements together by a delimiter.  e.g. `join_by , (a b c)` returns "a,b,c".
@@ -233,6 +234,7 @@ fi
 
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.
 persistent_peers=()
+peers_found=0
 IFS=',' read -ra peers_p2p <<< "$PEERS_P2P"
 IFS=',' read -ra peers_rpc <<< "$PEERS_RPC"
 len="${#peers_p2p[@]}"
@@ -258,8 +260,19 @@ if [ "$len" -gt 0 ]; then
 
         PEER_ID=""
         get_peer_id "$rpc_protocol" "$rpc_ip" "$rpc_port"
-        persistent_peers+=("$PEER_ID@$p2p_ip:$p2p_port")
+
+        # If the peer's TM ID could not be retrieved, just skip it
+        if [ -n "$PEER_ID" ]; then
+            persistent_peers+=("$PEER_ID@$p2p_ip:$p2p_port")
+        fi
     done
+fi
+
+# If no peers could be found, we can't start
+
+if [ "$peers_found" -eq 0 ]; then
+    echo "No persistent peers could be found - container can't be started"
+    exit 1
 fi
 
 PERSISTENT_PEERS=$(join_by , "${persistent_peers[@]}")
