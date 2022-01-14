@@ -95,6 +95,7 @@ output = ""
     stdout = "$LOG_DIR/redis.log"
     stderr = "$LOG_DIR/redis.log"
     # durations are done as time.Duration
+    maxstartup = "60s"
     maxshutdown = "5s"
 
     [[task.monitors]]
