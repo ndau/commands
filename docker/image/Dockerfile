@@ -31,12 +31,12 @@ RUN apk add --no-cache bash git openssh make gcc libc-dev
 
 # The build_noms stage builds noms, caching results when posssible
 FROM go_build AS build_noms
-
-ENV ATTICLABS_DIR=$GOPATH/src/github.com/attic-labs
+# We're going to use our own noms.....
+ENV ATTICLABS_DIR=$GOPATH/src/github.com/ndau
 RUN mkdir -p "$ATTICLABS_DIR"
 # This copy exists to bust the cache if new commits exist
 COPY ./noms_sha /
-RUN git clone https://github.com/attic-labs/noms.git "$ATTICLABS_DIR"/noms
+RUN git clone https://github.com/ndau/noms.git "$ATTICLABS_DIR"/noms
 RUN go get -u "$ATTICLABS_DIR"/noms/...
 RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
 
