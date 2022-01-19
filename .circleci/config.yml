@@ -363,7 +363,7 @@ jobs:
             # Run a local node connected to mainnet starting from the genesis snapshot.
             nodename="catchup-node"
             # JSG run from recent snapshot, limiting runtime for CI
-            snapshot="snapshot-mainnet-427820"
+            snapshot="snapshot-mainnet-497500"
             USE_LOCAL_IMAGE=1 \
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
