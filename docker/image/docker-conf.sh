@@ -184,7 +184,7 @@ echo Configuring tendermint...
 # It will leave genesis.json alone, or create one if we're generating a genesis snapshot.
 ./tendermint init --home "$TM_DATA_DIR"
 sed -i -E \
-    -e 's/^(create_empty_blocks = .*)/\1 false/' \
+    -e 's/^(create_empty_blocks =) (.*)/\1 false/' \
     -e 's/^(addr_book_strict =) (.*)/\1 false/' \
     -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
     -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
