@@ -100,6 +100,7 @@ func main() {
 		Lock{},
 		Notify{},
 		Stake{},
+		Unstake{},
 		SetRewardsDestination{},
 		RegisterNode{},
 		ClaimNodeReward{},

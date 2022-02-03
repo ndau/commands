@@ -39,9 +39,9 @@ class Transaction:
     def __init__(self, b64_data):
         data = b64decode(b64_data)
         self.raw = msgpack.loads(data)
-        self.tx = self.raw[b"Transactable"]
+        self.tx = self.raw["Transactable"]
         try:
-            self.name = TX_NAMES[self.raw[b"TransactableID"]]
+            self.name = TX_NAMES[self.raw["TransactableID"]]
         except KeyError:
             self.name = "unknown"
 
