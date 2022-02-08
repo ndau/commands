@@ -38,7 +38,7 @@ mkdir -p "$SNAPSHOT_DATA_DIR/noms"
 "$BIN_DIR"/noms set new database "$SNAPSHOT_DATA_DIR/noms"::ndau
 "$BIN_DIR"/noms sync "$NOMS_DATA_DIR"::ndau "$SNAPSHOT_DATA_DIR/noms"::ndau
 # EJM delete all obsolete redis snapshot files before copying
-rm "$REDIS_DATA_DIR/temp-*"
+rm "$REDIS_DATA_DIR/temp*"
 cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
 cp "$TM_DATA_DIR/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TM_DATA_DIR/data/blockstore.db" "$TM_TEMP/data"
