@@ -467,15 +467,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:e4d7290b8c477f7d9913862258da453de6fcaab1561d5eb01f381fdf9416b659"
+  digest = "1:83e5f2cb60fe89f7fe7e547701b288ba6da209277e4b22435174d9409bc135eb"
   name = "github.com/ndau/chaincode"
   packages = [
     "pkg/chain",
     "pkg/vm",
   ]
   pruneopts = ""
-  revision = "b37c25be5a7036f98b3a00ecbd8c8d6f4e5eb345"
-  version = "v1.2.9"
+  revision = "eab72ba9566593a4bafad42f534134ce33279c76"
+  version = "v1.2.10"
 
 [[projects]]
   digest = "1:846fe5fe970ce725cb2f0ce0ecec0107e774edbd691254b90d06b57c82232249"
