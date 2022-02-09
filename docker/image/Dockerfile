@@ -12,7 +12,8 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
     update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
-COPY --from=redis:5.0.14-alpine [ \
+# COPY --from=redis:5.0.14-alpine [ \
+COPY --from=redis:6.2.6-alpine [ \
     "usr/local/bin/redis-server", \
     "usr/local/bin/redis-sentinel", \
     "usr/local/bin/redis-cli", \

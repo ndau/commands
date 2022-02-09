@@ -121,6 +121,7 @@ output = ""
     ]
     stdout = "$LOG_DIR/noms.log"
     stderr = "$LOG_DIR/noms.log"
+    maxstartup = "60s"
     maxshutdown = "5s"
 
     [[task.monitors]]
@@ -195,7 +196,7 @@ output = ""
     path = "$BIN_DIR/ndauapi"
     stdout = "$LOG_DIR/ndauapi.log"
     stderr = "$LOG_DIR/ndauapi.log"
-    maxstartup = "5s"
+    maxstartup = "60s"
     maxshutdown = "2s"
 
     [[task.monitors]]
@@ -223,7 +224,7 @@ output = ""
     ]
     stdout = "$LOG_DIR/claimer.log"
     stderr = "$LOG_DIR/claimer.log"
-    maxstartup = "5s"
+    maxstartup = "10s"
     maxshutdown = "2s"
 
     [[task.monitors]]
