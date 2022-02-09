@@ -217,9 +217,10 @@ workflows:
           filters:
             branches:
               only: /^master$/
-      - catchup:
-          requires:
-            - build
+       # EJM Catchup now takes too long       
+#      - catchup:
+#          requires:
+#            - build
 #      - integration:
 #          requires:
 #            - build
@@ -233,7 +234,8 @@ workflows:
             - build
       - deploy:
           requires:
-            - catchup
+            # As above, catchup now takes several days - we can't wait
+            # - catchup
             - push
   tagged-build:
     jobs:
@@ -244,15 +246,16 @@ workflows:
               only: /.*/
             branches:
               ignore: /^master$/
-      - catchup:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /.*-jobs_.*?(catchup).*/
-            branches:
-              # This causes circle to skip this job on untagged non-master builds.
-              ignore: /.*/
+      # EJM - Avoid catchup: takes too long 
+#      - catchup:
+#          requires:
+#            - build
+#          filters:
+#            tags:
+#              only: /.*-jobs_.*?(catchup).*/
+#            branches:
+#              # This causes circle to skip this job on untagged non-master builds.
+#              ignore: /.*/
 #      - integration:
 #          requires:
 #            - build
