@@ -74,14 +74,18 @@ config_tm() {
     ./build/tendermint init --home "$tm_ndau_home"
 
     sed -i '' -E \
-        -e 's/^(create_empty_blocks = .*)/# \1/' \
-        -e 's/^(create_empty_blocks_interval =) (.*)/\1 "300s"/' \
+        -e 's/^(create_empty_blocks =) (.*)/\1 false/' \
         -e 's/^(addr_book_strict =) (.*)/\1 false/' \
         -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
         -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
         -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
         -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
         -e 's/^(log_format =) (.*)/\1 "json"/' \
+        -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
+        -e 's/^(timeout_prevote =) (.*)/\1 "3s"/' \
+        -e 's/^(timeout_precommit =) (.*)/\1 "3s"/' \
+        -e 's/^(timeout_commit =) (.*)/\1 "3s"/' \
+        -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "30s"/' \
         -e 's/^(moniker =) (.*)/\1 \"'"$MONIKER_PREFIX"'-'"$node_num"'\"/' \
         "$tm_ndau_home/config/config.toml"
 }

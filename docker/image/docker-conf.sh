@@ -195,7 +195,7 @@ sed -i -E \
     -e 's/^(timeout_prevote =) (.*)/\1 "3s"/' \
     -e 's/^(timeout_precommit =) (.*)/\1 "3s"/' \
     -e 's/^(timeout_commit =) (.*)/\1 "3s"/' \
-    -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "30s"/'
+    -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "30s"/' \
     -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     "$TM_DATA_DIR/config/config.toml"
 
