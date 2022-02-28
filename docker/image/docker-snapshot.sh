@@ -32,11 +32,14 @@ mkdir -p "$TM_TEMP/config"
 mkdir -p "$TM_TEMP/data"
 
 # Copy all the data files we want into the temp dir.
+
 # JSG don't do a copy of noms, instead do a sync which compresses the DB
-# cp -r "$NOMS_DATA_DIR" "$SNAPSHOT_DATA_DIR/noms"
-mkdir -p "$SNAPSHOT_DATA_DIR/noms"
-"$BIN_DIR"/noms set new database "$SNAPSHOT_DATA_DIR/noms"::ndau
-"$BIN_DIR"/noms sync "$NOMS_DATA_DIR"::ndau "$SNAPSHOT_DATA_DIR/noms"::ndau
+cp -r "$NOMS_DATA_DIR" "$SNAPSHOT_DATA_DIR/noms"
+# noms is too big to shrink (!) so we're going back to the old way
+# mkdir -p "$SNAPSHOT_DATA_DIR/noms"
+# "$BIN_DIR"/noms set new database "$SNAPSHOT_DATA_DIR/noms"::ndau
+# "$BIN_DIR"/noms sync "$NOMS_DATA_DIR"::ndau "$SNAPSHOT_DATA_DIR/noms"::ndau
+
 # EJM delete all obsolete redis snapshot files before copying
 rm "$REDIS_DATA_DIR"/temp-*
 cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
