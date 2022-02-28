@@ -25,13 +25,14 @@ export SYSTEM_ACCOUNTS_TOML="$ROOT_DIR/system_accounts.toml"
 
 export NDAUHOME="$NODE_DATA_DIR"
 
-if [ -z "$SNAPSHOT_URL" ]; then
-    export SNAPSHOT_URL="https://s3.amazonaws.com"
+export SNAPSHOT_URL="https://s3.amazonaws.com"
+
+if [ -z "$SNAPSHOT_BUCKET" ]; then
+    export SNAPSHOT_BUCKET="ndau-snapshots"
 else
-    export SNAPSHOT_URL="$SNAPSHOT_URL"
+    export "$SNAPSHOT_BUCKET"
 fi
 
-export SNAPSHOT_BUCKET="ndau-snapshots"
 export GENERATED_GENESIS_SNAPSHOT="*"
 export LOCAL_SNAPSHOT="$ROOT_DIR/snapshot-$NETWORK-0.tgz"
 
