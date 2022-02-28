@@ -27,9 +27,9 @@ else
 
             echo "Fetching $LATEST_FILE..."
             rm -f "$LATEST_PATH"
-            curl -s -o "$LATEST_PATH" "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$LATEST_FILE"
+            curl -s -o "$LATEST_PATH" "$SNAPSHOT_URL/$LATEST_FILE"
             if [ ! -f "$LATEST_PATH" ]; then
-                echo "Unable to fetch $SNAPSHOT_URL/$SNAPSHOT_BUCKET/$LATEST_FILE"
+                echo "Unable to fetch $SNAPSHOT_URL/$LATEST_FILE"
                 exit 1
             fi
 
@@ -39,7 +39,7 @@ else
         SNAPSHOT_FILE="$SNAPSHOT_NAME.tgz"
 
         echo "Fetching $SNAPSHOT_FILE..."
-        curl -s -o "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$SNAPSHOT_FILE"
+        curl -s -o "$SNAPSHOT_DIR/$SNAPSHOT_FILE" "$SNAPSHOT_URL/$SNAPSHOT_FILE"
     fi
 
     echo "Extracting $SNAPSHOT_FILE..."
