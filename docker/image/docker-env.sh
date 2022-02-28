@@ -30,7 +30,7 @@ export SNAPSHOT_URL="https://s3.amazonaws.com"
 if [ -z "$SNAPSHOT_BUCKET" ]; then
     export SNAPSHOT_BUCKET="ndau-snapshots"
 else
-    export "$SNAPSHOT_BUCKET"
+    export SNAPSHOT_BUCKET="$SNAPSHOT_BUCKET"
 fi
 
 export GENERATED_GENESIS_SNAPSHOT="*"
