@@ -86,7 +86,7 @@ then
     # multiple nodes being set up to upload snapshots.  It's something we should avoid doing.
     # But if it happens, the first node to upload a given height's snapshot "wins".
     file_name="$SNAPSHOT_NAME.tgz"
-    if curl --output /dev/null --silent --head --fail "$SNAPSHOT_URL/$SNAPSHOT_BUCKET/$file_name"
+    if curl --output /dev/null --silent --head --fail "$SNAPSHOT_BUCKET/$file_name"
     then
         if [ "$3" = "--force" ]; then
             # Give it a new "forced" name so that we don't clobber what's up there.
