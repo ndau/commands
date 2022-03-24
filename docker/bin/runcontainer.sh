@@ -366,6 +366,7 @@ docker create \
        -e "WEBHOOK_URL=$WEBHOOK_URL" \
        -e "SNAPSHOT_NAME=$SNAPSHOT" \
        -e "TM_LOG_LEVEL=$TM_LOG_LEVEL" \
+       -e "AWS=$AWS" \
        -e "PEX=$PEX" \
        -e "SEEDS=$SEEDS" \
        -e "SEED_MODE=$SEED_MODE" \
