@@ -179,6 +179,13 @@ fi
 
 cd "$BIN_DIR" || exit 1
 
+# If we're running on AWS ECS, get our public IP address. If not do nothing - the
+# variable will be undefined, which is OK.
+
+if [ ! -z "$AWS_ECS" ]; then
+    EXTERNAL_ADDRESS="`curl -s http://169.254.169.254/latest/meta-data/public-ipv4`:$TM_P2P_PORT"
+fi
+
 echo Configuring tendermint...
 # This will init all the config for the current container.
 # It will leave genesis.json alone, or create one if we're generating a genesis snapshot.
@@ -189,6 +196,7 @@ sed -i -E \
     -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
     -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
     -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
+    -e 's/^(external_address =) (.*)/\1 "'"$EXTERNAL_ADDRESS"'"/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
     -e 's/^(log_format =) (.*)/\1 "json"/' \
     -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
