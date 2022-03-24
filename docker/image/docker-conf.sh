@@ -196,8 +196,8 @@ sed -i -E \
     -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
     -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
     -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
-    -e 's/^(external_address =) (.*)/\1 "'"tcp://$PUBLIC_IP_ADDRESS:$TM_P2P_PORT"'"/' \
-    -e 's/^(laddr =) (.*)/\1 "'"tcp://$PUBLIC_IP_ADDRESS:$TM_RPC_PORT"'"/' \
+    -e 's/^(external_address =) (.*)/\1 "'"tcp\://$PUBLIC_IP_ADDRESS\:$TM_P2P_PORT"'"/' \
+    -e 's/^(laddr =) (.*)/\1 "'"tcp\://$PUBLIC_IP_ADDRESS\:$TM_RPC_PORT"'"/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
     -e 's/^(log_format =) (.*)/\1 "json"/' \
     -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
