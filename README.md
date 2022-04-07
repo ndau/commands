@@ -4,7 +4,9 @@
 
 This document contains steps for getting set up to build and test ndev applications.  By the end you will be able to run the `ndau` blockchain, talking to `redis`, `noms` and `tendermint`, from the command line.  This is the way to do it if you would eventually like to debug the applications, as they run simultaneously and interact with each other from their own shells.
 
-The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](bin/README.md).
+If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) is the right place to start.
+
+The `/bin` directory also contains other scripts useful for developing within a local development environment.  More information can be found in its [README](./bin/README.md).
 
 The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 20.04.
 #### macOS:
@@ -26,7 +28,7 @@ The Homebrew package manager is by far the easiest way to install these tools, b
 1. Install `jq`: `brew install jq`
 #### Ubuntu:
 
-1. Install tooling: `sudo apt install golang go-dep redis jq git -y`
+1. Install tooling: `sudo apt install golang go-dep redis make jq git -y`
 ### ndau Tools
 
 1. Ensure `$GOPATH` is set to the root of your Go working tree (usually `~/go`)
@@ -40,6 +42,12 @@ The Homebrew package manager is by far the easiest way to install these tools, b
    ./bin/setup.sh 1
    ```
    Replace `1` with the desired number of nodes for a larger localnet configuration.
+   If you've never run `./bin/setup.sh` before and want to create a localnet with a default
+   configuration pre-installed in `~/.localnet`, answer `y` to the prompt:
+    ```sh
+    Cannot find genesis file: ~/.localnet/genesis_files/system_vars.toml
+    Generate new? [y|n]: y
+    ```
 
 ### Custom genesis configuration
 
@@ -62,46 +70,43 @@ To create a custom configuration (usually to replicate a testnet or mainnet conf
 ./bin/run.sh
 ```
 
-To start a new localnet with a default configuration pre-installed, answer `y` to the prompt
-```sh
-Cannot find genesis file: ~/.localnet/genesis_files/system_vars.toml
-Generate new? [y|n]: y
-```
+If there is no current localnet configured (in `~/.localnet`) you'll be asked if you
+want to create one.
 
 This will run all the tasks in the proper sequence and create a set of appropriately-named .pid and .log files, one for each task.  All tasks will run in the background.
 
 ### Shutting it down
 
-Use `bin/kill.sh`.
+Use `./bin/kill.sh`.
 
 This will shut down any running tasks in the reverse order from which they were run. If a task doesn't shut itself down nicely, it will be killed.
 
 ### Reset
 
-To run with fresh databases, run `bin/reset.sh` before your next `bin/run.sh`.  You can also use `bin/reset.sh` to quickly change the number of nodes in your localnet by passing in the new node count.
+To run with fresh databases, run `./bin/reset.sh` before your next `./bin/run.sh`.  You can also use `./bin/reset.sh` to quickly change the number of nodes in your localnet by passing in the new node count.
 
 ### Individual commands
 
-Both `bin/run.sh` and `bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
+Both `./bin/run.sh` and `./bin/kill.sh` take an argument, which is the name of the task you wish to run or kill. Valid task names are:
 
 * `ndau_redis`
 * `ndau_noms`
 * `ndau_node`
 * `ndau_tm`
 
-You can also specify the node number for each.  For example, if you ran `bin/setup.sh` with a node count greater than 1, then you can `bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
+You can also specify the node number for each.  For example, if you ran `./bin/setup.sh` with a node count greater than 1, then you can `./bin/run.sh ndau_redis 1` to run ndau redis for the zero-based node number 1.  If you leave off the node number in these commands, the default 0'th node will be used.
 
 ### Rebuild
 
-Use `bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
+Use `./bin/build.sh` if you make changes to any of the tools and want to rebuild them before running again.
 
 ### Test
 
-Use `bin/test.sh` to run unit tests on the latest built tools.
+Use `./bin/test.sh` to run unit tests on the latest built tools.
 
 ### Snapshot
 
-To generate a snapshot for use with an externally deployed network, run `bin/snapshot.sh`.  If you are doing ETL and post-genesis transactions for testnet or mainnet, you'll want to run `bin/setup.sh` or `bin/reset.sh` first with the name of the network you plan to use the snapshot with.  Then re-run `bin/snapshot.sh`.
+To generate a snapshot for use with an externally deployed network, run `./bin/snapshot.sh`.  If you are doing ETL and post-genesis transactions for testnet or mainnet, you'll want to run `./bin/setup.sh` or `./bin/reset.sh` first with the name of the network you plan to use the snapshot with.  Then re-run `./bin/snapshot.sh`.
 
 ## Running the ndau API
 
@@ -146,9 +151,9 @@ The `help` and `help verbose` commands will dump some helpful text about how to 
 
 ## Other tools
 
-See the [README](bin/README.md) in the `./bin` directory for more information on the tools found there.
+See the [README](./bin/README.md) in the `./bin` directory for more information on the tools found there.
 
-## Circle CI
+## Circle CI (for developers with commit access only)
 
 We use Circle CI jobs to validate builds as they land to master.  We also have control over running them manually from a branch.
 
@@ -177,7 +182,7 @@ Master builds require the `catchup` job and the `integration` job to pass before
 We can control what happens on tagged builds.  We used to support tagging with suffixes: `-catchup`, `-push` and `-deploy` and they'd all require previous steps to pass before executing.  Now we have more control on exactly which jobs run on tagged builds: use the `-jobs` suffix, followed by a `_`-separated list of the job names you want to run.
 
 Examples:
-* `git tag something-jobs_push` will push the build to ECR, but will not run `cathup` or `integration` jobs first.  This is a way to push something to ECR from your branch after you've already proven to yourself that the tests pass, maybe from a previous tagged build.
+* `git tag something-jobs_push` will push the build to ECR, but will not run `catchup` or `integration` jobs first.  This is a way to push something to ECR from your branch after you've already proven to yourself that the tests pass, maybe from a previous tagged build.
 * `git tag something-jobs_catchup_deploy` will run the `catchup` job, then `push` (because `deploy` requires `push`) and finally it will `deploy` it to devnet.
 * `git tag something-jobs_deploy_catchup` will do the same thing.  The order of the `-jobs` tags doesn't matter.
 

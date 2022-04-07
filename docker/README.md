@@ -1,21 +1,20 @@
 # Single Docker Container
 
+## Running a node
+
+ If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) is the right place to start.
 ## Overview
 
 How to build and run an ndau node using a single Docker container.  The Docker container contains all of our processes that make a node group: `redis`, `noms`, `ndaunode`, `tendermint` and `ndauapi`, all driven by `procmon`.  Running multiple instances of the container is how we make an ndau network.
 
-This page outlines all of the features of the ndau Docker container, useful to Oneiro developers.  If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) would be a good place to start.
+This page outlines all of the features of the ndau Docker container, useful to ndau developers.
 
 ## Build
 
-1. Install Docker
-1. Put `machine_user_key` from 1password into the `commands` repo root directory to gain access to private ndau repos at image build time
-1. Run `docker/bin/buildimage.sh` to build the `ndauimage` locally
-1. Optionally you can upload the image to S3; instructions provided by `buildimge.sh` output
-
+Run `./bin/buildimage.sh` to build the `ndauimage` locally.
 ## Run
 
-In order to run a container, we feed the following arguments to `docker/bin/runcontainer.sh`:
+In order to run a container, we feed the following arguments to `./bin/runcontainer.sh`:
 - Container name
 - Tendermint P2P port
 - Tendermint RPC port
@@ -28,7 +27,7 @@ For example:
 ```sh
 IP=52.90.26.139
 SNAPSHOT=snapshot-devnet-12345.tgz
-docker/bin/runcontainer.sh \
+./bin/runcontainer.sh \
     devnet-2 \
     26662 26672 3032 \
     node-identity-2.tgz \
@@ -85,7 +84,7 @@ You can also get at your `node-identity.tgz` file by running `docker cp <contain
 
 ## Scripts
 
-In the `docker/bin` directory there are the following additional scripts:
+In the `./bin` directory there are the following additional scripts:
 
 - `stopcontainer.sh`
 - `restartcontainer.sh`
@@ -140,7 +139,7 @@ You can edit these files how you want, to test things out.  But if you'd like to
 1. Run `bin/snapshot.sh` to stop localnet and generate a snapshot
     - Upload it to S3 using the instructions printed by `snapshot.sh`
     - Edit `docker/demo/get_snapshot.sh` to make it return the name of the snapshot you just created
-1. Run `docker/bin/buildimage.sh` if you haven't already
+1. Run `./bin/buildimage.sh` if you haven't already
 1. Run `docker/demo/run_all.sh` to run a 5-node network (4 original validators and 1 new verifier)
 1. Run integration tests against it, or anything else you'd like to do on the local Docker network
 1. Run `docker/demo/remove_all.sh` to stop and remove all 5 containers
