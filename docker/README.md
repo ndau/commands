@@ -3,6 +3,7 @@
 ## Running a node
 
  If you just want to get a node up and running, then the [Node Operator's Reference](node_operator.md) is the right place to start.
+
 ## Overview
 
 How to build and run an ndau node using a single Docker container.  The Docker container contains all of our processes that make a node group: `redis`, `noms`, `ndaunode`, `tendermint` and `ndauapi`, all driven by `procmon`.  Running multiple instances of the container is how we make an ndau network.
