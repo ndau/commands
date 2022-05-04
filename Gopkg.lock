@@ -529,7 +529,8 @@
   version = "v1.1"
 
 [[projects]]
-  digest = "1:bed24519d6379c8c281df5c83391ffeb76f46029d06e8fbafabd05e2313c48f3"
+  branch = "ejm-lock-bonus-table-switch"
+  digest = "1:3760288e951762925497f961d5e00c0d6583ac8c76820114307ad08f5c97ed0a"
   name = "github.com/ndau/ndau"
   packages = [
     "pkg/api_sdk",
@@ -548,8 +549,7 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "39bc0e3ee7fe631695b1567e2acc73d7a05bbc54"
-  version = "v1.26.18"
+  revision = "1a4301bd82c08cca69669eb0340d94f6ea5756b5"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"

@@ -20,3 +20,4 @@ NodeRewardWebhookDelay = 10.0
   NewSIBRules = 205655
   MaxValidatorsOn = 273120
   FixLastWAAUpdate = 323985
+  UseCurrentLockBonus = 536600
