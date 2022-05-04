@@ -529,7 +529,6 @@
   version = "v1.1"
 
 [[projects]]
-  branch = "ejm-lock-bonus-table-switch"
   digest = "1:3760288e951762925497f961d5e00c0d6583ac8c76820114307ad08f5c97ed0a"
   name = "github.com/ndau/ndau"
   packages = [
@@ -549,7 +548,8 @@
     "pkg/version",
   ]
   pruneopts = ""
-  revision = "1a4301bd82c08cca69669eb0340d94f6ea5756b5"
+  revision = "c02d3950067cfd71d09575d833f3f0bcd6d5cef0"
+  version = "v1.27.0"
 
 [[projects]]
   digest = "1:6a3f1dbbd1da7513d8262ea83b83507cff52806ce0a008cc3ab76e8f3b06847d"
