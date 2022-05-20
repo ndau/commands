@@ -4,11 +4,13 @@
 # This stage has all purely external dependencies we'll want in the final image.
 # Nothing here will ever change based on ndev code changes, so it's safe to
 # build/cache it all right up top.
+
 FROM alpine:3.12.9 AS combined_node_base
 
 # Install extra tools.
 RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
     python3 -m pip install remarshal && \
+    python3 -m pip install awscli && \
     update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
@@ -66,7 +68,6 @@ RUN mkdir -p ${COMMANDS_DIR}
 COPY ./Gopkg.* "$COMMANDS_DIR"/
 RUN cd ${COMMANDS_DIR} && dep ensure --vendor-only
 
-
 # The build_commands stage builds ndev programs from the commands repo,
 # caching results when possible.
 FROM go_build AS build_commands
@@ -96,7 +97,6 @@ COPY --from=get_commands_deps /go/bin/dep /go/bin/dep
 RUN apk add yarn
 RUN /image/docker-build.sh
 
-
 # Build the final image.  If published, this should leave no trace of earlier stages.
 FROM combined_node_base AS combined_node
 
@@ -111,6 +111,7 @@ COPY ./docker-conf.sh \
     ./docker-procmon-noclaimer.toml \
     ./docker-run.sh \
     ./docker-snapshot.sh \
+    ./s3-multipart-upload.sh \
     /image/
 
 # Copy the noms image we built

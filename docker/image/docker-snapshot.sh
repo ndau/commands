@@ -27,56 +27,50 @@ mkdir -p "$SNAPSHOT_TEMP_DIR"
 SNAPSHOT_DATA_DIR="$SNAPSHOT_TEMP_DIR/data"
 
 # Use the deep tendermint data directories to create all the parent subdirectories we need.
+# Copy all the data files we want into the temp dir.
+
 TM_TEMP="$SNAPSHOT_DATA_DIR/tendermint"
 mkdir -p "$TM_TEMP/config"
 mkdir -p "$TM_TEMP/data"
-
-# Copy all the data files we want into the temp dir.
-
-# JSG don't do a copy of noms, instead do a sync which compresses the DB
-cp -r "$NOMS_DATA_DIR" "$SNAPSHOT_DATA_DIR/noms"
-# noms is too big to shrink (!) so we're going back to the old way
-# mkdir -p "$SNAPSHOT_DATA_DIR/noms"
-# "$BIN_DIR"/noms set new database "$SNAPSHOT_DATA_DIR/noms"::ndau
-# "$BIN_DIR"/noms sync "$NOMS_DATA_DIR"::ndau "$SNAPSHOT_DATA_DIR/noms"::ndau
-
-# EJM delete all obsolete redis snapshot files before copying
-rm "$REDIS_DATA_DIR"/temp-*
-cp -r "$REDIS_DATA_DIR" "$SNAPSHOT_DATA_DIR/redis"
 cp "$TM_DATA_DIR/config/genesis.json" "$TM_TEMP/config"
 cp -r "$TM_DATA_DIR/data/blockstore.db" "$TM_TEMP/data"
 cp -r "$TM_DATA_DIR/data/state.db" "$TM_TEMP/data"
+
+# EJM delete all obsolete redis snapshot files before copying
+rm "$REDIS_DATA_DIR"/temp-*
+
+# We're only using that part of the TM data that we just copied above. We're otherwise
+# making a tarball of the entire data directory so we don't need to copy the whole
+# thing (since it's getting very big).
+
+mv "$TM_DATA_DIR" "$SCRIPT_DIR/tendermint"
+mv "$TM_TEMP" "$TM_DATA_DIR"
 
 # Use the height of the ndau chain as an idenifier for what's in this snapshot.
 HEIGHT=$((36#$("$BIN_DIR"/noms show "$NOMS_DATA_DIR"::ndau.value.Height | tr -d '"')))
 SNAPSHOT_NAME="snapshot-$NETWORK-$HEIGHT"
 SNAPSHOT_PATH="$SCRIPT_DIR/$SNAPSHOT_NAME.tgz"
 
-# Make the tarball and remove the temp dir.
-cd "$SNAPSHOT_TEMP_DIR" || exit 1
+cd "$ROOT_DIR" || exit 1
 tar -czf "$SNAPSHOT_PATH" data
-cd .. || exit 1
+
+# Put the TM live data directory back where it belongs
+
+rm -rf "$TM_DATA_DIR"
+mv "$SCRIPT_DIR/tendermint" "$DATA_DIR/tendermint"
 rm -rf "$SNAPSHOT_TEMP_DIR"
 
 upload_to_s3() {
     file_name="$1"
-    content_type="$2"
 
-    aws_key="$AWS_ACCESS_KEY_ID"
-    aws_secret="$AWS_SECRET_ACCESS_KEY"
+    # AWS credentials are stored in the appropriate environment variables,
+    # so we can create the configuration file
 
-    date_str=$(date -R)
-    s3_path="/$SNAPSHOT_BUCKET/$file_name"
-    signable_bytes="PUT\n\n$content_type\n$date_str\n$s3_path"
-    signature=$(echo -en "$signable_bytes" | openssl sha1 -hmac "$aws_secret" -binary | base64)
+    aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+    aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
 
-    echo "Uploading $file_name to S3..."
-    curl -s -X PUT -T "$SCRIPT_DIR/$file_name" \
-         -H "Host: s3.amazonaws.com" \
-         -H "Date: $date_str" \
-         -H "Content-Type: $content_type" \
-         -H "Authorization: AWS $aws_key:$signature" \
-         "$SNAPSHOT_URL$s3_path"
+    cd "$SCRIPT_DIR"
+    ./s3-multipart-upload.sh "$file_name" "$SNAPSHOT_BUCKET"
 }
 
 # Optionally upload the snapshot to the S3 bucket, but only if we have the AWS credentials.
@@ -85,6 +79,7 @@ then
     # Make sure we don't clobber a snapshot with the same name.  This protects us against
     # multiple nodes being set up to upload snapshots.  It's something we should avoid doing.
     # But if it happens, the first node to upload a given height's snapshot "wins".
+
     file_name="$SNAPSHOT_NAME.tgz"
     if curl --output /dev/null --silent --head --fail "$SNAPSHOT_BUCKET/$file_name"
     then
@@ -108,13 +103,14 @@ then
     fi
     
     # If a defective 0-length snapshot was created, don't upload it.
+
     if [ ! -s "$file_name" ]; then
         file_name=""
         echo "Snapshot tarball exists but is empty, upload canceled."
     fi
 
     if [ -n "$file_name" ]; then
-        if ! upload_to_s3 "$file_name" "application/x-gtar"; then
+        if ! upload_to_s3 "$file_name"; then
             echo "Failed to upload snapshot"
         else
             LATEST_FILE="latest-$NETWORK.txt"
