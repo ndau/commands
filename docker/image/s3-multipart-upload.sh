@@ -34,7 +34,7 @@ mainMd5Hash=`openssl md5 -binary $fileName | base64`
 echo "Splitting $fileName into $parts temporary parts"
 mkdir temp-parts
 cd temp-parts
-split -b $partSize $fileName
+split -b $partSize ../$fileName
 cd ..
 
 # Ensure we're using AWS S3 accelerated upload
