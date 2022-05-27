@@ -14,7 +14,6 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
     update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
-# COPY --from=redis:5.0.14-alpine [ \
 COPY --from=redis:7.0.0-alpine [ \
     "usr/local/bin/redis-server", \
     "usr/local/bin/redis-sentinel", \
@@ -27,7 +26,7 @@ COPY --from=redis:7.0.0-alpine [ \
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.17.10-alpine3.16 AS go_build
+FROM golang:1.18.2-alpine3.16 AS go_build
 
 # Install extra tools.
 RUN apk add --no-cache bash git openssh make gcc libc-dev dep
@@ -35,13 +34,13 @@ RUN apk add --no-cache bash git openssh make gcc libc-dev dep
 # The build_noms stage builds noms, caching results when posssible
 FROM go_build AS build_noms
 # We're going to use our own noms.....
-ENV ATTICLABS_DIR=$GOPATH/src/github.com/ndau
-RUN mkdir -p "$ATTICLABS_DIR"
+ENV NOMS_DIR=$GOPATH/src/github.com/ndau
+RUN mkdir -p "$NOMS_DIR"
 # This copy exists to bust the cache if new commits exist
 COPY ./noms_sha /
-RUN git clone https://github.com/ndau/noms.git "$ATTICLABS_DIR"/noms
-RUN cd "$ATTICLABS_DIR"/noms && go get -u "$ATTICLABS_DIR"/noms/...
-RUN cd "$ATTICLABS_DIR"/noms && go build "$ATTICLABS_DIR"/noms/cmd/noms && mv noms /bin
+RUN git clone https://github.com/ndau/noms.git "$NOMS_DIR"/noms
+RUN cd "$NOMS_DIR"/noms && go get -u "$NOMS_DIR"/noms/...
+RUN cd "$NOMS_DIR"/noms && go build "$NOMS_DIR"/noms/cmd/noms && mv noms /bin
 
 # The build_tendermint stage builds tendermint, caching results when posssible
 FROM go_build AS build_tendermint
@@ -55,19 +54,12 @@ RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
 RUN cd "$TENDERMINT_DIR"/tendermint && GO111MODULE=on make build
 RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
 
-# The get_commands_deps stage gets the dependencies used to build the commands
-# repo. It's in a separate stage for caching: often, the commands repo's sha
-# will change without actually changing the dependencies.
+# Set up commands directories
+
 FROM go_build as get_commands_deps
-# ensure we have dep
-# ENV GO111MODULE=on
-# RUN go get -u github.com/golang/dep/...
 ENV ONEIRO_DIR=$GOPATH/src/github.com/ndau
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
 RUN mkdir -p ${COMMANDS_DIR}
-# bust cache only when deps are updated
-# COPY ./Gopkg.* "$COMMANDS_DIR"/
-# RUN cd ${COMMANDS_DIR} && dep ensure --vendor-only
 
 # The build_commands stage builds ndev programs from the commands repo,
 # caching results when possible.
@@ -88,13 +80,9 @@ RUN git clone https://github.com/ndau/commands.git \
     --branch "$COMMANDS_BRANCH" \
     "${COMMANDS_DIR}"
 
-# get the vendor folder
-# COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
-
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
-# COPY --from=get_commands_deps /go/bin/dep /go/bin/dep
 RUN apk add yarn
 RUN /image/docker-build.sh
 
