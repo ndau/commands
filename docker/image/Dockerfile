@@ -66,8 +66,8 @@ ENV ONEIRO_DIR=$GOPATH/src/github.com/ndau
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
 RUN mkdir -p ${COMMANDS_DIR}
 # bust cache only when deps are updated
-COPY ./Gopkg.* "$COMMANDS_DIR"/
-RUN cd ${COMMANDS_DIR} && dep ensure --vendor-only
+# COPY ./Gopkg.* "$COMMANDS_DIR"/
+# RUN cd ${COMMANDS_DIR} && dep ensure --vendor-only
 
 # The build_commands stage builds ndev programs from the commands repo,
 # caching results when possible.
@@ -89,14 +89,13 @@ RUN git clone https://github.com/ndau/commands.git \
     "${COMMANDS_DIR}"
 
 # get the vendor folder
-COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
+# COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
 # COPY --from=get_commands_deps /go/bin/dep /go/bin/dep
 RUN apk add yarn
-ENV GO111MODULE=on
 RUN /image/docker-build.sh
 
 # Build the final image.  If published, this should leave no trace of earlier stages.
