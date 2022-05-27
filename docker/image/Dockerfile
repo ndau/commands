@@ -5,7 +5,7 @@
 # Nothing here will ever change based on ndev code changes, so it's safe to
 # build/cache it all right up top.
 
-FROM alpine:3.12.9 AS combined_node_base
+FROM alpine:3.16.0 AS combined_node_base
 
 # Install extra tools.
 RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
@@ -15,7 +15,7 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
 
 # Use a specific version of redis.
 # COPY --from=redis:5.0.14-alpine [ \
-COPY --from=redis:6.2.6-alpine [ \
+COPY --from=redis:7.0.0-alpine [ \
     "usr/local/bin/redis-server", \
     "usr/local/bin/redis-sentinel", \
     "usr/local/bin/redis-cli", \
@@ -27,10 +27,10 @@ COPY --from=redis:6.2.6-alpine [ \
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.13.15-alpine3.12 AS go_build
+FROM golang:1.17.10-alpine3.16 AS go_build
 
 # Install extra tools.
-RUN apk add --no-cache bash git openssh make gcc libc-dev
+RUN apk add --no-cache bash git openssh make gcc libc-dev dep
 
 # The build_noms stage builds noms, caching results when posssible
 FROM go_build AS build_noms
@@ -40,8 +40,8 @@ RUN mkdir -p "$ATTICLABS_DIR"
 # This copy exists to bust the cache if new commits exist
 COPY ./noms_sha /
 RUN git clone https://github.com/ndau/noms.git "$ATTICLABS_DIR"/noms
-RUN go get -u "$ATTICLABS_DIR"/noms/...
-RUN cd /bin && go build "$ATTICLABS_DIR"/noms/cmd/noms
+RUN cd "$ATTICLABS_DIR"/noms && go get -u "$ATTICLABS_DIR"/noms/...
+RUN cd "$ATTICLABS_DIR"/noms && go build "$ATTICLABS_DIR"/noms/cmd/noms && mv noms /bin
 
 # The build_tendermint stage builds tendermint, caching results when posssible
 FROM go_build AS build_tendermint
@@ -60,7 +60,8 @@ RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
 # will change without actually changing the dependencies.
 FROM go_build as get_commands_deps
 # ensure we have dep
-RUN go get -u github.com/golang/dep/...
+# ENV GO111MODULE=on
+# RUN go get -u github.com/golang/dep/...
 ENV ONEIRO_DIR=$GOPATH/src/github.com/ndau
 ENV COMMANDS_DIR=${ONEIRO_DIR}/commands
 RUN mkdir -p ${COMMANDS_DIR}
@@ -93,8 +94,9 @@ COPY --from=get_commands_deps "${COMMANDS_DIR}/vendor" "${COMMANDS_DIR}/vendor"
 # Perform custom setup steps from inside the intermediate image.
 ARG RUN_UNIT_TESTS
 ENV RUN_UNIT_TESTS=${RUN_UNIT_TESTS}
-COPY --from=get_commands_deps /go/bin/dep /go/bin/dep
+# COPY --from=get_commands_deps /go/bin/dep /go/bin/dep
 RUN apk add yarn
+ENV GO111MODULE=on
 RUN /image/docker-build.sh
 
 # Build the final image.  If published, this should leave no trace of earlier stages.
