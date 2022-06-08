@@ -12,8 +12,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
+
+	_ "net/http/pprof"
 
 	"github.com/ndau/ndau/pkg/ndau"
 	"github.com/ndau/ndau/pkg/ndau/config"
@@ -88,6 +91,10 @@ func check(err error) {
 }
 
 func main() {
+	go func() {
+		http.ListenAndServe("localhost:6060", nil)
+	}()
+
 	flag.Parse()
 
 	if *echoSpec {
