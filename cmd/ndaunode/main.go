@@ -13,10 +13,9 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"path/filepath"
-
-	_ "net/http/pprof"
 
 	"github.com/ndau/ndau/pkg/ndau"
 	"github.com/ndau/ndau/pkg/ndau/config"
