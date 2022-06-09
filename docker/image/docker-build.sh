@@ -14,6 +14,8 @@ echo Building ndau...
 VERSION=$(git describe --long --tags --match="v*")
 echo "  VERSION=$VERSION"
 VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
+echo "  VERSION_PKG=$VERSION_PKG"
+go version
 go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndaunode
 go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./cmd/ndauapi
 mv ndaunode "$BIN_DIR"
