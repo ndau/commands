@@ -58,8 +58,8 @@ echo "$node_count" > "$NODE_COUNT_FILE"
 echo "$chain_id" > "$CHAIN_ID_FILE"
 
 # Get the correct version of noms source.
-mkdir -p "$ATTICLABS_DIR"
-cd "$ATTICLABS_DIR"
+# mkdir -p "$ATTICLABS_DIR"
+cd "$NDEV_DIR"
 if [ -d "noms" ]; then
     cd noms
     ORIGIN_URL=$(git config --get remote.origin.url)
@@ -79,18 +79,18 @@ else
 fi
 # Do a "go get" after cloning noms to match /docker/image/Dockerfile behavior.
 echo SETUP: Getting noms...
-GO111MODULE=on go get -u "$ATTICLABS_DIR"/noms/...
+go get -u "$NDEV_DIR"/noms/...
 
 run_dep_ensure() {
     # These vendor directories sometimes cause dep ensure to fail, remove them first.
     rm -rf vendor
     rm -rf .vendor-new
-    "$GO_DIR"/bin/dep ensure
+#    "$GO_DIR"/bin/dep ensure
 }
 
 # Get the correct version of tendermint source.
 echo SETUP: Getting dep...
-go get -u github.com/golang/dep/...
+# go get -u github.com/golang/dep/...
 mkdir -p "$TM_DIR"
 cd "$TM_DIR"
 if [ -d "tendermint" ]; then
@@ -140,7 +140,7 @@ update_repo ndau
 
 cd "$NDEV_DIR"/commands
 echo SETUP: Ensuring dependencies for commands...
-run_dep_ensure
+# run_dep_ensure
 
 # Build everything.
 echo SETUP: Building...
