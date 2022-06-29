@@ -89,7 +89,8 @@ commands:
           fingerprints:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
-          version: 19.03.13
+          version: 20.10.14
+#          version: 19.03.13
           docker_layer_caching: false
       - run:
           name: Common setup
@@ -115,6 +116,12 @@ commands:
             # Save these off so jobs don't have to deduce them again.
             echo "$SHA" > /root/sha.txt
             echo "$COMMANDS_BRANCH_OR_TAG" > /root/commands_branch_or_tag.txt
+            
+            # Enable experimental features to support --platform build
+            ssh remote-docker \<<EOF
+              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+              sudo systemctl restart docker
+            EOF
 
   setup_ecs_and_identities:
     description: |
