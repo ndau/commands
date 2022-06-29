@@ -38,16 +38,17 @@ mv procmon "$BIN_DIR"
 if [ -n "$RUN_UNIT_TESTS" ]; then
     echo "Running unit tests..."
     export CGO_ENABLED=0
-    for dir in "$NDEV_DIR"/commands/vendor/"$NDEV_SUBDIR"/*
+    for dir in "$NDEV_DIR"/*
+#    for dir in "$NDEV_DIR"/commands/vendor/"$NDEV_SUBDIR"/*
     do
         cd "$dir"
         basedir=$(basename "$dir")
         if [ "$basedir" = "ndaumath" ]; then
           cd "cmd/keyaddr"
-          dep ensure --vendor-only
-          yarn install
-          yarn build
-          yarn test
+#          dep ensure --vendor-only
+#          yarn install
+#          yarn build
+#          yarn test
           cd "../../pkg"
         fi
 
