@@ -35,7 +35,6 @@ echo "Splitting $fileName into $parts temporary parts"
 mkdir temp-parts
 cd temp-parts
 split -b $partSize ../$fileName
-cd ..
 
 # Ensure we're using AWS S3 accelerated upload
 aws configure set default.s3.use_accelerate_endpoint true

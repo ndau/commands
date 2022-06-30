@@ -37,8 +37,9 @@ build_ndau() {
     # then use it to stamp the ndau executable as part of the build.
     VERSION=$(git describe --long --tags --match="v*")
     echo "  VERSION=$VERSION"
-    VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
-
+    VERSION_PKG="$NDEV_SUBDIR/ndau/pkg/version"
+    go version
+    export GO111MODULE=on
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAU_CMD"
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDSH_CMD"
     go build -ldflags "-X $VERSION_PKG.version=$VERSION" ./"$NDAUNODE_CMD"
@@ -69,7 +70,11 @@ build_tm() {
     cd "$TENDERMINT_DIR"
     # JSG move to make to satisfy new go dependency reqs in v0.32.5, we might need to go back
     # to "go build" in the future
+#    echo "$TENDERMINT_DIR"
+#    printenv
+#    go get -u golang.org/x/sys # Update to support go 1.18 builds
 #    go build ./"$TENDERMINT_CMD"
+    go version
     GO111MODULE=on make build
 }
 
@@ -77,6 +82,7 @@ build_noms() {
     echo building noms
     cd "$NOMS_DIR"
     GO111MODULE=on go build ./"$NOMS_CMD"
+#    go build ./"$NOMS_CMD"
 }
 
 build_all() {

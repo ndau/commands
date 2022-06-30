@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 3rd party repos and version to use.
-export NOMS_REPO=https://github.com/attic-labs/noms.git
+export NOMS_REPO=https://github.com/ndau/noms.git
 export TENDERMINT_REPO=https://github.com/tendermint/tendermint.git
 export TENDERMINT_VER=v0.32.6
 
@@ -41,7 +41,7 @@ export PEX=false
 export SEED_MODE=false
 
 # Repository locations.
-export ATTICLABS_DIR="$GO_DIR"/src/github.com/attic-labs
+# export ATTICLABS_DIR="$GO_DIR"/src/github.com/attic-labs
 export NDEV_SUBDIR=github.com/ndau
 export NDEV_DIR="$GO_DIR/src/$NDEV_SUBDIR"
 export TM_DIR="$GO_DIR"/src/github.com/tendermint
@@ -49,7 +49,7 @@ export TM_DIR="$GO_DIR"/src/github.com/tendermint
 # Build locations.
 export COMMANDS_DIR="$NDEV_DIR"/commands
 export NDAU_DIR="$NDEV_DIR"/ndau
-export NOMS_DIR="$ATTICLABS_DIR"/noms
+export NOMS_DIR="$NDEV_DIR"/noms
 export TENDERMINT_DIR="$TM_DIR"/tendermint
 
 # Localnet directories common to all nodes.  The data dir is deleted and recreated by reset.sh.
