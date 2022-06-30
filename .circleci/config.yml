@@ -97,10 +97,12 @@ commands:
           command: |
             # Enable experimental features to support --platform build parameter. We must do this first
             # because it restarts the Docker container in which everything else happens
+            echo "Circle SHA1" $CIRCLE_SHA1
             ssh remote-docker \<<EOF
               sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
               sudo systemctl restart docker
             EOF
+            echo "Circle SHA1" $CIRCLE_SHA1
 
             # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
             # JSG update this to use "get-login-password" on new versions of aws cli
