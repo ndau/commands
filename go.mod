@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alexflint/go-arg v1.1.0
 	github.com/attic-labs/noms v0.0.0-20190810032448-1d6d4689808c
-	github.com/aws/aws-sdk-go v1.20.20
+	github.com/aws/aws-sdk-go v1.33.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/shlex v0.0.0-20181106134648-c34317bd91bf
 	github.com/jawher/mow.cli v1.1.0
@@ -25,7 +25,7 @@ require (
 	github.com/ndau/rest v0.1.1
 	github.com/ndau/system_vars v1.5.6
 	github.com/ndau/writers v1.1.2
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.6.0
 	github.com/savaki/jq v0.0.0-20161209013833-0e6baecebbf8
 	github.com/sirupsen/logrus v1.4.2
@@ -61,7 +61,7 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/honeycombio/libhoney-go v1.11.1 // indirect
-	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
+	github.com/jmespath/go-jmespath v0.3.0 // indirect
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/jpillora/backoff v0.0.0-20180909062703-3050d21c67d7 // indirect
 	github.com/julienschmidt/httprouter v1.2.0 // indirect
@@ -86,7 +86,7 @@ require (
 	github.com/tendermint/tm-db v0.1.1 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
+	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
 	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
