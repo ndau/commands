@@ -14,10 +14,10 @@ import (
 	"os"
 
 	arg "github.com/alexflint/go-arg"
-	"github.com/attic-labs/noms/go/d"
-	"github.com/attic-labs/noms/go/spec"
 	"github.com/ndau/ndau/pkg/ndau/backing"
 	"github.com/ndau/ndaumath/pkg/address"
+	"github.com/ndau/noms/go/d"
+	"github.com/ndau/noms/go/spec"
 )
 
 func check(err error, context string, formatters ...interface{}) {

@@ -13,9 +13,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/attic-labs/noms/go/datas"
-	"github.com/attic-labs/noms/go/spec"
-	nt "github.com/attic-labs/noms/go/types"
+	"github.com/ndau/noms/go/datas"
+	"github.com/ndau/noms/go/spec"
+	nt "github.com/ndau/noms/go/types"
 	log "github.com/sirupsen/logrus"
 )
 
