@@ -94,12 +94,12 @@ commands:
       - run:
           name: Common setup
           command: |
-            echo "Circle SHA1" $CIRCLE_SHA1
-            ssh remote-docker \<<EOF
-              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
-              sudo systemctl restart docker
-            EOF
-             echo "Circle SHA1" $CIRCLE_SHA1
+#            echo "Circle SHA1" $CIRCLE_SHA1
+#            ssh remote-docker \<<EOF
+#              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+#              sudo systemctl restart docker
+#            EOF
+#             echo "Circle SHA1" $CIRCLE_SHA1
             # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
             # JSG update this to use "get-login-password" on new versions of aws cli
             eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
