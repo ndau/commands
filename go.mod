@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/alexflint/go-arg v1.4.3
-	github.com/attic-labs/noms v0.0.0-20210827224422-e5fa29d95e8b
 	github.com/aws/aws-sdk-go v1.44.172
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
@@ -16,12 +15,12 @@ require (
 	github.com/ndau/chaincode v1.2.10
 	github.com/ndau/genesis v1.2.1
 	github.com/ndau/json2msgp v1.1.1
-	github.com/ndau/metanode v1.9.4
+	github.com/ndau/metanode v1.9.5
 	github.com/ndau/msgp-well-known-types v0.1.2
-	github.com/ndau/ndau v1.28.0
+	github.com/ndau/ndau v1.28.1
 	github.com/ndau/ndaumath v1.3.9
 	github.com/ndau/noms v1.0.1
-	github.com/ndau/noms-util v0.0.0-20200211161432-2af5ada2c877
+	github.com/ndau/noms-util v1.0.1
 	github.com/ndau/o11y v1.3.5
 	github.com/ndau/rest v0.1.1
 	github.com/ndau/system_vars v1.5.6
