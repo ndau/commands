@@ -373,7 +373,6 @@ docker create \
        -e "SEEDS=$SEEDS" \
        -e "SEED_MODE=$SEED_MODE" \
        --sysctl net.core.somaxconn=511 \
-       --platform linux/amd64 \
        "$NDAU_IMAGE_NAME"
 
 IDENTITY_FILE="node-identity.tgz"
