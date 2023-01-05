@@ -40,6 +40,8 @@ Each of these, in turn, has several endpoints within it.
 
 * [DEPRECATED:AccountEAIRate](#deprecated:accounteairate)
 
+* [AccountVotes](#accountvotes)
+
 * [BlockBefore](#blockbefore)
 
 * [BlockCurrent](#blockcurrent)
@@ -375,6 +377,63 @@ _**Produces:**_ `[application/json]`
 _**Writes:**_
 ```json
         null
+```
+
+
+
+---
+## AccountVotes
+
+### `GET /account/votes/:address/:date`
+
+_Returns the number of votes to which an account is entitled on a valid ndau DAO election date_
+
+
+
+
+_**Parameters:**_
+
+Name | Kind | Description | DataType
+---- | ---- | ----------- | --------
+ address | Path | The address of the account for which to return votes | string
+ DATE | Path | Timestamp (ISO 3339) of DAO vote (only YYYY-MM-DD is used). | string
+
+
+
+
+
+
+_**Produces:**_ `[application/json]`
+
+
+_**Writes:**_
+```
+        {
+          "balance": 123000000,
+          "validationKeys": [
+            "npuba8jadtbbedhhdcad42tysymzpi5ec77vpi4exabh3unu2yem8wn4wv22kvvt24kpm3ghikst"
+          ],
+          "validationScript": null,
+          "rewardsTarget": null,
+          "incomingRewardsFrom": null,
+          "delegationNode": null,
+          "lock": null,
+          "lastEAIUpdate": "2000-01-01T00:00:00.000000Z",
+          "lastWAAUpdate": "2000-01-01T00:00:00.000000Z",
+          "weightedAverageAge": "1m",
+          "sequence": 0,
+          "stake_rules": null,
+          "costakers": null,
+          "holds": null,
+          "recourseSettings": {
+            "period": "t0s",
+            "changes_at": null,
+            "next": null
+          },
+          "currencySeatDate": null,
+          "parent": null,
+          "progenitor": null
+        }
 ```
 
 
