@@ -39,13 +39,13 @@ cd "$COMMANDS_DIR" || exit 1
 SHA=$(git rev-parse --short HEAD)
 
 echo "Building $NDAU_IMAGE_NAME..."
-if ! docker buildx build \
+if ! docker build \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$SHA" \
        --tag="$NDAU_IMAGE_NAME:latest" \
-       --platform=linux/amd64,linux/arm64v8
+       --platform linux/amd64
 then
     echo "Failed to build $NDAU_IMAGE_NAME"
     exit 1
