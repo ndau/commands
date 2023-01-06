@@ -45,7 +45,7 @@ if ! docker build \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$SHA" \
        --tag="$NDAU_IMAGE_NAME:latest" \
-       --platform "linux/amd64,linux/arm64v8"
+       --platform linux/amd64 linux/arm64v8
 then
     echo "Failed to build $NDAU_IMAGE_NAME"
     exit 1
