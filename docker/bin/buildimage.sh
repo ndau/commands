@@ -44,8 +44,7 @@ if ! docker build \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$SHA" \
-       --tag="$NDAU_IMAGE_NAME:latest" \
-       --platform linux/amd64
+       --tag="$NDAU_IMAGE_NAME:latest"
 then
     echo "Failed to build $NDAU_IMAGE_NAME"
     exit 1
