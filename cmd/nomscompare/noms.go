@@ -12,9 +12,9 @@ package main
 import (
 	"encoding/hex"
 
-	"github.com/attic-labs/noms/go/datas"
-	"github.com/attic-labs/noms/go/hash"
-	nt "github.com/attic-labs/noms/go/types"
+	"github.com/ndau/noms/go/datas"
+	"github.com/ndau/noms/go/hash"
+	nt "github.com/ndau/noms/go/types"
 	log "github.com/sirupsen/logrus"
 )
 

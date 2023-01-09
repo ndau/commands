@@ -16,12 +16,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/attic-labs/noms/go/spec"
+	"github.com/ndau/noms/go/spec"
 
-	"github.com/attic-labs/noms/go/datas"
-	"github.com/attic-labs/noms/go/hash"
-	nt "github.com/attic-labs/noms/go/types"
 	cli "github.com/jawher/mow.cli"
+	"github.com/ndau/noms/go/datas"
+	"github.com/ndau/noms/go/hash"
+	nt "github.com/ndau/noms/go/types"
 	"github.com/pkg/errors"
 )
 
@@ -44,7 +44,7 @@ func main() {
 	app := cli.App("nomsinfo", "get basic info about a noms db")
 	app.LongDesc = strings.TrimSpace(`
 For help specifying your datasets, see
-https://github.com/attic-labs/noms/blob/master/doc/spelling.md
+https://github.com/ndau/noms/blob/master/doc/spelling.md
 `)
 
 	ds := app.StringArg("DATASET", "", "noms dataset")

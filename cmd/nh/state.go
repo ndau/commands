@@ -10,9 +10,9 @@ package main
 // - -- --- ---- -----
 
 import (
-	"github.com/attic-labs/noms/go/datas"
 	metast "github.com/ndau/metanode/pkg/meta/state"
 	"github.com/ndau/ndau/pkg/ndau/backing"
+	"github.com/ndau/noms/go/datas"
 )
 
 type state struct {

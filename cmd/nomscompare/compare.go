@@ -16,8 +16,8 @@ import (
 	"reflect"
 	"sort"
 
-	nt "github.com/attic-labs/noms/go/types"
 	util "github.com/ndau/noms-util"
+	nt "github.com/ndau/noms/go/types"
 	log "github.com/sirupsen/logrus"
 )
 

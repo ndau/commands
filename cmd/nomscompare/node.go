@@ -13,8 +13,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/attic-labs/noms/go/datas"
-	nt "github.com/attic-labs/noms/go/types"
+	"github.com/ndau/noms/go/datas"
+	nt "github.com/ndau/noms/go/types"
 	log "github.com/sirupsen/logrus"
 )
 
