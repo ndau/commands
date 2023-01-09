@@ -54,7 +54,10 @@ func tmnode(node string, json, compact *bool) client.ABCIClient {
 	}
 
 	if nodeHTTP == nil {
-		nodeHTTP = client.NewHTTP(node, "/websocket")
+		// Note - Vle: Undocumented breaking changes from tendermint v0.32 -> v0.33
+		//             return type in v0.33 is value of type (*client.HTTP, error)
+		// nodeHTTP = client.NewHTTP(node, "/websocket")
+		nodeHTTP, _ = client.NewHTTP(node, "/websocket")
 	}
 	return nodeHTTP
 }

@@ -17,6 +17,7 @@ import json
 import re
 import sys
 import textwrap
+import time
 
 # local import (ndau.py must be found locally)
 import ndau
@@ -207,15 +208,20 @@ if __name__ == "__main__":
     # we need the current time to evaluate "islocked"
     timeNow = datetime.datetime.utcnow().isoformat("T")
     while after != "":
+        time.sleep(0.1)
         qp = dict(limit=limit, after=after)
         result = ndau.getData(node, "/account/list", parms=qp)
+        if not bool(result): # Check if result is empty
+            print("Failed to get account list. Exit now!")
+            exit()
 
         if result["NextAfter"] is not None:
             after = result["NextAfter"]
         else:
             after = ""
 
-        accts = result["Accounts"]
+        accts = result
+        print(accts)
         failcount = 0
         while failcount < 5:
             resp = ndau.post(f"{node}/account/accounts", json=result["Accounts"])
@@ -224,7 +230,7 @@ if __name__ == "__main__":
             else:
                 print(f"Error from {resp.url}: {resp.text}", file=sys.stderr)
                 failcount += 1
-
+        
         data = resp.json()
         # ok, now we can iterate through the batch of data
         for k in data:

@@ -2,15 +2,6 @@
 
 package main
 
-// ----- ---- --- -- -
-// Copyright 2019 Oneiro NA, Inc. All Rights Reserved.
-//
-// Licensed under the Apache License 2.0 (the "License").  You may not use
-// this file except in compliance with the License.  You can obtain a copy
-// in the file LICENSE in the source distribution or at
-// https://www.apache.org/licenses/LICENSE-2.0.txt
-// - -- --- ---- -----
-
 import (
 	"bytes"
 	"errors"
@@ -22,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 	"unicode/utf8"
 )
@@ -135,6 +127,7 @@ var g = &grammar{
 							pos:        position{line: 18, col: 32, offset: 289},
 							val:        "=",
 							ignoreCase: false,
+							want:       "\"=\"",
 						},
 						&ruleRefExpr{
 							pos:  position{line: 18, col: 36, offset: 293},
@@ -292,6 +285,7 @@ var g = &grammar{
 										pos:        position{line: 24, col: 33, offset: 603},
 										val:        "{",
 										ignoreCase: false,
+										want:       "\"{\"",
 									},
 								},
 								&ruleRefExpr{
@@ -375,16 +369,19 @@ var g = &grammar{
 						pos:        position{line: 28, col: 15, offset: 803},
 						val:        "handler",
 						ignoreCase: false,
+						want:       "\"handler\"",
 					},
 					&litMatcher{
 						pos:        position{line: 28, col: 27, offset: 815},
 						val:        "def",
 						ignoreCase: false,
+						want:       "\"def\"",
 					},
 					&litMatcher{
 						pos:        position{line: 28, col: 35, offset: 823},
 						val:        "func",
 						ignoreCase: false,
+						want:       "\"func\"",
 					},
 				},
 			},
@@ -412,11 +409,13 @@ var g = &grammar{
 										pos:        position{line: 30, col: 23, offset: 855},
 										val:        "enddef",
 										ignoreCase: false,
+										want:       "\"enddef\"",
 									},
 									&litMatcher{
 										pos:        position{line: 30, col: 34, offset: 866},
 										val:        "}",
 										ignoreCase: false,
+										want:       "\"}\"",
 									},
 								},
 							},
@@ -469,6 +468,7 @@ var g = &grammar{
 									pos:        position{line: 33, col: 14, offset: 950},
 									val:        ",",
 									ignoreCase: false,
+									want:       "\",\"",
 								},
 								&ruleRefExpr{
 									pos:  position{line: 33, col: 18, offset: 954},
@@ -559,6 +559,7 @@ var g = &grammar{
 									pos:        position{line: 40, col: 7, offset: 1308},
 									val:        "\"",
 									ignoreCase: false,
+									want:       "\"\\\"\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 40, col: 11, offset: 1312},
@@ -574,6 +575,7 @@ var g = &grammar{
 									pos:        position{line: 40, col: 17, offset: 1318},
 									val:        "\"",
 									ignoreCase: false,
+									want:       "\"\\\"\"",
 								},
 							},
 						},
@@ -690,6 +692,7 @@ var g = &grammar{
 									pos:        position{line: 48, col: 7, offset: 1691},
 									val:        ";",
 									ignoreCase: false,
+									want:       "\";\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 48, col: 11, offset: 1695},
@@ -732,21 +735,25 @@ var g = &grammar{
 								pos:        position{line: 52, col: 11, offset: 1872},
 								val:        "\r\n",
 								ignoreCase: false,
+								want:       "\"\\r\\n\"",
 							},
 							&litMatcher{
 								pos:        position{line: 52, col: 20, offset: 1881},
 								val:        "\n\r",
 								ignoreCase: false,
+								want:       "\"\\n\\r\"",
 							},
 							&litMatcher{
 								pos:        position{line: 52, col: 29, offset: 1890},
 								val:        "\r",
 								ignoreCase: false,
+								want:       "\"\\r\"",
 							},
 							&litMatcher{
 								pos:        position{line: 52, col: 36, offset: 1897},
 								val:        "\n",
 								ignoreCase: false,
+								want:       "\"\\n\"",
 							},
 						},
 					},
@@ -1158,7 +1165,7 @@ type position struct {
 }
 
 func (p position) String() string {
-	return fmt.Sprintf("%d:%d [%d]", p.line, p.col, p.offset)
+	return strconv.Itoa(p.line) + ":" + strconv.Itoa(p.col) + " [" + strconv.Itoa(p.offset) + "]"
 }
 
 // savepoint stores all state required to go back to this point in the
@@ -1271,6 +1278,7 @@ type litMatcher struct {
 	pos        position
 	val        string
 	ignoreCase bool
+	want       string
 }
 
 type charClassMatcher struct {
@@ -1622,13 +1630,24 @@ type Cloner interface {
 	Clone() interface{}
 }
 
+var statePool = &sync.Pool{
+	New: func() interface{} { return make(storeDict) },
+}
+
+func (sd storeDict) Discard() {
+	for k := range sd {
+		delete(sd, k)
+	}
+	statePool.Put(sd)
+}
+
 // clone and return parser current state.
 func (p *parser) cloneState() storeDict {
 	if p.debug {
 		defer p.out(p.in("cloneState"))
 	}
 
-	state := make(storeDict, len(p.cur.state))
+	state := statePool.Get().(storeDict)
 	for k, v := range p.cur.state {
 		if c, ok := v.(Cloner); ok {
 			state[k] = c.Clone()
@@ -1645,6 +1664,7 @@ func (p *parser) restoreState(state storeDict) {
 	if p.debug {
 		defer p.out(p.in("restoreState"))
 	}
+	p.cur.state.Discard()
 	p.cur.state = state
 }
 
@@ -1757,7 +1777,7 @@ func listJoin(list []string, sep string, lastSep string) string {
 	case 1:
 		return list[0]
 	default:
-		return fmt.Sprintf("%s %s %s", strings.Join(list[:len(list)-1], sep), lastSep, list[len(list)-1])
+		return strings.Join(list[:len(list)-1], sep) + " " + lastSep + " " + list[len(list)-1]
 	}
 }
 
@@ -2053,11 +2073,6 @@ func (p *parser) parseLitMatcher(lit *litMatcher) (interface{}, bool) {
 		defer p.out(p.in("parseLitMatcher"))
 	}
 
-	ignoreCase := ""
-	if lit.ignoreCase {
-		ignoreCase = "i"
-	}
-	val := fmt.Sprintf("%q%s", lit.val, ignoreCase)
 	start := p.pt
 	for _, want := range lit.val {
 		cur := p.pt.rn
@@ -2065,13 +2080,13 @@ func (p *parser) parseLitMatcher(lit *litMatcher) (interface{}, bool) {
 			cur = unicode.ToLower(cur)
 		}
 		if cur != want {
-			p.failAt(false, start.position, val)
+			p.failAt(false, start.position, lit.want)
 			p.restore(start)
 			return nil, false
 		}
 		p.read()
 	}
-	p.failAt(true, start.position, val)
+	p.failAt(true, start.position, lit.want)
 	return p.sliceFrom(start), true
 }
 

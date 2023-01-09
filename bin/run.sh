@@ -48,11 +48,11 @@ ndau_claimer() {
 #---------- redis for ndau -------------
 ndau_redis() {
     node_num="$1"
-    echo running redis for "ndau-$node_num"
-
     data_dir="$REDIS_NDAU_DATA_DIR-$node_num"
     redis_port=$((REDIS_PORT + node_num))
     output_name="$CMDBIN_DIR/ndau_redis-$node_num"
+
+    echo running redis server for "ndau-$node_num" on port "$redis_port", datadir = "$data_dir"
 
     mkdir -p "$data_dir"
     redis-server --dir "$data_dir" \

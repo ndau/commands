@@ -186,5 +186,9 @@ func getClient(network string, node int) (client.ABCIClient, error) {
 	// we have a URL object
 	// ignore any path; we'll supply our own, externally
 	ClientURL.Path = ""
-	return client.NewHTTP(ClientURL.String(), "/websocket"), nil
+
+	// Note - Vle: Undocumented breaking changes from tendermint v0.32 -> v0.33
+	//             return type in v0.33 is value of type (*client.HTTP, error)
+	// return client.NewHTTP(ClientURL.String(), "/websocket"), nil
+	return client.NewHTTP(ClientURL.String(), "/websocket")
 }

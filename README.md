@@ -11,7 +11,7 @@ The `/bin` directory also contains other scripts useful for developing within a 
 The following instructions have been tested on clean installs of macOS Mojave version 10.4.4 and Ubuntu 20.04.
 #### macOS:
 
-The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package.
+The Homebrew package manager is by far the easiest way to install these tools, but each can be installed separately from the distribution's standard download package. For Mac M1 running use Rosetta terminal and use command `arch -arm64 brew install` to install packages using brew.
 1. Install the Xcode command-line tools: `xcode-select --install`
 1. Install [Brew](https://brew.sh/)
 1. Install [Python3](https://www.python.org/downloads/)
@@ -19,19 +19,21 @@ The Homebrew package manager is by far the easiest way to install these tools, b
     ```sh
     python3 -m pip install remarshal
     ```
-1. Install `go`: `brew install go`
+1. Install `go` version 1.17 or less: `brew install go@1.17.13`
 1. Install `dep`: `brew install dep`
 1. Install Redis:
     - Run `which redis-server` to see if you've got redis currently installed on your machine
-    - If it's already installed, run `brew upgrade redis@5.0`
-    - Otherwise, run `brew install redis@5.0`
+    - If it's already installed, run `brew upgrade redis@6.2`
+    - Otherwise, run `brew install redis@6.2`
+    - Run `redis-server` to test the installation. If you need to have redis@6.2 first in your PATH, run:
+        `echo 'export PATH="/opt/homebrew/opt/redis@6.2/bin:$PATH"' >> ~/.zshrc`
 1. Install `jq`: `brew install jq`
 #### Ubuntu:
 
 1. Install tooling: `sudo apt install golang go-dep redis make jq git -y`
 ### ndau Tools
 
-1. Ensure `$GOPATH` is set to the root of your Go working tree (usually `~/go`)
+1. Ensure `$GOPATH` is set to the root of your Go working tree (usually `~/go`). Run: `go env` to verify.
 1. Clone the ndau `commands` repo:
     ```sh
     git clone https://github.com/ndau/commands.git "$GOPATH"/src/github.com/ndau/commands
@@ -123,8 +125,20 @@ Chaincode is the scripting language ndau uses for validation rules, fee and rate
 
 From the root of the commands repository, you can use `make`. It basically expects that you are working from within goroot and that the chaincode repo is at `../chaincode` and also expects `../chaincode_scripts` relative to this `commands` repo. The `../chaincode_scripts` repo is not included in the required set described above.
 ```sh
-    git clone git@github.com:ndau/chaincode_scripts.git ~/go/src/github.com/ndau/chaincode_scripts
+    git clone https://github.com/ndau/chaincode.git ~/go/src/github.com/ndau/chaincode
+    git clone https://github.com/ndau/chaincode_scripts.git ~/go/src/github.com/ndau/chaincode_scripts
 ```
+
+Note:
+* The build is currently using Dep for go package manager. So you may need to install it. From the `commands` folder, run:
+```sh
+    brew install dep
+    dep init
+```
+* Starting from Go 1.14 go.mod and vendor/modules.txt (if present) must be in sync. If you get the inconsistent vendoring errors, run: `go mod vendor`
+* Run `hash pigeon`. If not exist then install a PEG parser generator:
+    - Run `go get -u github.com/mna/pigeon`, or if you are using Go 1.17 or later use go install instead `go get github.com/mna/pigeon & go install github.com/mna/pigeon`
+    - Add the GOBIN path to environment `export PATH=$PATH:$GOPATH/bin`
 
 Given that, you should be able to do `make build` to create all the tools.
 

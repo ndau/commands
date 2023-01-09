@@ -53,7 +53,7 @@ default: build
 
 setup:
 	hash pigeon
-	hash msgp
+	#### hash msgp
 	hash stringer
 	go get $(CHAINCODEPKG)/...
 

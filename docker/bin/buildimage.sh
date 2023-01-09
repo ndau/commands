@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+echo $(dirname $0)
 
 COMMANDS_BRANCH="$1"
 if [ -z "$COMMANDS_BRANCH" ]; then
@@ -38,11 +39,22 @@ cp "$COMMANDS_DIR"/Gopkg.* "$IMAGE_DIR"/
 cd "$COMMANDS_DIR" || exit 1
 SHA=$(git rev-parse --short HEAD)
 
+PLATFORM=""
+case $(uname -m) in
+    i386)   PLATFORM="386" ;;
+    i686)   PLATFORM="386" ;;
+    x86_64) PLATFORM="amd64" ;;
+    arm64)  PLATFORM="arm64";;
+    arm)    PLATFORM="arm" ;;
+esac
+
+echo "Platform: $PLATFORM"
+
 echo "Building $NDAU_IMAGE_NAME..."
 if ! docker build \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
-       --platform="linux/amd64" \
+       --platform="linux/$PLATFORM" \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$SHA" \
        --tag="$NDAU_IMAGE_NAME:latest"

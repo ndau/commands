@@ -343,6 +343,7 @@ if [ -z $SEED_MODE ]; then
 fi
 
 echo "Creating container..."
+echo "ndau image: $NDAU_IMAGE_NAME"
 # Some notes about the params to the run command:
 # - Using --sysctl silences a warning about TCP backlog when redis runs.
 # - Set your own HONEYCOMB_* and SLACK_* env vars ahead of time to enable honeycomb logging.
