@@ -55,17 +55,17 @@ fi
 # DON'T START procmoc
 # Start procmon, which will launch and manage all processes in the node group.
 cd "$BIN_DIR" || exit 1
-# if [ -z "$HONEYCOMB_KEY" ] || [ -z "$HONEYCOMB_DATASET" ]; then
-#     # Honeycomb not configured, we'll dump everything locally from procmon itself.
-#     echo "logging to $LOG_DIR"
-#     ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
-# else
-#     # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
-#     echo "logging to honeycomb: $HONEYCOMB_DATASET"
-#     ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
-# fi
-# procmon_pid="$!"
-# echo "Started procmon as PID $procmon_pid"
+if [ -z "$HONEYCOMB_KEY" ] || [ -z "$HONEYCOMB_DATASET" ]; then
+    # Honeycomb not configured, we'll dump everything locally from procmon itself.
+    echo "logging to $LOG_DIR"
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" >"$LOG_DIR/procmon.log" 2>&1 &
+else
+    # Honeycomb takes care of logging, we'll log nothing locally from procmon in this case.
+    echo "logging to honeycomb: $HONEYCOMB_DATASET"
+    ./procmon "$SCRIPT_DIR/docker-procmon.toml" &
+fi
+procmon_pid="$!"
+echo "Started procmon as PID $procmon_pid"
 
 # This will gracefully shut down all running processes through procmon when the container stops.
 on_sigterm() {

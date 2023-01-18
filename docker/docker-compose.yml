@@ -1,0 +1,57 @@
+services:
+  redis:
+    image: redis:7.0.0-alpine
+    command: redis-server --dir /data/redis --maxclients 992 --port 6379 --save 60 1
+    ports:
+      - 6379:6379
+    volumes:
+      - ./snapshot-1/redis:/data/redis
+  noms:
+    image: ndau/noms:latest
+    command: serve --port 8000 /data/noms
+    ports:
+      - 8000:8000
+    volumes:
+      - ./snapshot-1/noms:/data/noms
+    healthcheck:
+      test: netstat -an | grep 8000 > /dev/null; if [ 0 != $$? ]; then exit 1; fi;
+      interval: 2s
+      retries: 3
+    depends_on:
+      - redis
+  ndaunode:
+    image: ndau/commands:latest
+    command: /bin/ndaunode -spec http://host.docker.internal:8000 -index host.docker.internal:6379 -addr 0.0.0.0:26650
+    ports:
+      - 26650:26650
+    volumes:
+      - ./snapshot-1/ndau:/data/ndau
+    healthcheck:
+      test: netstat -an | grep 26650 > /dev/null; if [ 0 != $$? ]; then exit 1; fi;
+      interval: 2s
+      retries: 3
+    depends_on:
+      noms:
+          condition: service_healthy
+  tendermint:
+    image: tendermint/tendermint:v0.33.9
+    command:
+      - node
+      - --home=/data/tendermint
+      - --proxy_app=tcp://host.docker.internal:26650
+      - --p2p.laddr=tcp://0.0.0.0:26660
+      - --rpc.laddr=tcp://0.0.0.0:26670
+      - --consensus.create_empty_blocks=false
+      - --consensus.create_empty_blocks_interval=10s
+      - --p2p.persistent_peers=49b08ed396e190717e6c2c64620cb4529f3519a7@testnet-0.ndau.tech:26660,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@testnet-1.ndau.tech:26660,d6333397905f8d35504007f0aaf235039a2fbc2d@testnet-2.ndau.tech:26660,10127e995c8dba09fe8352d345f9add0d7e8297a@testnet-3.ndau.tech:26660
+    ports:
+      - 26660:26660
+      - 26670:26670
+    volumes:
+      - ./snapshot-1/tendermint:/data/tendermint
+    depends_on:
+      ndaunode:
+          condition: service_healthy
+  
+  
+  
