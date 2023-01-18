@@ -40,7 +40,7 @@ func main() {
 Recursively compares noms datasets.
 
 For help specifying your datasets, see
-https://github.com/attic-labs/noms/blob/master/doc/spelling.md
+https://github.com/ndau/noms/blob/master/doc/spelling.md
 `)
 
 	dsa := app.StringArg("DATASET_A", "", "first dataset")

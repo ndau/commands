@@ -52,6 +52,11 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
 
 COPY --from=build /build/* /bin/
 
+COPY --from=build /go/src/github.com/ndau/commands/snapshot-1 /snapshot-1
+#COPY --from=build /go/src/github.com/ndau/commands/snapshot-1/noms /data/noms
+#COPY --from=build /go/src/github.com/ndau/commands/snapshot-1/tendermint/data /data/tendermint/data
+
+
 # We only need to expose Tendermint and ndauapi ports.
 # The outside world will communicate with the container through the TM RPC ports and ndauapi.
 # Tendermint itself will communicate with other containers through the P2P ports.

@@ -42,10 +42,11 @@ var asscfilePath = flag.String("asscfile", "", "if set, create special accounts 
 // wipe and full reindex of the blockchain using the new format that the new search code expects.
 // That is why this is tied to code here, rather than a variable we pass in.
 // History:
-//   0 = initial version
-//   1 = new format for indxing transaction fee/sib
-//   2 = new index for transaction types
-//   3 = record price history, change date fmt, expand all prefixes
+//
+//	0 = initial version
+//	1 = new format for indxing transaction fee/sib
+//	2 = new index for transaction types
+//	3 = record price history, change date fmt, expand all prefixes
 const indexVersion = 3
 
 func getNdauhome() string {
