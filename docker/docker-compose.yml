@@ -49,9 +49,26 @@ services:
       - 26670:26670
     volumes:
       - ./snapshot-1/tendermint:/data/tendermint
+    healthcheck:
+      test: netstat -an | grep 26670 > /dev/null; if [ 0 != $$? ]; then exit 1; fi;
+      interval: 5s
+      retries: 3
     depends_on:
       ndaunode:
           condition: service_healthy
+  ndauapi:
+    image: ndau/commands:latest
+    command: /bin/ndauapi
+    environment:
+      NDAUAPI_NDAU_RPC_URL: http://host.docker.internal:26670
+    ports:
+      - 3030:3030
+    volumes:
+      - ./snapshot-1/ndau:/data/ndau
+    depends_on:
+      tendermint:
+          condition: service_healthy
+  
   
   
   
