@@ -37,8 +37,8 @@ if [ ! -d "$DATA_DIR" ]; then
 fi
 
 # Every time the node group launches, replace persistent peer domain names with IP addresses.
-echo "Converting persistent peer domain names to IP addresses..."
-"$SCRIPT_DIR"/docker-dns.sh
+# echo "Converting persistent peer domain names to IP addresses..."
+# "$SCRIPT_DIR"/docker-dns.sh
 
 # ensure the log directory exists
 mkdir -p "$LOG_DIR"
@@ -126,8 +126,4 @@ echo "Node group $NODE_ID is now running"
 wait "1"
 # Keep the container alive for as long as procmon is alive.  We want the container to stop
 # running if procmon dies for any reason.  One use case is for handling the schema change tx.
-#wait "$procmon_pid"
-
-
-"id": "ee646388e8c13ecf6124a24224a837a50b59cacf",
-      "listen_addr": "tcp://100.26.135.86:26660",
+wait "$procmon_pid"

@@ -4,12 +4,12 @@ SCRIPT_DIR=/bin
 # shellcheck source=docker-env.next.sh
 source "$SCRIPT_DIR"/docker-env.next.sh
 
-if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
-    # Generate a new genesis snapshot with this node as its only validator.
-    echo Generating genesis...
-    "$BIN_DIR"/generate -v -g "$SYSTEM_VARS_TOML" -a "$SYSTEM_ACCOUNTS_TOML"
-    mkdir -p "$DATA_DIR"
-else
+if [ "$SNAPSHOT_NAME" -ne "$GENERATED_GENESIS_SNAPSHOT" ]; then
+#    # Generate a new genesis snapshot with this node as its only validator.
+#    echo Generating genesis...
+#    "$BIN_DIR"/generate -v -g "$SYSTEM_VARS_TOML" -a "$SYSTEM_ACCOUNTS_TOML"
+#    mkdir -p "$DATA_DIR"
+#else
     SNAPSHOT_DIR="$SCRIPT_DIR/snapshot"
     mkdir -p "$SNAPSHOT_DIR"
 
@@ -138,6 +138,9 @@ if [ ! -f "$pvs_file" ]; then
   mkdir -p "$pvs_dir"
   echo "{}" > "$pvs_file"
 fi
+
+ls -la  "$pvs_dir"
+cat "$pvs_dir/priv_validator_state.json"
 
 # Make directories that don't get created elsewhere.
 mkdir -p "$NODE_DATA_DIR"

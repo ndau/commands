@@ -47,7 +47,7 @@ FROM go_build AS build_tendermint
 # Use pre-built tendermint image
 # build tendermint because pre-built 0.32.6 doesn't exist
 ENV TENDERMINT_DIR=$GOPATH/src/github.com/tendermint
-ENV TENDERMINT_VER=v0.32.6
+ENV TENDERMINT_VER=v0.33.1
 RUN mkdir -p "$TENDERMINT_DIR"
 RUN cd "$TENDERMINT_DIR" && git clone https://github.com/tendermint/tendermint.git
 RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
@@ -90,15 +90,15 @@ RUN /image/docker-build.sh
 FROM combined_node_base AS combined_node
 
 # Copy image support files needed for running the node group inside the container.
-COPY ./docker-conf.sh \
+COPY ./docker-conf.next.sh \
     ./docker-config-default.toml \
     ./docker-config-mainnet.toml \
     ./docker-config-testnet.toml \
-    ./docker-dns.sh \
-    ./docker-env.sh \
+    ./docker-dns.next.sh \
+    ./docker-env.next.sh \
     ./docker-procmon-claimer.toml \
     ./docker-procmon-noclaimer.toml \
-    ./docker-run.sh \
+    ./docker-run.next.sh \
     ./docker-snapshot.sh \
     ./s3-multipart-upload.sh \
     /image/
@@ -118,4 +118,4 @@ COPY --from=build_commands /image/bin/* /image/bin/
 # All other processes in the container will communicate with each other through internal ports.
 EXPOSE 26660 26670 3030
 
-CMD ["/image/docker-run.sh"]
+CMD ["/image/docker-run.next.sh"]
