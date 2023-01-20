@@ -34,19 +34,20 @@ services:
       noms:
           condition: service_healthy
   tendermint:
-    image: tendermint/tendermint:v0.33.9
+    image: ndau/tendermint:latest
+    #image: tendermint/tendermint:v0.33.0
     command:
       - node
       - --home=/data/tendermint
       - --proxy_app=tcp://host.docker.internal:26650
-      - --p2p.laddr=tcp://0.0.0.0:26661
+      - --p2p.laddr=tcp://0.0.0.0:26660
       - --rpc.laddr=tcp://0.0.0.0:26670
       - --consensus.create_empty_blocks=false
       - --consensus.create_empty_blocks_interval=10s
       - --p2p.persistent_peers=49b08ed396e190717e6c2c64620cb4529f3519a7@testnet-0.ndau.tech:26660,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@testnet-1.ndau.tech:26660,d6333397905f8d35504007f0aaf235039a2fbc2d@testnet-2.ndau.tech:26660,10127e995c8dba09fe8352d345f9add0d7e8297a@testnet-3.ndau.tech:26660
       - --log_level=debug
     ports:
-      - 26661:26661
+      - 26660:26660
       - 26670:26670
     #environment:
     #  PERSISTENT_PEERS: 49b08ed396e190717e6c2c64620cb4529f3519a7@mainnet-0.ndau.tech:26661,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@mainnet-1.ndau.tech:26661,d6333397905f8d35504007f0aaf235039a2fbc2d@mainnet-2.ndau.tech:26661,10127e995c8dba09fe8352d345f9add0d7e8297a@mainnet-3.ndau.tech:26661,9ccc286a6099b2187b349d38db55f9d81ac6c5ea@mainnet-4.ndau.tech:26661
