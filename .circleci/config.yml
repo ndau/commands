@@ -58,7 +58,6 @@ commands:
           name: Save docker image to cache
           command: |
             # ensure cache directory
-            docker volume prune -f
             [ -d /opt/docker-cache ] || mkdir -p /opt/docker-cache
             docker save -o "/opt/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
