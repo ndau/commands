@@ -21,6 +21,7 @@ services:
       - redis
   ndaunode:
     image: ndau/commands:latest
+    pull_policy: always
     command: /bin/ndaunode -spec http://host.docker.internal:8000 -index host.docker.internal:6379 -addr 0.0.0.0:26650
     ports:
       - 26650:26650
@@ -35,6 +36,7 @@ services:
           condition: service_healthy
   tendermint:
     image: ndau/tendermint:latest
+    pull_policy: missing
     #image: tendermint/tendermint:v0.33.0
     command:
       - node
@@ -44,13 +46,15 @@ services:
       - --rpc.laddr=tcp://0.0.0.0:26670
       - --consensus.create_empty_blocks=false
       - --consensus.create_empty_blocks_interval=10s
-      - --p2p.persistent_peers=49b08ed396e190717e6c2c64620cb4529f3519a7@testnet-0.ndau.tech:26660,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@testnet-1.ndau.tech:26660,d6333397905f8d35504007f0aaf235039a2fbc2d@testnet-2.ndau.tech:26660,10127e995c8dba09fe8352d345f9add0d7e8297a@testnet-3.ndau.tech:26660
-      - --log_level=debug
+      - --p2p.persistent_peers=3823adecffd2d8bd7cd4ff9752ff70de5b889af8@testnet-1.ndau.tech:26660
+      - --log_level=info
     ports:
       - 26660:26660
       - 26670:26670
     #environment:
     #  PERSISTENT_PEERS: 49b08ed396e190717e6c2c64620cb4529f3519a7@mainnet-0.ndau.tech:26661,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@mainnet-1.ndau.tech:26661,d6333397905f8d35504007f0aaf235039a2fbc2d@mainnet-2.ndau.tech:26661,10127e995c8dba09fe8352d345f9add0d7e8297a@mainnet-3.ndau.tech:26661,9ccc286a6099b2187b349d38db55f9d81ac6c5ea@mainnet-4.ndau.tech:26661
+    # - --p2p.persistent_peers=49b08ed396e190717e6c2c64620cb4529f3519a7@testnet-0.ndau.tech:26660,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@testnet-1.ndau.tech:26660,d6333397905f8d35504007f0aaf235039a2fbc2d@testnet-2.ndau.tech:26660,10127e995c8dba09fe8352d345f9add0d7e8297a@testnet-3.ndau.tech:26660
+      
     volumes:
       - ./snapshot-1/tendermint:/data/tendermint
     healthcheck:
