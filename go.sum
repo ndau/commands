@@ -148,8 +148,8 @@ github.com/ndau/msgp-well-known-types v0.1.2 h1:Cmxr5iEVmNy/zRGrJ2QU6ZrlI15wEuhl
 github.com/ndau/msgp-well-known-types v0.1.2/go.mod h1:gP6SLaELKygMJrLRKz0wuzYPpWq9OZOnzNNLY7SGHG8=
 github.com/ndau/mt19937_64 v0.0.0-20210225193119-ef56a9b3b865 h1:OSWlYjwazYJmij0i+wXA9V54QldmByWtKsNGOXFpMqc=
 github.com/ndau/mt19937_64 v0.0.0-20210225193119-ef56a9b3b865/go.mod h1:prx682b5yN8rlpTsBkJCiVpsLOl7xnvLRaFT1oH9viw=
-github.com/ndau/ndau v1.28.6 h1:nDBNPn33rIbGY7U9I3suIgDbwzzNLylnDYPpRrVppMs=
-github.com/ndau/ndau v1.28.6/go.mod h1:5OnweUpKQiRpMbWL2GL7OFgpNHxw/KJ0xYQ2EImlS0o=
+github.com/ndau/ndau v1.28.1 h1:fgtLF+nU1v4OwQDXtkoBk/88qEfv3sHcH2JpELJK3wU=
+github.com/ndau/ndau v1.28.1/go.mod h1:Qez74p6u2j+V5XJ4yo11Sxdnz0d4maUjTfIv6tF/3Yg=
 github.com/ndau/ndaumath v1.3.9 h1:f8wXHi/qG96FhBpnDa0WNHcqqonHaOKRCHACysS+q8I=
 github.com/ndau/ndaumath v1.3.9/go.mod h1:Bl/mFJXEj3S8PYuREB01QA3gLfIVLsJ1hwqbNZ3V4+c=
 github.com/ndau/noms v1.0.1 h1:Ztf0Zb0SOZdECIwB3tuorFfYFmojBg3sIOr+KDElesw=
