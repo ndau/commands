@@ -17,7 +17,8 @@ require (
 	github.com/ndau/json2msgp v1.1.1
 	github.com/ndau/metanode v1.9.5
 	github.com/ndau/msgp-well-known-types v0.1.2
-	github.com/ndau/ndau v1.28.1
+	github.com/ndau/ndau v1.28.5
+//	github.com/ndau/ndau v0.0.0-845690954bc3323ec3f26ce51ec4ccc1fd138a4f
 	github.com/ndau/ndaumath v1.3.9
 	github.com/ndau/noms v1.0.1
 	github.com/ndau/noms-util v1.0.1
