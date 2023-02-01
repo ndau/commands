@@ -42,7 +42,8 @@ echo "Building $NDAU_IMAGE_NAME..."
 if ! docker build \
        --build-arg COMMANDS_BRANCH="$COMMANDS_BRANCH" \
        --build-arg RUN_UNIT_TESTS="$RUN_UNIT_TESTS" \
-       --platform="linux/amd64" "linux/arm64" \
+       --platform="linux/amd64" \
+       --platform="linux/arm64" \
        "$IMAGE_DIR" \
        --tag="$NDAU_IMAGE_NAME:$SHA" \
        --tag="$NDAU_IMAGE_NAME:latest"
