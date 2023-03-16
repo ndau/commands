@@ -12,6 +12,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -42,10 +43,11 @@ var asscfilePath = flag.String("asscfile", "", "if set, create special accounts 
 // wipe and full reindex of the blockchain using the new format that the new search code expects.
 // That is why this is tied to code here, rather than a variable we pass in.
 // History:
-//   0 = initial version
-//   1 = new format for indxing transaction fee/sib
-//   2 = new index for transaction types
-//   3 = record price history, change date fmt, expand all prefixes
+//
+//	0 = initial version
+//	1 = new format for indxing transaction fee/sib
+//	2 = new index for transaction types
+//	3 = record price history, change date fmt, expand all prefixes
 const indexVersion = 3
 
 func getNdauhome() string {
@@ -126,6 +128,10 @@ func main() {
 		os.Exit(0)
 	}
 
+	go func() {
+		log.Println(http.ListenAndServe("localhost:8081", nil))
+	}()
+
 	app, err := ndau.NewApp(getDbSpec(), getIndexAddr(), indexVersion, *conf)
 	check(err)
 
@@ -147,7 +153,7 @@ func main() {
 			server.SetLogger(tmLogger)
 		}
 	*/
-	app.GetLogger().(*logrus.Logger).Level = logrus.InfoLevel
+	app.GetLogger().(*logrus.Logger).Level = logrus.DebugLevel
 	server.SetLogger(tmlog.NewTMLogger(os.Stdout))
 
 	err = server.Start()
