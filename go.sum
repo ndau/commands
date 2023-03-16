@@ -158,6 +158,8 @@ github.com/ndau/ndau v1.28.8-0.20230207143828-32e8d48ca1e7 h1:MpYaMlabTIhEBjGXKt
 github.com/ndau/ndau v1.28.8-0.20230207143828-32e8d48ca1e7/go.mod h1:Qez74p6u2j+V5XJ4yo11Sxdnz0d4maUjTfIv6tF/3Yg=
 github.com/ndau/ndau v1.28.8-0.20230316163337-3ac05b7d906e h1:yctVrUZis8lOIpVBuyK9RWMJYVln5QILPQwroS3oh3M=
 github.com/ndau/ndau v1.28.8-0.20230316163337-3ac05b7d906e/go.mod h1:Qez74p6u2j+V5XJ4yo11Sxdnz0d4maUjTfIv6tF/3Yg=
+github.com/ndau/ndau v1.28.8-0.20230316185446-b38f53e5f90a h1:TUicM8aixZt4dUIYU/wCMEW/xVvLzeHUNyHhj3Dz/7U=
+github.com/ndau/ndau v1.28.8-0.20230316185446-b38f53e5f90a/go.mod h1:Qez74p6u2j+V5XJ4yo11Sxdnz0d4maUjTfIv6tF/3Yg=
 github.com/ndau/ndaumath v1.3.9 h1:f8wXHi/qG96FhBpnDa0WNHcqqonHaOKRCHACysS+q8I=
 github.com/ndau/ndaumath v1.3.9/go.mod h1:Bl/mFJXEj3S8PYuREB01QA3gLfIVLsJ1hwqbNZ3V4+c=
 github.com/ndau/noms v1.0.1 h1:Ztf0Zb0SOZdECIwB3tuorFfYFmojBg3sIOr+KDElesw=
