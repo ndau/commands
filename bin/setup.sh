@@ -65,8 +65,8 @@ if [ -d "noms" ]; then
     ORIGIN_URL=$(git config --get remote.origin.url)
     if [ "$ORIGIN_URL" == "$NOMS_REPO" ]; then
         echo SETUP: Updating noms...
-        git checkout master
-        git pull origin master
+#        git checkout master
+#        git pull origin master
     else
         echo SETUP: Replacing unsupported noms repo...
         cd ..

@@ -80,9 +80,10 @@ build_tm() {
 
 build_noms() {
     echo building noms
+    echo "$NOMS_DIR"
     cd "$NOMS_DIR"
-    GO111MODULE=on go build ./"$NOMS_CMD"
-#    go build ./"$NOMS_CMD"
+#    GO111MODULE=on go build ./"$NOMS_CMD"
+    go build ./"$NOMS_CMD"
 }
 
 build_all() {
