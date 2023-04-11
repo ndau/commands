@@ -104,6 +104,9 @@ commands:
             eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
             # eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
 
+            ssh-keygen -R github.com
+            curl -L https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts
+
             # Clone the commands repo, used by enough jobs to make it worthwhile for every job.
             if [ -n "$CIRCLE_BRANCH" ]; then
               echo "CIRCLE_BRANCH = $CIRCLE_BRANCH"
