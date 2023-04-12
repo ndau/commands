@@ -293,7 +293,7 @@ workflows:
 general_config: &general_config
     working_directory: /commands
     docker:
-        - image: cimg/ubuntu-2204:2023.02.1
+        - image: cimg/base:current
     environment:
         shell: /bin/bash
         <<: *aws_defaults
