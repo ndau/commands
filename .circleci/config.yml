@@ -294,6 +294,7 @@ general_config: &general_config
     working_directory: /commands
     docker:
         - image: cimg/base:current
+          user: root
     environment:
         shell: /bin/bash
         <<: *aws_defaults
