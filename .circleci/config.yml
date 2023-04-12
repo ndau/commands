@@ -292,6 +292,8 @@ workflows:
 
 general_config: &general_config
     working_directory: /commands
+    docker:
+        - image: ubuntu-2204:2023.02.1
     environment:
         shell: /bin/bash
         <<: *aws_defaults
