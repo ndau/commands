@@ -20,9 +20,9 @@ services:
     depends_on:
       - redis
   ndaunode:
-    image: ndau/commands:latest
+    image: ndau/commands:2.0.2-alpha
     pull_policy: always
-    command: /bin/ndaunode -spec http://host.docker.internal:8000 -index host.docker.internal:6379 -addr 0.0.0.0:26650
+    command: /bin/ndaunode -spec http://172.17.0.1:8000 -index 172.17.0.1:6379 -addr 0.0.0.0:26650
     environment:
       NDAUHOME: /data/ndau
     ports:
@@ -37,18 +37,18 @@ services:
       noms:
           condition: service_healthy
   tendermint:
-    image: ndau/tendermint:latest
-    pull_policy: missing
+    image: ndau/tendermint:0.33.1.5.005
+    pull_policy: always
     #image: tendermint/tendermint:v0.33.0
     command:
       - node
       - --home=/data/tendermint
-      - --proxy_app=tcp://host.docker.internal:26650
+      - --proxy_app=tcp://172.17.0.1:26650
       - --p2p.laddr=tcp://0.0.0.0:26660
       - --rpc.laddr=tcp://0.0.0.0:26670
       - --consensus.create_empty_blocks=false
       - --consensus.create_empty_blocks_interval=10s
-      - --p2p.persistent_peers=49b08ed396e190717e6c2c64620cb4529f3519a7@testnet-0.ndau.tech:26660
+      - --p2p.persistent_peers=49b08ed396e190717e6c2c64620cb4529f3519a7@testnet-0.ndau.tech:26660,d6333397905f8d35504007f0aaf235039a2fbc2d@testnet-2.ndau.tech:26660,10127e995c8dba09fe8352d345f9add0d7e8297a@testnet-3.ndau.tech:26660
       - --log_level=info
     ports:
       - 26660:26660
@@ -73,7 +73,7 @@ services:
     image: ndau/commands:latest
     command: /bin/ndauapi
     environment:
-      NDAUAPI_NDAU_RPC_URL: http://host.docker.internal:26670
+      NDAUAPI_NDAU_RPC_URL: http://172.17.0.1:26670
     ports:
       - 3030:3030
     volumes:
