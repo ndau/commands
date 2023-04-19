@@ -35,7 +35,9 @@ build_ndau() {
 
     # Get the version info from git (we want the most recent tag that starts with v)
     # then use it to stamp the ndau executable as part of the build.
-    VERSION=$(git describe --long --tags --match="v*")
+    # EJM v1.5.3 cut everything starting from the first "-" character in the tag
+
+    VERSION=$(git describe --long --tags --match="v*" | cut -d "-" -f 1)
     echo "  VERSION=$VERSION"
     VERSION_PKG="$NDEV_SUBDIR/ndau/pkg/version"
     go version

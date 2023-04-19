@@ -11,7 +11,7 @@ mkdir "$BIN_DIR"
 cd "$NDEV_DIR"/commands || exit 1
 
 echo Building ndau...
-VERSION=$(git describe --long --tags --match="v*")
+VERSION=$(git describe --long --tags --match="v*" | cut -d "-" -f 1)
 echo "  VERSION=$VERSION"
 # VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
 VERSION_PKG="$NDEV_SUBDIR/ndau/pkg/version"
