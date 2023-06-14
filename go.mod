@@ -25,7 +25,7 @@ require (
 	github.com/ndau/rest v0.1.1
 	github.com/ndau/system_vars v1.5.6
 	github.com/ndau/writers v1.1.2
-	github.com/oneiro-ndev/tendermint.0.32.3 v0.32.5
+	github.com/oneiro-ndev/tendermint.0.32.3 v0.32.6
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.6.0
 	github.com/savaki/jq v0.0.0-20161209013833-0e6baecebbf8

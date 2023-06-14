@@ -164,8 +164,8 @@ github.com/ndau/system_vars v1.5.6 h1:R9ECYv/zusS9rJbSCVcS93bTbwjD9NaCca9uDch5Kb
 github.com/ndau/system_vars v1.5.6/go.mod h1:KC17HgEtDFBsvCvVxMKsbw1Yl+d9jQg4qtIYRJF8qTM=
 github.com/ndau/writers v1.1.2 h1:DdfR+2ee6kdHlzEZWxYS81BpGHMRj8ISey0SwJq6m54=
 github.com/ndau/writers v1.1.2/go.mod h1:WcMCQHHDXH4d14JkUfcWZeaJZIJX84e0iqVAJlUTcSI=
-github.com/oneiro-ndev/tendermint.0.32.3 v0.32.5 h1:75M0AvyK4YX4f0DA9sTNY+RCsNMt1QUWPEbEJOuMBT4=
-github.com/oneiro-ndev/tendermint.0.32.3 v0.32.5/go.mod h1:oRXZqZuqhvjU7Y7WvdsBhiyskULsJVTqunsFi6Mur0Y=
+github.com/oneiro-ndev/tendermint.0.32.3 v0.32.6 h1:s5oGfd2CRMGK/pbCMWifM//txOz3C0EAlLofoetJLWo=
+github.com/oneiro-ndev/tendermint.0.32.3 v0.32.6/go.mod h1:oRXZqZuqhvjU7Y7WvdsBhiyskULsJVTqunsFi6Mur0Y=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.7.0 h1:WSHQ+IS43OoUrWtD1/bbclrwK8TTH5hzp+umCiuxHgs=
 github.com/onsi/ginkgo v1.7.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
