@@ -21,8 +21,8 @@ import (
 	"github.com/ndau/ndau/pkg/ndau/config"
 	"github.com/ndau/ndau/pkg/version"
 	"github.com/oneiro-ndev/tendermint.0.32.3/abci/server"
+	tmlog "github.com/oneiro-ndev/tendermint.0.32.3/libs/log"
 	"github.com/sirupsen/logrus"
-	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 var useNh = flag.Bool("use-ndauhome", false, "if set, keep database within $NDAUHOME/ndau")

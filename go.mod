@@ -31,7 +31,6 @@ require (
 	github.com/savaki/jq v0.0.0-20161209013833-0e6baecebbf8
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.1
-	github.com/tendermint/tendermint v0.32.3
 	github.com/tinylib/msgp v1.1.8
 )
 
@@ -81,6 +80,7 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965 // indirect
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/tendermint/go-amino v0.14.1 // indirect
+	github.com/tendermint/tendermint v0.32.3 // indirect
 	github.com/tendermint/tm-db v0.1.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
