@@ -46,13 +46,13 @@ RUN cd "$NOMS_DIR"/noms && go build "$NOMS_DIR"/noms/cmd/noms && mv noms /bin
 FROM go_build AS build_tendermint
 # Use pre-built tendermint image
 # build tendermint because pre-built 0.32.6 doesn't exist
-ENV TENDERMINT_DIR=$GOPATH/src/github.com/tendermint
+ENV TENDERMINT_DIR=$GOPATH/src/github.com/oneiro-ndev
 ENV TENDERMINT_VER=v0.32.6
 RUN mkdir -p "$TENDERMINT_DIR"
-RUN cd "$TENDERMINT_DIR" && git clone https://github.com/tendermint/tendermint.git
-RUN cd "$TENDERMINT_DIR"/tendermint && git checkout "$TENDERMINT_VER"
-RUN cd "$TENDERMINT_DIR"/tendermint && GO111MODULE=on make build
-RUN cp "$TENDERMINT_DIR"/tendermint/build/tendermint /bin
+RUN cd "$TENDERMINT_DIR" && git clone https://github.com/oneiro-ndev/tendermint.0.32.3.git
+RUN cd "$TENDERMINT_DIR"/tendermint.0.32.3 && git checkout "$TENDERMINT_VER"
+RUN cd "$TENDERMINT_DIR"/tendermint.0.32.3 && GO111MODULE=on make build
+RUN cp "$TENDERMINT_DIR"/tendermint.0.32.3/build/tendermint /bin
 
 # Set up commands directories
 
