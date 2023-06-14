@@ -20,7 +20,7 @@ import (
 	config "github.com/ndau/ndau/pkg/tool.config"
 	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/pkg/errors"
-	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/oneiro-ndev/tendermint.0.32.3/rpc/client"
 )
 
 func orQuit(err error) {

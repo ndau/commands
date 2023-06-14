@@ -20,9 +20,9 @@ import (
 	"github.com/ndau/ndau/pkg/ndau"
 	"github.com/ndau/ndau/pkg/ndau/config"
 	"github.com/ndau/ndau/pkg/version"
+	"github.com/oneiro-ndev/tendermint.0.32.3/abci/server"
+	tmlog "github.com/oneiro-ndev/tendermint.0.32.3/libs/log"
 	"github.com/sirupsen/logrus"
-	"github.com/tendermint/tendermint/abci/server"
-	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 var useNh = flag.Bool("use-ndauhome", false, "if set, keep database within $NDAUHOME/ndau")
@@ -42,10 +42,11 @@ var asscfilePath = flag.String("asscfile", "", "if set, create special accounts 
 // wipe and full reindex of the blockchain using the new format that the new search code expects.
 // That is why this is tied to code here, rather than a variable we pass in.
 // History:
-//   0 = initial version
-//   1 = new format for indxing transaction fee/sib
-//   2 = new index for transaction types
-//   3 = record price history, change date fmt, expand all prefixes
+//
+//	0 = initial version
+//	1 = new format for indxing transaction fee/sib
+//	2 = new index for transaction types
+//	3 = record price history, change date fmt, expand all prefixes
 const indexVersion = 3
 
 func getNdauhome() string {

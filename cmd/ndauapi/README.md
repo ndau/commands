@@ -1909,7 +1909,7 @@ Configuration is provided with environment variables specifying the following
   * The protocol, host and port of the ndau node's rpc port. Required.
   * And the port to listen on.
 
-Communication between this program and tendermint is firstly done with the tool pkg and indirectly with [Tendermint's RPC client](https://github.com/tendermint/tendermint/tree/master/rpc/client), which is based on JSON RPC.
+Communication between this program and tendermint is firstly done with the tool pkg and indirectly with [Tendermint's RPC client](https://github.com/oneiro-ndev/tendermint.0.32.3/tree/master/rpc/client), which is based on JSON RPC.
 
 Testing depends on a test net to be available and as such are not very pure unit tests.
 

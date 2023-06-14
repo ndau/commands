@@ -11,7 +11,7 @@ package main
 
 import (
 	"github.com/alexflint/go-arg"
-	tmclient "github.com/tendermint/tendermint/rpc/client"
+	tmclient "github.com/oneiro-ndev/tendermint.0.32.3/rpc/client"
 )
 
 // Net prints the net currently connected to, or updates it

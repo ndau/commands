@@ -20,7 +20,7 @@ import (
 	"github.com/ndau/ndaumath/pkg/signature"
 	math "github.com/ndau/ndaumath/pkg/types"
 	"github.com/pkg/errors"
-	rpc "github.com/tendermint/tendermint/rpc/core/types"
+	rpc "github.com/oneiro-ndev/tendermint.0.32.3/rpc/core/types"
 )
 
 func getAccountCreateChild(verbose *bool, keys *int, emitJSON, compact *bool) func(*cli.Cmd) {

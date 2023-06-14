@@ -16,7 +16,7 @@ import (
 
 	cli "github.com/jawher/mow.cli"
 	"github.com/ndau/ndau/pkg/tool"
-	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/oneiro-ndev/tendermint.0.32.3/rpc/client"
 )
 
 func getInfo(verbose *bool) func(*cli.Cmd) {

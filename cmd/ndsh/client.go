@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/oneiro-ndev/tendermint.0.32.3/rpc/client"
 )
 
 const servicesURL = "https://s3.us-east-2.amazonaws.com/ndau-json/services.json"

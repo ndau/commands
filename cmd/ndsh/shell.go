@@ -26,7 +26,7 @@ import (
 	"github.com/ndau/ndaumath/pkg/address"
 	"github.com/ndau/ndaumath/pkg/signature"
 	"github.com/pkg/errors"
-	"github.com/tendermint/tendermint/rpc/client"
+	"github.com/oneiro-ndev/tendermint.0.32.3/rpc/client"
 )
 
 // Shell manages global state, dispatching commands, and other similar responsibilities.
