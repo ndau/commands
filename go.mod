@@ -15,9 +15,9 @@ require (
 	github.com/ndau/chaincode v1.2.10
 	github.com/ndau/genesis v1.2.1
 	github.com/ndau/json2msgp v1.1.1
-	github.com/ndau/metanode v1.9.5
+	github.com/ndau/metanode v0.9.6
 	github.com/ndau/msgp-well-known-types v0.1.2
-	github.com/ndau/ndau v1.28.8
+	github.com/ndau/ndau v0.28.8
 	github.com/ndau/ndaumath v1.3.9
 	github.com/ndau/noms v1.0.1
 	github.com/ndau/noms-util v1.0.1
@@ -80,7 +80,6 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965 // indirect
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/tendermint/go-amino v0.14.1 // indirect
-	github.com/tendermint/tendermint v0.32.3 // indirect
 	github.com/tendermint/tm-db v0.1.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
