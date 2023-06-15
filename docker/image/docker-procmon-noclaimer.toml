@@ -49,6 +49,11 @@ output = ""
     port = "$NDAUAPI_PORT"
 
 [[prologue]]
+    name = "claimerportclear"
+    type = "portavailable"
+    port = "$CLAIMER_PORT"
+
+[[prologue]]
     name = "redisdatadirexists"
     type = "ensuredir"
     path = "$REDIS_DATA_DIR"
@@ -97,7 +102,7 @@ output = ""
         name = "health"
         type = "redis"
         addr = "localhost:$REDIS_PORT"
-        period = "2s"
+        period = "60s"
 
     [[task.monitors]]
         name = "ready"
@@ -116,14 +121,14 @@ output = ""
     ]
     stdout = "$LOG_DIR/noms.log"
     stderr = "$LOG_DIR/noms.log"
-    maxstartup = "60s"
+    maxstartup = "5m"
     maxshutdown = "5s"
 
     [[task.monitors]]
         name = "health"
         type = "portinuse"
         port = "$NOMS_PORT"
-        period = "2s"
+        period = "60s"
 
     [[task.monitors]]
         name = "ready"
@@ -151,7 +156,7 @@ output = ""
         name = "health"
         type = "portinuse"
         port = "$NODE_PORT"
-        period = "2s"
+        period = "60s"
 
     [[task.monitors]]
         name = "ready"
@@ -171,14 +176,14 @@ output = ""
     ]
     stdout = "$LOG_DIR/tendermint.log"
     stderr = "$LOG_DIR/tendermint.log"
-    maxstartup = "60s"
+    maxstartup = "5m"
     maxshutdown = "5s"
 
     [[task.monitors]]
         name = "health"
         type = "portinuse"
         port = "$TM_RPC_PORT"
-        period = "5s"
+        period = "60s"
 
     [[task.monitors]]
         name = "ready"
@@ -199,13 +204,13 @@ output = ""
         type = "http"
         url = "http://localhost:$NDAUAPI_PORT/node/health"
         timeout = "1s"
-        period = "2s"
+        period = "60s"
 
     [[task.monitors]]
         name = "ready"
         type = "http"
         url = "http://localhost:$NDAUAPI_PORT/node/health"
-        timeout = "300ms"
+        timeout = "5s"
 
 [[task]]
     name = "snapshot-immediate"
