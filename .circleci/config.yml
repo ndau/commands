@@ -94,15 +94,18 @@ commands:
       - run:
           name: Common setup
           command: |
-            ssh remote-docker \<<EOF
-              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
-              sudo systemctl restart docker
-            EOF
+            #            ssh remote-docker \<<EOF
+            #              sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+            #              sudo systemctl restart docker
+            #            EOF
 
             # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
             # JSG update this to use "get-login-password" on new versions of aws cli
             eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
             # eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
+
+            ssh-keygen -R github.com
+            curl -L https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts
 
             # Clone the commands repo, used by enough jobs to make it worthwhile for every job.
             if [ -n "$CIRCLE_BRANCH" ]; then
@@ -290,7 +293,7 @@ workflows:
 general_config: &general_config
     working_directory: /commands
     docker:
-        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.12
+        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.14
     environment:
         shell: /bin/bash
         <<: *aws_defaults
