@@ -227,7 +227,7 @@ func BuildMonitor(mon map[string]string, logger logrus.FieldLogger) (func() Even
 	switch mon["type"] {
 	case "portavailable":
 		if mon["port"] == "" {
-			return nil, errors.New("portavailable requires a port parm")
+			return nil, errors.New("portavailable " + mon["name"] + " requires a port parm")
 		}
 		m := PortAvailable(mon["port"])
 		return m, nil
