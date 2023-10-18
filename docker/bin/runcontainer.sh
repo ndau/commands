@@ -13,9 +13,9 @@ GENERATED_GENESIS_SNAPSHOT="*"
 # Set to "4h", for example, to generate a snapshot every 4 hours.
 # Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
 # must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
-#SNAPSHOT_INTERVAL="4h"
-#AWS_ACCESS_KEY_ID=""
-#AWS_SECRET_ACCESS_KEY=""
+SNAPSHOT_INTERVAL="24h"
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then AWS_ACCESS_KEY_ID="`cat .aws/credentials | grep id`"; fi
+if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then AWS_SECRET_ACCESS_KEY="`cat .aws/credentials | grep secret`"; fi
 
 if [ -z "$1" ] || \
    [ -z "$2" ] || \

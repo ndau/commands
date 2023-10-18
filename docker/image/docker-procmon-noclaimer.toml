@@ -49,11 +49,6 @@ output = ""
     port = "$NDAUAPI_PORT"
 
 [[prologue]]
-    name = "claimerportclear"
-    type = "portavailable"
-    port = "$CLAIMER_PORT"
-
-[[prologue]]
     name = "redisdatadirexists"
     type = "ensuredir"
     path = "$REDIS_DATA_DIR"
