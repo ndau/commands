@@ -115,6 +115,7 @@ output = ""
     parent = "redis"
     path = "$BIN_DIR/noms"
     args = [
+        "--verbose",
         "serve",
         "--port=$NOMS_PORT",
         "$NOMS_DATA_DIR",
