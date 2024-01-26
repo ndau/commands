@@ -117,14 +117,14 @@ output = ""
     ]
     stdout = "$LOG_DIR/noms.log"
     stderr = "$LOG_DIR/noms.log"
-    maxstartup = "5m"
-    maxshutdown = "10s"
+    maxstartup = "10m"
+    maxshutdown = "1m"
 
     [[task.monitors]]
         name = "health"
         type = "portinuse"
         port = "$NOMS_PORT"
-        period = "5m"
+        period = "10m"
 
     [[task.monitors]]
         name = "ready"
@@ -152,7 +152,7 @@ output = ""
         name = "health"
         type = "portinuse"
         port = "$NODE_PORT"
-        period = "5m"
+        period = "10m"
 
     [[task.monitors]]
         name = "ready"
@@ -165,7 +165,7 @@ output = ""
     path = "$BIN_DIR/tendermint"
     args = [
         "node",
-        "--log_level=consensus:debug,mempool:debug,*:none",
+        "--log_level=consensus:info,mempool:info,*:none",
         "--home", "$TM_DATA_DIR",
         "--proxy_app", "tcp://localhost:$NODE_PORT",
         "--p2p.laddr", "tcp://0.0.0.0:$TM_P2P_PORT",
@@ -180,7 +180,7 @@ output = ""
         name = "health"
         type = "portinuse"
         port = "$TM_RPC_PORT"
-        period = "5m"
+        period = "10m"
 
     [[task.monitors]]
         name = "ready"
@@ -200,14 +200,14 @@ output = ""
         name = "health"
         type = "http"
         url = "http://localhost:$NDAUAPI_PORT/node/health"
-        timeout = "10s"
+        timeout = "30s"
         period = "5m"
 
     [[task.monitors]]
         name = "ready"
         type = "http"
         url = "http://localhost:$NDAUAPI_PORT/node/health"
-        timeout = "10s"
+        timeout = "30s"
 
 # claimer command-line arguments must use "=" as a separator, so they're single strings
 
@@ -221,7 +221,7 @@ output = ""
     ]
     stdout = "$LOG_DIR/claimer.log"
     stderr = "$LOG_DIR/claimer.log"
-    maxstartup = "10s"
+    maxstartup = "30s"
     maxshutdown = "2s"
 
     [[task.monitors]]
