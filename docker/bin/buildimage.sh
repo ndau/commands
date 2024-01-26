@@ -24,7 +24,7 @@ if [ -n "$(docker container ls -a -q -f ancestor=$NDAU_IMAGE_NAME)" ]; then
 fi
 
 # update shas for cache-busting when appropriate
-curl -s https://api.github.com/repos/attic-labs/noms/git/refs/heads/master |\
+curl -s https://api.github.com/repos/ndau/noms/git/refs/heads/master |\
     jq -r .object.sha > "$IMAGE_DIR/noms_sha"
 git rev-parse HEAD > "$IMAGE_DIR/commands_sha"
 if [ -n "$(git status --porcelain)" ]; then

@@ -229,7 +229,7 @@ if [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ] && [ "$NETWORK" != "localnet" ]; t
     done
 
     PEERS_P2P=$(join_by , "${p2ps[@]}")
-    PEERS_RPC=$(join_by , "${rpcs[@]}")
+     PEERS_RPC=$(join_by , "${rpcs[@]}")
 fi
 
 # Split the peers list by comma, then by colon.  Build up the "id@ip:port" persistent peer list.

@@ -41,7 +41,6 @@ export PEX=false
 export SEED_MODE=false
 
 # Repository locations.
-# export ATTICLABS_DIR="$GO_DIR"/src/github.com/attic-labs
 export NDEV_SUBDIR=github.com/ndau
 export NDEV_DIR="$GO_DIR/src/$NDEV_SUBDIR"
 export TM_DIR="$GO_DIR"/src/github.com/tendermint
