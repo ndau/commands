@@ -11,8 +11,9 @@ FROM alpine:3.19.1 AS combined_node_base
 RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
 #    python3 -m pip install remarshal && \
 #    python3 -m pip install awscli && \
-    remarshal awscli \
     update-ca-certificates 2>/dev/null
+RUN apk add --no-cache remarshal
+RUN apk add --no-cache awscli
 
 # Use a specific version of redis.
 COPY --from=redis:7.2.4-alpine3.19 [ \
