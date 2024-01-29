@@ -5,7 +5,7 @@
 # Nothing here will ever change based on ndev code changes, so it's safe to
 # build/cache it all right up top.
 
-FROM alpine:3.17.0 AS combined_node_base
+FROM alpine:3.19.1 AS combined_node_base
 
 # Install extra tools.
 RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
@@ -14,7 +14,7 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
     update-ca-certificates 2>/dev/null
 
 # Use a specific version of redis.
-COPY --from=redis:7.0.7-alpine [ \
+COPY --from=redis:7.2.4-alpine3.19 [ \
     "usr/local/bin/redis-server", \
     "usr/local/bin/redis-sentinel", \
     "usr/local/bin/redis-cli", \
@@ -26,7 +26,7 @@ COPY --from=redis:7.0.7-alpine [ \
 
 # The go_build stage has all the tooling necessary to clone repos and build
 # go programs.
-FROM golang:1.19.4-alpine3.17 AS go_build
+FROM golang:1.21.6-alpine3.19 AS go_build
 
 # Install extra tools.
 RUN apk add --no-cache bash git openssh make gcc libc-dev
