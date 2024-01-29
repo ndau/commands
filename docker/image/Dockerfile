@@ -8,13 +8,13 @@
 FROM alpine:3.19.1 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip awscli && \
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip && \
 #    python3 -m pip install remarshal && \
 #    python3 -m pip install awscli && \
     update-ca-certificates 2>/dev/null
 
 RUN python3 -m pip install remarshal
-# RUN python3 -m pip install awscli
+RUN python3 -m pip install awscli
 
 # Use a specific version of redis.
 COPY --from=redis:7.2.4-alpine3.19 [ \
