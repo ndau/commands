@@ -15,7 +15,8 @@ RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq pytho
 
 RUN python3 -m venv /path/to/venv
 RUN . /path/to/venv/bin/activate
-RUN pip install mypackage
+RUN python3 -m pip install remarshal
+RUN python3 -m pip install awscli
 RUN . /path/to/venv/deactivate
 
 # Use a specific version of redis.
