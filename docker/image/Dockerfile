@@ -8,7 +8,7 @@
 FROM alpine:3.19.1 AS combined_node_base
 
 # Install extra tools.
-RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip pipx
+RUN apk add --no-cache bash bind-tools ca-certificates curl openssl sed jq python3 py3-pip pipx toml2json json2toml
 RUN pipx install remarshal
 RUN pipx install awscli
 RUN update-ca-certificates 2>/dev/null
