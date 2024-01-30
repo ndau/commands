@@ -177,7 +177,7 @@ test_peer() {
     echo "Testing connection to peer $ip:$port..."
     if ! nc "$NC_TIMEOUT_FLAG" 5 -z "$ip" "$port"; then
         echo "Could not reach peer"
-        exit 1
+#        exit 1
     fi
 }
 
