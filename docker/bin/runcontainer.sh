@@ -223,9 +223,13 @@ if [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ] && [ "$NETWORK" != "localnet" ]; t
         exit 1
     fi
 
-    # The RPC connections must be made through https.
+    # The RPC connections must be made through https for mainnet, http for others.
     for node in $(seq 0 $((len - 1))); do
-        rpcs[$node]="https://${rpcs[$node]}"
+        if [ "$NETWORK" == "mainnet" ]; then
+            rpcs[$node]="https://${rpcs[$node]}"
+        else
+            rpcs[$node]="http://${rpcs[$node]}"
+        fi
     done
 
     PEERS_P2P=$(join_by , "${p2ps[@]}")
