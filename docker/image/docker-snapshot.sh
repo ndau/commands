@@ -52,6 +52,13 @@ SNAPSHOT_NAME="snapshot-$NETWORK-$HEIGHT"
 SNAPSHOT_PATH="$SCRIPT_DIR/$SNAPSHOT_NAME.tgz"
 
 cd "$ROOT_DIR" || exit 1
+# Use noms sync to clean up (and shrink) the database before the snapshot
+cd data
+mv noms noms-presync
+/image/bin/noms sync noms-presync::ndau noms::ndau
+rm -rf noms-presync
+cd ..
+# Make the snapshot tarball
 tar -czf "$SNAPSHOT_PATH" data
 
 # Put the TM live data directory back where it belongs
