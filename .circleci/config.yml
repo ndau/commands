@@ -1,4 +1,4 @@
-version: 2.1
+version: 3.0
 aws_defaults: &aws_defaults
   AWS_ACCOUNT: "578681496768"
   ECR_REGION: "us-east-1"
@@ -89,7 +89,8 @@ commands:
           fingerprints:
             - "7d:f1:8e:9e:99:9a:26:e2:4d:0c:66:f3:d4:74:10:e7"
       - setup_remote_docker:
-          version: 20.10.18
+          # version: 20.10.18
+          version: default
           docker_layer_caching: false
       - run:
           name: Common setup

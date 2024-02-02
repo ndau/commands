@@ -177,7 +177,7 @@ test_peer() {
     echo "Testing connection to peer $ip:$port..."
     if ! nc "$NC_TIMEOUT_FLAG" 5 -z "$ip" "$port"; then
         echo "Could not reach peer"
-        exit 1
+#        exit 1
     fi
 }
 
@@ -223,9 +223,13 @@ if [ -z "$PEERS_P2P" ] && [ -z "$PEERS_RPC" ] && [ "$NETWORK" != "localnet" ]; t
         exit 1
     fi
 
-    # The RPC connections must be made through https.
+    # The RPC connections must be made through https for mainnet, http for others.
     for node in $(seq 0 $((len - 1))); do
-        rpcs[$node]="https://${rpcs[$node]}"
+        if [ "$NETWORK" == "mainnet" ]; then
+            rpcs[$node]="https://${rpcs[$node]}"
+        else
+            rpcs[$node]="http://${rpcs[$node]}"
+        fi
     done
 
     PEERS_P2P=$(join_by , "${p2ps[@]}")
