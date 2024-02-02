@@ -352,7 +352,6 @@ docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
        -p "$API_PORT":"$INTERNAL_API_PORT" \
-       -p "6060":"6060" \
        --name "$CONTAINER" \
        -e "NETWORK=$NETWORK" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
