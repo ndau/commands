@@ -221,8 +221,8 @@ output = ""
     ]
     stdout = "$LOG_DIR/claimer.log"
     stderr = "$LOG_DIR/claimer.log"
-    maxstartup = "30s"
-    maxshutdown = "2s"
+    maxstartup = "1m"
+    maxshutdown = "10s"
 
     [[task.monitors]]
        name = "health"
