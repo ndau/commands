@@ -204,9 +204,9 @@ sed -i -E \
     -e 's/^(log_format =) (.*)/\1 "json"/' \
     -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
     -e 's/^(timeout_propose =) (.*)/\1 "60s"/' \
-    -e 's/^(timeout_prevote =) (.*)/\1 "60s"/' \
-    -e 's/^(timeout_precommit =) (.*)/\1 "60s"/' \
-    -e 's/^(timeout_commit =) (.*)/\1 "60s"/' \
+    -e 's/^(timeout_prevote =) (.*)/\1 "10s"/' \
+    -e 's/^(timeout_precommit =) (.*)/\1 "10s"/' \
+    -e 's/^(timeout_commit =) (.*)/\1 "10s"/' \
     -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "60s"/' \
     -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     "$TM_DATA_DIR/config/config.toml"
