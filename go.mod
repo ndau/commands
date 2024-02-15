@@ -15,9 +15,9 @@ require (
 	github.com/ndau/chaincode v1.2.10
 	github.com/ndau/genesis v1.2.1
 	github.com/ndau/json2msgp v1.1.1
-	github.com/ndau/metanode v1.9.5
+	github.com/ndau/metanode v1.10.0
 	github.com/ndau/msgp-well-known-types v0.1.2
-	github.com/ndau/ndau v1.29.3
+	github.com/ndau/ndau v1.29.4
 	github.com/ndau/ndaumath v1.3.9
 	github.com/ndau/noms v1.0.4
 	github.com/ndau/noms-util v1.0.1
@@ -28,10 +28,10 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.6.0
 	github.com/savaki/jq v0.0.0-20161209013833-0e6baecebbf8
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.1
 	github.com/tendermint/tendermint v0.32.3
-	github.com/tinylib/msgp v1.1.8
+	github.com/tinylib/msgp v1.1.9
 )
 
 require (
@@ -53,7 +53,7 @@ require (
 	github.com/go-logfmt/logfmt v0.3.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-zoo/bone v1.3.0 // indirect
-	github.com/gofrs/uuid v4.3.1+incompatible // indirect
+	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -76,17 +76,17 @@ require (
 	github.com/prometheus/common v0.0.0-20181020173914-7e9e6cabbd39 // indirect
 	github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20180503174638-e2704e165165 // indirect
-	github.com/sigurn/crc16 v0.0.0-20211026045750-20ab5afb07e3 // indirect
+	github.com/sigurn/crc16 v0.0.0-20240131213347-83fcde1e29d1 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20190318030020-c3a204f8e965 // indirect
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/tendermint/go-amino v0.14.1 // indirect
 	github.com/tendermint/tm-db v0.1.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.4.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/net v0.16.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto v0.0.0-20181029155118-b69ba1387ce2 // indirect
 	google.golang.org/grpc v1.22.0 // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
