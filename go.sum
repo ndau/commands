@@ -150,6 +150,8 @@ github.com/ndau/mt19937_64 v0.0.0-20210225193119-ef56a9b3b865 h1:OSWlYjwazYJmij0
 github.com/ndau/mt19937_64 v0.0.0-20210225193119-ef56a9b3b865/go.mod h1:prx682b5yN8rlpTsBkJCiVpsLOl7xnvLRaFT1oH9viw=
 github.com/ndau/ndau v1.29.1 h1:+LDWq6PH/Nsmett43Or3sUwH2GTlFu0OlHTo8kDF2mM=
 github.com/ndau/ndau v1.29.1/go.mod h1:Qez74p6u2j+V5XJ4yo11Sxdnz0d4maUjTfIv6tF/3Yg=
+github.com/ndau/ndau v1.29.3 h1:y0W1569ELXfscPaJDcj2rqgBTjoNM76YbUatW2xAHIM=
+github.com/ndau/ndau v1.29.3/go.mod h1:Qez74p6u2j+V5XJ4yo11Sxdnz0d4maUjTfIv6tF/3Yg=
 github.com/ndau/ndaumath v1.3.9 h1:f8wXHi/qG96FhBpnDa0WNHcqqonHaOKRCHACysS+q8I=
 github.com/ndau/ndaumath v1.3.9/go.mod h1:Bl/mFJXEj3S8PYuREB01QA3gLfIVLsJ1hwqbNZ3V4+c=
 github.com/ndau/noms v1.0.4 h1:/789g47ZOri1st7EPIkRJ+GCsD5mNzG7nlt8wuoUjaI=
