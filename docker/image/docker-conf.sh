@@ -231,7 +231,7 @@ if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
     echo "Configuring chain ID and app hash in tendermint..."
     sed -i -E \
         -e 's/"app_hash": ""/"app_hash": "'"$app_hash"'"/' \
-        -e 's/"chain_id": ""/"chain_id": "'"$NETWORK"'"/' \
+        -e 's/"chain_id": "mainnet"/"chain_id": "'"$NETWORK"'"/' \
         "$TM_DATA_DIR/config/genesis.json"
 fi
 
