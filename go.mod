@@ -19,7 +19,7 @@ require (
 	github.com/ndau/msgp-well-known-types v0.1.2
 	github.com/ndau/ndau v1.29.10
 	github.com/ndau/ndaumath v1.3.9
-	github.com/ndau/noms v1.0.4
+	github.com/ndau/noms v1.0.5
 	github.com/ndau/noms-util v1.0.1
 	github.com/ndau/o11y v1.3.5
 	github.com/ndau/rest v0.1.1

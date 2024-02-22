@@ -57,6 +57,7 @@ func predefinedConstants() map[string]string {
 		"EVENT_RECORDENDOWMENTNAV":     "25",
 		"EVENT_RESOLVESTAKE":           "26",
 		"EVENT_BURN":                   "27",
+		"EVENT_BURNANDMINT":			"28",
 		"EVENT_CHANGESCHEMA":           "30",
 		"LOCK_NOTICEPERIOD":            "91",
 		"LOCK_UNLOCKSON":               "92",
@@ -82,6 +83,7 @@ func predefinedConstants() map[string]string {
 		"TX_OWNERSHIP":                 "34",
 		"TX_STAKERULES":                "35",
 		"TX_RANDOM":                    "41",
+		"TX_ETHADDR":					"51",
 	}
 	return k
 }
