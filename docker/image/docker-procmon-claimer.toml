@@ -120,11 +120,15 @@ output = ""
     maxstartup = "10m"
     maxshutdown = "1m"
 
-    [[task.monitors]]
-        name = "health"
-        type = "portinuse"
-        port = "$NOMS_PORT"
-        period = "10m"
+# Don't kill noms if it's unresponsive. It can be unresponsive for
+# a very long time (many minutes) and killing it is almost certain
+# to corrupt the database
+
+#    [[task.monitors]]
+#        name = "health"
+#        type = "portinuse"
+#        port = "$NOMS_PORT"
+#        period = "10m"
 
     [[task.monitors]]
         name = "ready"
