@@ -15,9 +15,9 @@ require (
 	github.com/ndau/chaincode v1.2.10
 	github.com/ndau/genesis v1.2.1
 	github.com/ndau/json2msgp v1.1.1
-	github.com/ndau/metanode v1.10.0
+	github.com/ndau/metanode v1.10.1
 	github.com/ndau/msgp-well-known-types v0.1.2
-	github.com/ndau/ndau v1.29.10
+	github.com/ndau/ndau v1.29.11
 	github.com/ndau/ndaumath v1.3.9
 	github.com/ndau/noms v1.0.5
 	github.com/ndau/noms-util v1.0.1
