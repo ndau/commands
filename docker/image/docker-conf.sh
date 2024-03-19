@@ -182,6 +182,11 @@ cd "$BIN_DIR" || exit 1
 # If we're running on AWS, get our public IP address. If not do nothing - the
 # variable will be already set or undefined, both of which are OK.
 
+# NOTE: This means that if the AWS variable is set to allow a backup to S3,
+# the node is assumed to be running on AWS. If it isn't, then the "external_address"
+# field in the Tendermint config.toml will be set incorrectly and will need to
+# be removed (it would normally be blank).
+
 if [ ! -z "$AWS" ]; then
     PUBLIC_IP_ADDRESS=`curl -s http://169.254.169.254/latest/meta-data/public-ipv4`
     TM_EXTERNAL_ADDRESS="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_P2P_PORT"
