@@ -49,6 +49,7 @@ choose_ip_index() {
 
 # The PERSISTENT_PEERS may contain domain names.  Convert them to IPs.
 # Peers are comma-separated and each peer is of the form "id@ip_or_domain_name:port".
+
 persistent_peers=()
 IFS=',' read -ra peers <<< "$PERSISTENT_PEERS"
 peer_idx=0
@@ -64,30 +65,30 @@ for peer in "${peers[@]}"; do
     peer_port="${split[1]}"
 
     # If it's already an ip, leave it as is.  Otherwise, convert it from a domain name to an ip.
-#    if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         peer_ip="$ip_or_domain"
-#    else
-#        domain="$ip_or_domain"
-#
-#        # A sed-friendly whitespace pattern: space and tab.
-#        WHITE="[ 	]"
-#        # Look for "...A...<IP>".
-#        ips=($(dig +noall +answer "$domain" | \
-#                   sed -n -e 's|^.*'"$WHITE"'\{1,\}A'"$WHITE"'\{1,\}\(.*\)$|\1|p'))
-#        # Sort for a well-defined order.
-#        IFS=$'\n' ips=($(sort <<<"${ips[*]}"))
-#
-#        ips_len="${#ips[@]}"
-#        if [ "$ips_len" = 0 ]; then
-#            peer_ip=""
-#            echo "WARNING: Unable to find IP for $domain; skipping peer $peer"
-#        else
-#            # Choose an IP.  All A records are assumed to be valid.  That's their purpose.
-#            ip_idx=$(choose_ip_index $ips_len $peer_idx)
-#            peer_ip="${ips[$ip_idx]}"
-#            echo "Using IP $peer_ip for peer $peer"
-#        fi
-#    fi
+    else
+        domain="$ip_or_domain"
+
+        # A sed-friendly whitespace pattern: space and tab.
+        WHITE="[ 	]"
+        # Look for "...A...<IP>".
+        ips=($(dig +noall +answer "$domain" | \
+                   sed -n -e 's|^.*'"$WHITE"'\{1,\}A'"$WHITE"'\{1,\}\(.*\)$|\1|p'))
+        # Sort for a well-defined order.
+        IFS=$'\n' ips=($(sort <<<"${ips[*]}"))
+
+        ips_len="${#ips[@]}"
+        if [ "$ips_len" = 0 ]; then
+            peer_ip=""
+            echo "WARNING: Unable to find IP for $domain; skipping peer $peer"
+        else
+            # Choose an IP.  All A records are assumed to be valid.  That's their purpose.
+            ip_idx=$(choose_ip_index $ips_len $peer_idx)
+            peer_ip="${ips[$ip_idx]}"
+            echo "Using IP $peer_ip for peer $peer"
+        fi
+    fi
 
     # We only keep peers for which valid IPs were found.
     if [ ! -z "$peer_ip" ]; then
