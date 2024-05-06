@@ -183,9 +183,11 @@ cd "$BIN_DIR" || exit 1
 # variable will be already set or undefined, both of which are OK.
 
 if [ ! -z "$AWS" ]; then
-    PUBLIC_IP_ADDRESS=`curl -s http://169.254.169.254/latest/meta-data/public-ipv4`
+    AWS_TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+    PUBLIC_IP_ADDRESS=`curl -s -H "X-aws-ec2-metadata-token: $AWS_TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4`
     TM_EXTERNAL_ADDRESS="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_P2P_PORT"
-    TM_LADDR="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_RPC_PORT"
+    TM_RPC_LADDR="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_RPC_PORT"
+    TM_P2P_LADDR="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_P2P_PORT"
 fi
 
 echo Configuring tendermint...
@@ -199,7 +201,6 @@ sed -i -E \
     -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
     -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
     -e 's/^(external_address =) (.*)/\1 "'"$TM_EXTERNAL_ADDRESS"'"/' \
-    -e 's/^(laddr =) (.*)/\1 "'"$TM_LADDR"'"/' \
     -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
     -e 's/^(log_format =) (.*)/\1 "json"/' \
     -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
@@ -210,6 +211,16 @@ sed -i -E \
     -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "90s"/' \
     -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     "$TM_DATA_DIR/config/config.toml"
+
+#P2P_STANZA=`grep -n '\[p2p\]' config.toml | cut -d ":" -f 1`
+#RPC_STANZA=`grep -n '\[rpc\]' config.toml | cut -d ":" -f 1`
+#echo $P2P_STANZA
+#echo $RPC_STANZA
+
+sed -i -E \
+    -e '149s/^(laddr =) (.*)/\1 "'"$TM_P2P_LADDR"'"/' \
+    -e '72s/^(laddr =) (.*)/\1 "'"$TM_RPC_LADDR"'"/' \
+    "$TM_DATA_DIR/config/config.toml"  
 
 if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
     echo "Generating genesis noms data..."
