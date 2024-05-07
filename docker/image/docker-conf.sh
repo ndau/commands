@@ -185,8 +185,6 @@ cd "$BIN_DIR" || exit 1
 if [ ! -z "$AWS" ]; then
     AWS_TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
     PUBLIC_IP_ADDRESS=`curl -s -H "X-aws-ec2-metadata-token: $AWS_TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4`
-    TM_EXTERNAL_ADDRESS="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_P2P_PORT"
-    TM_RPC_LADDR="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_RPC_PORT"
     TM_P2P_LADDR="tcp:\\/\\/$PUBLIC_IP_ADDRESS:$TM_P2P_PORT"
 fi
 
@@ -194,33 +192,13 @@ echo Configuring tendermint...
 # This will init all the config for the current container.
 # It will leave genesis.json alone, or create one if we're generating a genesis snapshot.
 ./tendermint init --home "$TM_DATA_DIR"
+
+cp "$IMAGE_DIR"/config.toml "$TM_DATA_DIR"
+
 sed -i -E \
-    -e 's/^(create_empty_blocks =) (.*)/\1 false/' \
-    -e 's/^(addr_book_strict =) (.*)/\1 false/' \
-    -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
-    -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
-    -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
-    -e 's/^(external_address =) (.*)/\1 "'"$TM_EXTERNAL_ADDRESS"'"/' \
-    -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
-    -e 's/^(log_format =) (.*)/\1 "json"/' \
-    -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
-    -e 's/^(timeout_propose =) (.*)/\1 "5s"/' \
-    -e 's/^(timeout_prevote =) (.*)/\1 "5s"/' \
-    -e 's/^(timeout_precommit =) (.*)/\1 "5s"/' \
-    -e 's/^(timeout_commit =) (.*)/\1 "5s"/' \
-    -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "90s"/' \
-    -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
+    -e 's/NODENAME/"'"$NODE_ID"'"/g' \
+    -e 's/P2PADDR/"'"$TM_P2P_LADDR"'"/g' \
     "$TM_DATA_DIR/config/config.toml"
-
-#P2P_STANZA=`grep -n '\[p2p\]' config.toml | cut -d ":" -f 1`
-#RPC_STANZA=`grep -n '\[rpc\]' config.toml | cut -d ":" -f 1`
-#echo $P2P_STANZA
-#echo $RPC_STANZA
-
-sed -i -E \
-    -e '149s/^(laddr =) (.*)/\1 "'"$TM_P2P_LADDR"'"/' \
-    -e '72s/^(laddr =) (.*)/\1 "'"$TM_RPC_LADDR"'"/' \
-    "$TM_DATA_DIR/config/config.toml"  
 
 if [ "$SNAPSHOT_NAME" = "$GENERATED_GENESIS_SNAPSHOT" ]; then
     echo "Generating genesis noms data..."
