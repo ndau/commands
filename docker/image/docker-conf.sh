@@ -193,10 +193,24 @@ echo Configuring tendermint...
 # It will leave genesis.json alone, or create one if we're generating a genesis snapshot.
 ./tendermint init --home "$TM_DATA_DIR"
 
-cp "$IMAGE_DIR"/config.toml "$TM_DATA_DIR"
+cp "$IMAGE_DIR"/tm-config.toml "$TM_DATA_DIR"/config.toml
 
 sed -i -E \
-    -e 's/NODENAME/"'"$NODE_ID"'"/g' \
+    -e 's/^(create_empty_blocks =) (.*)/\1 false/' \
+    -e 's/^(addr_book_strict =) (.*)/\1 false/' \
+    -e 's/^(pex =) (.*)/\1 '"$PEX"'/' \
+    -e 's/^(seeds =) (.*)/\1 "'"$SEEDS"'"/' \
+    -e 's/^(seed_mode =) (.*)/\1 '"$SEED_MODE"'/' \
+    -e 's/^(external_address =) (.*)/\1 "'"$TM_EXTERNAL_ADDRESS"'"/' \
+    -e 's/^(allow_duplicate_ip =) (.*)/\1 true/' \
+    -e 's/^(log_format =) (.*)/\1 "json"/' \
+    -e 's/^(log_level =) (.*)/\1 "'"$TM_LOG_LEVEL"'"/' \
+    -e 's/^(timeout_propose =) (.*)/\1 "5s"/' \
+    -e 's/^(timeout_prevote =) (.*)/\1 "5s"/' \
+    -e 's/^(timeout_precommit =) (.*)/\1 "5s"/' \
+    -e 's/^(timeout_commit =) (.*)/\1 "5s"/' \
+    -e 's/^(timeout_broadcast_tx_commit =) (.*)/\1 "90s"/' \
+    -e 's/^(moniker =) (.*)/\1 "'"$NODE_ID"'"/' \
     -e 's/P2PADDR/"'"$TM_P2P_LADDR"'"/g' \
     "$TM_DATA_DIR/config/config.toml"
 
