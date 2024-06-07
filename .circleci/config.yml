@@ -286,7 +286,7 @@ general_config: &general_config
     working_directory: /commands
     docker:
 #        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.12
-        - image: cimg/base
+        - image: cimg/base:2024.06
     environment:
         shell: /bin/bash
         <<: *aws_defaults
