@@ -190,7 +190,7 @@ if __name__ == "__main__":
         node = name
 
     genesis = "2019-05-11T00:00:00Z"
-    timeNow = datetime.datetime.utcnow().isoformat("T") + "Z"
+    timeNow = datetime.datetime.now(datetime.UTC).isoformat("T") + "Z"
     times = {
         "start": genesis,
         "first": genesis,

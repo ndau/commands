@@ -101,7 +101,7 @@ def parse_services(network_name, node_name, services_json):
                 sys.exit(f"Unable to find api object in {node_obj}")
             if not rpc_name in node_obj:
                 sys.exit(f"Unable to find rpc object in {node_obj}")
-            if network_name == "localnet":
+            if network_name == "localnet" or network_name == "testnet":
                 apis[node_obj_name] = f"http://{node_obj[api_name]}"
                 rpcs[node_obj_name] = f"http://{node_obj[rpc_name]}"
             else:

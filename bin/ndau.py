@@ -39,7 +39,7 @@ def getData(base, path, parms=None):
     """ this is a general-purpose query helper """
     u = base + path
     try:
-        r = requests.get(u, timeout=3, params=parms)
+        r = requests.get(u, timeout=300, params=parms)
         # print(r.url)
     except requests.Timeout:
         print(f"{time.asctime()}: Timeout fetching {u} {parms}")

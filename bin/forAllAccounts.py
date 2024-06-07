@@ -205,7 +205,7 @@ if __name__ == "__main__":
     after = "-"
     output = []
     # we need the current time to evaluate "islocked"
-    timeNow = datetime.datetime.utcnow().isoformat("T")
+    timeNow = datetime.datetime.now(datetime.UTC).isoformat("T")
     while after != "":
         qp = dict(limit=limit, after=after)
         result = ndau.getData(node, "/account/list", parms=qp)
