@@ -65,9 +65,10 @@ for peer in "${peers[@]}"; do
     peer_port="${split[1]}"
 
     # If it's already an ip, leave it as is.  Otherwise, convert it from a domain name to an ip.
-    if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+#    if [[ "$ip_or_domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         peer_ip="$ip_or_domain"
-    else
+#    else
+    if false; then
         domain="$ip_or_domain"
 
         # A sed-friendly whitespace pattern: space and tab.
