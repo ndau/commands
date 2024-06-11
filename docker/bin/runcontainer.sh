@@ -14,6 +14,8 @@ GENERATED_GENESIS_SNAPSHOT="*"
 # Only the latest snapshot will exist in the container at a time, and the AWS_* env vars
 # must be set in order for each snapshot to be uploaded to the ndau-snapshots S3 bucket.
 SNAPSHOT_INTERVAL=""
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then AWS_ACCESS_KEY_ID="`cat .aws/credentials | grep id`"; fi
+if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then AWS_SECRET_ACCESS_KEY="`cat .aws/credentials | grep secret`"; fi
 
 if [ -z "$1" ] || \
    [ -z "$2" ] || \
@@ -352,6 +354,7 @@ docker create \
        -p "$P2P_PORT":"$INTERNAL_P2P_PORT" \
        -p "$RPC_PORT":"$INTERNAL_RPC_PORT" \
        -p "$API_PORT":"$INTERNAL_API_PORT" \
+       -p "6060":"6060" \
        --name "$CONTAINER" \
        -e "NETWORK=$NETWORK" \
        -e "HONEYCOMB_DATASET=$HONEYCOMB_DATASET" \
