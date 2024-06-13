@@ -149,19 +149,19 @@ tls_key_file = ""
 [p2p]
 
 # Address to listen for incoming connections
-laddr = "tcp://:26660"
+laddr = "tcp://:26661"
 
 # Address to advertise to peers for them to dial
 # If empty, will use the same port as the laddr,
 # and will introspect on the listener or use UPnP
 # to figure out the address.
-external_address = "tcp://P2PADDR:26660"
+external_address = "tcp://P2PADDR:26661"
 
 # Comma separated list of seed nodes to connect to
 seeds = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "49b08ed396e190717e6c2c64620cb4529f3519a7@mainnet-0.ndau.tech:26662,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@mainnet-1.ndau.tech:26662,d6333397905f8d35504007f0aaf235039a2fbc2d@mainnet-2.ndau.tech:26662,10127e995c8dba09fe8352d345f9add0d7e8297a@mainnet-3.ndau.tech:26662,9ccc286a6099b2187b349d38db55f9d81ac6c5ea@mainnet-4.ndau.tech:26662"
+persistent_peers = "49b08ed396e190717e6c2c64620cb4529f3519a7@mainnet-0.ndau.tech:26661,3823adecffd2d8bd7cd4ff9752ff70de5b889af8@mainnet-1.ndau.tech:26661,d6333397905f8d35504007f0aaf235039a2fbc2d@mainnet-2.ndau.tech:26661,10127e995c8dba09fe8352d345f9add0d7e8297a@mainnet-3.ndau.tech:26661,9ccc286a6099b2187b349d38db55f9d81ac6c5ea@mainnet-4.ndau.tech:26661"
 
 # UPNP port forwarding
 upnp = false
