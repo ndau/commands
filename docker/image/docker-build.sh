@@ -11,7 +11,8 @@ mkdir "$BIN_DIR"
 cd "$NDEV_DIR"/commands || exit 1
 
 echo Building ndau...
-VERSION=$(git describe --long --tags --match="v*")
+# Create git version string without any "-jobs_xxxx" text
+VERSION=$(git describe --long --tags --match="v*" | sed -e 's/jobs_[A-Za-z]*-//')
 echo "  VERSION=$VERSION"
 # VERSION_PKG="$NDEV_SUBDIR/commands/vendor/$NDEV_SUBDIR/ndau/pkg/version"
 VERSION_PKG="$NDEV_SUBDIR/ndau/pkg/version"
