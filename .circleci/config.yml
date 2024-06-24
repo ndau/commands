@@ -294,7 +294,7 @@ workflows:
 general_config: &general_config
     working_directory: /home/circleci/commands
     docker:
-       - image: cimg/base:2024.06
+       - image: cimg/aws:2024.03
 #        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.14
     environment:
         shell: /bin/bash
