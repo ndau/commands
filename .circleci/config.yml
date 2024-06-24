@@ -356,7 +356,12 @@ jobs:
 
             # Create the machine_user_key file for buildimage.sh to use.
             echo -e "$machine_user_key" > ~/commands/machine_user_key
-            ls -l ~; ls -l ~/commands; ls -l ~/project 
+            echo "~"
+            ls -l ~
+            echo "~/commands~""
+            ls -l ~/commands
+            echo "~/project"
+            ls -l ~/project 
             # Run unit tests at build-time.  The Go code exists at that point and this saves us
             # from having an extra job when "build" and "test" are generally done concurrently,
             # and both are required to pass.  There is no case where we want one w/o the other.
