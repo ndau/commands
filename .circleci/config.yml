@@ -118,14 +118,14 @@ commands:
               echo "CIRCLE_TAG = $CIRCLE_TAG"
               COMMANDS_BRANCH_OR_TAG="$CIRCLE_TAG"
             fi
-            #git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /home/ubuntu/commands
+            #git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" ~/commands
 
-            #cd /home/ubuntu/commands
+            #cd ~/commands
             #SHA=$(git rev-parse --short $CIRCLE_SHA1)
 
             # Save these off so jobs don't have to deduce them again.
             echo "$SHA" > ~/sha.txt
-            #echo "$COMMANDS_BRANCH_OR_TAG" > /home/ubuntu/commands_branch_or_tag.txt
+            #echo "$COMMANDS_BRANCH_OR_TAG" > ~/commands_branch_or_tag.txt
 
   setup_ecs_and_identities:
     description: |
@@ -186,7 +186,7 @@ commands:
                     echo "$SC_NODE_EC2_PEM" | base64 -d > "$pem"
                     chmod 600 "$pem"
 
-                    if /home/ubuntu/commands/automation/snapshot_node.py devnet-4; then
+                    if ~/commands/automation/snapshot_node.py devnet-4; then
                         echo "Snapshot taken on devnet-4"
                     else
                         # The deploy will just use whatever was in the last snapshot.
@@ -202,7 +202,7 @@ commands:
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
               if [ -f  "~/node-identities/node-identity-$i.tgz" ]; then
                 echo "Found node identity at: ~/node-identities/node-identity-$i.tgz"
-                /home/ubuntu/commands/deploy/deploy-node.sh $i $NETWORK_NAME ~/node-identities &
+                ~/commands/deploy/deploy-node.sh $i $NETWORK_NAME ~/node-identities &
                 pid="$!"
                 pids=("${pids[@]}" "$pid")
                 echo "Deploying $NETWORK_NAME-$i on pid $pid"
@@ -352,15 +352,15 @@ jobs:
       - run:
           name: Build ndauimage
           command: |
-            COMMANDS_BRANCH_OR_TAG=$(cat /home/ubuntu/commands_branch_or_tag.txt)
+            COMMANDS_BRANCH_OR_TAG=$(cat ~/commands_branch_or_tag.txt)
 
             # Create the machine_user_key file for buildimage.sh to use.
-            echo -e "$machine_user_key" > /home/ubuntu/commands/machine_user_key
+            echo -e "$machine_user_key" > ~/commands/machine_user_key
 
             # Run unit tests at build-time.  The Go code exists at that point and this saves us
             # from having an extra job when "build" and "test" are generally done concurrently,
             # and both are required to pass.  There is no case where we want one w/o the other.
-            RUN_UNIT_TESTS=1 /home/ubuntu/commands/docker/bin/buildimage.sh "$COMMANDS_BRANCH_OR_TAG"
+            RUN_UNIT_TESTS=1 ~/commands/docker/bin/buildimage.sh "$COMMANDS_BRANCH_OR_TAG"
       - save_image:
           img_name: ndauimage:latest
           key: "{{ .Revision }}-ndauimage"
@@ -383,7 +383,7 @@ jobs:
             AWS_ACCESS_KEY_ID="" \
             AWS_SECRET_ACCESS_KEY="" \
             SLACK_DEPLOYS_KEY="" \
-              /home/ubuntu/commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
+              ~/commands/docker/bin/runcontainer.sh mainnet "$nodename" 26660 26670 3030 \
                 "" "$snapshot"
 
             echo
@@ -441,7 +441,7 @@ jobs:
             echo
 
             # Stop and remove the container instance for the catchup test node.
-            /home/ubuntu/commands/docker/bin/removecontainer.sh "$nodename"
+            ~/commands/docker/bin/removecontainer.sh "$nodename"
 
             echo
 
@@ -584,7 +584,7 @@ jobs:
                 --entrypoint "~/integration.sh" \
                 -e "IP=$ip" \
                 ndauimage
-            docker cp /home/ubuntu/commands/deploy/integration.sh "$container":~/integration.sh
+            docker cp ~/commands/deploy/integration.sh "$container":~/integration.sh
             docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
             docker cp /system_accounts.toml "$container":/system_accounts.toml
             docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \
