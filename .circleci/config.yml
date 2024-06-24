@@ -102,7 +102,7 @@ commands:
             # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
             # JSG update this to use "get-login-password" on new versions of aws cli
             whoami; pwd; ls -l /home
-            eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
+            # eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
             # eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
 
             ssh-keygen -R github.com
