@@ -293,7 +293,7 @@ workflows:
 general_config: &general_config
     working_directory: /commands
     docker:
-       - image: ubuntu-2404:2024.05.1
+       - image: cimg/base:2024.06
 #        - image: 578681496768.dkr.ecr.us-east-1.amazonaws.com/circle-ci:0.0.14
     environment:
         shell: /bin/bash
