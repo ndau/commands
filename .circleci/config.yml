@@ -105,7 +105,7 @@ commands:
             # JSG update this to use "get-login-password" on new versions of aws cli
 
             # eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
-            # eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
+            eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
 
             touch ~/.ssh/known_hosts
             ls -l ~/.ssh
@@ -465,6 +465,8 @@ jobs:
           name: Push ndauimage to ECR
           command: |
             SHA=$(cat ~/sha.txt)
+            echo $AWS_ACCESS_KEY_ID
+            echo $AWS_SECRET_ACCESS_KEY
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
             docker save ndauimage:$SHA -o ~/ndauimage-$SHA.docker
