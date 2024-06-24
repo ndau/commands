@@ -101,7 +101,7 @@ commands:
 
             # AWS ECR Login, used by enough jobs to make it worthwhile for every job.
             # JSG update this to use "get-login-password" on new versions of aws cli
-            whoami; pwd; ls -l /home
+
             # eval $(aws ecr get-login --no-include-email --region ${ECR_REGION})
             # eval $(aws ecr get-login-password | docker login --username AWS --password-stdin ${AWS_ACCOUNT}.dkr.ecr.${ECR_REGION}.amazonaws.com)
 
@@ -118,10 +118,10 @@ commands:
               echo "CIRCLE_TAG = $CIRCLE_TAG"
               COMMANDS_BRANCH_OR_TAG="$CIRCLE_TAG"
             fi
-            #git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" ~/commands
+            git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" ~/commands
 
-            #cd ~/commands
-            #SHA=$(git rev-parse --short $CIRCLE_SHA1)
+            cd ~/commands
+            SHA=$(git rev-parse --short $CIRCLE_SHA1)
 
             # Save these off so jobs don't have to deduce them again.
             echo "$SHA" > ~/sha.txt
@@ -356,12 +356,7 @@ jobs:
 
             # Create the machine_user_key file for buildimage.sh to use.
             echo -e "$machine_user_key" > ~/commands/machine_user_key
-            echo "~"
-            ls -l ~
-            echo "~/commands~"
-            ls -l ~/commands
-            echo "~/project"
-            ls -l ~/project 
+
             # Run unit tests at build-time.  The Go code exists at that point and this saves us
             # from having an extra job when "build" and "test" are generally done concurrently,
             # and both are required to pass.  There is no case where we want one w/o the other.
