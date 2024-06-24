@@ -58,8 +58,8 @@ commands:
           name: Save docker image to cache
           command: |
             # ensure cache directory
-            [ -d ~/docker-cache ] || mkdir -p ~/docker-cache
-            docker save -o "~/docker-cache/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
+            # [ -d ~/docker-cache ] || mkdir -p ~/docker-cache
+            docker save -o "~/<< parameters.img_name >>.docker" "<< parameters.img_name >>"
       # saves this path with this cache key
       - save_cache:
           key: << parameters.key >>
@@ -79,7 +79,7 @@ commands:
       - run:
           name: Load docker image from cache
           command: |
-            docker load -i "~/docker-cache/<< parameters.img_name >>.docker"
+            docker load -i "~/<< parameters.img_name >>.docker"
 
   setup:
     description: "These steps should be run before any real ci/cd actions"
