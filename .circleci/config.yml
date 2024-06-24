@@ -358,7 +358,7 @@ jobs:
             echo -e "$machine_user_key" > ~/commands/machine_user_key
             echo "~"
             ls -l ~
-            echo "~/commands~""
+            echo "~/commands~"
             ls -l ~/commands
             echo "~/project"
             ls -l ~/project 
