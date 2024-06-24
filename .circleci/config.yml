@@ -116,14 +116,14 @@ commands:
               echo "CIRCLE_TAG = $CIRCLE_TAG"
               COMMANDS_BRANCH_OR_TAG="$CIRCLE_TAG"
             fi
-            git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /commands
+            #git clone $CIRCLE_REPOSITORY_URL -b "$COMMANDS_BRANCH_OR_TAG" /commands
 
-            cd /commands
-            SHA=$(git rev-parse --short $CIRCLE_SHA1)
+            #cd /commands
+            #SHA=$(git rev-parse --short $CIRCLE_SHA1)
 
             # Save these off so jobs don't have to deduce them again.
             echo "$SHA" > /root/sha.txt
-            echo "$COMMANDS_BRANCH_OR_TAG" > /root/commands_branch_or_tag.txt
+            #echo "$COMMANDS_BRANCH_OR_TAG" > /root/commands_branch_or_tag.txt
 
   setup_ecs_and_identities:
     description: |
