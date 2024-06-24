@@ -125,7 +125,7 @@ commands:
 
             # Save these off so jobs don't have to deduce them again.
             echo "$SHA" > ~/sha.txt
-            #echo "$COMMANDS_BRANCH_OR_TAG" > ~/commands_branch_or_tag.txt
+            echo "$COMMANDS_BRANCH_OR_TAG" > ~/commands_branch_or_tag.txt
 
   setup_ecs_and_identities:
     description: |
