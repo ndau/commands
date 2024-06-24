@@ -107,8 +107,6 @@ commands:
 
             touch ~/.ssh/known_hosts
             ls -l ~/.ssh
-            jq --help
-            sed --help
             ssh-keygen -R github.com
             curl -L https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts
 
@@ -126,7 +124,7 @@ commands:
             #SHA=$(git rev-parse --short $CIRCLE_SHA1)
 
             # Save these off so jobs don't have to deduce them again.
-            echo "$SHA" > /root/sha.txt
+            echo "$SHA" > ~/sha.txt
             #echo "$COMMANDS_BRANCH_OR_TAG" > /home/ubuntu/commands_branch_or_tag.txt
 
   setup_ecs_and_identities:
@@ -150,8 +148,8 @@ commands:
             AWS_ACCESS_KEY_ID=$AWS_DEPLOY_SECRETS_ID \
             AWS_SECRET_ACCESS_KEY=$AWS_DEPLOY_SECRETS_KEY \
               aws s3 cp "s3://ndau-deploy-secrets/$S3_NODE_ID_ARCHIVE" "./$S3_NODE_ID_ARCHIVE"
-            mkdir -p /root/node-identities
-            tar xzvf "./$S3_NODE_ID_ARCHIVE" -C /root/node-identities
+            mkdir -p ~/node-identities
+            tar xzvf "./$S3_NODE_ID_ARCHIVE" -C ~/node-identities
 
   deploy-net:
     description: Deploy using ECS
@@ -179,12 +177,12 @@ commands:
                     # If we ever regenerate it (which is currently a manual process), and it winds
                     # up with a different height postfix, we'll need to update this to match.
                     echo "Resetting devnet to genesis..."
-                    echo "snapshot-devnet-27" > /root/latest-devnet.txt
-                    aws s3 cp /root/latest-devnet.txt s3://ndau-snapshots/latest-devnet.txt
+                    echo "snapshot-devnet-27" > ~/latest-devnet.txt
+                    aws s3 cp ~/latest-devnet.txt s3://ndau-snapshots/latest-devnet.txt
                 else
                     # Take a snapshot before we deploy, so we don't lose any data.
                     # snapshot_node.py looks for the pem file in ~/.ssh, which is /root in Circle.
-                    pem=/root/.ssh/sc-node-ec2.pem
+                    pem=~/.ssh/sc-node-ec2.pem
                     echo "$SC_NODE_EC2_PEM" | base64 -d > "$pem"
                     chmod 600 "$pem"
 
@@ -200,11 +198,11 @@ commands:
             fi
 
             pids=()
-            export SHA=$(cat /root/sha.txt)
+            export SHA=$(cat ~/sha.txt)
             for i in $( seq 0 9 ); do # automatically deploy up to 10 nodes
-              if [ -f  "/root/node-identities/node-identity-$i.tgz" ]; then
-                echo "Found node identity at: /root/node-identities/node-identity-$i.tgz"
-                /home/ubuntu/commands/deploy/deploy-node.sh $i $NETWORK_NAME /root/node-identities &
+              if [ -f  "~/node-identities/node-identity-$i.tgz" ]; then
+                echo "Found node identity at: ~/node-identities/node-identity-$i.tgz"
+                /home/ubuntu/commands/deploy/deploy-node.sh $i $NETWORK_NAME ~/node-identities &
                 pid="$!"
                 pids=("${pids[@]}" "$pid")
                 echo "Deploying $NETWORK_NAME-$i on pid $pid"
@@ -464,17 +462,17 @@ jobs:
       - run:
           name: Push ndauimage to ECR
           command: |
-            SHA=$(cat /root/sha.txt)
+            SHA=$(cat ~/sha.txt)
             # upload the image to S3 for public access
             docker tag ndauimage ndauimage:$SHA
-            docker save ndauimage:$SHA -o /root/ndauimage-$SHA.docker
-            gzip -f /root/ndauimage-$SHA.docker
-            aws s3 cp /root/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
+            docker save ndauimage:$SHA -o ~/ndauimage-$SHA.docker
+            gzip -f ~/ndauimage-$SHA.docker
+            aws s3 cp ~/ndauimage-$SHA.docker.gz s3://ndau-images/ndauimage-$SHA.docker.gz
             # update the current-*.txt file for the network we're deploying to
             # but only if we're deploying to master (e.g. don't do this for tagged pushes)
             if [ "$CIRCLE_BRANCH" = "master" ]; then
-                echo $SHA > /root/current-$NETWORK_NAME.txt
-                aws s3 cp /root/current-$NETWORK_NAME.txt \
+                echo $SHA > ~/current-$NETWORK_NAME.txt
+                aws s3 cp ~/current-$NETWORK_NAME.txt \
                     s3://ndau-images/current-$NETWORK_NAME.txt
             fi
             # retag built image
@@ -583,10 +581,10 @@ jobs:
             container=tests-container
             docker create \
                 --name "$container" \
-                --entrypoint "/root/integration.sh" \
+                --entrypoint "~/integration.sh" \
                 -e "IP=$ip" \
                 ndauimage
-            docker cp /home/ubuntu/commands/deploy/integration.sh "$container":/root/integration.sh
+            docker cp /home/ubuntu/commands/deploy/integration.sh "$container":~/integration.sh
             docker cp localnet-0:/image/system_accounts.toml /system_accounts.toml
             docker cp /system_accounts.toml "$container":/system_accounts.toml
             docker cp localnet-0:/image/data/tendermint/config/priv_validator_key.json \
